@@ -1,0 +1,556 @@
+# SM の祝日（2020〜2050年、言語: it）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Capodanno
+2020/1/6,Epifania
+2020/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2020/3/25,Anniversario dell'Arengo
+2020/4/1,Investitura Capitani Reggenti
+2020/4/12,Pasqua
+2020/4/13,Lunedì dell'angelo
+2020/5/1,Festa dei lavoratori
+2020/6/11,Corpus Domini
+2020/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2020/8/15,Assunzione della B.V. Maria
+2020/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2020/10/1,Investitura Capitani Reggenti
+2020/11/1,Tutti i Santi
+2020/11/2,Commemorazione dei defunti
+2020/12/8,Immacolata Concezione
+2020/12/25,Natale
+2020/12/26,Santo Stefano
+2021/1/1,Capodanno
+2021/1/6,Epifania
+2021/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2021/3/25,Anniversario dell'Arengo
+2021/4/1,Investitura Capitani Reggenti
+2021/4/4,Pasqua
+2021/4/5,Lunedì dell'angelo
+2021/5/1,Festa dei lavoratori
+2021/6/3,Corpus Domini
+2021/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2021/8/15,Assunzione della B.V. Maria
+2021/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2021/10/1,Investitura Capitani Reggenti
+2021/11/1,Tutti i Santi
+2021/11/2,Commemorazione dei defunti
+2021/12/8,Immacolata Concezione
+2021/12/25,Natale
+2021/12/26,Santo Stefano
+2022/1/1,Capodanno
+2022/1/6,Epifania
+2022/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2022/3/25,Anniversario dell'Arengo
+2022/4/1,Investitura Capitani Reggenti
+2022/4/17,Pasqua
+2022/4/18,Lunedì dell'angelo
+2022/5/1,Festa dei lavoratori
+2022/6/16,Corpus Domini
+2022/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2022/8/15,Assunzione della B.V. Maria
+2022/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2022/10/1,Investitura Capitani Reggenti
+2022/11/1,Tutti i Santi
+2022/11/2,Commemorazione dei defunti
+2022/12/8,Immacolata Concezione
+2022/12/25,Natale
+2022/12/26,Santo Stefano
+2023/1/1,Capodanno
+2023/1/6,Epifania
+2023/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2023/3/25,Anniversario dell'Arengo
+2023/4/1,Investitura Capitani Reggenti
+2023/4/9,Pasqua
+2023/4/10,Lunedì dell'angelo
+2023/5/1,Festa dei lavoratori
+2023/6/8,Corpus Domini
+2023/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2023/8/15,Assunzione della B.V. Maria
+2023/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2023/10/1,Investitura Capitani Reggenti
+2023/11/1,Tutti i Santi
+2023/11/2,Commemorazione dei defunti
+2023/12/8,Immacolata Concezione
+2023/12/25,Natale
+2023/12/26,Santo Stefano
+2024/1/1,Capodanno
+2024/1/6,Epifania
+2024/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2024/3/25,Anniversario dell'Arengo
+2024/3/31,Pasqua
+2024/4/1,Investitura Capitani Reggenti; Lunedì dell'angelo
+2024/5/1,Festa dei lavoratori
+2024/5/30,Corpus Domini
+2024/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2024/8/15,Assunzione della B.V. Maria
+2024/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2024/10/1,Investitura Capitani Reggenti
+2024/11/1,Tutti i Santi
+2024/11/2,Commemorazione dei defunti
+2024/12/8,Immacolata Concezione
+2024/12/25,Natale
+2024/12/26,Santo Stefano
+2025/1/1,Capodanno
+2025/1/6,Epifania
+2025/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2025/3/25,Anniversario dell'Arengo
+2025/4/1,Investitura Capitani Reggenti
+2025/4/20,Pasqua
+2025/4/21,Lunedì dell'angelo
+2025/5/1,Festa dei lavoratori
+2025/6/19,Corpus Domini
+2025/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2025/8/15,Assunzione della B.V. Maria
+2025/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2025/10/1,Investitura Capitani Reggenti
+2025/11/1,Tutti i Santi
+2025/11/2,Commemorazione dei defunti
+2025/12/8,Immacolata Concezione
+2025/12/25,Natale
+2025/12/26,Santo Stefano
+2026/1/1,Capodanno
+2026/1/6,Epifania
+2026/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2026/3/25,Anniversario dell'Arengo
+2026/4/1,Investitura Capitani Reggenti
+2026/4/5,Pasqua
+2026/4/6,Lunedì dell'angelo
+2026/5/1,Festa dei lavoratori
+2026/6/4,Corpus Domini
+2026/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2026/8/15,Assunzione della B.V. Maria
+2026/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2026/10/1,Investitura Capitani Reggenti
+2026/11/1,Tutti i Santi
+2026/11/2,Commemorazione dei defunti
+2026/12/8,Immacolata Concezione
+2026/12/25,Natale
+2026/12/26,Santo Stefano
+2027/1/1,Capodanno
+2027/1/6,Epifania
+2027/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2027/3/25,Anniversario dell'Arengo
+2027/3/28,Pasqua
+2027/3/29,Lunedì dell'angelo
+2027/4/1,Investitura Capitani Reggenti
+2027/5/1,Festa dei lavoratori
+2027/5/27,Corpus Domini
+2027/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2027/8/15,Assunzione della B.V. Maria
+2027/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2027/10/1,Investitura Capitani Reggenti
+2027/11/1,Tutti i Santi
+2027/11/2,Commemorazione dei defunti
+2027/12/8,Immacolata Concezione
+2027/12/25,Natale
+2027/12/26,Santo Stefano
+2028/1/1,Capodanno
+2028/1/6,Epifania
+2028/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2028/3/25,Anniversario dell'Arengo
+2028/4/1,Investitura Capitani Reggenti
+2028/4/16,Pasqua
+2028/4/17,Lunedì dell'angelo
+2028/5/1,Festa dei lavoratori
+2028/6/15,Corpus Domini
+2028/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2028/8/15,Assunzione della B.V. Maria
+2028/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2028/10/1,Investitura Capitani Reggenti
+2028/11/1,Tutti i Santi
+2028/11/2,Commemorazione dei defunti
+2028/12/8,Immacolata Concezione
+2028/12/25,Natale
+2028/12/26,Santo Stefano
+2029/1/1,Capodanno
+2029/1/6,Epifania
+2029/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2029/3/25,Anniversario dell'Arengo
+2029/4/1,Investitura Capitani Reggenti; Pasqua
+2029/4/2,Lunedì dell'angelo
+2029/5/1,Festa dei lavoratori
+2029/5/31,Corpus Domini
+2029/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2029/8/15,Assunzione della B.V. Maria
+2029/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2029/10/1,Investitura Capitani Reggenti
+2029/11/1,Tutti i Santi
+2029/11/2,Commemorazione dei defunti
+2029/12/8,Immacolata Concezione
+2029/12/25,Natale
+2029/12/26,Santo Stefano
+2030/1/1,Capodanno
+2030/1/6,Epifania
+2030/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2030/3/25,Anniversario dell'Arengo
+2030/4/1,Investitura Capitani Reggenti
+2030/4/21,Pasqua
+2030/4/22,Lunedì dell'angelo
+2030/5/1,Festa dei lavoratori
+2030/6/20,Corpus Domini
+2030/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2030/8/15,Assunzione della B.V. Maria
+2030/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2030/10/1,Investitura Capitani Reggenti
+2030/11/1,Tutti i Santi
+2030/11/2,Commemorazione dei defunti
+2030/12/8,Immacolata Concezione
+2030/12/25,Natale
+2030/12/26,Santo Stefano
+2031/1/1,Capodanno
+2031/1/6,Epifania
+2031/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2031/3/25,Anniversario dell'Arengo
+2031/4/1,Investitura Capitani Reggenti
+2031/4/13,Pasqua
+2031/4/14,Lunedì dell'angelo
+2031/5/1,Festa dei lavoratori
+2031/6/12,Corpus Domini
+2031/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2031/8/15,Assunzione della B.V. Maria
+2031/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2031/10/1,Investitura Capitani Reggenti
+2031/11/1,Tutti i Santi
+2031/11/2,Commemorazione dei defunti
+2031/12/8,Immacolata Concezione
+2031/12/25,Natale
+2031/12/26,Santo Stefano
+2032/1/1,Capodanno
+2032/1/6,Epifania
+2032/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2032/3/25,Anniversario dell'Arengo
+2032/3/28,Pasqua
+2032/3/29,Lunedì dell'angelo
+2032/4/1,Investitura Capitani Reggenti
+2032/5/1,Festa dei lavoratori
+2032/5/27,Corpus Domini
+2032/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2032/8/15,Assunzione della B.V. Maria
+2032/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2032/10/1,Investitura Capitani Reggenti
+2032/11/1,Tutti i Santi
+2032/11/2,Commemorazione dei defunti
+2032/12/8,Immacolata Concezione
+2032/12/25,Natale
+2032/12/26,Santo Stefano
+2033/1/1,Capodanno
+2033/1/6,Epifania
+2033/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2033/3/25,Anniversario dell'Arengo
+2033/4/1,Investitura Capitani Reggenti
+2033/4/17,Pasqua
+2033/4/18,Lunedì dell'angelo
+2033/5/1,Festa dei lavoratori
+2033/6/16,Corpus Domini
+2033/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2033/8/15,Assunzione della B.V. Maria
+2033/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2033/10/1,Investitura Capitani Reggenti
+2033/11/1,Tutti i Santi
+2033/11/2,Commemorazione dei defunti
+2033/12/8,Immacolata Concezione
+2033/12/25,Natale
+2033/12/26,Santo Stefano
+2034/1/1,Capodanno
+2034/1/6,Epifania
+2034/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2034/3/25,Anniversario dell'Arengo
+2034/4/1,Investitura Capitani Reggenti
+2034/4/9,Pasqua
+2034/4/10,Lunedì dell'angelo
+2034/5/1,Festa dei lavoratori
+2034/6/8,Corpus Domini
+2034/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2034/8/15,Assunzione della B.V. Maria
+2034/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2034/10/1,Investitura Capitani Reggenti
+2034/11/1,Tutti i Santi
+2034/11/2,Commemorazione dei defunti
+2034/12/8,Immacolata Concezione
+2034/12/25,Natale
+2034/12/26,Santo Stefano
+2035/1/1,Capodanno
+2035/1/6,Epifania
+2035/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2035/3/25,Anniversario dell'Arengo; Pasqua
+2035/3/26,Lunedì dell'angelo
+2035/4/1,Investitura Capitani Reggenti
+2035/5/1,Festa dei lavoratori
+2035/5/24,Corpus Domini
+2035/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2035/8/15,Assunzione della B.V. Maria
+2035/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2035/10/1,Investitura Capitani Reggenti
+2035/11/1,Tutti i Santi
+2035/11/2,Commemorazione dei defunti
+2035/12/8,Immacolata Concezione
+2035/12/25,Natale
+2035/12/26,Santo Stefano
+2036/1/1,Capodanno
+2036/1/6,Epifania
+2036/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2036/3/25,Anniversario dell'Arengo
+2036/4/1,Investitura Capitani Reggenti
+2036/4/13,Pasqua
+2036/4/14,Lunedì dell'angelo
+2036/5/1,Festa dei lavoratori
+2036/6/12,Corpus Domini
+2036/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2036/8/15,Assunzione della B.V. Maria
+2036/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2036/10/1,Investitura Capitani Reggenti
+2036/11/1,Tutti i Santi
+2036/11/2,Commemorazione dei defunti
+2036/12/8,Immacolata Concezione
+2036/12/25,Natale
+2036/12/26,Santo Stefano
+2037/1/1,Capodanno
+2037/1/6,Epifania
+2037/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2037/3/25,Anniversario dell'Arengo
+2037/4/1,Investitura Capitani Reggenti
+2037/4/5,Pasqua
+2037/4/6,Lunedì dell'angelo
+2037/5/1,Festa dei lavoratori
+2037/6/4,Corpus Domini
+2037/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2037/8/15,Assunzione della B.V. Maria
+2037/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2037/10/1,Investitura Capitani Reggenti
+2037/11/1,Tutti i Santi
+2037/11/2,Commemorazione dei defunti
+2037/12/8,Immacolata Concezione
+2037/12/25,Natale
+2037/12/26,Santo Stefano
+2038/1/1,Capodanno
+2038/1/6,Epifania
+2038/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2038/3/25,Anniversario dell'Arengo
+2038/4/1,Investitura Capitani Reggenti
+2038/4/25,Pasqua
+2038/4/26,Lunedì dell'angelo
+2038/5/1,Festa dei lavoratori
+2038/6/24,Corpus Domini
+2038/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2038/8/15,Assunzione della B.V. Maria
+2038/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2038/10/1,Investitura Capitani Reggenti
+2038/11/1,Tutti i Santi
+2038/11/2,Commemorazione dei defunti
+2038/12/8,Immacolata Concezione
+2038/12/25,Natale
+2038/12/26,Santo Stefano
+2039/1/1,Capodanno
+2039/1/6,Epifania
+2039/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2039/3/25,Anniversario dell'Arengo
+2039/4/1,Investitura Capitani Reggenti
+2039/4/10,Pasqua
+2039/4/11,Lunedì dell'angelo
+2039/5/1,Festa dei lavoratori
+2039/6/9,Corpus Domini
+2039/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2039/8/15,Assunzione della B.V. Maria
+2039/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2039/10/1,Investitura Capitani Reggenti
+2039/11/1,Tutti i Santi
+2039/11/2,Commemorazione dei defunti
+2039/12/8,Immacolata Concezione
+2039/12/25,Natale
+2039/12/26,Santo Stefano
+2040/1/1,Capodanno
+2040/1/6,Epifania
+2040/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2040/3/25,Anniversario dell'Arengo
+2040/4/1,Investitura Capitani Reggenti; Pasqua
+2040/4/2,Lunedì dell'angelo
+2040/5/1,Festa dei lavoratori
+2040/5/31,Corpus Domini
+2040/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2040/8/15,Assunzione della B.V. Maria
+2040/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2040/10/1,Investitura Capitani Reggenti
+2040/11/1,Tutti i Santi
+2040/11/2,Commemorazione dei defunti
+2040/12/8,Immacolata Concezione
+2040/12/25,Natale
+2040/12/26,Santo Stefano
+2041/1/1,Capodanno
+2041/1/6,Epifania
+2041/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2041/3/25,Anniversario dell'Arengo
+2041/4/1,Investitura Capitani Reggenti
+2041/4/21,Pasqua
+2041/4/22,Lunedì dell'angelo
+2041/5/1,Festa dei lavoratori
+2041/6/20,Corpus Domini
+2041/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2041/8/15,Assunzione della B.V. Maria
+2041/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2041/10/1,Investitura Capitani Reggenti
+2041/11/1,Tutti i Santi
+2041/11/2,Commemorazione dei defunti
+2041/12/8,Immacolata Concezione
+2041/12/25,Natale
+2041/12/26,Santo Stefano
+2042/1/1,Capodanno
+2042/1/6,Epifania
+2042/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2042/3/25,Anniversario dell'Arengo
+2042/4/1,Investitura Capitani Reggenti
+2042/4/6,Pasqua
+2042/4/7,Lunedì dell'angelo
+2042/5/1,Festa dei lavoratori
+2042/6/5,Corpus Domini
+2042/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2042/8/15,Assunzione della B.V. Maria
+2042/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2042/10/1,Investitura Capitani Reggenti
+2042/11/1,Tutti i Santi
+2042/11/2,Commemorazione dei defunti
+2042/12/8,Immacolata Concezione
+2042/12/25,Natale
+2042/12/26,Santo Stefano
+2043/1/1,Capodanno
+2043/1/6,Epifania
+2043/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2043/3/25,Anniversario dell'Arengo
+2043/3/29,Pasqua
+2043/3/30,Lunedì dell'angelo
+2043/4/1,Investitura Capitani Reggenti
+2043/5/1,Festa dei lavoratori
+2043/5/28,Corpus Domini
+2043/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2043/8/15,Assunzione della B.V. Maria
+2043/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2043/10/1,Investitura Capitani Reggenti
+2043/11/1,Tutti i Santi
+2043/11/2,Commemorazione dei defunti
+2043/12/8,Immacolata Concezione
+2043/12/25,Natale
+2043/12/26,Santo Stefano
+2044/1/1,Capodanno
+2044/1/6,Epifania
+2044/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2044/3/25,Anniversario dell'Arengo
+2044/4/1,Investitura Capitani Reggenti
+2044/4/17,Pasqua
+2044/4/18,Lunedì dell'angelo
+2044/5/1,Festa dei lavoratori
+2044/6/16,Corpus Domini
+2044/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2044/8/15,Assunzione della B.V. Maria
+2044/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2044/10/1,Investitura Capitani Reggenti
+2044/11/1,Tutti i Santi
+2044/11/2,Commemorazione dei defunti
+2044/12/8,Immacolata Concezione
+2044/12/25,Natale
+2044/12/26,Santo Stefano
+2045/1/1,Capodanno
+2045/1/6,Epifania
+2045/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2045/3/25,Anniversario dell'Arengo
+2045/4/1,Investitura Capitani Reggenti
+2045/4/9,Pasqua
+2045/4/10,Lunedì dell'angelo
+2045/5/1,Festa dei lavoratori
+2045/6/8,Corpus Domini
+2045/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2045/8/15,Assunzione della B.V. Maria
+2045/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2045/10/1,Investitura Capitani Reggenti
+2045/11/1,Tutti i Santi
+2045/11/2,Commemorazione dei defunti
+2045/12/8,Immacolata Concezione
+2045/12/25,Natale
+2045/12/26,Santo Stefano
+2046/1/1,Capodanno
+2046/1/6,Epifania
+2046/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2046/3/25,Anniversario dell'Arengo; Pasqua
+2046/3/26,Lunedì dell'angelo
+2046/4/1,Investitura Capitani Reggenti
+2046/5/1,Festa dei lavoratori
+2046/5/24,Corpus Domini
+2046/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2046/8/15,Assunzione della B.V. Maria
+2046/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2046/10/1,Investitura Capitani Reggenti
+2046/11/1,Tutti i Santi
+2046/11/2,Commemorazione dei defunti
+2046/12/8,Immacolata Concezione
+2046/12/25,Natale
+2046/12/26,Santo Stefano
+2047/1/1,Capodanno
+2047/1/6,Epifania
+2047/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2047/3/25,Anniversario dell'Arengo
+2047/4/1,Investitura Capitani Reggenti
+2047/4/14,Pasqua
+2047/4/15,Lunedì dell'angelo
+2047/5/1,Festa dei lavoratori
+2047/6/13,Corpus Domini
+2047/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2047/8/15,Assunzione della B.V. Maria
+2047/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2047/10/1,Investitura Capitani Reggenti
+2047/11/1,Tutti i Santi
+2047/11/2,Commemorazione dei defunti
+2047/12/8,Immacolata Concezione
+2047/12/25,Natale
+2047/12/26,Santo Stefano
+2048/1/1,Capodanno
+2048/1/6,Epifania
+2048/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2048/3/25,Anniversario dell'Arengo
+2048/4/1,Investitura Capitani Reggenti
+2048/4/5,Pasqua
+2048/4/6,Lunedì dell'angelo
+2048/5/1,Festa dei lavoratori
+2048/6/4,Corpus Domini
+2048/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2048/8/15,Assunzione della B.V. Maria
+2048/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2048/10/1,Investitura Capitani Reggenti
+2048/11/1,Tutti i Santi
+2048/11/2,Commemorazione dei defunti
+2048/12/8,Immacolata Concezione
+2048/12/25,Natale
+2048/12/26,Santo Stefano
+2049/1/1,Capodanno
+2049/1/6,Epifania
+2049/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2049/3/25,Anniversario dell'Arengo
+2049/4/1,Investitura Capitani Reggenti
+2049/4/18,Pasqua
+2049/4/19,Lunedì dell'angelo
+2049/5/1,Festa dei lavoratori
+2049/6/17,Corpus Domini
+2049/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2049/8/15,Assunzione della B.V. Maria
+2049/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2049/10/1,Investitura Capitani Reggenti
+2049/11/1,Tutti i Santi
+2049/11/2,Commemorazione dei defunti
+2049/12/8,Immacolata Concezione
+2049/12/25,Natale
+2049/12/26,Santo Stefano
+2050/1/1,Capodanno
+2050/1/6,Epifania
+2050/2/5,Anniversario della Liberazione della Repubblica e Festa di Sant'Agata
+2050/3/25,Anniversario dell'Arengo
+2050/4/1,Investitura Capitani Reggenti
+2050/4/10,Pasqua
+2050/4/11,Lunedì dell'angelo
+2050/5/1,Festa dei lavoratori
+2050/6/9,Corpus Domini
+2050/7/28,Anniversario della Caduta del Fascismo e Festa della Libertà
+2050/8/15,Assunzione della B.V. Maria
+2050/9/3,San Marino, Anniversario di Fondazione della Repubblica
+2050/10/1,Investitura Capitani Reggenti
+2050/11/1,Tutti i Santi
+2050/11/2,Commemorazione dei defunti
+2050/12/8,Immacolata Concezione
+2050/12/25,Natale
+2050/12/26,Santo Stefano

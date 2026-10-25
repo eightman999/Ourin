@@ -1,0 +1,344 @@
+# GT の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/4/9,Jueves Santo
+2020/4/10,Viernes Santo
+2020/4/11,Sábado Santo
+2020/5/1,Día del Trabajo
+2020/6/29,Día del Ejército
+2020/8/15,Día de la Asunción
+2020/9/15,Día de la Independencia
+2020/10/20,Día de la Revolución
+2020/11/1,Día de Todos los Santos
+2020/12/25,Día de Navidad
+2021/1/1,Año Nuevo
+2021/4/1,Jueves Santo
+2021/4/2,Viernes Santo
+2021/4/3,Sábado Santo
+2021/5/1,Día del Trabajo
+2021/6/28,Día del Ejército
+2021/8/15,Día de la Asunción
+2021/9/15,Día de la Independencia
+2021/10/20,Día de la Revolución
+2021/11/1,Día de Todos los Santos
+2021/12/25,Día de Navidad
+2022/1/1,Año Nuevo
+2022/4/14,Jueves Santo
+2022/4/15,Viernes Santo
+2022/4/16,Sábado Santo
+2022/5/1,Día del Trabajo
+2022/7/4,Día del Ejército
+2022/8/15,Día de la Asunción
+2022/9/15,Día de la Independencia
+2022/10/20,Día de la Revolución
+2022/11/1,Día de Todos los Santos
+2022/12/25,Día de Navidad
+2023/1/1,Año Nuevo
+2023/4/6,Jueves Santo
+2023/4/7,Viernes Santo
+2023/4/8,Sábado Santo
+2023/5/1,Día del Trabajo
+2023/7/3,Día del Ejército
+2023/8/15,Día de la Asunción
+2023/9/15,Día de la Independencia
+2023/10/20,Día de la Revolución
+2023/11/1,Día de Todos los Santos
+2023/12/25,Día de Navidad
+2024/1/1,Año Nuevo
+2024/3/28,Jueves Santo
+2024/3/29,Viernes Santo
+2024/3/30,Sábado Santo
+2024/5/1,Día del Trabajo
+2024/7/1,Día del Ejército
+2024/8/15,Día de la Asunción
+2024/9/15,Día de la Independencia
+2024/10/20,Día de la Revolución
+2024/11/1,Día de Todos los Santos
+2024/12/25,Día de Navidad
+2025/1/1,Año Nuevo
+2025/4/17,Jueves Santo
+2025/4/18,Viernes Santo
+2025/4/19,Sábado Santo
+2025/5/1,Día del Trabajo
+2025/6/30,Día del Ejército
+2025/8/15,Día de la Asunción
+2025/9/15,Día de la Independencia
+2025/10/20,Día de la Revolución
+2025/11/1,Día de Todos los Santos
+2025/12/25,Día de Navidad
+2026/1/1,Año Nuevo
+2026/4/2,Jueves Santo
+2026/4/3,Viernes Santo
+2026/4/4,Sábado Santo
+2026/5/1,Día del Trabajo
+2026/6/29,Día del Ejército
+2026/8/15,Día de la Asunción
+2026/9/15,Día de la Independencia
+2026/10/20,Día de la Revolución
+2026/11/1,Día de Todos los Santos
+2026/12/25,Día de Navidad
+2027/1/1,Año Nuevo
+2027/3/25,Jueves Santo
+2027/3/26,Viernes Santo
+2027/3/27,Sábado Santo
+2027/5/1,Día del Trabajo
+2027/6/28,Día del Ejército
+2027/8/15,Día de la Asunción
+2027/9/15,Día de la Independencia
+2027/10/20,Día de la Revolución
+2027/11/1,Día de Todos los Santos
+2027/12/25,Día de Navidad
+2028/1/1,Año Nuevo
+2028/4/13,Jueves Santo
+2028/4/14,Viernes Santo
+2028/4/15,Sábado Santo
+2028/5/1,Día del Trabajo
+2028/7/3,Día del Ejército
+2028/8/15,Día de la Asunción
+2028/9/15,Día de la Independencia
+2028/10/20,Día de la Revolución
+2028/11/1,Día de Todos los Santos
+2028/12/25,Día de Navidad
+2029/1/1,Año Nuevo
+2029/3/29,Jueves Santo
+2029/3/30,Viernes Santo
+2029/3/31,Sábado Santo
+2029/5/1,Día del Trabajo
+2029/7/2,Día del Ejército
+2029/8/15,Día de la Asunción
+2029/9/15,Día de la Independencia
+2029/10/20,Día de la Revolución
+2029/11/1,Día de Todos los Santos
+2029/12/25,Día de Navidad
+2030/1/1,Año Nuevo
+2030/4/18,Jueves Santo
+2030/4/19,Viernes Santo
+2030/4/20,Sábado Santo
+2030/5/1,Día del Trabajo
+2030/7/1,Día del Ejército
+2030/8/15,Día de la Asunción
+2030/9/15,Día de la Independencia
+2030/10/20,Día de la Revolución
+2030/11/1,Día de Todos los Santos
+2030/12/25,Día de Navidad
+2031/1/1,Año Nuevo
+2031/4/10,Jueves Santo
+2031/4/11,Viernes Santo
+2031/4/12,Sábado Santo
+2031/5/1,Día del Trabajo
+2031/6/30,Día del Ejército
+2031/8/15,Día de la Asunción
+2031/9/15,Día de la Independencia
+2031/10/20,Día de la Revolución
+2031/11/1,Día de Todos los Santos
+2031/12/25,Día de Navidad
+2032/1/1,Año Nuevo
+2032/3/25,Jueves Santo
+2032/3/26,Viernes Santo
+2032/3/27,Sábado Santo
+2032/5/1,Día del Trabajo
+2032/6/28,Día del Ejército
+2032/8/15,Día de la Asunción
+2032/9/15,Día de la Independencia
+2032/10/20,Día de la Revolución
+2032/11/1,Día de Todos los Santos
+2032/12/25,Día de Navidad
+2033/1/1,Año Nuevo
+2033/4/14,Jueves Santo
+2033/4/15,Viernes Santo
+2033/4/16,Sábado Santo
+2033/5/1,Día del Trabajo
+2033/7/4,Día del Ejército
+2033/8/15,Día de la Asunción
+2033/9/15,Día de la Independencia
+2033/10/20,Día de la Revolución
+2033/11/1,Día de Todos los Santos
+2033/12/25,Día de Navidad
+2034/1/1,Año Nuevo
+2034/4/6,Jueves Santo
+2034/4/7,Viernes Santo
+2034/4/8,Sábado Santo
+2034/5/1,Día del Trabajo
+2034/7/3,Día del Ejército
+2034/8/15,Día de la Asunción
+2034/9/15,Día de la Independencia
+2034/10/20,Día de la Revolución
+2034/11/1,Día de Todos los Santos
+2034/12/25,Día de Navidad
+2035/1/1,Año Nuevo
+2035/3/22,Jueves Santo
+2035/3/23,Viernes Santo
+2035/3/24,Sábado Santo
+2035/5/1,Día del Trabajo
+2035/7/2,Día del Ejército
+2035/8/15,Día de la Asunción
+2035/9/15,Día de la Independencia
+2035/10/20,Día de la Revolución
+2035/11/1,Día de Todos los Santos
+2035/12/25,Día de Navidad
+2036/1/1,Año Nuevo
+2036/4/10,Jueves Santo
+2036/4/11,Viernes Santo
+2036/4/12,Sábado Santo
+2036/5/1,Día del Trabajo
+2036/6/30,Día del Ejército
+2036/8/15,Día de la Asunción
+2036/9/15,Día de la Independencia
+2036/10/20,Día de la Revolución
+2036/11/1,Día de Todos los Santos
+2036/12/25,Día de Navidad
+2037/1/1,Año Nuevo
+2037/4/2,Jueves Santo
+2037/4/3,Viernes Santo
+2037/4/4,Sábado Santo
+2037/5/1,Día del Trabajo
+2037/6/29,Día del Ejército
+2037/8/15,Día de la Asunción
+2037/9/15,Día de la Independencia
+2037/10/20,Día de la Revolución
+2037/11/1,Día de Todos los Santos
+2037/12/25,Día de Navidad
+2038/1/1,Año Nuevo
+2038/4/22,Jueves Santo
+2038/4/23,Viernes Santo
+2038/4/24,Sábado Santo
+2038/5/1,Día del Trabajo
+2038/6/28,Día del Ejército
+2038/8/15,Día de la Asunción
+2038/9/15,Día de la Independencia
+2038/10/20,Día de la Revolución
+2038/11/1,Día de Todos los Santos
+2038/12/25,Día de Navidad
+2039/1/1,Año Nuevo
+2039/4/7,Jueves Santo
+2039/4/8,Viernes Santo
+2039/4/9,Sábado Santo
+2039/5/1,Día del Trabajo
+2039/7/4,Día del Ejército
+2039/8/15,Día de la Asunción
+2039/9/15,Día de la Independencia
+2039/10/20,Día de la Revolución
+2039/11/1,Día de Todos los Santos
+2039/12/25,Día de Navidad
+2040/1/1,Año Nuevo
+2040/3/29,Jueves Santo
+2040/3/30,Viernes Santo
+2040/3/31,Sábado Santo
+2040/5/1,Día del Trabajo
+2040/7/2,Día del Ejército
+2040/8/15,Día de la Asunción
+2040/9/15,Día de la Independencia
+2040/10/20,Día de la Revolución
+2040/11/1,Día de Todos los Santos
+2040/12/25,Día de Navidad
+2041/1/1,Año Nuevo
+2041/4/18,Jueves Santo
+2041/4/19,Viernes Santo
+2041/4/20,Sábado Santo
+2041/5/1,Día del Trabajo
+2041/7/1,Día del Ejército
+2041/8/15,Día de la Asunción
+2041/9/15,Día de la Independencia
+2041/10/20,Día de la Revolución
+2041/11/1,Día de Todos los Santos
+2041/12/25,Día de Navidad
+2042/1/1,Año Nuevo
+2042/4/3,Jueves Santo
+2042/4/4,Viernes Santo
+2042/4/5,Sábado Santo
+2042/5/1,Día del Trabajo
+2042/6/30,Día del Ejército
+2042/8/15,Día de la Asunción
+2042/9/15,Día de la Independencia
+2042/10/20,Día de la Revolución
+2042/11/1,Día de Todos los Santos
+2042/12/25,Día de Navidad
+2043/1/1,Año Nuevo
+2043/3/26,Jueves Santo
+2043/3/27,Viernes Santo
+2043/3/28,Sábado Santo
+2043/5/1,Día del Trabajo
+2043/6/29,Día del Ejército
+2043/8/15,Día de la Asunción
+2043/9/15,Día de la Independencia
+2043/10/20,Día de la Revolución
+2043/11/1,Día de Todos los Santos
+2043/12/25,Día de Navidad
+2044/1/1,Año Nuevo
+2044/4/14,Jueves Santo
+2044/4/15,Viernes Santo
+2044/4/16,Sábado Santo
+2044/5/1,Día del Trabajo
+2044/7/4,Día del Ejército
+2044/8/15,Día de la Asunción
+2044/9/15,Día de la Independencia
+2044/10/20,Día de la Revolución
+2044/11/1,Día de Todos los Santos
+2044/12/25,Día de Navidad
+2045/1/1,Año Nuevo
+2045/4/6,Jueves Santo
+2045/4/7,Viernes Santo
+2045/4/8,Sábado Santo
+2045/5/1,Día del Trabajo
+2045/7/3,Día del Ejército
+2045/8/15,Día de la Asunción
+2045/9/15,Día de la Independencia
+2045/10/20,Día de la Revolución
+2045/11/1,Día de Todos los Santos
+2045/12/25,Día de Navidad
+2046/1/1,Año Nuevo
+2046/3/22,Jueves Santo
+2046/3/23,Viernes Santo
+2046/3/24,Sábado Santo
+2046/5/1,Día del Trabajo
+2046/7/2,Día del Ejército
+2046/8/15,Día de la Asunción
+2046/9/15,Día de la Independencia
+2046/10/20,Día de la Revolución
+2046/11/1,Día de Todos los Santos
+2046/12/25,Día de Navidad
+2047/1/1,Año Nuevo
+2047/4/11,Jueves Santo
+2047/4/12,Viernes Santo
+2047/4/13,Sábado Santo
+2047/5/1,Día del Trabajo
+2047/7/1,Día del Ejército
+2047/8/15,Día de la Asunción
+2047/9/15,Día de la Independencia
+2047/10/20,Día de la Revolución
+2047/11/1,Día de Todos los Santos
+2047/12/25,Día de Navidad
+2048/1/1,Año Nuevo
+2048/4/2,Jueves Santo
+2048/4/3,Viernes Santo
+2048/4/4,Sábado Santo
+2048/5/1,Día del Trabajo
+2048/6/29,Día del Ejército
+2048/8/15,Día de la Asunción
+2048/9/15,Día de la Independencia
+2048/10/20,Día de la Revolución
+2048/11/1,Día de Todos los Santos
+2048/12/25,Día de Navidad
+2049/1/1,Año Nuevo
+2049/4/15,Jueves Santo
+2049/4/16,Viernes Santo
+2049/4/17,Sábado Santo
+2049/5/1,Día del Trabajo
+2049/6/28,Día del Ejército
+2049/8/15,Día de la Asunción
+2049/9/15,Día de la Independencia
+2049/10/20,Día de la Revolución
+2049/11/1,Día de Todos los Santos
+2049/12/25,Día de Navidad
+2050/1/1,Año Nuevo
+2050/4/7,Jueves Santo
+2050/4/8,Viernes Santo
+2050/4/9,Sábado Santo
+2050/5/1,Día del Trabajo
+2050/7/4,Día del Ejército
+2050/8/15,Día de la Asunción
+2050/9/15,Día de la Independencia
+2050/10/20,Día de la Revolución
+2050/11/1,Día de Todos los Santos
+2050/12/25,Día de Navidad

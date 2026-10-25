@@ -1,0 +1,5 @@
+charset,UTF-8
+name,ScriptBridge
+id,scriptbridge
+filename,ScriptBridge.plugin
+craftman,Ourin Project

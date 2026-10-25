@@ -213,7 +213,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     ) {
         let work = { [weak self] in
             guard let self else {
-                completion("実行対象: なし（アプリデリゲート未接続）")
+                completion(NSLocalizedString("実行対象: なし（アプリデリゲート未接続）", comment: "DevTools script target missing"))
                 return
             }
 
@@ -221,18 +221,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             if let target = self.devToolsGhostManager(named: requestedName) {
                 target.runScript(script)
-                completion("実行対象: \(self.devToolsDisplayName(for: target))")
+                completion(String(format: NSLocalizedString("実行対象: %@", comment: "DevTools script target"), self.devToolsDisplayName(for: target)))
                 return
             }
 
             guard !requestedName.isEmpty else {
-                completion("実行対象: なし（ゴースト未起動）")
+                completion(NSLocalizedString("実行対象: なし（ゴースト未起動）", comment: "DevTools script target missing"))
                 return
             }
 
             guard let item = NarRegistry.shared.installedItems(ofType: "ghost")
                 .first(where: { $0.name.caseInsensitiveCompare(requestedName) == .orderedSame }) else {
-                completion("実行対象: なし（ゴースト \(requestedName) が見つかりません）")
+                completion(String(format: NSLocalizedString("実行対象: なし（ゴースト %@ が見つかりません）", comment: "DevTools script target missing"), requestedName))
                 return
             }
 
@@ -240,11 +240,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 let finish = {
                     guard result.succeeded else {
                         self?.terminateAdditionalGhost(target)
-                        completion("実行対象: なし（ゴースト \(requestedName) の起動に失敗）")
+                        completion(String(format: NSLocalizedString("実行対象: なし（ゴースト %@ の起動に失敗）", comment: "DevTools script target failed"), requestedName))
                         return
                     }
                     target.runScript(script)
-                    completion("実行対象: \(self?.devToolsDisplayName(for: target) ?? requestedName)")
+                    completion(String(format: NSLocalizedString("実行対象: %@", comment: "DevTools script target"), self?.devToolsDisplayName(for: target) ?? requestedName))
                 }
                 if Thread.isMainThread {
                     finish()
@@ -623,21 +623,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         NSLog("[WebHandler] Applied homeurl from web link: \(urlString)")
     }
 
-    /// Install bundled emily4.nar and run it if present
+    /// Install bundled sakura.nar and run it if present
     func installDefaultGhost() {
-        // 既に emily4 が導入済み（移行で取り込まれた場合を含む）なら再インストールせず起動する。
-        // これをしないと、移行で配置済みの ghost/emily4 へバンドル nar を重ねて書き込もうとし、衝突する。
-        if let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == "emily4" }) {
-            NSLog("[installDefaultGhost] emily4 already installed at \(ghost.path.path); running it")
+        // 既に sakura が導入済みなら再インストールせず起動する。
+        if let ghost = NarRegistry.shared.installedItems(ofType: "ghost").first(where: { $0.name == "sakura" }) {
+            NSLog("[installDefaultGhost] sakura already installed at \(ghost.path.path); running it")
             runGhost(at: ghost.path)
             return
         }
 
-        if let url = Bundle.main.url(forResource: "emily4", withExtension: "nar") {
-            NSLog("[installDefaultGhost] Found emily4.nar at: \(url.path)")
+        if let url = Bundle.main.url(forResource: "sakura", withExtension: "nar") {
+            NSLog("[installDefaultGhost] Found sakura.nar at: \(url.path)")
             installNar(at: url)
         } else {
-            NSLog("[installDefaultGhost] Bundled emily4.nar not found and emily4 not installed")
+            NSLog("[installDefaultGhost] Bundled sakura.nar not found and sakura not installed")
         }
     }
 
@@ -788,7 +787,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         dispatcher.notifyInstalledBalloonName(names: balloons.map { $0.name })
         dispatcher.notifyBalloonPathList(paths: balloons.map { $0.path.path })
 
-        let headlinePaths = headlineRegistry?.modules.map { $0.bundle.bundleURL.path } ?? []
+        let headlinePaths = headlineRegistry?.modules.map { $0.url.path } ?? []
         dispatcher.notifyHeadlinePathList(paths: headlinePaths)
     }
 

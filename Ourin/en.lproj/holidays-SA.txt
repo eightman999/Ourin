@@ -1,0 +1,409 @@
+# SA holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/5/23,Eid al-Fitr Holiday
+2020/5/24,Eid al-Fitr Holiday
+2020/5/25,Eid al-Fitr Holiday
+2020/5/26,Eid al-Fitr Holiday
+2020/5/27,Eid al-Fitr Holiday (observed)
+2020/7/30,Day of Arafah
+2020/7/31,Eid al-Adha Holiday
+2020/8/1,Eid al-Adha Holiday
+2020/8/2,Eid al-Adha Holiday
+2020/8/3,Eid al-Adha Holiday (observed)
+2020/8/4,Eid al-Adha Holiday (observed)
+2020/9/23,National Day Holiday
+2021/5/12,Eid al-Fitr Holiday
+2021/5/13,Eid al-Fitr Holiday
+2021/5/14,Eid al-Fitr Holiday
+2021/5/15,Eid al-Fitr Holiday
+2021/5/16,Eid al-Fitr Holiday (observed)
+2021/5/17,Eid al-Fitr Holiday (observed)
+2021/7/19,Day of Arafah
+2021/7/20,Eid al-Adha Holiday
+2021/7/21,Eid al-Adha Holiday
+2021/7/22,Eid al-Adha Holiday
+2021/9/23,National Day Holiday
+2022/2/22,Founding Day Holiday
+2022/5/1,Eid al-Fitr Holiday
+2022/5/2,Eid al-Fitr Holiday
+2022/5/3,Eid al-Fitr Holiday
+2022/5/4,Eid al-Fitr Holiday
+2022/7/8,Day of Arafah
+2022/7/9,Eid al-Adha Holiday
+2022/7/10,Eid al-Adha Holiday
+2022/7/11,Eid al-Adha Holiday
+2022/7/12,Eid al-Adha Holiday (observed)
+2022/7/13,Eid al-Adha Holiday (observed)
+2022/9/22,National Day Holiday (observed)
+2022/9/23,National Day Holiday
+2022/11/23,Holiday for the National Team's Victory in the World Cup
+2023/2/22,Founding Day Holiday
+2023/4/21,Eid al-Fitr Holiday
+2023/4/22,Eid al-Fitr Holiday
+2023/4/23,Eid al-Fitr Holiday
+2023/4/24,Eid al-Fitr Holiday
+2023/4/25,Eid al-Fitr Holiday (observed)
+2023/4/26,Eid al-Fitr Holiday (observed)
+2023/6/27,Day of Arafah
+2023/6/28,Eid al-Adha Holiday
+2023/6/29,Eid al-Adha Holiday
+2023/6/30,Eid al-Adha Holiday
+2023/7/2,Eid al-Adha Holiday (observed)
+2023/9/23,National Day Holiday
+2023/9/24,National Day Holiday (observed)
+2024/2/22,Founding Day Holiday
+2024/4/9,Eid al-Fitr Holiday
+2024/4/10,Eid al-Fitr Holiday
+2024/4/11,Eid al-Fitr Holiday
+2024/4/12,Eid al-Fitr Holiday
+2024/4/14,Eid al-Fitr Holiday (observed)
+2024/6/15,Day of Arafah
+2024/6/16,Eid al-Adha Holiday
+2024/6/17,Eid al-Adha Holiday
+2024/6/18,Eid al-Adha Holiday
+2024/6/19,Eid al-Adha Holiday (observed)
+2024/9/23,National Day Holiday
+2025/2/22,Founding Day Holiday
+2025/2/23,Founding Day Holiday (observed)
+2025/3/30,Eid al-Fitr Holiday
+2025/3/31,Eid al-Fitr Holiday
+2025/4/1,Eid al-Fitr Holiday
+2025/4/2,Eid al-Fitr Holiday
+2025/6/5,Day of Arafah
+2025/6/6,Eid al-Adha Holiday
+2025/6/7,Eid al-Adha Holiday
+2025/6/8,Eid al-Adha Holiday
+2025/6/9,Eid al-Adha Holiday (observed)
+2025/6/10,Eid al-Adha Holiday (observed)
+2025/9/23,National Day Holiday
+2026/2/22,Founding Day Holiday
+2026/3/19,Eid al-Fitr Holiday
+2026/3/20,Eid al-Fitr Holiday
+2026/3/21,Eid al-Fitr Holiday
+2026/3/22,Eid al-Fitr Holiday
+2026/3/23,Eid al-Fitr Holiday (observed)
+2026/3/24,Eid al-Fitr Holiday (observed)
+2026/5/26,Day of Arafah
+2026/5/27,Eid al-Adha Holiday
+2026/5/28,Eid al-Adha Holiday
+2026/5/29,Eid al-Adha Holiday
+2026/5/31,Eid al-Adha Holiday (observed)
+2026/9/23,National Day Holiday
+2027/2/22,Founding Day Holiday
+2027/3/9,Eid al-Fitr Holiday
+2027/3/10,Eid al-Fitr Holiday
+2027/3/11,Eid al-Fitr Holiday
+2027/3/12,Eid al-Fitr Holiday
+2027/3/14,Eid al-Fitr Holiday (observed)
+2027/5/15,Day of Arafah
+2027/5/16,Eid al-Adha Holiday
+2027/5/17,Eid al-Adha Holiday
+2027/5/18,Eid al-Adha Holiday
+2027/5/19,Eid al-Adha Holiday (observed)
+2027/9/23,National Day Holiday
+2028/2/22,Founding Day Holiday
+2028/2/26,Eid al-Fitr Holiday
+2028/2/27,Eid al-Fitr Holiday
+2028/2/28,Eid al-Fitr Holiday
+2028/2/29,Eid al-Fitr Holiday
+2028/3/1,Eid al-Fitr Holiday (observed)
+2028/5/4,Day of Arafah
+2028/5/5,Eid al-Adha Holiday
+2028/5/6,Eid al-Adha Holiday
+2028/5/7,Eid al-Adha Holiday
+2028/5/8,Eid al-Adha Holiday (observed)
+2028/5/9,Eid al-Adha Holiday (observed)
+2028/9/23,National Day Holiday
+2028/9/24,National Day Holiday (observed)
+2029/2/14,Eid al-Fitr Holiday
+2029/2/15,Eid al-Fitr Holiday
+2029/2/16,Eid al-Fitr Holiday
+2029/2/17,Eid al-Fitr Holiday
+2029/2/18,Eid al-Fitr Holiday (observed)
+2029/2/19,Eid al-Fitr Holiday (observed)
+2029/2/22,Founding Day Holiday
+2029/4/23,Day of Arafah
+2029/4/24,Eid al-Adha Holiday
+2029/4/25,Eid al-Adha Holiday
+2029/4/26,Eid al-Adha Holiday
+2029/9/23,National Day Holiday
+2030/2/3,Eid al-Fitr Holiday
+2030/2/4,Eid al-Fitr Holiday
+2030/2/5,Eid al-Fitr Holiday
+2030/2/6,Eid al-Fitr Holiday
+2030/2/21,Founding Day Holiday (observed)
+2030/2/22,Founding Day Holiday
+2030/4/12,Day of Arafah
+2030/4/13,Eid al-Adha Holiday
+2030/4/14,Eid al-Adha Holiday
+2030/4/15,Eid al-Adha Holiday
+2030/4/16,Eid al-Adha Holiday (observed)
+2030/4/17,Eid al-Adha Holiday (observed)
+2030/9/23,National Day Holiday
+2031/1/24,Eid al-Fitr Holiday
+2031/1/25,Eid al-Fitr Holiday
+2031/1/26,Eid al-Fitr Holiday
+2031/1/27,Eid al-Fitr Holiday
+2031/1/28,Eid al-Fitr Holiday (observed)
+2031/1/29,Eid al-Fitr Holiday (observed)
+2031/2/22,Founding Day Holiday
+2031/2/23,Founding Day Holiday (observed)
+2031/4/1,Day of Arafah
+2031/4/2,Eid al-Adha Holiday
+2031/4/3,Eid al-Adha Holiday
+2031/4/4,Eid al-Adha Holiday
+2031/4/6,Eid al-Adha Holiday (observed)
+2031/9/23,National Day Holiday
+2032/1/13,Eid al-Fitr Holiday
+2032/1/14,Eid al-Fitr Holiday
+2032/1/15,Eid al-Fitr Holiday
+2032/1/16,Eid al-Fitr Holiday
+2032/1/18,Eid al-Fitr Holiday (observed)
+2032/2/22,Founding Day Holiday
+2032/3/21,Day of Arafah
+2032/3/22,Eid al-Adha Holiday
+2032/3/23,Eid al-Adha Holiday
+2032/3/24,Eid al-Adha Holiday
+2032/9/23,National Day Holiday
+2033/1/2,Eid al-Fitr Holiday
+2033/1/3,Eid al-Fitr Holiday
+2033/1/4,Eid al-Fitr Holiday
+2033/1/5,Eid al-Fitr Holiday
+2033/2/22,Founding Day Holiday
+2033/3/10,Day of Arafah
+2033/3/11,Eid al-Adha Holiday
+2033/3/12,Eid al-Adha Holiday
+2033/3/13,Eid al-Adha Holiday
+2033/3/14,Eid al-Adha Holiday (observed)
+2033/3/15,Eid al-Adha Holiday (observed)
+2033/9/22,National Day Holiday (observed)
+2033/9/23,National Day Holiday
+2033/12/22,Eid al-Fitr Holiday
+2033/12/23,Eid al-Fitr Holiday
+2033/12/24,Eid al-Fitr Holiday
+2033/12/25,Eid al-Fitr Holiday
+2033/12/26,Eid al-Fitr Holiday (observed)
+2033/12/27,Eid al-Fitr Holiday (observed)
+2034/2/22,Founding Day Holiday
+2034/2/28,Day of Arafah
+2034/3/1,Eid al-Adha Holiday
+2034/3/2,Eid al-Adha Holiday
+2034/3/3,Eid al-Adha Holiday
+2034/3/5,Eid al-Adha Holiday (observed)
+2034/9/23,National Day Holiday
+2034/9/24,National Day Holiday (observed)
+2034/12/11,Eid al-Fitr Holiday
+2034/12/12,Eid al-Fitr Holiday
+2034/12/13,Eid al-Fitr Holiday
+2034/12/14,Eid al-Fitr Holiday
+2035/2/17,Day of Arafah
+2035/2/18,Eid al-Adha Holiday
+2035/2/19,Eid al-Adha Holiday
+2035/2/20,Eid al-Adha Holiday
+2035/2/21,Eid al-Adha Holiday (observed)
+2035/2/22,Founding Day Holiday
+2035/9/23,National Day Holiday
+2035/11/30,Eid al-Fitr Holiday
+2035/12/1,Eid al-Fitr Holiday
+2035/12/2,Eid al-Fitr Holiday
+2035/12/3,Eid al-Fitr Holiday
+2035/12/4,Eid al-Fitr Holiday (observed)
+2035/12/5,Eid al-Fitr Holiday (observed)
+2036/2/6,Day of Arafah
+2036/2/7,Eid al-Adha Holiday
+2036/2/8,Eid al-Adha Holiday
+2036/2/9,Eid al-Adha Holiday
+2036/2/10,Eid al-Adha Holiday (observed)
+2036/2/11,Eid al-Adha Holiday (observed)
+2036/2/21,Founding Day Holiday (observed)
+2036/2/22,Founding Day Holiday
+2036/9/23,National Day Holiday
+2036/11/18,Eid al-Fitr Holiday
+2036/11/19,Eid al-Fitr Holiday
+2036/11/20,Eid al-Fitr Holiday
+2036/11/21,Eid al-Fitr Holiday
+2036/11/23,Eid al-Fitr Holiday (observed)
+2037/1/25,Day of Arafah
+2037/1/26,Eid al-Adha Holiday
+2037/1/27,Eid al-Adha Holiday
+2037/1/28,Eid al-Adha Holiday
+2037/2/22,Founding Day Holiday
+2037/9/23,National Day Holiday
+2037/11/8,Eid al-Fitr Holiday
+2037/11/9,Eid al-Fitr Holiday
+2037/11/10,Eid al-Fitr Holiday
+2037/11/11,Eid al-Fitr Holiday
+2038/1/15,Day of Arafah
+2038/1/16,Eid al-Adha Holiday
+2038/1/17,Eid al-Adha Holiday
+2038/1/18,Eid al-Adha Holiday
+2038/1/19,Eid al-Adha Holiday (observed)
+2038/1/20,Eid al-Adha Holiday (observed)
+2038/2/22,Founding Day Holiday
+2038/9/23,National Day Holiday
+2038/10/29,Eid al-Fitr Holiday
+2038/10/30,Eid al-Fitr Holiday
+2038/10/31,Eid al-Fitr Holiday
+2038/11/1,Eid al-Fitr Holiday
+2038/11/2,Eid al-Fitr Holiday (observed)
+2038/11/3,Eid al-Fitr Holiday (observed)
+2039/1/4,Day of Arafah
+2039/1/5,Eid al-Adha Holiday
+2039/1/6,Eid al-Adha Holiday
+2039/1/7,Eid al-Adha Holiday
+2039/1/9,Eid al-Adha Holiday (observed)
+2039/2/22,Founding Day Holiday
+2039/9/22,National Day Holiday (observed)
+2039/9/23,National Day Holiday
+2039/10/18,Eid al-Fitr Holiday
+2039/10/19,Eid al-Fitr Holiday
+2039/10/20,Eid al-Fitr Holiday
+2039/10/21,Eid al-Fitr Holiday
+2039/10/23,Eid al-Fitr Holiday (observed)
+2039/12/25,Day of Arafah
+2039/12/26,Eid al-Adha Holiday
+2039/12/27,Eid al-Adha Holiday
+2039/12/28,Eid al-Adha Holiday
+2040/2/22,Founding Day Holiday
+2040/9/23,National Day Holiday
+2040/10/6,Eid al-Fitr Holiday
+2040/10/7,Eid al-Fitr Holiday
+2040/10/8,Eid al-Fitr Holiday
+2040/10/9,Eid al-Fitr Holiday
+2040/10/10,Eid al-Fitr Holiday (observed)
+2040/12/13,Day of Arafah
+2040/12/14,Eid al-Adha Holiday
+2040/12/15,Eid al-Adha Holiday
+2040/12/16,Eid al-Adha Holiday
+2040/12/17,Eid al-Adha Holiday (observed)
+2040/12/18,Eid al-Adha Holiday (observed)
+2041/2/21,Founding Day Holiday (observed)
+2041/2/22,Founding Day Holiday
+2041/9/23,National Day Holiday
+2041/9/26,Eid al-Fitr Holiday
+2041/9/27,Eid al-Fitr Holiday
+2041/9/28,Eid al-Fitr Holiday
+2041/9/29,Eid al-Fitr Holiday
+2041/9/30,Eid al-Fitr Holiday (observed)
+2041/10/1,Eid al-Fitr Holiday (observed)
+2041/12/3,Day of Arafah
+2041/12/4,Eid al-Adha Holiday
+2041/12/5,Eid al-Adha Holiday
+2041/12/6,Eid al-Adha Holiday
+2041/12/8,Eid al-Adha Holiday (observed)
+2042/2/22,Founding Day Holiday
+2042/2/23,Founding Day Holiday (observed)
+2042/9/15,Eid al-Fitr Holiday
+2042/9/16,Eid al-Fitr Holiday
+2042/9/17,Eid al-Fitr Holiday
+2042/9/18,Eid al-Fitr Holiday
+2042/9/23,National Day Holiday
+2042/11/22,Day of Arafah
+2042/11/23,Eid al-Adha Holiday
+2042/11/24,Eid al-Adha Holiday
+2042/11/25,Eid al-Adha Holiday
+2042/11/26,Eid al-Adha Holiday (observed)
+2043/2/22,Founding Day Holiday
+2043/9/4,Eid al-Fitr Holiday
+2043/9/5,Eid al-Fitr Holiday
+2043/9/6,Eid al-Fitr Holiday
+2043/9/7,Eid al-Fitr Holiday
+2043/9/8,Eid al-Fitr Holiday (observed)
+2043/9/9,Eid al-Fitr Holiday (observed)
+2043/9/23,National Day Holiday
+2043/11/11,Day of Arafah
+2043/11/12,Eid al-Adha Holiday
+2043/11/13,Eid al-Adha Holiday
+2043/11/14,Eid al-Adha Holiday
+2043/11/15,Eid al-Adha Holiday (observed)
+2043/11/16,Eid al-Adha Holiday (observed)
+2044/2/22,Founding Day Holiday
+2044/8/24,Eid al-Fitr Holiday
+2044/8/25,Eid al-Fitr Holiday
+2044/8/26,Eid al-Fitr Holiday
+2044/8/27,Eid al-Fitr Holiday
+2044/8/28,Eid al-Fitr Holiday (observed)
+2044/8/29,Eid al-Fitr Holiday (observed)
+2044/9/22,National Day Holiday (observed)
+2044/9/23,National Day Holiday
+2044/10/30,Day of Arafah
+2044/10/31,Eid al-Adha Holiday
+2044/11/1,Eid al-Adha Holiday
+2044/11/2,Eid al-Adha Holiday
+2045/2/22,Founding Day Holiday
+2045/8/13,Eid al-Fitr Holiday
+2045/8/14,Eid al-Fitr Holiday
+2045/8/15,Eid al-Fitr Holiday
+2045/8/16,Eid al-Fitr Holiday
+2045/9/23,National Day Holiday
+2045/9/24,National Day Holiday (observed)
+2045/10/20,Day of Arafah
+2045/10/21,Eid al-Adha Holiday
+2045/10/22,Eid al-Adha Holiday
+2045/10/23,Eid al-Adha Holiday
+2045/10/24,Eid al-Adha Holiday (observed)
+2045/10/25,Eid al-Adha Holiday (observed)
+2046/2/22,Founding Day Holiday
+2046/8/3,Eid al-Fitr Holiday
+2046/8/4,Eid al-Fitr Holiday
+2046/8/5,Eid al-Fitr Holiday
+2046/8/6,Eid al-Fitr Holiday
+2046/8/7,Eid al-Fitr Holiday (observed)
+2046/8/8,Eid al-Fitr Holiday (observed)
+2046/9/23,National Day Holiday
+2046/10/9,Day of Arafah
+2046/10/10,Eid al-Adha Holiday
+2046/10/11,Eid al-Adha Holiday
+2046/10/12,Eid al-Adha Holiday
+2046/10/14,Eid al-Adha Holiday (observed)
+2047/2/21,Founding Day Holiday (observed)
+2047/2/22,Founding Day Holiday
+2047/7/23,Eid al-Fitr Holiday
+2047/7/24,Eid al-Fitr Holiday
+2047/7/25,Eid al-Fitr Holiday
+2047/7/26,Eid al-Fitr Holiday
+2047/7/28,Eid al-Fitr Holiday (observed)
+2047/9/23,National Day Holiday
+2047/9/29,Day of Arafah
+2047/9/30,Eid al-Adha Holiday
+2047/10/1,Eid al-Adha Holiday
+2047/10/2,Eid al-Adha Holiday
+2048/2/22,Founding Day Holiday
+2048/2/23,Founding Day Holiday (observed)
+2048/7/11,Eid al-Fitr Holiday
+2048/7/12,Eid al-Fitr Holiday
+2048/7/13,Eid al-Fitr Holiday
+2048/7/14,Eid al-Fitr Holiday
+2048/7/15,Eid al-Fitr Holiday (observed)
+2048/9/18,Day of Arafah
+2048/9/19,Eid al-Adha Holiday
+2048/9/20,Eid al-Adha Holiday
+2048/9/21,Eid al-Adha Holiday
+2048/9/22,Eid al-Adha Holiday (observed)
+2048/9/23,Eid al-Adha Holiday (observed); National Day Holiday
+2049/2/22,Founding Day Holiday
+2049/7/1,Eid al-Fitr Holiday
+2049/7/2,Eid al-Fitr Holiday
+2049/7/3,Eid al-Fitr Holiday
+2049/7/4,Eid al-Fitr Holiday
+2049/7/5,Eid al-Fitr Holiday (observed)
+2049/7/6,Eid al-Fitr Holiday (observed)
+2049/9/7,Day of Arafah
+2049/9/8,Eid al-Adha Holiday
+2049/9/9,Eid al-Adha Holiday
+2049/9/10,Eid al-Adha Holiday
+2049/9/12,Eid al-Adha Holiday (observed)
+2049/9/23,National Day Holiday
+2050/2/22,Founding Day Holiday
+2050/6/20,Eid al-Fitr Holiday
+2050/6/21,Eid al-Fitr Holiday
+2050/6/22,Eid al-Fitr Holiday
+2050/6/23,Eid al-Fitr Holiday
+2050/8/27,Day of Arafah
+2050/8/28,Eid al-Adha Holiday
+2050/8/29,Eid al-Adha Holiday
+2050/8/30,Eid al-Adha Holiday
+2050/8/31,Eid al-Adha Holiday (observed)
+2050/9/22,National Day Holiday (observed)
+2050/9/23,National Day Holiday

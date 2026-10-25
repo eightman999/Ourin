@@ -1,0 +1,375 @@
+# BE の祝日（2020〜2050年、言語: nl）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Nieuwjaar
+2020/4/12,Pasen
+2020/4/13,Paasmaandag
+2020/5/1,Dag van de Arbeid
+2020/5/21,O. L. H. Hemelvaart
+2020/5/31,Pinksteren
+2020/6/1,Pinkstermaandag
+2020/7/21,Nationale feestdag
+2020/8/15,O. L. V. Hemelvaart
+2020/11/1,Allerheiligen
+2020/11/11,Wapenstilstand
+2020/12/25,Kerstmis
+2021/1/1,Nieuwjaar
+2021/4/4,Pasen
+2021/4/5,Paasmaandag
+2021/5/1,Dag van de Arbeid
+2021/5/13,O. L. H. Hemelvaart
+2021/5/23,Pinksteren
+2021/5/24,Pinkstermaandag
+2021/7/21,Nationale feestdag
+2021/8/15,O. L. V. Hemelvaart
+2021/11/1,Allerheiligen
+2021/11/11,Wapenstilstand
+2021/12/25,Kerstmis
+2022/1/1,Nieuwjaar
+2022/4/17,Pasen
+2022/4/18,Paasmaandag
+2022/5/1,Dag van de Arbeid
+2022/5/26,O. L. H. Hemelvaart
+2022/6/5,Pinksteren
+2022/6/6,Pinkstermaandag
+2022/7/21,Nationale feestdag
+2022/8/15,O. L. V. Hemelvaart
+2022/11/1,Allerheiligen
+2022/11/11,Wapenstilstand
+2022/12/25,Kerstmis
+2023/1/1,Nieuwjaar
+2023/4/9,Pasen
+2023/4/10,Paasmaandag
+2023/5/1,Dag van de Arbeid
+2023/5/18,O. L. H. Hemelvaart
+2023/5/28,Pinksteren
+2023/5/29,Pinkstermaandag
+2023/7/21,Nationale feestdag
+2023/8/15,O. L. V. Hemelvaart
+2023/11/1,Allerheiligen
+2023/11/11,Wapenstilstand
+2023/12/25,Kerstmis
+2024/1/1,Nieuwjaar
+2024/3/31,Pasen
+2024/4/1,Paasmaandag
+2024/5/1,Dag van de Arbeid
+2024/5/9,O. L. H. Hemelvaart
+2024/5/19,Pinksteren
+2024/5/20,Pinkstermaandag
+2024/7/21,Nationale feestdag
+2024/8/15,O. L. V. Hemelvaart
+2024/11/1,Allerheiligen
+2024/11/11,Wapenstilstand
+2024/12/25,Kerstmis
+2025/1/1,Nieuwjaar
+2025/4/20,Pasen
+2025/4/21,Paasmaandag
+2025/5/1,Dag van de Arbeid
+2025/5/29,O. L. H. Hemelvaart
+2025/6/8,Pinksteren
+2025/6/9,Pinkstermaandag
+2025/7/21,Nationale feestdag
+2025/8/15,O. L. V. Hemelvaart
+2025/11/1,Allerheiligen
+2025/11/11,Wapenstilstand
+2025/12/25,Kerstmis
+2026/1/1,Nieuwjaar
+2026/4/5,Pasen
+2026/4/6,Paasmaandag
+2026/5/1,Dag van de Arbeid
+2026/5/14,O. L. H. Hemelvaart
+2026/5/24,Pinksteren
+2026/5/25,Pinkstermaandag
+2026/7/21,Nationale feestdag
+2026/8/15,O. L. V. Hemelvaart
+2026/11/1,Allerheiligen
+2026/11/11,Wapenstilstand
+2026/12/25,Kerstmis
+2027/1/1,Nieuwjaar
+2027/3/28,Pasen
+2027/3/29,Paasmaandag
+2027/5/1,Dag van de Arbeid
+2027/5/6,O. L. H. Hemelvaart
+2027/5/16,Pinksteren
+2027/5/17,Pinkstermaandag
+2027/7/21,Nationale feestdag
+2027/8/15,O. L. V. Hemelvaart
+2027/11/1,Allerheiligen
+2027/11/11,Wapenstilstand
+2027/12/25,Kerstmis
+2028/1/1,Nieuwjaar
+2028/4/16,Pasen
+2028/4/17,Paasmaandag
+2028/5/1,Dag van de Arbeid
+2028/5/25,O. L. H. Hemelvaart
+2028/6/4,Pinksteren
+2028/6/5,Pinkstermaandag
+2028/7/21,Nationale feestdag
+2028/8/15,O. L. V. Hemelvaart
+2028/11/1,Allerheiligen
+2028/11/11,Wapenstilstand
+2028/12/25,Kerstmis
+2029/1/1,Nieuwjaar
+2029/4/1,Pasen
+2029/4/2,Paasmaandag
+2029/5/1,Dag van de Arbeid
+2029/5/10,O. L. H. Hemelvaart
+2029/5/20,Pinksteren
+2029/5/21,Pinkstermaandag
+2029/7/21,Nationale feestdag
+2029/8/15,O. L. V. Hemelvaart
+2029/11/1,Allerheiligen
+2029/11/11,Wapenstilstand
+2029/12/25,Kerstmis
+2030/1/1,Nieuwjaar
+2030/4/21,Pasen
+2030/4/22,Paasmaandag
+2030/5/1,Dag van de Arbeid
+2030/5/30,O. L. H. Hemelvaart
+2030/6/9,Pinksteren
+2030/6/10,Pinkstermaandag
+2030/7/21,Nationale feestdag
+2030/8/15,O. L. V. Hemelvaart
+2030/11/1,Allerheiligen
+2030/11/11,Wapenstilstand
+2030/12/25,Kerstmis
+2031/1/1,Nieuwjaar
+2031/4/13,Pasen
+2031/4/14,Paasmaandag
+2031/5/1,Dag van de Arbeid
+2031/5/22,O. L. H. Hemelvaart
+2031/6/1,Pinksteren
+2031/6/2,Pinkstermaandag
+2031/7/21,Nationale feestdag
+2031/8/15,O. L. V. Hemelvaart
+2031/11/1,Allerheiligen
+2031/11/11,Wapenstilstand
+2031/12/25,Kerstmis
+2032/1/1,Nieuwjaar
+2032/3/28,Pasen
+2032/3/29,Paasmaandag
+2032/5/1,Dag van de Arbeid
+2032/5/6,O. L. H. Hemelvaart
+2032/5/16,Pinksteren
+2032/5/17,Pinkstermaandag
+2032/7/21,Nationale feestdag
+2032/8/15,O. L. V. Hemelvaart
+2032/11/1,Allerheiligen
+2032/11/11,Wapenstilstand
+2032/12/25,Kerstmis
+2033/1/1,Nieuwjaar
+2033/4/17,Pasen
+2033/4/18,Paasmaandag
+2033/5/1,Dag van de Arbeid
+2033/5/26,O. L. H. Hemelvaart
+2033/6/5,Pinksteren
+2033/6/6,Pinkstermaandag
+2033/7/21,Nationale feestdag
+2033/8/15,O. L. V. Hemelvaart
+2033/11/1,Allerheiligen
+2033/11/11,Wapenstilstand
+2033/12/25,Kerstmis
+2034/1/1,Nieuwjaar
+2034/4/9,Pasen
+2034/4/10,Paasmaandag
+2034/5/1,Dag van de Arbeid
+2034/5/18,O. L. H. Hemelvaart
+2034/5/28,Pinksteren
+2034/5/29,Pinkstermaandag
+2034/7/21,Nationale feestdag
+2034/8/15,O. L. V. Hemelvaart
+2034/11/1,Allerheiligen
+2034/11/11,Wapenstilstand
+2034/12/25,Kerstmis
+2035/1/1,Nieuwjaar
+2035/3/25,Pasen
+2035/3/26,Paasmaandag
+2035/5/1,Dag van de Arbeid
+2035/5/3,O. L. H. Hemelvaart
+2035/5/13,Pinksteren
+2035/5/14,Pinkstermaandag
+2035/7/21,Nationale feestdag
+2035/8/15,O. L. V. Hemelvaart
+2035/11/1,Allerheiligen
+2035/11/11,Wapenstilstand
+2035/12/25,Kerstmis
+2036/1/1,Nieuwjaar
+2036/4/13,Pasen
+2036/4/14,Paasmaandag
+2036/5/1,Dag van de Arbeid
+2036/5/22,O. L. H. Hemelvaart
+2036/6/1,Pinksteren
+2036/6/2,Pinkstermaandag
+2036/7/21,Nationale feestdag
+2036/8/15,O. L. V. Hemelvaart
+2036/11/1,Allerheiligen
+2036/11/11,Wapenstilstand
+2036/12/25,Kerstmis
+2037/1/1,Nieuwjaar
+2037/4/5,Pasen
+2037/4/6,Paasmaandag
+2037/5/1,Dag van de Arbeid
+2037/5/14,O. L. H. Hemelvaart
+2037/5/24,Pinksteren
+2037/5/25,Pinkstermaandag
+2037/7/21,Nationale feestdag
+2037/8/15,O. L. V. Hemelvaart
+2037/11/1,Allerheiligen
+2037/11/11,Wapenstilstand
+2037/12/25,Kerstmis
+2038/1/1,Nieuwjaar
+2038/4/25,Pasen
+2038/4/26,Paasmaandag
+2038/5/1,Dag van de Arbeid
+2038/6/3,O. L. H. Hemelvaart
+2038/6/13,Pinksteren
+2038/6/14,Pinkstermaandag
+2038/7/21,Nationale feestdag
+2038/8/15,O. L. V. Hemelvaart
+2038/11/1,Allerheiligen
+2038/11/11,Wapenstilstand
+2038/12/25,Kerstmis
+2039/1/1,Nieuwjaar
+2039/4/10,Pasen
+2039/4/11,Paasmaandag
+2039/5/1,Dag van de Arbeid
+2039/5/19,O. L. H. Hemelvaart
+2039/5/29,Pinksteren
+2039/5/30,Pinkstermaandag
+2039/7/21,Nationale feestdag
+2039/8/15,O. L. V. Hemelvaart
+2039/11/1,Allerheiligen
+2039/11/11,Wapenstilstand
+2039/12/25,Kerstmis
+2040/1/1,Nieuwjaar
+2040/4/1,Pasen
+2040/4/2,Paasmaandag
+2040/5/1,Dag van de Arbeid
+2040/5/10,O. L. H. Hemelvaart
+2040/5/20,Pinksteren
+2040/5/21,Pinkstermaandag
+2040/7/21,Nationale feestdag
+2040/8/15,O. L. V. Hemelvaart
+2040/11/1,Allerheiligen
+2040/11/11,Wapenstilstand
+2040/12/25,Kerstmis
+2041/1/1,Nieuwjaar
+2041/4/21,Pasen
+2041/4/22,Paasmaandag
+2041/5/1,Dag van de Arbeid
+2041/5/30,O. L. H. Hemelvaart
+2041/6/9,Pinksteren
+2041/6/10,Pinkstermaandag
+2041/7/21,Nationale feestdag
+2041/8/15,O. L. V. Hemelvaart
+2041/11/1,Allerheiligen
+2041/11/11,Wapenstilstand
+2041/12/25,Kerstmis
+2042/1/1,Nieuwjaar
+2042/4/6,Pasen
+2042/4/7,Paasmaandag
+2042/5/1,Dag van de Arbeid
+2042/5/15,O. L. H. Hemelvaart
+2042/5/25,Pinksteren
+2042/5/26,Pinkstermaandag
+2042/7/21,Nationale feestdag
+2042/8/15,O. L. V. Hemelvaart
+2042/11/1,Allerheiligen
+2042/11/11,Wapenstilstand
+2042/12/25,Kerstmis
+2043/1/1,Nieuwjaar
+2043/3/29,Pasen
+2043/3/30,Paasmaandag
+2043/5/1,Dag van de Arbeid
+2043/5/7,O. L. H. Hemelvaart
+2043/5/17,Pinksteren
+2043/5/18,Pinkstermaandag
+2043/7/21,Nationale feestdag
+2043/8/15,O. L. V. Hemelvaart
+2043/11/1,Allerheiligen
+2043/11/11,Wapenstilstand
+2043/12/25,Kerstmis
+2044/1/1,Nieuwjaar
+2044/4/17,Pasen
+2044/4/18,Paasmaandag
+2044/5/1,Dag van de Arbeid
+2044/5/26,O. L. H. Hemelvaart
+2044/6/5,Pinksteren
+2044/6/6,Pinkstermaandag
+2044/7/21,Nationale feestdag
+2044/8/15,O. L. V. Hemelvaart
+2044/11/1,Allerheiligen
+2044/11/11,Wapenstilstand
+2044/12/25,Kerstmis
+2045/1/1,Nieuwjaar
+2045/4/9,Pasen
+2045/4/10,Paasmaandag
+2045/5/1,Dag van de Arbeid
+2045/5/18,O. L. H. Hemelvaart
+2045/5/28,Pinksteren
+2045/5/29,Pinkstermaandag
+2045/7/21,Nationale feestdag
+2045/8/15,O. L. V. Hemelvaart
+2045/11/1,Allerheiligen
+2045/11/11,Wapenstilstand
+2045/12/25,Kerstmis
+2046/1/1,Nieuwjaar
+2046/3/25,Pasen
+2046/3/26,Paasmaandag
+2046/5/1,Dag van de Arbeid
+2046/5/3,O. L. H. Hemelvaart
+2046/5/13,Pinksteren
+2046/5/14,Pinkstermaandag
+2046/7/21,Nationale feestdag
+2046/8/15,O. L. V. Hemelvaart
+2046/11/1,Allerheiligen
+2046/11/11,Wapenstilstand
+2046/12/25,Kerstmis
+2047/1/1,Nieuwjaar
+2047/4/14,Pasen
+2047/4/15,Paasmaandag
+2047/5/1,Dag van de Arbeid
+2047/5/23,O. L. H. Hemelvaart
+2047/6/2,Pinksteren
+2047/6/3,Pinkstermaandag
+2047/7/21,Nationale feestdag
+2047/8/15,O. L. V. Hemelvaart
+2047/11/1,Allerheiligen
+2047/11/11,Wapenstilstand
+2047/12/25,Kerstmis
+2048/1/1,Nieuwjaar
+2048/4/5,Pasen
+2048/4/6,Paasmaandag
+2048/5/1,Dag van de Arbeid
+2048/5/14,O. L. H. Hemelvaart
+2048/5/24,Pinksteren
+2048/5/25,Pinkstermaandag
+2048/7/21,Nationale feestdag
+2048/8/15,O. L. V. Hemelvaart
+2048/11/1,Allerheiligen
+2048/11/11,Wapenstilstand
+2048/12/25,Kerstmis
+2049/1/1,Nieuwjaar
+2049/4/18,Pasen
+2049/4/19,Paasmaandag
+2049/5/1,Dag van de Arbeid
+2049/5/27,O. L. H. Hemelvaart
+2049/6/6,Pinksteren
+2049/6/7,Pinkstermaandag
+2049/7/21,Nationale feestdag
+2049/8/15,O. L. V. Hemelvaart
+2049/11/1,Allerheiligen
+2049/11/11,Wapenstilstand
+2049/12/25,Kerstmis
+2050/1/1,Nieuwjaar
+2050/4/10,Pasen
+2050/4/11,Paasmaandag
+2050/5/1,Dag van de Arbeid
+2050/5/19,O. L. H. Hemelvaart
+2050/5/29,Pinksteren
+2050/5/30,Pinkstermaandag
+2050/7/21,Nationale feestdag
+2050/8/15,O. L. V. Hemelvaart
+2050/11/1,Allerheiligen
+2050/11/11,Wapenstilstand
+2050/12/25,Kerstmis

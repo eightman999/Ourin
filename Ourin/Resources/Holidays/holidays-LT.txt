@@ -1,0 +1,494 @@
+# LT の祝日（2020〜2050年、言語: lt）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Naujųjų metų diena
+2020/2/16,Lietuvos valstybės atkūrimo diena
+2020/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2020/4/12,Šv. Velykos
+2020/4/13,Antroji šv. Velykų diena
+2020/5/1,Tarptautinė darbo diena
+2020/5/3,Motinos diena
+2020/6/7,Tėvo diena
+2020/6/24,Rasos ir Joninių diena
+2020/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2020/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2020/11/1,Visų Šventųjų diena
+2020/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2020/12/24,Kūčių diena
+2020/12/25,Šv. Kalėdų pirma diena
+2020/12/26,Šv. Kalėdų antra diena
+2021/1/1,Naujųjų metų diena
+2021/2/16,Lietuvos valstybės atkūrimo diena
+2021/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2021/4/4,Šv. Velykos
+2021/4/5,Antroji šv. Velykų diena
+2021/5/1,Tarptautinė darbo diena
+2021/5/2,Motinos diena
+2021/6/6,Tėvo diena
+2021/6/24,Rasos ir Joninių diena
+2021/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2021/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2021/11/1,Visų Šventųjų diena
+2021/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2021/12/24,Kūčių diena
+2021/12/25,Šv. Kalėdų pirma diena
+2021/12/26,Šv. Kalėdų antra diena
+2022/1/1,Naujųjų metų diena
+2022/2/16,Lietuvos valstybės atkūrimo diena
+2022/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2022/4/17,Šv. Velykos
+2022/4/18,Antroji šv. Velykų diena
+2022/5/1,Motinos diena; Tarptautinė darbo diena
+2022/6/5,Tėvo diena
+2022/6/24,Rasos ir Joninių diena
+2022/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2022/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2022/11/1,Visų Šventųjų diena
+2022/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2022/12/24,Kūčių diena
+2022/12/25,Šv. Kalėdų pirma diena
+2022/12/26,Šv. Kalėdų antra diena
+2023/1/1,Naujųjų metų diena
+2023/2/16,Lietuvos valstybės atkūrimo diena
+2023/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2023/4/9,Šv. Velykos
+2023/4/10,Antroji šv. Velykų diena
+2023/5/1,Tarptautinė darbo diena
+2023/5/7,Motinos diena
+2023/6/4,Tėvo diena
+2023/6/24,Rasos ir Joninių diena
+2023/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2023/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2023/11/1,Visų Šventųjų diena
+2023/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2023/12/24,Kūčių diena
+2023/12/25,Šv. Kalėdų pirma diena
+2023/12/26,Šv. Kalėdų antra diena
+2024/1/1,Naujųjų metų diena
+2024/2/16,Lietuvos valstybės atkūrimo diena
+2024/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2024/3/31,Šv. Velykos
+2024/4/1,Antroji šv. Velykų diena
+2024/5/1,Tarptautinė darbo diena
+2024/5/5,Motinos diena
+2024/6/2,Tėvo diena
+2024/6/24,Rasos ir Joninių diena
+2024/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2024/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2024/11/1,Visų Šventųjų diena
+2024/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2024/12/24,Kūčių diena
+2024/12/25,Šv. Kalėdų pirma diena
+2024/12/26,Šv. Kalėdų antra diena
+2025/1/1,Naujųjų metų diena
+2025/2/16,Lietuvos valstybės atkūrimo diena
+2025/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2025/4/20,Šv. Velykos
+2025/4/21,Antroji šv. Velykų diena
+2025/5/1,Tarptautinė darbo diena
+2025/5/4,Motinos diena
+2025/6/1,Tėvo diena
+2025/6/24,Rasos ir Joninių diena
+2025/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2025/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2025/11/1,Visų Šventųjų diena
+2025/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2025/12/24,Kūčių diena
+2025/12/25,Šv. Kalėdų pirma diena
+2025/12/26,Šv. Kalėdų antra diena
+2026/1/1,Naujųjų metų diena
+2026/2/16,Lietuvos valstybės atkūrimo diena
+2026/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2026/4/5,Šv. Velykos
+2026/4/6,Antroji šv. Velykų diena
+2026/5/1,Tarptautinė darbo diena
+2026/5/3,Motinos diena
+2026/6/7,Tėvo diena
+2026/6/24,Rasos ir Joninių diena
+2026/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2026/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2026/11/1,Visų Šventųjų diena
+2026/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2026/12/24,Kūčių diena
+2026/12/25,Šv. Kalėdų pirma diena
+2026/12/26,Šv. Kalėdų antra diena
+2027/1/1,Naujųjų metų diena
+2027/2/16,Lietuvos valstybės atkūrimo diena
+2027/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2027/3/28,Šv. Velykos
+2027/3/29,Antroji šv. Velykų diena
+2027/5/1,Tarptautinė darbo diena
+2027/5/2,Motinos diena
+2027/6/6,Tėvo diena
+2027/6/24,Rasos ir Joninių diena
+2027/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2027/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2027/11/1,Visų Šventųjų diena
+2027/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2027/12/24,Kūčių diena
+2027/12/25,Šv. Kalėdų pirma diena
+2027/12/26,Šv. Kalėdų antra diena
+2028/1/1,Naujųjų metų diena
+2028/2/16,Lietuvos valstybės atkūrimo diena
+2028/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2028/4/16,Šv. Velykos
+2028/4/17,Antroji šv. Velykų diena
+2028/5/1,Tarptautinė darbo diena
+2028/5/7,Motinos diena
+2028/6/4,Tėvo diena
+2028/6/24,Rasos ir Joninių diena
+2028/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2028/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2028/11/1,Visų Šventųjų diena
+2028/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2028/12/24,Kūčių diena
+2028/12/25,Šv. Kalėdų pirma diena
+2028/12/26,Šv. Kalėdų antra diena
+2029/1/1,Naujųjų metų diena
+2029/2/16,Lietuvos valstybės atkūrimo diena
+2029/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2029/4/1,Šv. Velykos
+2029/4/2,Antroji šv. Velykų diena
+2029/5/1,Tarptautinė darbo diena
+2029/5/6,Motinos diena
+2029/6/3,Tėvo diena
+2029/6/24,Rasos ir Joninių diena
+2029/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2029/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2029/11/1,Visų Šventųjų diena
+2029/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2029/12/24,Kūčių diena
+2029/12/25,Šv. Kalėdų pirma diena
+2029/12/26,Šv. Kalėdų antra diena
+2030/1/1,Naujųjų metų diena
+2030/2/16,Lietuvos valstybės atkūrimo diena
+2030/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2030/4/21,Šv. Velykos
+2030/4/22,Antroji šv. Velykų diena
+2030/5/1,Tarptautinė darbo diena
+2030/5/5,Motinos diena
+2030/6/2,Tėvo diena
+2030/6/24,Rasos ir Joninių diena
+2030/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2030/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2030/11/1,Visų Šventųjų diena
+2030/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2030/12/24,Kūčių diena
+2030/12/25,Šv. Kalėdų pirma diena
+2030/12/26,Šv. Kalėdų antra diena
+2031/1/1,Naujųjų metų diena
+2031/2/16,Lietuvos valstybės atkūrimo diena
+2031/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2031/4/13,Šv. Velykos
+2031/4/14,Antroji šv. Velykų diena
+2031/5/1,Tarptautinė darbo diena
+2031/5/4,Motinos diena
+2031/6/1,Tėvo diena
+2031/6/24,Rasos ir Joninių diena
+2031/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2031/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2031/11/1,Visų Šventųjų diena
+2031/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2031/12/24,Kūčių diena
+2031/12/25,Šv. Kalėdų pirma diena
+2031/12/26,Šv. Kalėdų antra diena
+2032/1/1,Naujųjų metų diena
+2032/2/16,Lietuvos valstybės atkūrimo diena
+2032/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2032/3/28,Šv. Velykos
+2032/3/29,Antroji šv. Velykų diena
+2032/5/1,Tarptautinė darbo diena
+2032/5/2,Motinos diena
+2032/6/6,Tėvo diena
+2032/6/24,Rasos ir Joninių diena
+2032/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2032/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2032/11/1,Visų Šventųjų diena
+2032/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2032/12/24,Kūčių diena
+2032/12/25,Šv. Kalėdų pirma diena
+2032/12/26,Šv. Kalėdų antra diena
+2033/1/1,Naujųjų metų diena
+2033/2/16,Lietuvos valstybės atkūrimo diena
+2033/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2033/4/17,Šv. Velykos
+2033/4/18,Antroji šv. Velykų diena
+2033/5/1,Motinos diena; Tarptautinė darbo diena
+2033/6/5,Tėvo diena
+2033/6/24,Rasos ir Joninių diena
+2033/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2033/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2033/11/1,Visų Šventųjų diena
+2033/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2033/12/24,Kūčių diena
+2033/12/25,Šv. Kalėdų pirma diena
+2033/12/26,Šv. Kalėdų antra diena
+2034/1/1,Naujųjų metų diena
+2034/2/16,Lietuvos valstybės atkūrimo diena
+2034/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2034/4/9,Šv. Velykos
+2034/4/10,Antroji šv. Velykų diena
+2034/5/1,Tarptautinė darbo diena
+2034/5/7,Motinos diena
+2034/6/4,Tėvo diena
+2034/6/24,Rasos ir Joninių diena
+2034/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2034/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2034/11/1,Visų Šventųjų diena
+2034/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2034/12/24,Kūčių diena
+2034/12/25,Šv. Kalėdų pirma diena
+2034/12/26,Šv. Kalėdų antra diena
+2035/1/1,Naujųjų metų diena
+2035/2/16,Lietuvos valstybės atkūrimo diena
+2035/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2035/3/25,Šv. Velykos
+2035/3/26,Antroji šv. Velykų diena
+2035/5/1,Tarptautinė darbo diena
+2035/5/6,Motinos diena
+2035/6/3,Tėvo diena
+2035/6/24,Rasos ir Joninių diena
+2035/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2035/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2035/11/1,Visų Šventųjų diena
+2035/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2035/12/24,Kūčių diena
+2035/12/25,Šv. Kalėdų pirma diena
+2035/12/26,Šv. Kalėdų antra diena
+2036/1/1,Naujųjų metų diena
+2036/2/16,Lietuvos valstybės atkūrimo diena
+2036/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2036/4/13,Šv. Velykos
+2036/4/14,Antroji šv. Velykų diena
+2036/5/1,Tarptautinė darbo diena
+2036/5/4,Motinos diena
+2036/6/1,Tėvo diena
+2036/6/24,Rasos ir Joninių diena
+2036/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2036/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2036/11/1,Visų Šventųjų diena
+2036/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2036/12/24,Kūčių diena
+2036/12/25,Šv. Kalėdų pirma diena
+2036/12/26,Šv. Kalėdų antra diena
+2037/1/1,Naujųjų metų diena
+2037/2/16,Lietuvos valstybės atkūrimo diena
+2037/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2037/4/5,Šv. Velykos
+2037/4/6,Antroji šv. Velykų diena
+2037/5/1,Tarptautinė darbo diena
+2037/5/3,Motinos diena
+2037/6/7,Tėvo diena
+2037/6/24,Rasos ir Joninių diena
+2037/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2037/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2037/11/1,Visų Šventųjų diena
+2037/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2037/12/24,Kūčių diena
+2037/12/25,Šv. Kalėdų pirma diena
+2037/12/26,Šv. Kalėdų antra diena
+2038/1/1,Naujųjų metų diena
+2038/2/16,Lietuvos valstybės atkūrimo diena
+2038/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2038/4/25,Šv. Velykos
+2038/4/26,Antroji šv. Velykų diena
+2038/5/1,Tarptautinė darbo diena
+2038/5/2,Motinos diena
+2038/6/6,Tėvo diena
+2038/6/24,Rasos ir Joninių diena
+2038/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2038/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2038/11/1,Visų Šventųjų diena
+2038/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2038/12/24,Kūčių diena
+2038/12/25,Šv. Kalėdų pirma diena
+2038/12/26,Šv. Kalėdų antra diena
+2039/1/1,Naujųjų metų diena
+2039/2/16,Lietuvos valstybės atkūrimo diena
+2039/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2039/4/10,Šv. Velykos
+2039/4/11,Antroji šv. Velykų diena
+2039/5/1,Motinos diena; Tarptautinė darbo diena
+2039/6/5,Tėvo diena
+2039/6/24,Rasos ir Joninių diena
+2039/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2039/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2039/11/1,Visų Šventųjų diena
+2039/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2039/12/24,Kūčių diena
+2039/12/25,Šv. Kalėdų pirma diena
+2039/12/26,Šv. Kalėdų antra diena
+2040/1/1,Naujųjų metų diena
+2040/2/16,Lietuvos valstybės atkūrimo diena
+2040/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2040/4/1,Šv. Velykos
+2040/4/2,Antroji šv. Velykų diena
+2040/5/1,Tarptautinė darbo diena
+2040/5/6,Motinos diena
+2040/6/3,Tėvo diena
+2040/6/24,Rasos ir Joninių diena
+2040/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2040/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2040/11/1,Visų Šventųjų diena
+2040/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2040/12/24,Kūčių diena
+2040/12/25,Šv. Kalėdų pirma diena
+2040/12/26,Šv. Kalėdų antra diena
+2041/1/1,Naujųjų metų diena
+2041/2/16,Lietuvos valstybės atkūrimo diena
+2041/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2041/4/21,Šv. Velykos
+2041/4/22,Antroji šv. Velykų diena
+2041/5/1,Tarptautinė darbo diena
+2041/5/5,Motinos diena
+2041/6/2,Tėvo diena
+2041/6/24,Rasos ir Joninių diena
+2041/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2041/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2041/11/1,Visų Šventųjų diena
+2041/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2041/12/24,Kūčių diena
+2041/12/25,Šv. Kalėdų pirma diena
+2041/12/26,Šv. Kalėdų antra diena
+2042/1/1,Naujųjų metų diena
+2042/2/16,Lietuvos valstybės atkūrimo diena
+2042/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2042/4/6,Šv. Velykos
+2042/4/7,Antroji šv. Velykų diena
+2042/5/1,Tarptautinė darbo diena
+2042/5/4,Motinos diena
+2042/6/1,Tėvo diena
+2042/6/24,Rasos ir Joninių diena
+2042/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2042/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2042/11/1,Visų Šventųjų diena
+2042/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2042/12/24,Kūčių diena
+2042/12/25,Šv. Kalėdų pirma diena
+2042/12/26,Šv. Kalėdų antra diena
+2043/1/1,Naujųjų metų diena
+2043/2/16,Lietuvos valstybės atkūrimo diena
+2043/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2043/3/29,Šv. Velykos
+2043/3/30,Antroji šv. Velykų diena
+2043/5/1,Tarptautinė darbo diena
+2043/5/3,Motinos diena
+2043/6/7,Tėvo diena
+2043/6/24,Rasos ir Joninių diena
+2043/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2043/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2043/11/1,Visų Šventųjų diena
+2043/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2043/12/24,Kūčių diena
+2043/12/25,Šv. Kalėdų pirma diena
+2043/12/26,Šv. Kalėdų antra diena
+2044/1/1,Naujųjų metų diena
+2044/2/16,Lietuvos valstybės atkūrimo diena
+2044/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2044/4/17,Šv. Velykos
+2044/4/18,Antroji šv. Velykų diena
+2044/5/1,Motinos diena; Tarptautinė darbo diena
+2044/6/5,Tėvo diena
+2044/6/24,Rasos ir Joninių diena
+2044/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2044/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2044/11/1,Visų Šventųjų diena
+2044/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2044/12/24,Kūčių diena
+2044/12/25,Šv. Kalėdų pirma diena
+2044/12/26,Šv. Kalėdų antra diena
+2045/1/1,Naujųjų metų diena
+2045/2/16,Lietuvos valstybės atkūrimo diena
+2045/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2045/4/9,Šv. Velykos
+2045/4/10,Antroji šv. Velykų diena
+2045/5/1,Tarptautinė darbo diena
+2045/5/7,Motinos diena
+2045/6/4,Tėvo diena
+2045/6/24,Rasos ir Joninių diena
+2045/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2045/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2045/11/1,Visų Šventųjų diena
+2045/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2045/12/24,Kūčių diena
+2045/12/25,Šv. Kalėdų pirma diena
+2045/12/26,Šv. Kalėdų antra diena
+2046/1/1,Naujųjų metų diena
+2046/2/16,Lietuvos valstybės atkūrimo diena
+2046/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2046/3/25,Šv. Velykos
+2046/3/26,Antroji šv. Velykų diena
+2046/5/1,Tarptautinė darbo diena
+2046/5/6,Motinos diena
+2046/6/3,Tėvo diena
+2046/6/24,Rasos ir Joninių diena
+2046/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2046/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2046/11/1,Visų Šventųjų diena
+2046/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2046/12/24,Kūčių diena
+2046/12/25,Šv. Kalėdų pirma diena
+2046/12/26,Šv. Kalėdų antra diena
+2047/1/1,Naujųjų metų diena
+2047/2/16,Lietuvos valstybės atkūrimo diena
+2047/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2047/4/14,Šv. Velykos
+2047/4/15,Antroji šv. Velykų diena
+2047/5/1,Tarptautinė darbo diena
+2047/5/5,Motinos diena
+2047/6/2,Tėvo diena
+2047/6/24,Rasos ir Joninių diena
+2047/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2047/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2047/11/1,Visų Šventųjų diena
+2047/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2047/12/24,Kūčių diena
+2047/12/25,Šv. Kalėdų pirma diena
+2047/12/26,Šv. Kalėdų antra diena
+2048/1/1,Naujųjų metų diena
+2048/2/16,Lietuvos valstybės atkūrimo diena
+2048/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2048/4/5,Šv. Velykos
+2048/4/6,Antroji šv. Velykų diena
+2048/5/1,Tarptautinė darbo diena
+2048/5/3,Motinos diena
+2048/6/7,Tėvo diena
+2048/6/24,Rasos ir Joninių diena
+2048/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2048/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2048/11/1,Visų Šventųjų diena
+2048/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2048/12/24,Kūčių diena
+2048/12/25,Šv. Kalėdų pirma diena
+2048/12/26,Šv. Kalėdų antra diena
+2049/1/1,Naujųjų metų diena
+2049/2/16,Lietuvos valstybės atkūrimo diena
+2049/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2049/4/18,Šv. Velykos
+2049/4/19,Antroji šv. Velykų diena
+2049/5/1,Tarptautinė darbo diena
+2049/5/2,Motinos diena
+2049/6/6,Tėvo diena
+2049/6/24,Rasos ir Joninių diena
+2049/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2049/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2049/11/1,Visų Šventųjų diena
+2049/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2049/12/24,Kūčių diena
+2049/12/25,Šv. Kalėdų pirma diena
+2049/12/26,Šv. Kalėdų antra diena
+2050/1/1,Naujųjų metų diena
+2050/2/16,Lietuvos valstybės atkūrimo diena
+2050/3/11,Lietuvos nepriklausomybės atkūrimo diena
+2050/4/10,Šv. Velykos
+2050/4/11,Antroji šv. Velykų diena
+2050/5/1,Motinos diena; Tarptautinė darbo diena
+2050/6/5,Tėvo diena
+2050/6/24,Rasos ir Joninių diena
+2050/7/6,Valstybės (Lietuvos karaliaus Mindaugo karūnavimo) ir Tautiškos giesmės diena
+2050/8/15,Žolinė (Švč. Mergelės Marijos ėmimo į dangų diena)
+2050/11/1,Visų Šventųjų diena
+2050/11/2,Mirusiųjų atminimo (Vėlinių) diena
+2050/12/24,Kūčių diena
+2050/12/25,Šv. Kalėdų pirma diena
+2050/12/26,Šv. Kalėdų antra diena

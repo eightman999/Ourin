@@ -1,0 +1,464 @@
+# VE holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/2/24,Carnival Monday
+2020/2/25,Carnival Tuesday
+2020/4/9,Maundy Thursday
+2020/4/10,Good Friday
+2020/4/19,Declaration of Independence
+2020/5/1,International Worker's Day
+2020/6/24,Battle of Carabobo
+2020/7/5,Independence Day
+2020/7/24,Birthday of Simon Bolivar
+2020/10/12,Day of Indigenous Resistance
+2020/12/24,Christmas Eve
+2020/12/25,Christmas Day
+2020/12/31,New Year's Eve
+2021/1/1,New Year's Day
+2021/2/15,Carnival Monday
+2021/2/16,Carnival Tuesday
+2021/4/1,Maundy Thursday
+2021/4/2,Good Friday
+2021/4/19,Declaration of Independence
+2021/5/1,International Worker's Day
+2021/6/24,Battle of Carabobo
+2021/7/5,Independence Day
+2021/7/24,Birthday of Simon Bolivar
+2021/10/12,Day of Indigenous Resistance
+2021/12/24,Christmas Eve
+2021/12/25,Christmas Day
+2021/12/31,New Year's Eve
+2022/1/1,New Year's Day
+2022/2/28,Carnival Monday
+2022/3/1,Carnival Tuesday
+2022/4/14,Maundy Thursday
+2022/4/15,Good Friday
+2022/4/19,Declaration of Independence
+2022/5/1,International Worker's Day
+2022/6/24,Battle of Carabobo
+2022/7/5,Independence Day
+2022/7/24,Birthday of Simon Bolivar
+2022/10/12,Day of Indigenous Resistance
+2022/12/24,Christmas Eve
+2022/12/25,Christmas Day
+2022/12/31,New Year's Eve
+2023/1/1,New Year's Day
+2023/2/20,Carnival Monday
+2023/2/21,Carnival Tuesday
+2023/4/6,Maundy Thursday
+2023/4/7,Good Friday
+2023/4/19,Declaration of Independence
+2023/5/1,International Worker's Day
+2023/6/24,Battle of Carabobo
+2023/7/5,Independence Day
+2023/7/24,Birthday of Simon Bolivar
+2023/10/12,Day of Indigenous Resistance
+2023/12/24,Christmas Eve
+2023/12/25,Christmas Day
+2023/12/31,New Year's Eve
+2024/1/1,New Year's Day
+2024/2/12,Carnival Monday
+2024/2/13,Carnival Tuesday
+2024/3/28,Maundy Thursday
+2024/3/29,Good Friday
+2024/4/19,Declaration of Independence
+2024/5/1,International Worker's Day
+2024/5/15,Family Day
+2024/6/24,Battle of Carabobo
+2024/7/5,Independence Day
+2024/7/24,Birthday of Simon Bolivar
+2024/10/12,Day of Indigenous Resistance
+2024/12/24,Christmas Eve
+2024/12/25,Christmas Day
+2024/12/31,New Year's Eve
+2025/1/1,New Year's Day
+2025/3/3,Carnival Monday
+2025/3/4,Carnival Tuesday
+2025/4/17,Maundy Thursday
+2025/4/18,Good Friday
+2025/4/19,Declaration of Independence
+2025/5/1,International Worker's Day
+2025/5/15,Family Day
+2025/6/24,Battle of Carabobo
+2025/7/5,Independence Day
+2025/7/24,Birthday of Simon Bolivar
+2025/10/12,Day of Indigenous Resistance
+2025/10/19,Canonization of José Gregorio Hernández and Mother Carmen Rendiles
+2025/10/20,Canonization of José Gregorio Hernández and Mother Carmen Rendiles
+2025/12/24,Christmas Eve
+2025/12/25,Christmas Day
+2025/12/31,New Year's Eve
+2026/1/1,New Year's Day
+2026/2/16,Carnival Monday
+2026/2/17,Carnival Tuesday
+2026/4/2,Maundy Thursday
+2026/4/3,Good Friday
+2026/4/19,Declaration of Independence
+2026/5/1,International Worker's Day
+2026/5/15,Family Day
+2026/6/24,Battle of Carabobo
+2026/7/5,Independence Day
+2026/7/24,Birthday of Simon Bolivar
+2026/10/12,Day of Indigenous Resistance
+2026/12/24,Christmas Eve
+2026/12/25,Christmas Day
+2026/12/31,New Year's Eve
+2027/1/1,New Year's Day
+2027/2/8,Carnival Monday
+2027/2/9,Carnival Tuesday
+2027/3/25,Maundy Thursday
+2027/3/26,Good Friday
+2027/4/19,Declaration of Independence
+2027/5/1,International Worker's Day
+2027/5/15,Family Day
+2027/6/24,Battle of Carabobo
+2027/7/5,Independence Day
+2027/7/24,Birthday of Simon Bolivar
+2027/10/12,Day of Indigenous Resistance
+2027/12/24,Christmas Eve
+2027/12/25,Christmas Day
+2027/12/31,New Year's Eve
+2028/1/1,New Year's Day
+2028/2/28,Carnival Monday
+2028/2/29,Carnival Tuesday
+2028/4/13,Maundy Thursday
+2028/4/14,Good Friday
+2028/4/19,Declaration of Independence
+2028/5/1,International Worker's Day
+2028/5/15,Family Day
+2028/6/24,Battle of Carabobo
+2028/7/5,Independence Day
+2028/7/24,Birthday of Simon Bolivar
+2028/10/12,Day of Indigenous Resistance
+2028/12/24,Christmas Eve
+2028/12/25,Christmas Day
+2028/12/31,New Year's Eve
+2029/1/1,New Year's Day
+2029/2/12,Carnival Monday
+2029/2/13,Carnival Tuesday
+2029/3/29,Maundy Thursday
+2029/3/30,Good Friday
+2029/4/19,Declaration of Independence
+2029/5/1,International Worker's Day
+2029/5/15,Family Day
+2029/6/24,Battle of Carabobo
+2029/7/5,Independence Day
+2029/7/24,Birthday of Simon Bolivar
+2029/10/12,Day of Indigenous Resistance
+2029/12/24,Christmas Eve
+2029/12/25,Christmas Day
+2029/12/31,New Year's Eve
+2030/1/1,New Year's Day
+2030/3/4,Carnival Monday
+2030/3/5,Carnival Tuesday
+2030/4/18,Maundy Thursday
+2030/4/19,Declaration of Independence; Good Friday
+2030/5/1,International Worker's Day
+2030/5/15,Family Day
+2030/6/24,Battle of Carabobo
+2030/7/5,Independence Day
+2030/7/24,Birthday of Simon Bolivar
+2030/10/12,Day of Indigenous Resistance
+2030/12/24,Christmas Eve
+2030/12/25,Christmas Day
+2030/12/31,New Year's Eve
+2031/1/1,New Year's Day
+2031/2/24,Carnival Monday
+2031/2/25,Carnival Tuesday
+2031/4/10,Maundy Thursday
+2031/4/11,Good Friday
+2031/4/19,Declaration of Independence
+2031/5/1,International Worker's Day
+2031/5/15,Family Day
+2031/6/24,Battle of Carabobo
+2031/7/5,Independence Day
+2031/7/24,Birthday of Simon Bolivar
+2031/10/12,Day of Indigenous Resistance
+2031/12/24,Christmas Eve
+2031/12/25,Christmas Day
+2031/12/31,New Year's Eve
+2032/1/1,New Year's Day
+2032/2/9,Carnival Monday
+2032/2/10,Carnival Tuesday
+2032/3/25,Maundy Thursday
+2032/3/26,Good Friday
+2032/4/19,Declaration of Independence
+2032/5/1,International Worker's Day
+2032/5/15,Family Day
+2032/6/24,Battle of Carabobo
+2032/7/5,Independence Day
+2032/7/24,Birthday of Simon Bolivar
+2032/10/12,Day of Indigenous Resistance
+2032/12/24,Christmas Eve
+2032/12/25,Christmas Day
+2032/12/31,New Year's Eve
+2033/1/1,New Year's Day
+2033/2/28,Carnival Monday
+2033/3/1,Carnival Tuesday
+2033/4/14,Maundy Thursday
+2033/4/15,Good Friday
+2033/4/19,Declaration of Independence
+2033/5/1,International Worker's Day
+2033/5/15,Family Day
+2033/6/24,Battle of Carabobo
+2033/7/5,Independence Day
+2033/7/24,Birthday of Simon Bolivar
+2033/10/12,Day of Indigenous Resistance
+2033/12/24,Christmas Eve
+2033/12/25,Christmas Day
+2033/12/31,New Year's Eve
+2034/1/1,New Year's Day
+2034/2/20,Carnival Monday
+2034/2/21,Carnival Tuesday
+2034/4/6,Maundy Thursday
+2034/4/7,Good Friday
+2034/4/19,Declaration of Independence
+2034/5/1,International Worker's Day
+2034/5/15,Family Day
+2034/6/24,Battle of Carabobo
+2034/7/5,Independence Day
+2034/7/24,Birthday of Simon Bolivar
+2034/10/12,Day of Indigenous Resistance
+2034/12/24,Christmas Eve
+2034/12/25,Christmas Day
+2034/12/31,New Year's Eve
+2035/1/1,New Year's Day
+2035/2/5,Carnival Monday
+2035/2/6,Carnival Tuesday
+2035/3/22,Maundy Thursday
+2035/3/23,Good Friday
+2035/4/19,Declaration of Independence
+2035/5/1,International Worker's Day
+2035/5/15,Family Day
+2035/6/24,Battle of Carabobo
+2035/7/5,Independence Day
+2035/7/24,Birthday of Simon Bolivar
+2035/10/12,Day of Indigenous Resistance
+2035/12/24,Christmas Eve
+2035/12/25,Christmas Day
+2035/12/31,New Year's Eve
+2036/1/1,New Year's Day
+2036/2/25,Carnival Monday
+2036/2/26,Carnival Tuesday
+2036/4/10,Maundy Thursday
+2036/4/11,Good Friday
+2036/4/19,Declaration of Independence
+2036/5/1,International Worker's Day
+2036/5/15,Family Day
+2036/6/24,Battle of Carabobo
+2036/7/5,Independence Day
+2036/7/24,Birthday of Simon Bolivar
+2036/10/12,Day of Indigenous Resistance
+2036/12/24,Christmas Eve
+2036/12/25,Christmas Day
+2036/12/31,New Year's Eve
+2037/1/1,New Year's Day
+2037/2/16,Carnival Monday
+2037/2/17,Carnival Tuesday
+2037/4/2,Maundy Thursday
+2037/4/3,Good Friday
+2037/4/19,Declaration of Independence
+2037/5/1,International Worker's Day
+2037/5/15,Family Day
+2037/6/24,Battle of Carabobo
+2037/7/5,Independence Day
+2037/7/24,Birthday of Simon Bolivar
+2037/10/12,Day of Indigenous Resistance
+2037/12/24,Christmas Eve
+2037/12/25,Christmas Day
+2037/12/31,New Year's Eve
+2038/1/1,New Year's Day
+2038/3/8,Carnival Monday
+2038/3/9,Carnival Tuesday
+2038/4/19,Declaration of Independence
+2038/4/22,Maundy Thursday
+2038/4/23,Good Friday
+2038/5/1,International Worker's Day
+2038/5/15,Family Day
+2038/6/24,Battle of Carabobo
+2038/7/5,Independence Day
+2038/7/24,Birthday of Simon Bolivar
+2038/10/12,Day of Indigenous Resistance
+2038/12/24,Christmas Eve
+2038/12/25,Christmas Day
+2038/12/31,New Year's Eve
+2039/1/1,New Year's Day
+2039/2/21,Carnival Monday
+2039/2/22,Carnival Tuesday
+2039/4/7,Maundy Thursday
+2039/4/8,Good Friday
+2039/4/19,Declaration of Independence
+2039/5/1,International Worker's Day
+2039/5/15,Family Day
+2039/6/24,Battle of Carabobo
+2039/7/5,Independence Day
+2039/7/24,Birthday of Simon Bolivar
+2039/10/12,Day of Indigenous Resistance
+2039/12/24,Christmas Eve
+2039/12/25,Christmas Day
+2039/12/31,New Year's Eve
+2040/1/1,New Year's Day
+2040/2/13,Carnival Monday
+2040/2/14,Carnival Tuesday
+2040/3/29,Maundy Thursday
+2040/3/30,Good Friday
+2040/4/19,Declaration of Independence
+2040/5/1,International Worker's Day
+2040/5/15,Family Day
+2040/6/24,Battle of Carabobo
+2040/7/5,Independence Day
+2040/7/24,Birthday of Simon Bolivar
+2040/10/12,Day of Indigenous Resistance
+2040/12/24,Christmas Eve
+2040/12/25,Christmas Day
+2040/12/31,New Year's Eve
+2041/1/1,New Year's Day
+2041/3/4,Carnival Monday
+2041/3/5,Carnival Tuesday
+2041/4/18,Maundy Thursday
+2041/4/19,Declaration of Independence; Good Friday
+2041/5/1,International Worker's Day
+2041/5/15,Family Day
+2041/6/24,Battle of Carabobo
+2041/7/5,Independence Day
+2041/7/24,Birthday of Simon Bolivar
+2041/10/12,Day of Indigenous Resistance
+2041/12/24,Christmas Eve
+2041/12/25,Christmas Day
+2041/12/31,New Year's Eve
+2042/1/1,New Year's Day
+2042/2/17,Carnival Monday
+2042/2/18,Carnival Tuesday
+2042/4/3,Maundy Thursday
+2042/4/4,Good Friday
+2042/4/19,Declaration of Independence
+2042/5/1,International Worker's Day
+2042/5/15,Family Day
+2042/6/24,Battle of Carabobo
+2042/7/5,Independence Day
+2042/7/24,Birthday of Simon Bolivar
+2042/10/12,Day of Indigenous Resistance
+2042/12/24,Christmas Eve
+2042/12/25,Christmas Day
+2042/12/31,New Year's Eve
+2043/1/1,New Year's Day
+2043/2/9,Carnival Monday
+2043/2/10,Carnival Tuesday
+2043/3/26,Maundy Thursday
+2043/3/27,Good Friday
+2043/4/19,Declaration of Independence
+2043/5/1,International Worker's Day
+2043/5/15,Family Day
+2043/6/24,Battle of Carabobo
+2043/7/5,Independence Day
+2043/7/24,Birthday of Simon Bolivar
+2043/10/12,Day of Indigenous Resistance
+2043/12/24,Christmas Eve
+2043/12/25,Christmas Day
+2043/12/31,New Year's Eve
+2044/1/1,New Year's Day
+2044/2/29,Carnival Monday
+2044/3/1,Carnival Tuesday
+2044/4/14,Maundy Thursday
+2044/4/15,Good Friday
+2044/4/19,Declaration of Independence
+2044/5/1,International Worker's Day
+2044/5/15,Family Day
+2044/6/24,Battle of Carabobo
+2044/7/5,Independence Day
+2044/7/24,Birthday of Simon Bolivar
+2044/10/12,Day of Indigenous Resistance
+2044/12/24,Christmas Eve
+2044/12/25,Christmas Day
+2044/12/31,New Year's Eve
+2045/1/1,New Year's Day
+2045/2/20,Carnival Monday
+2045/2/21,Carnival Tuesday
+2045/4/6,Maundy Thursday
+2045/4/7,Good Friday
+2045/4/19,Declaration of Independence
+2045/5/1,International Worker's Day
+2045/5/15,Family Day
+2045/6/24,Battle of Carabobo
+2045/7/5,Independence Day
+2045/7/24,Birthday of Simon Bolivar
+2045/10/12,Day of Indigenous Resistance
+2045/12/24,Christmas Eve
+2045/12/25,Christmas Day
+2045/12/31,New Year's Eve
+2046/1/1,New Year's Day
+2046/2/5,Carnival Monday
+2046/2/6,Carnival Tuesday
+2046/3/22,Maundy Thursday
+2046/3/23,Good Friday
+2046/4/19,Declaration of Independence
+2046/5/1,International Worker's Day
+2046/5/15,Family Day
+2046/6/24,Battle of Carabobo
+2046/7/5,Independence Day
+2046/7/24,Birthday of Simon Bolivar
+2046/10/12,Day of Indigenous Resistance
+2046/12/24,Christmas Eve
+2046/12/25,Christmas Day
+2046/12/31,New Year's Eve
+2047/1/1,New Year's Day
+2047/2/25,Carnival Monday
+2047/2/26,Carnival Tuesday
+2047/4/11,Maundy Thursday
+2047/4/12,Good Friday
+2047/4/19,Declaration of Independence
+2047/5/1,International Worker's Day
+2047/5/15,Family Day
+2047/6/24,Battle of Carabobo
+2047/7/5,Independence Day
+2047/7/24,Birthday of Simon Bolivar
+2047/10/12,Day of Indigenous Resistance
+2047/12/24,Christmas Eve
+2047/12/25,Christmas Day
+2047/12/31,New Year's Eve
+2048/1/1,New Year's Day
+2048/2/17,Carnival Monday
+2048/2/18,Carnival Tuesday
+2048/4/2,Maundy Thursday
+2048/4/3,Good Friday
+2048/4/19,Declaration of Independence
+2048/5/1,International Worker's Day
+2048/5/15,Family Day
+2048/6/24,Battle of Carabobo
+2048/7/5,Independence Day
+2048/7/24,Birthday of Simon Bolivar
+2048/10/12,Day of Indigenous Resistance
+2048/12/24,Christmas Eve
+2048/12/25,Christmas Day
+2048/12/31,New Year's Eve
+2049/1/1,New Year's Day
+2049/3/1,Carnival Monday
+2049/3/2,Carnival Tuesday
+2049/4/15,Maundy Thursday
+2049/4/16,Good Friday
+2049/4/19,Declaration of Independence
+2049/5/1,International Worker's Day
+2049/5/15,Family Day
+2049/6/24,Battle of Carabobo
+2049/7/5,Independence Day
+2049/7/24,Birthday of Simon Bolivar
+2049/10/12,Day of Indigenous Resistance
+2049/12/24,Christmas Eve
+2049/12/25,Christmas Day
+2049/12/31,New Year's Eve
+2050/1/1,New Year's Day
+2050/2/21,Carnival Monday
+2050/2/22,Carnival Tuesday
+2050/4/7,Maundy Thursday
+2050/4/8,Good Friday
+2050/4/19,Declaration of Independence
+2050/5/1,International Worker's Day
+2050/5/15,Family Day
+2050/6/24,Battle of Carabobo
+2050/7/5,Independence Day
+2050/7/24,Birthday of Simon Bolivar
+2050/10/12,Day of Indigenous Resistance
+2050/12/24,Christmas Eve
+2050/12/25,Christmas Day
+2050/12/31,New Year's Eve

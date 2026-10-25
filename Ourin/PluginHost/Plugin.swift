@@ -5,32 +5,67 @@ public typealias PluginRequestFn = @convention(c) (UnsafePointer<UInt8>, Int, Un
 public typealias PluginLoadFn = @convention(c) (UnsafePointer<CChar>) -> Int32
 public typealias PluginUnloadFn = @convention(c) () -> Void
 
-/// Single plugin bundle wrapper
+/// Single native plugin module wrapper (`.plugin` / `.bundle` / `.dylib`).
+///
+/// request の呼び出し規約は 2 種類を扱う。
+/// - `.ourin`（既定）: `request(const uchar*, size_t, size_t*)`。戻り値はモジュール所有（ホストは複製するだけ）。
+/// - `.ukagaka`: Windows DLL と同じ `request(HGLOBAL, long*)`。Info.plist の `OurinModuleABI` で宣言するか、
+///   単体 `.dylib`（DLL ソースをそのままビルドしたもの）の場合に選ぶ。
 public struct Plugin: Hashable {
-    let bundle: Bundle
-    let request: PluginRequestFn
-    let load: PluginLoadFn?
+    /// ロード対象のモジュール（`.plugin` / `.bundle` / `.dylib`）。
+    public let url: URL
+    let bundle: Bundle?
+    let convention: UkagakaModuleABI.Convention
+    let request: PluginRequestFn?
+    let ukagakaRequest: UkagakaModuleABI.RequestFn?
+    let loadEntry: UkagakaModuleABI.LoadFn?
     let unload: PluginUnloadFn?
 
     public init(url: URL) throws {
-        guard let bundle = Bundle(url: url) else {
+        guard let executableURL = UkagakaModuleABI.executableURL(forModuleAt: url) else {
             throw NSError(domain: "Plugin", code: -1, userInfo: [NSLocalizedDescriptionKey: "invalid bundle"])
         }
-        self.bundle = bundle
-        // force load image
-        _ = bundle.principalClass
-        func sym<T>(_ name: String) -> T? {
-            let fp = CFBundleGetFunctionPointerForName(bundle._cfBundle, name as CFString)
-            guard fp != nil else { return nil }
-            return unsafeBitCast(fp, to: Optional<T>.self)
+        // CFBundle の識別子検索に頼らず実行体を直接開く（CFBundleIdentifier の無い移植 bundle や単体 dylib を扱うため）。
+        guard let handle = dlopen(executableURL.path, RTLD_NOW | RTLD_LOCAL) else {
+            let detail = dlerror().map { String(cString: $0) } ?? "unknown"
+            throw NSError(domain: "Plugin", code: -1, userInfo: [NSLocalizedDescriptionKey: "dlopen failed: \(detail)"])
         }
-        guard let req: PluginRequestFn = sym("request") else {
+        func sym<T>(_ names: String...) -> T? {
+            for name in names {
+                if let fp = dlsym(handle, name) { return unsafeBitCast(fp, to: T.self) }
+            }
+            return nil
+        }
+
+        let isBundle = executableURL != url
+        self.url = url
+        self.bundle = isBundle ? Bundle(url: url) : nil
+        self.convention = UkagakaModuleABI.convention(
+            declaredIn: bundle?.infoDictionary,
+            fallback: isBundle ? .ourin : .ukagaka
+        )
+        switch convention {
+        case .ourin:
+            self.request = sym("request", "plugin_request")
+            self.ukagakaRequest = nil
+        case .ukagaka:
+            self.request = nil
+            self.ukagakaRequest = sym("request", "plugin_request")
+        }
+        guard request != nil || ukagakaRequest != nil else {
             throw NSError(domain: "Plugin", code: -2, userInfo: [NSLocalizedDescriptionKey: "request not found"])
         }
-        self.request = req
         // ukagaka DLL 規約: `loadu` は UTF-8 パス版 load。存在すれば優先（macOS のパスは UTF-8）。
-        self.load = sym("loadu") ?? sym("load")
-        self.unload = sym("unloadu") ?? sym("unload")
+        self.loadEntry = sym("loadu", "load", "plugin_loadu", "plugin_load")
+        self.unload = sym("unloadu", "unload", "plugin_unloadu", "plugin_unload")
+    }
+
+    /// `load` / `loadu` を呼ぶ。引数はモジュールのディレクトリ（末尾区切り付き、malloc 確保で所有権はモジュールへ）。
+    /// 旧来の `int load(const char*)` にも同じポインタで互換。エントリが無い場合は成功扱い。
+    @discardableResult
+    public func load(directoryURL: URL) -> Bool {
+        guard let loadEntry else { return true }
+        return UkagakaModuleABI.callLoad(loadEntry, directoryURL: directoryURL)
     }
 
     /// Send raw wire text to plugin and return response string decoded by PLUGIN Charset semantics.
@@ -42,16 +77,20 @@ public struct Plugin: Hashable {
 
     /// Send raw wire bytes to plugin and return raw response bytes.
     public func send(_ data: Data) -> Data? {
+        if let ukagakaRequest {
+            return UkagakaModuleABI.callRequest(ukagakaRequest, data: data)
+        }
+        guard let request else { return nil }
         var outLen: Int = 0
         var bytes = Array(data)
-        let byteCount = bytes.count
+        if bytes.isEmpty { bytes = [0] }
+        let byteCount = data.count
 
         let respPtr = bytes.withUnsafeMutableBytes { raw -> UnsafePointer<UInt8>? in
             return request(raw.bindMemory(to: UInt8.self).baseAddress!, byteCount, &outLen)
         }
         guard let p = respPtr else { return nil }
-        let buf = UnsafeBufferPointer(start: p, count: outLen)
-        return Data(buffer: buf)
+        return Data(bytes: p, count: max(outLen, 0))
     }
 
     /// Send structured PLUGIN/2.0M request to plugin and parse response
@@ -94,16 +133,10 @@ public struct Plugin: Hashable {
 
 extension Plugin {
     public static func == (lhs: Plugin, rhs: Plugin) -> Bool {
-        lhs.bundle.bundleURL == rhs.bundle.bundleURL
+        lhs.url == rhs.url
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(bundle.bundleURL)
-    }
-}
-
-private extension Bundle {
-    var _cfBundle: CFBundle {
-        CFBundleGetBundleWithIdentifier(self.bundleIdentifier! as CFString)!
+        hasher.combine(url)
     }
 }

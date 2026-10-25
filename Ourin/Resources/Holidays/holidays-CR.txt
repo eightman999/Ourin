@@ -1,0 +1,279 @@
+# CR の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/4/9,Jueves Santo
+2020/4/10,Viernes Santo
+2020/4/11,Día de Juan Santamaría
+2020/5/1,Día Internacional del Trabajo
+2020/7/27,Anexión del Partido de Nicoya a Costa Rica (observado)
+2020/8/17,Día de la Madre (observado)
+2020/9/14,Día de la Independencia (observado)
+2020/12/25,Navidad
+2021/1/1,Año Nuevo
+2021/4/1,Jueves Santo
+2021/4/2,Viernes Santo
+2021/4/11,Día de Juan Santamaría
+2021/5/3,Día Internacional del Trabajo (observado)
+2021/7/26,Anexión del Partido de Nicoya a Costa Rica (observado)
+2021/8/15,Día de la Madre
+2021/9/13,Día de la Independencia (observado)
+2021/12/25,Navidad
+2022/1/1,Año Nuevo
+2022/4/11,Día de Juan Santamaría
+2022/4/14,Jueves Santo
+2022/4/15,Viernes Santo
+2022/5/1,Día Internacional del Trabajo
+2022/7/25,Anexión del Partido de Nicoya a Costa Rica
+2022/8/15,Día de la Madre
+2022/9/19,Día de la Independencia (observado)
+2022/12/25,Navidad
+2023/1/1,Año Nuevo
+2023/4/6,Jueves Santo
+2023/4/7,Viernes Santo
+2023/4/10,Día de Juan Santamaría (observado)
+2023/5/1,Día Internacional del Trabajo
+2023/7/24,Anexión del Partido de Nicoya a Costa Rica (observado)
+2023/8/14,Día de la Madre (observado)
+2023/9/15,Día de la Independencia
+2023/12/25,Navidad
+2024/1/1,Año Nuevo
+2024/3/28,Jueves Santo
+2024/3/29,Viernes Santo
+2024/4/15,Día de Juan Santamaría (observado)
+2024/5/1,Día Internacional del Trabajo
+2024/7/29,Anexión del Partido de Nicoya a Costa Rica (observado)
+2024/8/19,Día de la Madre (observado)
+2024/9/15,Día de la Independencia
+2024/12/25,Navidad
+2025/1/1,Año Nuevo
+2025/4/11,Día de Juan Santamaría
+2025/4/17,Jueves Santo
+2025/4/18,Viernes Santo
+2025/5/1,Día Internacional del Trabajo
+2025/7/25,Anexión del Partido de Nicoya a Costa Rica
+2025/8/15,Día de la Madre
+2025/9/15,Día de la Independencia
+2025/12/25,Navidad
+2026/1/1,Año Nuevo
+2026/4/2,Jueves Santo
+2026/4/3,Viernes Santo
+2026/4/11,Día de Juan Santamaría
+2026/5/1,Día Internacional del Trabajo
+2026/7/25,Anexión del Partido de Nicoya a Costa Rica
+2026/8/15,Día de la Madre
+2026/9/15,Día de la Independencia
+2026/12/25,Navidad
+2027/1/1,Año Nuevo
+2027/3/25,Jueves Santo
+2027/3/26,Viernes Santo
+2027/4/11,Día de Juan Santamaría
+2027/5/1,Día Internacional del Trabajo
+2027/7/25,Anexión del Partido de Nicoya a Costa Rica
+2027/8/15,Día de la Madre
+2027/9/15,Día de la Independencia
+2027/12/25,Navidad
+2028/1/1,Año Nuevo
+2028/4/11,Día de Juan Santamaría
+2028/4/13,Jueves Santo
+2028/4/14,Viernes Santo
+2028/5/1,Día Internacional del Trabajo
+2028/7/25,Anexión del Partido de Nicoya a Costa Rica
+2028/8/15,Día de la Madre
+2028/9/15,Día de la Independencia
+2028/12/25,Navidad
+2029/1/1,Año Nuevo
+2029/3/29,Jueves Santo
+2029/3/30,Viernes Santo
+2029/4/11,Día de Juan Santamaría
+2029/5/1,Día Internacional del Trabajo
+2029/7/25,Anexión del Partido de Nicoya a Costa Rica
+2029/8/15,Día de la Madre
+2029/9/15,Día de la Independencia
+2029/12/25,Navidad
+2030/1/1,Año Nuevo
+2030/4/11,Día de Juan Santamaría
+2030/4/18,Jueves Santo
+2030/4/19,Viernes Santo
+2030/5/1,Día Internacional del Trabajo
+2030/7/25,Anexión del Partido de Nicoya a Costa Rica
+2030/8/15,Día de la Madre
+2030/9/15,Día de la Independencia
+2030/12/25,Navidad
+2031/1/1,Año Nuevo
+2031/4/10,Jueves Santo
+2031/4/11,Día de Juan Santamaría; Viernes Santo
+2031/5/1,Día Internacional del Trabajo
+2031/7/25,Anexión del Partido de Nicoya a Costa Rica
+2031/8/15,Día de la Madre
+2031/9/15,Día de la Independencia
+2031/12/25,Navidad
+2032/1/1,Año Nuevo
+2032/3/25,Jueves Santo
+2032/3/26,Viernes Santo
+2032/4/11,Día de Juan Santamaría
+2032/5/1,Día Internacional del Trabajo
+2032/7/25,Anexión del Partido de Nicoya a Costa Rica
+2032/8/15,Día de la Madre
+2032/9/15,Día de la Independencia
+2032/12/25,Navidad
+2033/1/1,Año Nuevo
+2033/4/11,Día de Juan Santamaría
+2033/4/14,Jueves Santo
+2033/4/15,Viernes Santo
+2033/5/1,Día Internacional del Trabajo
+2033/7/25,Anexión del Partido de Nicoya a Costa Rica
+2033/8/15,Día de la Madre
+2033/9/15,Día de la Independencia
+2033/12/25,Navidad
+2034/1/1,Año Nuevo
+2034/4/6,Jueves Santo
+2034/4/7,Viernes Santo
+2034/4/11,Día de Juan Santamaría
+2034/5/1,Día Internacional del Trabajo
+2034/7/25,Anexión del Partido de Nicoya a Costa Rica
+2034/8/15,Día de la Madre
+2034/9/15,Día de la Independencia
+2034/12/25,Navidad
+2035/1/1,Año Nuevo
+2035/3/22,Jueves Santo
+2035/3/23,Viernes Santo
+2035/4/11,Día de Juan Santamaría
+2035/5/1,Día Internacional del Trabajo
+2035/7/25,Anexión del Partido de Nicoya a Costa Rica
+2035/8/15,Día de la Madre
+2035/9/15,Día de la Independencia
+2035/12/25,Navidad
+2036/1/1,Año Nuevo
+2036/4/10,Jueves Santo
+2036/4/11,Día de Juan Santamaría; Viernes Santo
+2036/5/1,Día Internacional del Trabajo
+2036/7/25,Anexión del Partido de Nicoya a Costa Rica
+2036/8/15,Día de la Madre
+2036/9/15,Día de la Independencia
+2036/12/25,Navidad
+2037/1/1,Año Nuevo
+2037/4/2,Jueves Santo
+2037/4/3,Viernes Santo
+2037/4/11,Día de Juan Santamaría
+2037/5/1,Día Internacional del Trabajo
+2037/7/25,Anexión del Partido de Nicoya a Costa Rica
+2037/8/15,Día de la Madre
+2037/9/15,Día de la Independencia
+2037/12/25,Navidad
+2038/1/1,Año Nuevo
+2038/4/11,Día de Juan Santamaría
+2038/4/22,Jueves Santo
+2038/4/23,Viernes Santo
+2038/5/1,Día Internacional del Trabajo
+2038/7/25,Anexión del Partido de Nicoya a Costa Rica
+2038/8/15,Día de la Madre
+2038/9/15,Día de la Independencia
+2038/12/25,Navidad
+2039/1/1,Año Nuevo
+2039/4/7,Jueves Santo
+2039/4/8,Viernes Santo
+2039/4/11,Día de Juan Santamaría
+2039/5/1,Día Internacional del Trabajo
+2039/7/25,Anexión del Partido de Nicoya a Costa Rica
+2039/8/15,Día de la Madre
+2039/9/15,Día de la Independencia
+2039/12/25,Navidad
+2040/1/1,Año Nuevo
+2040/3/29,Jueves Santo
+2040/3/30,Viernes Santo
+2040/4/11,Día de Juan Santamaría
+2040/5/1,Día Internacional del Trabajo
+2040/7/25,Anexión del Partido de Nicoya a Costa Rica
+2040/8/15,Día de la Madre
+2040/9/15,Día de la Independencia
+2040/12/25,Navidad
+2041/1/1,Año Nuevo
+2041/4/11,Día de Juan Santamaría
+2041/4/18,Jueves Santo
+2041/4/19,Viernes Santo
+2041/5/1,Día Internacional del Trabajo
+2041/7/25,Anexión del Partido de Nicoya a Costa Rica
+2041/8/15,Día de la Madre
+2041/9/15,Día de la Independencia
+2041/12/25,Navidad
+2042/1/1,Año Nuevo
+2042/4/3,Jueves Santo
+2042/4/4,Viernes Santo
+2042/4/11,Día de Juan Santamaría
+2042/5/1,Día Internacional del Trabajo
+2042/7/25,Anexión del Partido de Nicoya a Costa Rica
+2042/8/15,Día de la Madre
+2042/9/15,Día de la Independencia
+2042/12/25,Navidad
+2043/1/1,Año Nuevo
+2043/3/26,Jueves Santo
+2043/3/27,Viernes Santo
+2043/4/11,Día de Juan Santamaría
+2043/5/1,Día Internacional del Trabajo
+2043/7/25,Anexión del Partido de Nicoya a Costa Rica
+2043/8/15,Día de la Madre
+2043/9/15,Día de la Independencia
+2043/12/25,Navidad
+2044/1/1,Año Nuevo
+2044/4/11,Día de Juan Santamaría
+2044/4/14,Jueves Santo
+2044/4/15,Viernes Santo
+2044/5/1,Día Internacional del Trabajo
+2044/7/25,Anexión del Partido de Nicoya a Costa Rica
+2044/8/15,Día de la Madre
+2044/9/15,Día de la Independencia
+2044/12/25,Navidad
+2045/1/1,Año Nuevo
+2045/4/6,Jueves Santo
+2045/4/7,Viernes Santo
+2045/4/11,Día de Juan Santamaría
+2045/5/1,Día Internacional del Trabajo
+2045/7/25,Anexión del Partido de Nicoya a Costa Rica
+2045/8/15,Día de la Madre
+2045/9/15,Día de la Independencia
+2045/12/25,Navidad
+2046/1/1,Año Nuevo
+2046/3/22,Jueves Santo
+2046/3/23,Viernes Santo
+2046/4/11,Día de Juan Santamaría
+2046/5/1,Día Internacional del Trabajo
+2046/7/25,Anexión del Partido de Nicoya a Costa Rica
+2046/8/15,Día de la Madre
+2046/9/15,Día de la Independencia
+2046/12/25,Navidad
+2047/1/1,Año Nuevo
+2047/4/11,Día de Juan Santamaría; Jueves Santo
+2047/4/12,Viernes Santo
+2047/5/1,Día Internacional del Trabajo
+2047/7/25,Anexión del Partido de Nicoya a Costa Rica
+2047/8/15,Día de la Madre
+2047/9/15,Día de la Independencia
+2047/12/25,Navidad
+2048/1/1,Año Nuevo
+2048/4/2,Jueves Santo
+2048/4/3,Viernes Santo
+2048/4/11,Día de Juan Santamaría
+2048/5/1,Día Internacional del Trabajo
+2048/7/25,Anexión del Partido de Nicoya a Costa Rica
+2048/8/15,Día de la Madre
+2048/9/15,Día de la Independencia
+2048/12/25,Navidad
+2049/1/1,Año Nuevo
+2049/4/11,Día de Juan Santamaría
+2049/4/15,Jueves Santo
+2049/4/16,Viernes Santo
+2049/5/1,Día Internacional del Trabajo
+2049/7/25,Anexión del Partido de Nicoya a Costa Rica
+2049/8/15,Día de la Madre
+2049/9/15,Día de la Independencia
+2049/12/25,Navidad
+2050/1/1,Año Nuevo
+2050/4/7,Jueves Santo
+2050/4/8,Viernes Santo
+2050/4/11,Día de Juan Santamaría
+2050/5/1,Día Internacional del Trabajo
+2050/7/25,Anexión del Partido de Nicoya a Costa Rica
+2050/8/15,Día de la Madre
+2050/9/15,Día de la Independencia
+2050/12/25,Navidad

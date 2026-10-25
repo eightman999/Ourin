@@ -1,0 +1,17 @@
+charset,UTF-8
+
+name,Sakura and Rinne
+sakura.name,さくら
+kero.name,りんね
+char2.name,ベル
+id,SakuraRinne
+balloon,sakura
+title,Ourin Default Ghost
+craftman,Ourin
+craftmanw,Ourin
+
+shiori,yaya.dll
+shiori.version,SHIORI/3.0
+sakura.seriko.defaultsurface,0
+kero.seriko.defaultsurface,100
+char2.seriko.defaultsurface,10

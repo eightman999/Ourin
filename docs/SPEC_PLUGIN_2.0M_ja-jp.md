@@ -121,6 +121,19 @@ PLUGIN request の `Target` 解決では、native としてロード済みの pl
   ```
   ※ 2.0 の関数構成を C ABI に読み替える（HGLOBAL 等の WinAPI 前提は撤廃）。
 - **メモリ管理**：既定は **呼び出し側（ホスト）でコピー/破棄**。必要なら `plugin_free()` を任意提供。
+  ホストは応答を複製するだけで `plugin_free()` を自動では呼ばない（静的バッファを返す実装と両立させるため）。
+- **load の引数**：ホストは `malloc` 確保・NUL 終端・**末尾 `/` 付き**のディレクトリを `load(ptr, len)` 形式で渡す。
+  所有権はモジュールへ移るので `free()` してよい。`int load(const char*)` の実装もそのまま受け取れる。戻り値 0 はログに残すがロードは継続する。
+- **Windows DLL 互換 ABI（任意）**：DLL のソースを変えずに移植する場合、Windows と同じ
+  ```c
+  int   load(void *h, long len);      // h は free する
+  void *request(void *h, long *len);  // h は free する。*len は入力長→出力長。戻り値は malloc 確保（ホストが free）
+  ```
+  を使える。`.plugin` / `.bundle` は Info.plist に `OurinModuleABI` = `ukagaka` を宣言する。
+  bundle にしない単体 `.dylib` はこの規約を既定とする。HEADLINE の `execute` も同じ扱い。
+- **配置と解決**：`plugin/<name>/descript.txt` の `filename`（例 `Foo.dll`）から、同じディレクトリの
+  `Foo.dylib` / `libFoo.dylib` / `Foo.plugin` / `Foo.bundle` / `Foo.so` を大小文字を区別せずに探す。
+  `install.txt` は不要。Windows PE（`MZ`）の `.dll` 自体は実行対象にしない。HEADLINE（`headline/<name>/`）・SAORI も同じ規則で解決する。
 
 ## 8. イベント分岐（実装指針）
 - リクエストは **ID ヘッダ**と任意個の **ReferenceN** で表現される（2.0 と同様）。ID ごとに処理を分岐する。  

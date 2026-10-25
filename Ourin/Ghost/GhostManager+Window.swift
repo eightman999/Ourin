@@ -298,7 +298,7 @@ extension GhostManager {
             item.enabled = entry.canDispatchRequests
             return item
         }
-        items.append(OwnerDrawMenuItem(type: .submenu(items: pluginItems, action: nil), caption: "プラグイン(P)"))
+        items.append(OwnerDrawMenuItem(type: .submenu(items: pluginItems, action: nil), caption: NSLocalizedString("プラグイン(P)", comment: "Owner-draw menu")))
     }
 
     private func defaultMenuItems() -> [OwnerDrawMenuItem] {
@@ -310,7 +310,7 @@ extension GhostManager {
                 let safe = name.addingPercentEncoding(withAllowedCharacters: .alphanumerics.union(.init(charactersIn: "-._~"))) ?? name
                 return OwnerDrawMenuItem(type: .button(action: "switch_ghost:\(safe)"), caption: name)
             }
-            items.append(OwnerDrawMenuItem(type: .submenu(items: ghostItems, action: nil), caption: "ゴースト(G)"))
+            items.append(OwnerDrawMenuItem(type: .submenu(items: ghostItems, action: nil), caption: NSLocalizedString("ゴースト(G)", comment: "Owner-draw menu")))
         }
 
         let shellRoot = ghostURL.appendingPathComponent("shell", isDirectory: true)
@@ -321,7 +321,7 @@ extension GhostManager {
                     let safe = name.addingPercentEncoding(withAllowedCharacters: .alphanumerics.union(.init(charactersIn: "-._~"))) ?? name
                     return OwnerDrawMenuItem(type: .button(action: "switch_shell:\(safe)"), caption: name)
                 }
-                items.append(OwnerDrawMenuItem(type: .submenu(items: shellItems, action: nil), caption: "シェル(S)"))
+                items.append(OwnerDrawMenuItem(type: .submenu(items: shellItems, action: nil), caption: NSLocalizedString("シェル(S)", comment: "Owner-draw menu")))
             }
         }
 
@@ -331,7 +331,7 @@ extension GhostManager {
                 let safe = name.addingPercentEncoding(withAllowedCharacters: .alphanumerics.union(.init(charactersIn: "-._~"))) ?? name
                 return OwnerDrawMenuItem(type: .button(action: "switch_balloon:\(safe)"), caption: name)
             }
-            items.append(OwnerDrawMenuItem(type: .submenu(items: balloonItems, action: nil), caption: "バルーン(B)"))
+            items.append(OwnerDrawMenuItem(type: .submenu(items: balloonItems, action: nil), caption: NSLocalizedString("バルーン(B)", comment: "Owner-draw menu")))
         }
 
         let scope = currentScope
@@ -342,17 +342,17 @@ extension GhostManager {
                 let prefix = enabled ? "✓ " : ""
                 return OwnerDrawMenuItem(type: .button(action: "dressup_bindgroup:\(scope):\(entry.bindGroupID)"), caption: "\(prefix)\(entry.category) / \(entry.part)")
             }
-            items.append(OwnerDrawMenuItem(type: .submenu(items: dressupItems, action: nil), caption: "着せ替え(D)"))
+            items.append(OwnerDrawMenuItem(type: .submenu(items: dressupItems, action: nil), caption: NSLocalizedString("着せ替え(D)", comment: "Owner-draw menu")))
         }
 
         items.append(OwnerDrawMenuItem(type: .separator, caption: ""))
-        items.append(OwnerDrawMenuItem(type: .button(action: "menu_ghost_info"), caption: "情報(I)"))
-        items.append(OwnerDrawMenuItem(type: .button(action: "menu_communicate"), caption: "話しかける(T)"))
+        items.append(OwnerDrawMenuItem(type: .button(action: "menu_ghost_info"), caption: NSLocalizedString("情報(I)", comment: "Owner-draw menu")))
+        items.append(OwnerDrawMenuItem(type: .button(action: "menu_communicate"), caption: NSLocalizedString("話しかける(T)", comment: "Owner-draw menu")))
         items.append(OwnerDrawMenuItem(type: .separator, caption: ""))
-        items.append(OwnerDrawMenuItem(type: .button(action: "menu_reload"), caption: "再読み込み(R)"))
-        items.append(OwnerDrawMenuItem(type: .button(action: "menu_settings"), caption: "設定(O)"))
+        items.append(OwnerDrawMenuItem(type: .button(action: "menu_reload"), caption: NSLocalizedString("再読み込み(R)", comment: "Owner-draw menu")))
+        items.append(OwnerDrawMenuItem(type: .button(action: "menu_settings"), caption: NSLocalizedString("設定(O)", comment: "Owner-draw menu")))
         items.append(OwnerDrawMenuItem(type: .separator, caption: ""))
-        items.append(OwnerDrawMenuItem(type: .button(action: "menu_quit"), caption: "終了(Q)"))
+        items.append(OwnerDrawMenuItem(type: .button(action: "menu_quit"), caption: NSLocalizedString("終了(Q)", comment: "Owner-draw menu")))
 
         return items
     }

@@ -1,0 +1,594 @@
+# KZ holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/1/2,New Year's Day
+2020/1/3,Day off (substituted from 01/05/2020)
+2020/1/7,Orthodox Christmas
+2020/3/8,International Women's Day
+2020/3/9,International Women's Day (observed)
+2020/3/21,Nowruz Holiday
+2020/3/22,Nowruz Holiday
+2020/3/23,Nowruz Holiday
+2020/3/24,Nowruz Holiday (observed)
+2020/3/25,Nowruz Holiday (observed)
+2020/5/1,Kazakhstan's People Solidarity Holiday
+2020/5/7,Defender of the Fatherland Day
+2020/5/8,Day off (substituted from 05/11/2020)
+2020/5/9,Victory Day
+2020/7/6,Capital Day
+2020/7/31,Eid al-Adha
+2020/8/30,Constitution Day
+2020/8/31,Constitution Day (observed)
+2020/12/1,First President Day
+2020/12/16,Independence Day
+2020/12/17,Independence Day
+2020/12/18,Day off (substituted from 12/20/2020)
+2021/1/1,New Year's Day
+2021/1/2,New Year's Day
+2021/1/4,New Year's Day (observed)
+2021/1/7,Orthodox Christmas
+2021/3/8,International Women's Day
+2021/3/21,Nowruz Holiday
+2021/3/22,Nowruz Holiday
+2021/3/23,Nowruz Holiday
+2021/3/24,Nowruz Holiday (observed)
+2021/5/1,Kazakhstan's People Solidarity Holiday
+2021/5/3,Kazakhstan's People Solidarity Holiday (observed)
+2021/5/7,Defender of the Fatherland Day
+2021/5/9,Victory Day
+2021/5/10,Victory Day (observed)
+2021/7/5,Day off (substituted from 07/03/2021)
+2021/7/6,Capital Day
+2021/7/20,Eid al-Adha
+2021/8/30,Constitution Day
+2021/12/1,First President Day
+2021/12/16,Independence Day
+2021/12/17,Independence Day
+2022/1/1,New Year's Day
+2022/1/2,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/1/4,New Year's Day (observed)
+2022/1/7,Orthodox Christmas
+2022/3/7,Day off (substituted from 03/05/2022)
+2022/3/8,International Women's Day
+2022/3/21,Nowruz Holiday
+2022/3/22,Nowruz Holiday
+2022/3/23,Nowruz Holiday
+2022/5/1,Kazakhstan's People Solidarity Holiday
+2022/5/2,Kazakhstan's People Solidarity Holiday (observed)
+2022/5/7,Defender of the Fatherland Day
+2022/5/9,Victory Day
+2022/5/10,Defender of the Fatherland Day (observed)
+2022/7/6,Capital Day
+2022/7/9,Eid al-Adha
+2022/8/29,Day off (substituted from 08/27/2022)
+2022/8/30,Constitution Day
+2022/10/24,Day off (substituted from 10/22/2022)
+2022/10/25,Republic Day
+2022/12/16,Independence Day
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day
+2023/1/3,New Year's Day (observed)
+2023/1/7,Orthodox Christmas
+2023/3/8,International Women's Day
+2023/3/21,Nowruz Holiday
+2023/3/22,Nowruz Holiday
+2023/3/23,Nowruz Holiday
+2023/5/1,Kazakhstan's People Solidarity Holiday
+2023/5/7,Defender of the Fatherland Day
+2023/5/8,Defender of the Fatherland Day (observed)
+2023/5/9,Victory Day
+2023/6/28,Eid al-Adha
+2023/7/6,Capital Day
+2023/7/7,Day off (substituted from 07/01/2023)
+2023/8/30,Constitution Day
+2023/10/25,Republic Day
+2023/12/16,Independence Day
+2023/12/18,Independence Day (observed)
+2024/1/1,New Year's Day
+2024/1/2,New Year's Day
+2024/1/7,Orthodox Christmas
+2024/3/8,International Women's Day
+2024/3/21,Nowruz Holiday
+2024/3/22,Nowruz Holiday
+2024/3/23,Nowruz Holiday
+2024/3/25,Nowruz Holiday (observed)
+2024/5/1,Kazakhstan's People Solidarity Holiday
+2024/5/7,Defender of the Fatherland Day
+2024/5/8,Day off (substituted from 05/04/2024)
+2024/5/9,Victory Day
+2024/6/16,Eid al-Adha
+2024/7/6,Capital Day
+2024/7/8,Capital Day (observed)
+2024/8/30,Constitution Day
+2024/10/25,Republic Day
+2024/12/16,Independence Day
+2025/1/1,New Year's Day
+2025/1/2,New Year's Day
+2025/1/3,Day off (substituted from 01/05/2025)
+2025/1/7,Orthodox Christmas
+2025/3/8,International Women's Day
+2025/3/10,International Women's Day (observed)
+2025/3/21,Nowruz Holiday
+2025/3/22,Nowruz Holiday
+2025/3/23,Nowruz Holiday
+2025/3/24,Nowruz Holiday (observed)
+2025/3/25,Nowruz Holiday (observed)
+2025/5/1,Kazakhstan's People Solidarity Holiday
+2025/5/7,Defender of the Fatherland Day
+2025/5/9,Victory Day
+2025/6/6,Eid al-Adha
+2025/7/6,Capital Day
+2025/7/7,Capital Day (observed)
+2025/8/30,Constitution Day
+2025/9/1,Constitution Day (observed)
+2025/10/25,Republic Day
+2025/10/27,Republic Day (observed)
+2025/12/16,Independence Day
+2026/1/1,New Year's Day
+2026/1/2,New Year's Day
+2026/1/7,Orthodox Christmas
+2026/3/8,International Women's Day
+2026/3/9,International Women's Day (observed)
+2026/3/21,Nowruz Holiday
+2026/3/22,Nowruz Holiday
+2026/3/23,Nowruz Holiday
+2026/3/24,Nowruz Holiday (observed)
+2026/3/25,Nowruz Holiday (observed)
+2026/5/1,Kazakhstan's People Solidarity Holiday
+2026/5/7,Defender of the Fatherland Day
+2026/5/9,Victory Day
+2026/5/11,Victory Day (observed)
+2026/5/27,Eid al-Adha (estimated)
+2026/7/6,Capital Day
+2026/10/25,Republic Day
+2026/10/26,Republic Day (observed)
+2026/12/16,Independence Day
+2027/1/1,New Year's Day
+2027/1/2,New Year's Day
+2027/1/4,New Year's Day (observed)
+2027/1/7,Orthodox Christmas
+2027/3/8,International Women's Day
+2027/3/15,Constitution Day
+2027/3/21,Nowruz Holiday
+2027/3/22,Nowruz Holiday
+2027/3/23,Nowruz Holiday
+2027/3/24,Nowruz Holiday (observed)
+2027/5/1,Kazakhstan's People Solidarity Holiday
+2027/5/3,Kazakhstan's People Solidarity Holiday (observed)
+2027/5/7,Defender of the Fatherland Day
+2027/5/9,Victory Day
+2027/5/10,Victory Day (observed)
+2027/5/16,Eid al-Adha (estimated)
+2027/7/6,Capital Day
+2027/10/25,Republic Day
+2027/12/16,Independence Day
+2028/1/1,New Year's Day
+2028/1/2,New Year's Day
+2028/1/3,New Year's Day (observed)
+2028/1/4,New Year's Day (observed)
+2028/1/7,Orthodox Christmas
+2028/3/8,International Women's Day
+2028/3/15,Constitution Day
+2028/3/21,Nowruz Holiday
+2028/3/22,Nowruz Holiday
+2028/3/23,Nowruz Holiday
+2028/5/1,Kazakhstan's People Solidarity Holiday
+2028/5/5,Eid al-Adha (estimated)
+2028/5/7,Defender of the Fatherland Day
+2028/5/8,Defender of the Fatherland Day (observed)
+2028/5/9,Victory Day
+2028/7/6,Capital Day
+2028/10/25,Republic Day
+2028/12/16,Independence Day
+2028/12/18,Independence Day (observed)
+2029/1/1,New Year's Day
+2029/1/2,New Year's Day
+2029/1/7,Orthodox Christmas
+2029/3/8,International Women's Day
+2029/3/15,Constitution Day
+2029/3/21,Nowruz Holiday
+2029/3/22,Nowruz Holiday
+2029/3/23,Nowruz Holiday
+2029/4/24,Eid al-Adha (estimated)
+2029/5/1,Kazakhstan's People Solidarity Holiday
+2029/5/7,Defender of the Fatherland Day
+2029/5/9,Victory Day
+2029/7/6,Capital Day
+2029/10/25,Republic Day
+2029/12/16,Independence Day
+2029/12/17,Independence Day (observed)
+2030/1/1,New Year's Day
+2030/1/2,New Year's Day
+2030/1/7,Orthodox Christmas
+2030/3/8,International Women's Day
+2030/3/15,Constitution Day
+2030/3/21,Nowruz Holiday
+2030/3/22,Nowruz Holiday
+2030/3/23,Nowruz Holiday
+2030/3/25,Nowruz Holiday (observed)
+2030/4/13,Eid al-Adha (estimated)
+2030/5/1,Kazakhstan's People Solidarity Holiday
+2030/5/7,Defender of the Fatherland Day
+2030/5/9,Victory Day
+2030/7/6,Capital Day
+2030/7/8,Capital Day (observed)
+2030/10/25,Republic Day
+2030/12/16,Independence Day
+2031/1/1,New Year's Day
+2031/1/2,New Year's Day
+2031/1/7,Orthodox Christmas
+2031/3/8,International Women's Day
+2031/3/10,International Women's Day (observed)
+2031/3/15,Constitution Day
+2031/3/17,Constitution Day (observed)
+2031/3/21,Nowruz Holiday
+2031/3/22,Nowruz Holiday
+2031/3/23,Nowruz Holiday
+2031/3/24,Nowruz Holiday (observed)
+2031/3/25,Nowruz Holiday (observed)
+2031/4/2,Eid al-Adha (estimated)
+2031/5/1,Kazakhstan's People Solidarity Holiday
+2031/5/7,Defender of the Fatherland Day
+2031/5/9,Victory Day
+2031/7/6,Capital Day
+2031/7/7,Capital Day (observed)
+2031/10/25,Republic Day
+2031/10/27,Republic Day (observed)
+2031/12/16,Independence Day
+2032/1/1,New Year's Day
+2032/1/2,New Year's Day
+2032/1/7,Orthodox Christmas
+2032/3/8,International Women's Day
+2032/3/15,Constitution Day
+2032/3/21,Nowruz Holiday
+2032/3/22,Eid al-Adha (estimated); Nowruz Holiday
+2032/3/23,Nowruz Holiday
+2032/3/24,Nowruz Holiday (observed)
+2032/5/1,Kazakhstan's People Solidarity Holiday
+2032/5/3,Kazakhstan's People Solidarity Holiday (observed)
+2032/5/7,Defender of the Fatherland Day
+2032/5/9,Victory Day
+2032/5/10,Victory Day (observed)
+2032/7/6,Capital Day
+2032/10/25,Republic Day
+2032/12/16,Independence Day
+2033/1/1,New Year's Day
+2033/1/2,New Year's Day
+2033/1/3,New Year's Day (observed)
+2033/1/4,New Year's Day (observed)
+2033/1/7,Orthodox Christmas
+2033/3/8,International Women's Day
+2033/3/11,Eid al-Adha (estimated)
+2033/3/15,Constitution Day
+2033/3/21,Nowruz Holiday
+2033/3/22,Nowruz Holiday
+2033/3/23,Nowruz Holiday
+2033/5/1,Kazakhstan's People Solidarity Holiday
+2033/5/2,Kazakhstan's People Solidarity Holiday (observed)
+2033/5/7,Defender of the Fatherland Day
+2033/5/9,Victory Day
+2033/5/10,Defender of the Fatherland Day (observed)
+2033/7/6,Capital Day
+2033/10/25,Republic Day
+2033/12/16,Independence Day
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day
+2034/1/3,New Year's Day (observed)
+2034/1/7,Orthodox Christmas
+2034/3/1,Eid al-Adha (estimated)
+2034/3/8,International Women's Day
+2034/3/15,Constitution Day
+2034/3/21,Nowruz Holiday
+2034/3/22,Nowruz Holiday
+2034/3/23,Nowruz Holiday
+2034/5/1,Kazakhstan's People Solidarity Holiday
+2034/5/7,Defender of the Fatherland Day
+2034/5/8,Defender of the Fatherland Day (observed)
+2034/5/9,Victory Day
+2034/7/6,Capital Day
+2034/10/25,Republic Day
+2034/12/16,Independence Day
+2034/12/18,Independence Day (observed)
+2035/1/1,New Year's Day
+2035/1/2,New Year's Day
+2035/1/7,Orthodox Christmas
+2035/2/18,Eid al-Adha (estimated)
+2035/3/8,International Women's Day
+2035/3/15,Constitution Day
+2035/3/21,Nowruz Holiday
+2035/3/22,Nowruz Holiday
+2035/3/23,Nowruz Holiday
+2035/5/1,Kazakhstan's People Solidarity Holiday
+2035/5/7,Defender of the Fatherland Day
+2035/5/9,Victory Day
+2035/7/6,Capital Day
+2035/10/25,Republic Day
+2035/12/16,Independence Day
+2035/12/17,Independence Day (observed)
+2036/1/1,New Year's Day
+2036/1/2,New Year's Day
+2036/1/7,Orthodox Christmas
+2036/2/7,Eid al-Adha (estimated)
+2036/3/8,International Women's Day
+2036/3/10,International Women's Day (observed)
+2036/3/15,Constitution Day
+2036/3/17,Constitution Day (observed)
+2036/3/21,Nowruz Holiday
+2036/3/22,Nowruz Holiday
+2036/3/23,Nowruz Holiday
+2036/3/24,Nowruz Holiday (observed)
+2036/3/25,Nowruz Holiday (observed)
+2036/5/1,Kazakhstan's People Solidarity Holiday
+2036/5/7,Defender of the Fatherland Day
+2036/5/9,Victory Day
+2036/7/6,Capital Day
+2036/7/7,Capital Day (observed)
+2036/10/25,Republic Day
+2036/10/27,Republic Day (observed)
+2036/12/16,Independence Day
+2037/1/1,New Year's Day
+2037/1/2,New Year's Day
+2037/1/7,Orthodox Christmas
+2037/1/26,Eid al-Adha (estimated)
+2037/3/8,International Women's Day
+2037/3/9,International Women's Day (observed)
+2037/3/15,Constitution Day
+2037/3/16,Constitution Day (observed)
+2037/3/21,Nowruz Holiday
+2037/3/22,Nowruz Holiday
+2037/3/23,Nowruz Holiday
+2037/3/24,Nowruz Holiday (observed)
+2037/3/25,Nowruz Holiday (observed)
+2037/5/1,Kazakhstan's People Solidarity Holiday
+2037/5/7,Defender of the Fatherland Day
+2037/5/9,Victory Day
+2037/5/11,Victory Day (observed)
+2037/7/6,Capital Day
+2037/10/25,Republic Day
+2037/10/26,Republic Day (observed)
+2037/12/16,Independence Day
+2038/1/1,New Year's Day
+2038/1/2,New Year's Day
+2038/1/4,New Year's Day (observed)
+2038/1/7,Orthodox Christmas
+2038/1/16,Eid al-Adha (estimated)
+2038/3/8,International Women's Day
+2038/3/15,Constitution Day
+2038/3/21,Nowruz Holiday
+2038/3/22,Nowruz Holiday
+2038/3/23,Nowruz Holiday
+2038/3/24,Nowruz Holiday (observed)
+2038/5/1,Kazakhstan's People Solidarity Holiday
+2038/5/3,Kazakhstan's People Solidarity Holiday (observed)
+2038/5/7,Defender of the Fatherland Day
+2038/5/9,Victory Day
+2038/5/10,Victory Day (observed)
+2038/7/6,Capital Day
+2038/10/25,Republic Day
+2038/12/16,Independence Day
+2039/1/1,New Year's Day
+2039/1/2,New Year's Day
+2039/1/3,New Year's Day (observed)
+2039/1/4,New Year's Day (observed)
+2039/1/5,Eid al-Adha (estimated)
+2039/1/7,Orthodox Christmas
+2039/3/8,International Women's Day
+2039/3/15,Constitution Day
+2039/3/21,Nowruz Holiday
+2039/3/22,Nowruz Holiday
+2039/3/23,Nowruz Holiday
+2039/5/1,Kazakhstan's People Solidarity Holiday
+2039/5/2,Kazakhstan's People Solidarity Holiday (observed)
+2039/5/7,Defender of the Fatherland Day
+2039/5/9,Victory Day
+2039/5/10,Defender of the Fatherland Day (observed)
+2039/7/6,Capital Day
+2039/10/25,Republic Day
+2039/12/16,Independence Day
+2039/12/26,Eid al-Adha (estimated)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day
+2040/1/3,New Year's Day (observed)
+2040/1/7,Orthodox Christmas
+2040/3/8,International Women's Day
+2040/3/15,Constitution Day
+2040/3/21,Nowruz Holiday
+2040/3/22,Nowruz Holiday
+2040/3/23,Nowruz Holiday
+2040/5/1,Kazakhstan's People Solidarity Holiday
+2040/5/7,Defender of the Fatherland Day
+2040/5/9,Victory Day
+2040/7/6,Capital Day
+2040/10/25,Republic Day
+2040/12/14,Eid al-Adha (estimated)
+2040/12/16,Independence Day
+2040/12/17,Independence Day (observed)
+2041/1/1,New Year's Day
+2041/1/2,New Year's Day
+2041/1/7,Orthodox Christmas
+2041/3/8,International Women's Day
+2041/3/15,Constitution Day
+2041/3/21,Nowruz Holiday
+2041/3/22,Nowruz Holiday
+2041/3/23,Nowruz Holiday
+2041/3/25,Nowruz Holiday (observed)
+2041/5/1,Kazakhstan's People Solidarity Holiday
+2041/5/7,Defender of the Fatherland Day
+2041/5/9,Victory Day
+2041/7/6,Capital Day
+2041/7/8,Capital Day (observed)
+2041/10/25,Republic Day
+2041/12/4,Eid al-Adha (estimated)
+2041/12/16,Independence Day
+2042/1/1,New Year's Day
+2042/1/2,New Year's Day
+2042/1/7,Orthodox Christmas
+2042/3/8,International Women's Day
+2042/3/10,International Women's Day (observed)
+2042/3/15,Constitution Day
+2042/3/17,Constitution Day (observed)
+2042/3/21,Nowruz Holiday
+2042/3/22,Nowruz Holiday
+2042/3/23,Nowruz Holiday
+2042/3/24,Nowruz Holiday (observed)
+2042/3/25,Nowruz Holiday (observed)
+2042/5/1,Kazakhstan's People Solidarity Holiday
+2042/5/7,Defender of the Fatherland Day
+2042/5/9,Victory Day
+2042/7/6,Capital Day
+2042/7/7,Capital Day (observed)
+2042/10/25,Republic Day
+2042/10/27,Republic Day (observed)
+2042/11/23,Eid al-Adha (estimated)
+2042/12/16,Independence Day
+2043/1/1,New Year's Day
+2043/1/2,New Year's Day
+2043/1/7,Orthodox Christmas
+2043/3/8,International Women's Day
+2043/3/9,International Women's Day (observed)
+2043/3/15,Constitution Day
+2043/3/16,Constitution Day (observed)
+2043/3/21,Nowruz Holiday
+2043/3/22,Nowruz Holiday
+2043/3/23,Nowruz Holiday
+2043/3/24,Nowruz Holiday (observed)
+2043/3/25,Nowruz Holiday (observed)
+2043/5/1,Kazakhstan's People Solidarity Holiday
+2043/5/7,Defender of the Fatherland Day
+2043/5/9,Victory Day
+2043/5/11,Victory Day (observed)
+2043/7/6,Capital Day
+2043/10/25,Republic Day
+2043/10/26,Republic Day (observed)
+2043/11/12,Eid al-Adha (estimated)
+2043/12/16,Independence Day
+2044/1/1,New Year's Day
+2044/1/2,New Year's Day
+2044/1/4,New Year's Day (observed)
+2044/1/7,Orthodox Christmas
+2044/3/8,International Women's Day
+2044/3/15,Constitution Day
+2044/3/21,Nowruz Holiday
+2044/3/22,Nowruz Holiday
+2044/3/23,Nowruz Holiday
+2044/5/1,Kazakhstan's People Solidarity Holiday
+2044/5/2,Kazakhstan's People Solidarity Holiday (observed)
+2044/5/7,Defender of the Fatherland Day
+2044/5/9,Victory Day
+2044/5/10,Defender of the Fatherland Day (observed)
+2044/7/6,Capital Day
+2044/10/25,Republic Day
+2044/10/31,Eid al-Adha (estimated)
+2044/12/16,Independence Day
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day
+2045/1/3,New Year's Day (observed)
+2045/1/7,Orthodox Christmas
+2045/3/8,International Women's Day
+2045/3/15,Constitution Day
+2045/3/21,Nowruz Holiday
+2045/3/22,Nowruz Holiday
+2045/3/23,Nowruz Holiday
+2045/5/1,Kazakhstan's People Solidarity Holiday
+2045/5/7,Defender of the Fatherland Day
+2045/5/8,Defender of the Fatherland Day (observed)
+2045/5/9,Victory Day
+2045/7/6,Capital Day
+2045/10/21,Eid al-Adha (estimated)
+2045/10/25,Republic Day
+2045/12/16,Independence Day
+2045/12/18,Independence Day (observed)
+2046/1/1,New Year's Day
+2046/1/2,New Year's Day
+2046/1/7,Orthodox Christmas
+2046/3/8,International Women's Day
+2046/3/15,Constitution Day
+2046/3/21,Nowruz Holiday
+2046/3/22,Nowruz Holiday
+2046/3/23,Nowruz Holiday
+2046/5/1,Kazakhstan's People Solidarity Holiday
+2046/5/7,Defender of the Fatherland Day
+2046/5/9,Victory Day
+2046/7/6,Capital Day
+2046/10/10,Eid al-Adha (estimated)
+2046/10/25,Republic Day
+2046/12/16,Independence Day
+2046/12/17,Independence Day (observed)
+2047/1/1,New Year's Day
+2047/1/2,New Year's Day
+2047/1/7,Orthodox Christmas
+2047/3/8,International Women's Day
+2047/3/15,Constitution Day
+2047/3/21,Nowruz Holiday
+2047/3/22,Nowruz Holiday
+2047/3/23,Nowruz Holiday
+2047/3/25,Nowruz Holiday (observed)
+2047/5/1,Kazakhstan's People Solidarity Holiday
+2047/5/7,Defender of the Fatherland Day
+2047/5/9,Victory Day
+2047/7/6,Capital Day
+2047/7/8,Capital Day (observed)
+2047/9/30,Eid al-Adha (estimated)
+2047/10/25,Republic Day
+2047/12/16,Independence Day
+2048/1/1,New Year's Day
+2048/1/2,New Year's Day
+2048/1/7,Orthodox Christmas
+2048/3/8,International Women's Day
+2048/3/9,International Women's Day (observed)
+2048/3/15,Constitution Day
+2048/3/16,Constitution Day (observed)
+2048/3/21,Nowruz Holiday
+2048/3/22,Nowruz Holiday
+2048/3/23,Nowruz Holiday
+2048/3/24,Nowruz Holiday (observed)
+2048/3/25,Nowruz Holiday (observed)
+2048/5/1,Kazakhstan's People Solidarity Holiday
+2048/5/7,Defender of the Fatherland Day
+2048/5/9,Victory Day
+2048/5/11,Victory Day (observed)
+2048/7/6,Capital Day
+2048/9/19,Eid al-Adha (estimated)
+2048/10/25,Republic Day
+2048/10/26,Republic Day (observed)
+2048/12/16,Independence Day
+2049/1/1,New Year's Day
+2049/1/2,New Year's Day
+2049/1/4,New Year's Day (observed)
+2049/1/7,Orthodox Christmas
+2049/3/8,International Women's Day
+2049/3/15,Constitution Day
+2049/3/21,Nowruz Holiday
+2049/3/22,Nowruz Holiday
+2049/3/23,Nowruz Holiday
+2049/3/24,Nowruz Holiday (observed)
+2049/5/1,Kazakhstan's People Solidarity Holiday
+2049/5/3,Kazakhstan's People Solidarity Holiday (observed)
+2049/5/7,Defender of the Fatherland Day
+2049/5/9,Victory Day
+2049/5/10,Victory Day (observed)
+2049/7/6,Capital Day
+2049/9/8,Eid al-Adha (estimated)
+2049/10/25,Republic Day
+2049/12/16,Independence Day
+2050/1/1,New Year's Day
+2050/1/2,New Year's Day
+2050/1/3,New Year's Day (observed)
+2050/1/4,New Year's Day (observed)
+2050/1/7,Orthodox Christmas
+2050/3/8,International Women's Day
+2050/3/15,Constitution Day
+2050/3/21,Nowruz Holiday
+2050/3/22,Nowruz Holiday
+2050/3/23,Nowruz Holiday
+2050/5/1,Kazakhstan's People Solidarity Holiday
+2050/5/2,Kazakhstan's People Solidarity Holiday (observed)
+2050/5/7,Defender of the Fatherland Day
+2050/5/9,Victory Day
+2050/5/10,Defender of the Fatherland Day (observed)
+2050/7/6,Capital Day
+2050/8/28,Eid al-Adha (estimated)
+2050/10/25,Republic Day
+2050/12/16,Independence Day

@@ -1,0 +1,317 @@
+# DK の祝日（2020〜2050年、言語: da）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Nytårsdag
+2020/4/9,Skærtorsdag
+2020/4/10,Langfredag
+2020/4/12,Påskedag
+2020/4/13,Anden påskedag
+2020/5/8,Store bededag
+2020/5/21,Kristi himmelfartsdag
+2020/5/31,Pinsedag
+2020/6/1,Anden pinsedag
+2020/12/25,Juledag
+2020/12/26,Anden juledag
+2021/1/1,Nytårsdag
+2021/4/1,Skærtorsdag
+2021/4/2,Langfredag
+2021/4/4,Påskedag
+2021/4/5,Anden påskedag
+2021/4/30,Store bededag
+2021/5/13,Kristi himmelfartsdag
+2021/5/23,Pinsedag
+2021/5/24,Anden pinsedag
+2021/12/25,Juledag
+2021/12/26,Anden juledag
+2022/1/1,Nytårsdag
+2022/4/14,Skærtorsdag
+2022/4/15,Langfredag
+2022/4/17,Påskedag
+2022/4/18,Anden påskedag
+2022/5/13,Store bededag
+2022/5/26,Kristi himmelfartsdag
+2022/6/5,Pinsedag
+2022/6/6,Anden pinsedag
+2022/12/25,Juledag
+2022/12/26,Anden juledag
+2023/1/1,Nytårsdag
+2023/4/6,Skærtorsdag
+2023/4/7,Langfredag
+2023/4/9,Påskedag
+2023/4/10,Anden påskedag
+2023/5/5,Store bededag
+2023/5/18,Kristi himmelfartsdag
+2023/5/28,Pinsedag
+2023/5/29,Anden pinsedag
+2023/12/25,Juledag
+2023/12/26,Anden juledag
+2024/1/1,Nytårsdag
+2024/3/28,Skærtorsdag
+2024/3/29,Langfredag
+2024/3/31,Påskedag
+2024/4/1,Anden påskedag
+2024/5/9,Kristi himmelfartsdag
+2024/5/19,Pinsedag
+2024/5/20,Anden pinsedag
+2024/12/25,Juledag
+2024/12/26,Anden juledag
+2025/1/1,Nytårsdag
+2025/4/17,Skærtorsdag
+2025/4/18,Langfredag
+2025/4/20,Påskedag
+2025/4/21,Anden påskedag
+2025/5/29,Kristi himmelfartsdag
+2025/6/8,Pinsedag
+2025/6/9,Anden pinsedag
+2025/12/25,Juledag
+2025/12/26,Anden juledag
+2026/1/1,Nytårsdag
+2026/4/2,Skærtorsdag
+2026/4/3,Langfredag
+2026/4/5,Påskedag
+2026/4/6,Anden påskedag
+2026/5/14,Kristi himmelfartsdag
+2026/5/24,Pinsedag
+2026/5/25,Anden pinsedag
+2026/12/25,Juledag
+2026/12/26,Anden juledag
+2027/1/1,Nytårsdag
+2027/3/25,Skærtorsdag
+2027/3/26,Langfredag
+2027/3/28,Påskedag
+2027/3/29,Anden påskedag
+2027/5/6,Kristi himmelfartsdag
+2027/5/16,Pinsedag
+2027/5/17,Anden pinsedag
+2027/12/25,Juledag
+2027/12/26,Anden juledag
+2028/1/1,Nytårsdag
+2028/4/13,Skærtorsdag
+2028/4/14,Langfredag
+2028/4/16,Påskedag
+2028/4/17,Anden påskedag
+2028/5/25,Kristi himmelfartsdag
+2028/6/4,Pinsedag
+2028/6/5,Anden pinsedag
+2028/12/25,Juledag
+2028/12/26,Anden juledag
+2029/1/1,Nytårsdag
+2029/3/29,Skærtorsdag
+2029/3/30,Langfredag
+2029/4/1,Påskedag
+2029/4/2,Anden påskedag
+2029/5/10,Kristi himmelfartsdag
+2029/5/20,Pinsedag
+2029/5/21,Anden pinsedag
+2029/12/25,Juledag
+2029/12/26,Anden juledag
+2030/1/1,Nytårsdag
+2030/4/18,Skærtorsdag
+2030/4/19,Langfredag
+2030/4/21,Påskedag
+2030/4/22,Anden påskedag
+2030/5/30,Kristi himmelfartsdag
+2030/6/9,Pinsedag
+2030/6/10,Anden pinsedag
+2030/12/25,Juledag
+2030/12/26,Anden juledag
+2031/1/1,Nytårsdag
+2031/4/10,Skærtorsdag
+2031/4/11,Langfredag
+2031/4/13,Påskedag
+2031/4/14,Anden påskedag
+2031/5/22,Kristi himmelfartsdag
+2031/6/1,Pinsedag
+2031/6/2,Anden pinsedag
+2031/12/25,Juledag
+2031/12/26,Anden juledag
+2032/1/1,Nytårsdag
+2032/3/25,Skærtorsdag
+2032/3/26,Langfredag
+2032/3/28,Påskedag
+2032/3/29,Anden påskedag
+2032/5/6,Kristi himmelfartsdag
+2032/5/16,Pinsedag
+2032/5/17,Anden pinsedag
+2032/12/25,Juledag
+2032/12/26,Anden juledag
+2033/1/1,Nytårsdag
+2033/4/14,Skærtorsdag
+2033/4/15,Langfredag
+2033/4/17,Påskedag
+2033/4/18,Anden påskedag
+2033/5/26,Kristi himmelfartsdag
+2033/6/5,Pinsedag
+2033/6/6,Anden pinsedag
+2033/12/25,Juledag
+2033/12/26,Anden juledag
+2034/1/1,Nytårsdag
+2034/4/6,Skærtorsdag
+2034/4/7,Langfredag
+2034/4/9,Påskedag
+2034/4/10,Anden påskedag
+2034/5/18,Kristi himmelfartsdag
+2034/5/28,Pinsedag
+2034/5/29,Anden pinsedag
+2034/12/25,Juledag
+2034/12/26,Anden juledag
+2035/1/1,Nytårsdag
+2035/3/22,Skærtorsdag
+2035/3/23,Langfredag
+2035/3/25,Påskedag
+2035/3/26,Anden påskedag
+2035/5/3,Kristi himmelfartsdag
+2035/5/13,Pinsedag
+2035/5/14,Anden pinsedag
+2035/12/25,Juledag
+2035/12/26,Anden juledag
+2036/1/1,Nytårsdag
+2036/4/10,Skærtorsdag
+2036/4/11,Langfredag
+2036/4/13,Påskedag
+2036/4/14,Anden påskedag
+2036/5/22,Kristi himmelfartsdag
+2036/6/1,Pinsedag
+2036/6/2,Anden pinsedag
+2036/12/25,Juledag
+2036/12/26,Anden juledag
+2037/1/1,Nytårsdag
+2037/4/2,Skærtorsdag
+2037/4/3,Langfredag
+2037/4/5,Påskedag
+2037/4/6,Anden påskedag
+2037/5/14,Kristi himmelfartsdag
+2037/5/24,Pinsedag
+2037/5/25,Anden pinsedag
+2037/12/25,Juledag
+2037/12/26,Anden juledag
+2038/1/1,Nytårsdag
+2038/4/22,Skærtorsdag
+2038/4/23,Langfredag
+2038/4/25,Påskedag
+2038/4/26,Anden påskedag
+2038/6/3,Kristi himmelfartsdag
+2038/6/13,Pinsedag
+2038/6/14,Anden pinsedag
+2038/12/25,Juledag
+2038/12/26,Anden juledag
+2039/1/1,Nytårsdag
+2039/4/7,Skærtorsdag
+2039/4/8,Langfredag
+2039/4/10,Påskedag
+2039/4/11,Anden påskedag
+2039/5/19,Kristi himmelfartsdag
+2039/5/29,Pinsedag
+2039/5/30,Anden pinsedag
+2039/12/25,Juledag
+2039/12/26,Anden juledag
+2040/1/1,Nytårsdag
+2040/3/29,Skærtorsdag
+2040/3/30,Langfredag
+2040/4/1,Påskedag
+2040/4/2,Anden påskedag
+2040/5/10,Kristi himmelfartsdag
+2040/5/20,Pinsedag
+2040/5/21,Anden pinsedag
+2040/12/25,Juledag
+2040/12/26,Anden juledag
+2041/1/1,Nytårsdag
+2041/4/18,Skærtorsdag
+2041/4/19,Langfredag
+2041/4/21,Påskedag
+2041/4/22,Anden påskedag
+2041/5/30,Kristi himmelfartsdag
+2041/6/9,Pinsedag
+2041/6/10,Anden pinsedag
+2041/12/25,Juledag
+2041/12/26,Anden juledag
+2042/1/1,Nytårsdag
+2042/4/3,Skærtorsdag
+2042/4/4,Langfredag
+2042/4/6,Påskedag
+2042/4/7,Anden påskedag
+2042/5/15,Kristi himmelfartsdag
+2042/5/25,Pinsedag
+2042/5/26,Anden pinsedag
+2042/12/25,Juledag
+2042/12/26,Anden juledag
+2043/1/1,Nytårsdag
+2043/3/26,Skærtorsdag
+2043/3/27,Langfredag
+2043/3/29,Påskedag
+2043/3/30,Anden påskedag
+2043/5/7,Kristi himmelfartsdag
+2043/5/17,Pinsedag
+2043/5/18,Anden pinsedag
+2043/12/25,Juledag
+2043/12/26,Anden juledag
+2044/1/1,Nytårsdag
+2044/4/14,Skærtorsdag
+2044/4/15,Langfredag
+2044/4/17,Påskedag
+2044/4/18,Anden påskedag
+2044/5/26,Kristi himmelfartsdag
+2044/6/5,Pinsedag
+2044/6/6,Anden pinsedag
+2044/12/25,Juledag
+2044/12/26,Anden juledag
+2045/1/1,Nytårsdag
+2045/4/6,Skærtorsdag
+2045/4/7,Langfredag
+2045/4/9,Påskedag
+2045/4/10,Anden påskedag
+2045/5/18,Kristi himmelfartsdag
+2045/5/28,Pinsedag
+2045/5/29,Anden pinsedag
+2045/12/25,Juledag
+2045/12/26,Anden juledag
+2046/1/1,Nytårsdag
+2046/3/22,Skærtorsdag
+2046/3/23,Langfredag
+2046/3/25,Påskedag
+2046/3/26,Anden påskedag
+2046/5/3,Kristi himmelfartsdag
+2046/5/13,Pinsedag
+2046/5/14,Anden pinsedag
+2046/12/25,Juledag
+2046/12/26,Anden juledag
+2047/1/1,Nytårsdag
+2047/4/11,Skærtorsdag
+2047/4/12,Langfredag
+2047/4/14,Påskedag
+2047/4/15,Anden påskedag
+2047/5/23,Kristi himmelfartsdag
+2047/6/2,Pinsedag
+2047/6/3,Anden pinsedag
+2047/12/25,Juledag
+2047/12/26,Anden juledag
+2048/1/1,Nytårsdag
+2048/4/2,Skærtorsdag
+2048/4/3,Langfredag
+2048/4/5,Påskedag
+2048/4/6,Anden påskedag
+2048/5/14,Kristi himmelfartsdag
+2048/5/24,Pinsedag
+2048/5/25,Anden pinsedag
+2048/12/25,Juledag
+2048/12/26,Anden juledag
+2049/1/1,Nytårsdag
+2049/4/15,Skærtorsdag
+2049/4/16,Langfredag
+2049/4/18,Påskedag
+2049/4/19,Anden påskedag
+2049/5/27,Kristi himmelfartsdag
+2049/6/6,Pinsedag
+2049/6/7,Anden pinsedag
+2049/12/25,Juledag
+2049/12/26,Anden juledag
+2050/1/1,Nytårsdag
+2050/4/7,Skærtorsdag
+2050/4/8,Langfredag
+2050/4/10,Påskedag
+2050/4/11,Anden påskedag
+2050/5/19,Kristi himmelfartsdag
+2050/5/29,Pinsedag
+2050/5/30,Anden pinsedag
+2050/12/25,Juledag
+2050/12/26,Anden juledag

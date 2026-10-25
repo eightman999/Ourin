@@ -1,0 +1,406 @@
+# AT の祝日（2020〜2050年、言語: de）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Neujahr
+2020/1/6,Heilige Drei Könige
+2020/4/13,Ostermontag
+2020/5/1,Staatsfeiertag
+2020/5/21,Christi Himmelfahrt
+2020/6/1,Pfingstmontag
+2020/6/11,Fronleichnam
+2020/8/15,Mariä Himmelfahrt
+2020/10/26,Nationalfeiertag
+2020/11/1,Allerheiligen
+2020/12/8,Mariä Empfängnis
+2020/12/25,Christtag
+2020/12/26,Stephanstag
+2021/1/1,Neujahr
+2021/1/6,Heilige Drei Könige
+2021/4/5,Ostermontag
+2021/5/1,Staatsfeiertag
+2021/5/13,Christi Himmelfahrt
+2021/5/24,Pfingstmontag
+2021/6/3,Fronleichnam
+2021/8/15,Mariä Himmelfahrt
+2021/10/26,Nationalfeiertag
+2021/11/1,Allerheiligen
+2021/12/8,Mariä Empfängnis
+2021/12/25,Christtag
+2021/12/26,Stephanstag
+2022/1/1,Neujahr
+2022/1/6,Heilige Drei Könige
+2022/4/18,Ostermontag
+2022/5/1,Staatsfeiertag
+2022/5/26,Christi Himmelfahrt
+2022/6/6,Pfingstmontag
+2022/6/16,Fronleichnam
+2022/8/15,Mariä Himmelfahrt
+2022/10/26,Nationalfeiertag
+2022/11/1,Allerheiligen
+2022/12/8,Mariä Empfängnis
+2022/12/25,Christtag
+2022/12/26,Stephanstag
+2023/1/1,Neujahr
+2023/1/6,Heilige Drei Könige
+2023/4/10,Ostermontag
+2023/5/1,Staatsfeiertag
+2023/5/18,Christi Himmelfahrt
+2023/5/29,Pfingstmontag
+2023/6/8,Fronleichnam
+2023/8/15,Mariä Himmelfahrt
+2023/10/26,Nationalfeiertag
+2023/11/1,Allerheiligen
+2023/12/8,Mariä Empfängnis
+2023/12/25,Christtag
+2023/12/26,Stephanstag
+2024/1/1,Neujahr
+2024/1/6,Heilige Drei Könige
+2024/4/1,Ostermontag
+2024/5/1,Staatsfeiertag
+2024/5/9,Christi Himmelfahrt
+2024/5/20,Pfingstmontag
+2024/5/30,Fronleichnam
+2024/8/15,Mariä Himmelfahrt
+2024/10/26,Nationalfeiertag
+2024/11/1,Allerheiligen
+2024/12/8,Mariä Empfängnis
+2024/12/25,Christtag
+2024/12/26,Stephanstag
+2025/1/1,Neujahr
+2025/1/6,Heilige Drei Könige
+2025/4/21,Ostermontag
+2025/5/1,Staatsfeiertag
+2025/5/29,Christi Himmelfahrt
+2025/6/9,Pfingstmontag
+2025/6/19,Fronleichnam
+2025/8/15,Mariä Himmelfahrt
+2025/10/26,Nationalfeiertag
+2025/11/1,Allerheiligen
+2025/12/8,Mariä Empfängnis
+2025/12/25,Christtag
+2025/12/26,Stephanstag
+2026/1/1,Neujahr
+2026/1/6,Heilige Drei Könige
+2026/4/6,Ostermontag
+2026/5/1,Staatsfeiertag
+2026/5/14,Christi Himmelfahrt
+2026/5/25,Pfingstmontag
+2026/6/4,Fronleichnam
+2026/8/15,Mariä Himmelfahrt
+2026/10/26,Nationalfeiertag
+2026/11/1,Allerheiligen
+2026/12/8,Mariä Empfängnis
+2026/12/25,Christtag
+2026/12/26,Stephanstag
+2027/1/1,Neujahr
+2027/1/6,Heilige Drei Könige
+2027/3/29,Ostermontag
+2027/5/1,Staatsfeiertag
+2027/5/6,Christi Himmelfahrt
+2027/5/17,Pfingstmontag
+2027/5/27,Fronleichnam
+2027/8/15,Mariä Himmelfahrt
+2027/10/26,Nationalfeiertag
+2027/11/1,Allerheiligen
+2027/12/8,Mariä Empfängnis
+2027/12/25,Christtag
+2027/12/26,Stephanstag
+2028/1/1,Neujahr
+2028/1/6,Heilige Drei Könige
+2028/4/17,Ostermontag
+2028/5/1,Staatsfeiertag
+2028/5/25,Christi Himmelfahrt
+2028/6/5,Pfingstmontag
+2028/6/15,Fronleichnam
+2028/8/15,Mariä Himmelfahrt
+2028/10/26,Nationalfeiertag
+2028/11/1,Allerheiligen
+2028/12/8,Mariä Empfängnis
+2028/12/25,Christtag
+2028/12/26,Stephanstag
+2029/1/1,Neujahr
+2029/1/6,Heilige Drei Könige
+2029/4/2,Ostermontag
+2029/5/1,Staatsfeiertag
+2029/5/10,Christi Himmelfahrt
+2029/5/21,Pfingstmontag
+2029/5/31,Fronleichnam
+2029/8/15,Mariä Himmelfahrt
+2029/10/26,Nationalfeiertag
+2029/11/1,Allerheiligen
+2029/12/8,Mariä Empfängnis
+2029/12/25,Christtag
+2029/12/26,Stephanstag
+2030/1/1,Neujahr
+2030/1/6,Heilige Drei Könige
+2030/4/22,Ostermontag
+2030/5/1,Staatsfeiertag
+2030/5/30,Christi Himmelfahrt
+2030/6/10,Pfingstmontag
+2030/6/20,Fronleichnam
+2030/8/15,Mariä Himmelfahrt
+2030/10/26,Nationalfeiertag
+2030/11/1,Allerheiligen
+2030/12/8,Mariä Empfängnis
+2030/12/25,Christtag
+2030/12/26,Stephanstag
+2031/1/1,Neujahr
+2031/1/6,Heilige Drei Könige
+2031/4/14,Ostermontag
+2031/5/1,Staatsfeiertag
+2031/5/22,Christi Himmelfahrt
+2031/6/2,Pfingstmontag
+2031/6/12,Fronleichnam
+2031/8/15,Mariä Himmelfahrt
+2031/10/26,Nationalfeiertag
+2031/11/1,Allerheiligen
+2031/12/8,Mariä Empfängnis
+2031/12/25,Christtag
+2031/12/26,Stephanstag
+2032/1/1,Neujahr
+2032/1/6,Heilige Drei Könige
+2032/3/29,Ostermontag
+2032/5/1,Staatsfeiertag
+2032/5/6,Christi Himmelfahrt
+2032/5/17,Pfingstmontag
+2032/5/27,Fronleichnam
+2032/8/15,Mariä Himmelfahrt
+2032/10/26,Nationalfeiertag
+2032/11/1,Allerheiligen
+2032/12/8,Mariä Empfängnis
+2032/12/25,Christtag
+2032/12/26,Stephanstag
+2033/1/1,Neujahr
+2033/1/6,Heilige Drei Könige
+2033/4/18,Ostermontag
+2033/5/1,Staatsfeiertag
+2033/5/26,Christi Himmelfahrt
+2033/6/6,Pfingstmontag
+2033/6/16,Fronleichnam
+2033/8/15,Mariä Himmelfahrt
+2033/10/26,Nationalfeiertag
+2033/11/1,Allerheiligen
+2033/12/8,Mariä Empfängnis
+2033/12/25,Christtag
+2033/12/26,Stephanstag
+2034/1/1,Neujahr
+2034/1/6,Heilige Drei Könige
+2034/4/10,Ostermontag
+2034/5/1,Staatsfeiertag
+2034/5/18,Christi Himmelfahrt
+2034/5/29,Pfingstmontag
+2034/6/8,Fronleichnam
+2034/8/15,Mariä Himmelfahrt
+2034/10/26,Nationalfeiertag
+2034/11/1,Allerheiligen
+2034/12/8,Mariä Empfängnis
+2034/12/25,Christtag
+2034/12/26,Stephanstag
+2035/1/1,Neujahr
+2035/1/6,Heilige Drei Könige
+2035/3/26,Ostermontag
+2035/5/1,Staatsfeiertag
+2035/5/3,Christi Himmelfahrt
+2035/5/14,Pfingstmontag
+2035/5/24,Fronleichnam
+2035/8/15,Mariä Himmelfahrt
+2035/10/26,Nationalfeiertag
+2035/11/1,Allerheiligen
+2035/12/8,Mariä Empfängnis
+2035/12/25,Christtag
+2035/12/26,Stephanstag
+2036/1/1,Neujahr
+2036/1/6,Heilige Drei Könige
+2036/4/14,Ostermontag
+2036/5/1,Staatsfeiertag
+2036/5/22,Christi Himmelfahrt
+2036/6/2,Pfingstmontag
+2036/6/12,Fronleichnam
+2036/8/15,Mariä Himmelfahrt
+2036/10/26,Nationalfeiertag
+2036/11/1,Allerheiligen
+2036/12/8,Mariä Empfängnis
+2036/12/25,Christtag
+2036/12/26,Stephanstag
+2037/1/1,Neujahr
+2037/1/6,Heilige Drei Könige
+2037/4/6,Ostermontag
+2037/5/1,Staatsfeiertag
+2037/5/14,Christi Himmelfahrt
+2037/5/25,Pfingstmontag
+2037/6/4,Fronleichnam
+2037/8/15,Mariä Himmelfahrt
+2037/10/26,Nationalfeiertag
+2037/11/1,Allerheiligen
+2037/12/8,Mariä Empfängnis
+2037/12/25,Christtag
+2037/12/26,Stephanstag
+2038/1/1,Neujahr
+2038/1/6,Heilige Drei Könige
+2038/4/26,Ostermontag
+2038/5/1,Staatsfeiertag
+2038/6/3,Christi Himmelfahrt
+2038/6/14,Pfingstmontag
+2038/6/24,Fronleichnam
+2038/8/15,Mariä Himmelfahrt
+2038/10/26,Nationalfeiertag
+2038/11/1,Allerheiligen
+2038/12/8,Mariä Empfängnis
+2038/12/25,Christtag
+2038/12/26,Stephanstag
+2039/1/1,Neujahr
+2039/1/6,Heilige Drei Könige
+2039/4/11,Ostermontag
+2039/5/1,Staatsfeiertag
+2039/5/19,Christi Himmelfahrt
+2039/5/30,Pfingstmontag
+2039/6/9,Fronleichnam
+2039/8/15,Mariä Himmelfahrt
+2039/10/26,Nationalfeiertag
+2039/11/1,Allerheiligen
+2039/12/8,Mariä Empfängnis
+2039/12/25,Christtag
+2039/12/26,Stephanstag
+2040/1/1,Neujahr
+2040/1/6,Heilige Drei Könige
+2040/4/2,Ostermontag
+2040/5/1,Staatsfeiertag
+2040/5/10,Christi Himmelfahrt
+2040/5/21,Pfingstmontag
+2040/5/31,Fronleichnam
+2040/8/15,Mariä Himmelfahrt
+2040/10/26,Nationalfeiertag
+2040/11/1,Allerheiligen
+2040/12/8,Mariä Empfängnis
+2040/12/25,Christtag
+2040/12/26,Stephanstag
+2041/1/1,Neujahr
+2041/1/6,Heilige Drei Könige
+2041/4/22,Ostermontag
+2041/5/1,Staatsfeiertag
+2041/5/30,Christi Himmelfahrt
+2041/6/10,Pfingstmontag
+2041/6/20,Fronleichnam
+2041/8/15,Mariä Himmelfahrt
+2041/10/26,Nationalfeiertag
+2041/11/1,Allerheiligen
+2041/12/8,Mariä Empfängnis
+2041/12/25,Christtag
+2041/12/26,Stephanstag
+2042/1/1,Neujahr
+2042/1/6,Heilige Drei Könige
+2042/4/7,Ostermontag
+2042/5/1,Staatsfeiertag
+2042/5/15,Christi Himmelfahrt
+2042/5/26,Pfingstmontag
+2042/6/5,Fronleichnam
+2042/8/15,Mariä Himmelfahrt
+2042/10/26,Nationalfeiertag
+2042/11/1,Allerheiligen
+2042/12/8,Mariä Empfängnis
+2042/12/25,Christtag
+2042/12/26,Stephanstag
+2043/1/1,Neujahr
+2043/1/6,Heilige Drei Könige
+2043/3/30,Ostermontag
+2043/5/1,Staatsfeiertag
+2043/5/7,Christi Himmelfahrt
+2043/5/18,Pfingstmontag
+2043/5/28,Fronleichnam
+2043/8/15,Mariä Himmelfahrt
+2043/10/26,Nationalfeiertag
+2043/11/1,Allerheiligen
+2043/12/8,Mariä Empfängnis
+2043/12/25,Christtag
+2043/12/26,Stephanstag
+2044/1/1,Neujahr
+2044/1/6,Heilige Drei Könige
+2044/4/18,Ostermontag
+2044/5/1,Staatsfeiertag
+2044/5/26,Christi Himmelfahrt
+2044/6/6,Pfingstmontag
+2044/6/16,Fronleichnam
+2044/8/15,Mariä Himmelfahrt
+2044/10/26,Nationalfeiertag
+2044/11/1,Allerheiligen
+2044/12/8,Mariä Empfängnis
+2044/12/25,Christtag
+2044/12/26,Stephanstag
+2045/1/1,Neujahr
+2045/1/6,Heilige Drei Könige
+2045/4/10,Ostermontag
+2045/5/1,Staatsfeiertag
+2045/5/18,Christi Himmelfahrt
+2045/5/29,Pfingstmontag
+2045/6/8,Fronleichnam
+2045/8/15,Mariä Himmelfahrt
+2045/10/26,Nationalfeiertag
+2045/11/1,Allerheiligen
+2045/12/8,Mariä Empfängnis
+2045/12/25,Christtag
+2045/12/26,Stephanstag
+2046/1/1,Neujahr
+2046/1/6,Heilige Drei Könige
+2046/3/26,Ostermontag
+2046/5/1,Staatsfeiertag
+2046/5/3,Christi Himmelfahrt
+2046/5/14,Pfingstmontag
+2046/5/24,Fronleichnam
+2046/8/15,Mariä Himmelfahrt
+2046/10/26,Nationalfeiertag
+2046/11/1,Allerheiligen
+2046/12/8,Mariä Empfängnis
+2046/12/25,Christtag
+2046/12/26,Stephanstag
+2047/1/1,Neujahr
+2047/1/6,Heilige Drei Könige
+2047/4/15,Ostermontag
+2047/5/1,Staatsfeiertag
+2047/5/23,Christi Himmelfahrt
+2047/6/3,Pfingstmontag
+2047/6/13,Fronleichnam
+2047/8/15,Mariä Himmelfahrt
+2047/10/26,Nationalfeiertag
+2047/11/1,Allerheiligen
+2047/12/8,Mariä Empfängnis
+2047/12/25,Christtag
+2047/12/26,Stephanstag
+2048/1/1,Neujahr
+2048/1/6,Heilige Drei Könige
+2048/4/6,Ostermontag
+2048/5/1,Staatsfeiertag
+2048/5/14,Christi Himmelfahrt
+2048/5/25,Pfingstmontag
+2048/6/4,Fronleichnam
+2048/8/15,Mariä Himmelfahrt
+2048/10/26,Nationalfeiertag
+2048/11/1,Allerheiligen
+2048/12/8,Mariä Empfängnis
+2048/12/25,Christtag
+2048/12/26,Stephanstag
+2049/1/1,Neujahr
+2049/1/6,Heilige Drei Könige
+2049/4/19,Ostermontag
+2049/5/1,Staatsfeiertag
+2049/5/27,Christi Himmelfahrt
+2049/6/7,Pfingstmontag
+2049/6/17,Fronleichnam
+2049/8/15,Mariä Himmelfahrt
+2049/10/26,Nationalfeiertag
+2049/11/1,Allerheiligen
+2049/12/8,Mariä Empfängnis
+2049/12/25,Christtag
+2049/12/26,Stephanstag
+2050/1/1,Neujahr
+2050/1/6,Heilige Drei Könige
+2050/4/11,Ostermontag
+2050/5/1,Staatsfeiertag
+2050/5/19,Christi Himmelfahrt
+2050/5/30,Pfingstmontag
+2050/6/9,Fronleichnam
+2050/8/15,Mariä Himmelfahrt
+2050/10/26,Nationalfeiertag
+2050/11/1,Allerheiligen
+2050/12/8,Mariä Empfängnis
+2050/12/25,Christtag
+2050/12/26,Stephanstag

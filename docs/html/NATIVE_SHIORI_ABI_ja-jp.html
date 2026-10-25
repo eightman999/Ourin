@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ネイティブ SHIORI の ABI</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="NATIVE_SHIORI_ABI_ja-jp.html" class="active">日本語</a> | <a href="NATIVE_SHIORI_ABI_en-us.html" class="">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="shiori-abi">ネイティブ SHIORI の ABI</h1>
+<p><a href="NATIVE_SHIORI_ABI_en-us.html">English</a></p>
+<p>更新: 2026-10-25。開発版の実装契約。公開済みバイナリの対応を示すものではありません。</p>
+<h2 id="_1">宣言</h2>
+<p>macOS の <code>.bundle</code> / <code>.plugin</code> は <code>Contents/Info.plist</code>、単体ライブラリはファイル名に <code>.plist</code> を追加した隣接ファイル（例: <code>engine.dylib.plist</code>）に <code>OurinShioriABI</code> を指定します。</p>
+<pre class="codehilite"><code class="language-xml">&lt;key&gt;OurinShioriABI&lt;/key&gt;
+&lt;string&gt;ukagaka-int32&lt;/string&gt;
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>値</th>
+<th>load</th>
+<th>request</th>
+<th>unload</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ourin</code></td>
+<td><code>bool(const char *)</code></td>
+<td><code>bool(const unsigned char *, size_t, unsigned char **, size_t *)</code></td>
+<td><code>void(void)</code></td>
+</tr>
+<tr>
+<td><code>ukagaka-long</code></td>
+<td><code>int32_t(void *, long)</code></td>
+<td><code>void *(void *, long *)</code></td>
+<td><code>int32_t(void)</code></td>
+</tr>
+<tr>
+<td><code>ukagaka-int32</code></td>
+<td><code>int32_t(void *, int32_t)</code></td>
+<td><code>void *(void *, int32_t *)</code></td>
+<td><code>int32_t(void)</code></td>
+</tr>
+<tr>
+<td><code>kagari</code></td>
+<td><code>int32_t(void *, long)</code> → instance ID</td>
+<td><code>void *(int32_t id, void *, long *)</code></td>
+<td><code>int32_t(int32_t id)</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>ukagaka-long</code> の <code>long</code> は macOS の64bit整数です。<code>kagari</code> は <a href="KAWARI_KAGARI_ENGINES_ja-jp.html">KAGARI POSIX ビルド</a> の <code>kagari_load</code> / <code>kagari_request</code> / <code>kagari_unload</code> 専用で、標準 2 引数 <code>request</code> とは別契約です。Windows由来の32bit長さを使用する移植版には <code>ukagaka-int32</code> を使用します。これは SHIORI 用のキーであり、SAORI等の <code>OurinModuleABI</code> とは別の契約です。</p>
+<p>宣言がない場合は、既存の <code>shiori_request</code> を持つ Ourin 独自ABIのみ受け付けます。無印の <code>request</code> は署名を推測せず拒否します。不明な宣言値もロードエラーになります。</p>
+<h2 id="_2">シンボルと所有権</h2>
+<p><code>loadu</code> を優先し、<code>shiori_loadu</code>、<code>loadu</code>、<code>shiori_load</code>、<code>load</code> の順に探索します。要求は <code>shiori_request</code> / <code>request</code>、終了は <code>shiori_unloadu</code> / <code>unloadu</code> / <code>shiori_unload</code> / <code>unload</code> です。<code>load</code> と <code>unload</code> は省略可能で、存在する <code>load</code> が失敗を返すとロード全体を失敗にします。</p>
+<ul>
+<li><code>ourin</code>: 入力はホスト所有で、関数から戻るまで有効です。応答はホストが複製し、<code>shiori_free</code>、なければ libc <code>free</code> で解放します。</li>
+<li><code>ukagaka-*</code>: load/request の入力は NUL 終端した <code>malloc</code> 領域で、所有権をモジュールへ渡します。長さに NUL は含みません。request の長さは入出力引数です。応答はモジュールが <code>malloc</code> で確保し、ホストが複製後 <code>free</code> します。</li>
+<li>負の応答長と64 MiBを超える応答は拒否します。これで不正なネイティブコード全般を安全にできるわけではありません。</li>
+</ul>
+<h2 id="_3">辞書ディレクトリとプロセス</h2>
+<p>実行ライブラリの保存場所と <code>load</code> のディレクトリは別値です。ゴースト起動時は <code>ghostRoot</code> と元の <code>shiori</code> 相対パスから辞書ディレクトリを決め、UTF-8・末尾 <code>/</code> 付きで渡します。<code>loadu</code> が無い <code>load</code> にもUTF-8を渡す契約です。旧ACP/Shift_JISパス専用モジュールは変換wrapperが必要です。KAGARI の instance ID 付き ABI は <code>OurinShioriABI</code> = <code>kagari</code> で明示する。</p>
+<p>単体ロードAPIで <code>loadDirectory</code> を省略するとライブラリの親ディレクトリです。</p>
+<p>アプリ内とXPCサービスは同一の <code>NativeShioriModule</code> を使います。既定のXPC隔離で接続やロードに失敗しても、アプリ内ロードへ自動的に切り替えません。SHIORI/2.xの変換は既存adapterが担当します。ABI対応だけで個々の栞や辞書の互換性が確認できたことにはなりません。</p>
+<h2 id="_4">検証</h2>
+<p><code>NativeShioriABITests</code> は標準ABIの2種類を実Cライブラリとしてビルドし、GET/NOTIFY、辞書パス、unload、ロード失敗、宣言不足、XPCの別PIDを検証します。既存独自ABIの回帰は <code>ShioriLoaderTests</code> の <code>nativeDylibFixture*</code> で検証します。</p>
+<p>翻訳: Codex。日英内容照合: 2026-10-25。実行結果は各検証レポートを参照してください。</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../NATIVE_SHIORI_ABI_ja-jp.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

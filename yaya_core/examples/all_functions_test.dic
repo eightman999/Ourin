@@ -222,8 +222,9 @@ TestUtilityFunctions
     _setSetting = SETSETTING("key", "value")
     
     // Delimiters
-    _delim = GETDELIM()
-    _setDelim = SETDELIM(",")
+    _list = "a#b"
+    SETDELIM(_list, "#")
+    _delim = GETDELIM(_list)
     
     // Error handling
     _lastError = GETLASTERROR()

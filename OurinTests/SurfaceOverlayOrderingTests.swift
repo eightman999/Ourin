@@ -120,12 +120,11 @@ struct SurfaceOverlayOrderingTests {
     @MainActor
     @Test
     func animationSurfaceAssetRemovesPureGreenBackground() async throws {
-        let repositoryRoot = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-        let assetURL = repositoryRoot
-            .appendingPathComponent("emily4/shell/master/surface5006.png")
-        let manager = GhostManager(ghostURL: repositoryRoot)
+        let root = try TestGhostFixture.makeRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let assetURL = try TestGhostFixture.makeShell(in: root).appendingPathComponent("surface5006.png")
+        try TestGhostFixture.writeGreenKeyedPNG(to: assetURL)
+        let manager = GhostManager(ghostURL: root)
 
         let image = try #require(manager.loadSurfaceFile(url: assetURL))
         var proposedRect = NSRect.zero
@@ -140,12 +139,11 @@ struct SurfaceOverlayOrderingTests {
     @MainActor
     @Test
     func greenChromakeyKeepsAnimationAssetOrientation() async throws {
-        let repositoryRoot = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-        let assetURL = repositoryRoot
-            .appendingPathComponent("emily4/shell/master/surface4100.png")
-        let manager = GhostManager(ghostURL: repositoryRoot)
+        let root = try TestGhostFixture.makeRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let assetURL = try TestGhostFixture.makeShell(in: root).appendingPathComponent("surface4100.png")
+        try TestGhostFixture.writeGreenKeyedPNG(to: assetURL)
+        let manager = GhostManager(ghostURL: root)
         defer { manager.shutdown() }
 
         let source = try #require(RetinaImageLoader.image(contentsOf: assetURL))
@@ -186,13 +184,23 @@ struct SurfaceOverlayOrderingTests {
     @MainActor
     @Test
     func animationOverlayUsesSurfaceAliasAndNormalSurfaceResolver() async throws {
-        let repositoryRoot = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-        let manager = GhostManager(ghostURL: repositoryRoot.appendingPathComponent("emily4"))
+        let root = try TestGhostFixture.makeRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let shell = try TestGhostFixture.makeShell(in: root)
+        // sakura surface alias 35 -> 55（surface35.png は存在しない）。
+        try """
+        sakura.surface.alias
+        {
+        35,[55]
+        }
+        """.write(to: shell.appendingPathComponent("surfaces.txt"), atomically: true, encoding: .utf8)
+        for id in [0, 40, 55] {
+            try TestGhostFixture.writeSolidPNG(to: shell.appendingPathComponent("surface\(id).png"), width: 16, height: 16)
+        }
+        let manager = GhostManager(ghostURL: root)
         defer { manager.shutdown() }
 
-        // Emily4 defines sakura surface alias 35 -> 55. There is no surface35.png,
+        // The fixture defines sakura surface alias 35 -> 55. There is no surface35.png,
         // so a direct filename lookup would silently drop this overlay.
         manager.characterViewModels[0] = CharacterViewModel()
         manager.loadAnimationsForCurrentSurface(surfaceID: 0, scope: 0)
@@ -276,10 +284,20 @@ struct SurfaceOverlayOrderingTests {
     @MainActor
     @Test
     func animAddOverlaySupportsCoordinatesAndTimedFrames() async throws {
-        let repositoryRoot = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-        let manager = GhostManager(ghostURL: repositoryRoot.appendingPathComponent("emily4"))
+        let root = try TestGhostFixture.makeRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let shell = try TestGhostFixture.makeShell(in: root)
+        // sakura surface alias 35 -> 55（surface35.png は存在しない）。
+        try """
+        sakura.surface.alias
+        {
+        35,[55]
+        }
+        """.write(to: shell.appendingPathComponent("surfaces.txt"), atomically: true, encoding: .utf8)
+        for id in [0, 40, 55] {
+            try TestGhostFixture.writeSolidPNG(to: shell.appendingPathComponent("surface\(id).png"), width: 16, height: 16)
+        }
+        let manager = GhostManager(ghostURL: root)
         defer { manager.shutdown() }
 
         manager.characterViewModels[0] = CharacterViewModel()

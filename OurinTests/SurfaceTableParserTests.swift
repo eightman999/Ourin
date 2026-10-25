@@ -136,32 +136,27 @@ func loadSurfaceTableReturnsNilWhenAbsent() throws {
 }
 
 @Test
-func loadSurfaceTableParsesRealFile() throws {
-    let shellURL = URL(fileURLWithPath: #filePath)
-        .deletingLastPathComponent()
-        .deletingLastPathComponent()
-        .appendingPathComponent("emily4")
-        .appendingPathComponent("shell")
-        .appendingPathComponent("master")
-    guard FileManager.default.fileExists(atPath: shellURL.appendingPathComponent("surfacetable.txt").path) else {
-        // emily4 サンプルシェルが無い環境では検証をスキップ（暗黙パス扱い）
-        return
+func loadSurfaceTableParsesFileFromShellDirectory() throws {
+    let root = try TestGhostFixture.makeRoot()
+    defer { try? FileManager.default.removeItem(at: root) }
+    let shellURL = try TestGhostFixture.makeShell(in: root)
+    try """
+    charset,UTF-8
+    version,1
+
+    group,リン
+    {
+        scope,0
+        0,素
+        1,笑顔
     }
+    """.write(to: shellURL.appendingPathComponent("surfacetable.txt"), atomically: true, encoding: .utf8)
 
     guard let table = SurfaceDefinitionLoader.loadSurfaceTable(from: shellURL) else {
-        Issue.record("expected non-nil SurfaceTable for emily4 sample")
+        Issue.record("expected non-nil SurfaceTable for fixture shell")
         return
     }
-    // emily4 には __disabled / エミリ / テディ / エミリ王 / その他 の5グループがある
-    #expect(table.groups.count == 5)
-    #expect(table.groups[0].name == "__disabled")
-    // __disabled グループの全エントリは __parts
-    #expect(table.groups[0].entries.allSatisfy { $0.name == "__parts" })
-    // scope=0 のグループ（エミリ）の先頭は素サーフェス (id=0)
-    let sakura = table.groups.first { $0.scope == 0 && !$0.name.hasPrefix("__") }
-    #expect(sakura?.scope == 0)
-    #expect(sakura?.entries.first?.surfaceID == 0)
-    // definedSurfaceIDs に主要サーフェスが含まれる
+    #expect(table.groups.first?.name == "リン")
     #expect(table.definedSurfaceIDs.contains(0))
-    #expect(table.definedSurfaceIDs.contains(4000))
+    #expect(table.definedSurfaceIDs.contains(1))
 }

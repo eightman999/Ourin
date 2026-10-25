@@ -2,6 +2,7 @@ import Foundation
 import Darwin
 
 @objc protocol OurinShioriXPC {
+    func load(_ bundlePath: String, loadDirectory: String, shiori2Compatibility: Bool, withReply reply: @escaping (Bool, String?) -> Void)
     func ping(withReply reply: @escaping () -> Void)
     func load(_ bundlePath: String, withReply reply: @escaping (Bool, String?) -> Void)
     func execute(_ request: Data, withReply reply: @escaping (Data?, String?) -> Void)
@@ -11,15 +12,6 @@ import Darwin
     func unload(_ bundlePath: String, shiori2Compatibility: Bool, withReply reply: @escaping () -> Void)
     func execute(_ request: Data, bundlePath: String, withReply reply: @escaping (Data?, String?) -> Void)
 }
-
-private typealias ShioriLoad = @convention(c) (UnsafePointer<CChar>?) -> Bool
-private typealias ShioriRequest = @convention(c) (
-    UnsafePointer<UInt8>?, Int,
-    UnsafeMutablePointer<UnsafeMutablePointer<UInt8>?>?,
-    UnsafeMutablePointer<Int>?
-) -> Bool
-private typealias ShioriUnload = @convention(c) () -> Void
-private typealias ShioriFree = @convention(c) (UnsafeMutablePointer<UInt8>?) -> Void
 
 private enum WireEncoding {
     static func charset(in data: Data, default defaultValue: String = "UTF-8") -> String {
@@ -43,94 +35,6 @@ private enum WireEncoding {
     }
 }
 
-private final class NativeShioriModule {
-    private var bundle: CFBundle?
-    private var dylib: UnsafeMutableRawPointer?
-    private var loadFunction: ShioriLoad?
-    private var requestFunction: ShioriRequest?
-    private var unloadFunction: ShioriUnload?
-    private var freeFunction: ShioriFree?
-
-    init(url: URL) throws {
-        if ["bundle", "plugin"].contains(url.pathExtension.lowercased()) {
-            guard let value = CFBundleCreate(kCFAllocatorDefault, url as CFURL), CFBundleLoadExecutable(value) else {
-                throw NSError(domain: "OurinShioriXPC", code: 1, userInfo: [NSLocalizedDescriptionKey: "Bundle load failed"])
-            }
-            bundle = value
-            loadFunction = symbol(in: value, names: ["shiori_loadu", "loadu", "shiori_load", "load"], as: ShioriLoad.self)
-            requestFunction = symbol(in: value, names: ["shiori_request", "request"], as: ShioriRequest.self)
-            unloadFunction = symbol(in: value, names: ["shiori_unloadu", "unloadu", "shiori_unload", "unload"], as: ShioriUnload.self)
-            freeFunction = symbol(in: value, names: ["shiori_free", "free"], as: ShioriFree.self)
-        } else {
-            guard let handle = dlopen(url.path, RTLD_NOW) else {
-                let detail: String
-                if let pointer = dlerror() {
-                    detail = String(cString: pointer)
-                } else {
-                    detail = "dlopen failed"
-                }
-                throw NSError(domain: "OurinShioriXPC", code: 2, userInfo: [NSLocalizedDescriptionKey: detail])
-            }
-            dylib = handle
-            loadFunction = symbol(in: handle, names: ["shiori_loadu", "loadu", "shiori_load", "load"], as: ShioriLoad.self)
-            requestFunction = symbol(in: handle, names: ["shiori_request", "request"], as: ShioriRequest.self)
-            unloadFunction = symbol(in: handle, names: ["shiori_unloadu", "unloadu", "shiori_unload", "unload"], as: ShioriUnload.self)
-            freeFunction = symbol(in: handle, names: ["shiori_free", "free"], as: ShioriFree.self)
-        }
-        guard requestFunction != nil else { throw missing("shiori_request") }
-        guard freeFunction != nil else { throw missing("shiori_free") }
-        if let loadFunction {
-            let loaded = url.deletingLastPathComponent().path.withCString { loadFunction($0) }
-            guard loaded else { throw NSError(domain: "OurinShioriXPC", code: 4, userInfo: [NSLocalizedDescriptionKey: "shiori_load returned false"]) }
-        }
-    }
-
-    deinit { unload() }
-
-    func request(_ data: Data) -> Data? {
-        guard let requestFunction else { return nil }
-        var output: UnsafeMutablePointer<UInt8>?
-        var outputLength = 0
-        let succeeded = data.withUnsafeBytes {
-            requestFunction($0.baseAddress?.assumingMemoryBound(to: UInt8.self), data.count, &output, &outputLength)
-        }
-        guard succeeded, let output, outputLength >= 0 else { return nil }
-        let response = Data(bytes: output, count: outputLength)
-        freeFunction?(output)
-        return response
-    }
-
-    func unload() {
-        unloadFunction?()
-        unloadFunction = nil
-        requestFunction = nil
-        freeFunction = nil
-        loadFunction = nil
-        if let bundle { CFBundleUnloadExecutable(bundle); self.bundle = nil }
-        if let dylib { dlclose(dylib); self.dylib = nil }
-    }
-
-    private func missing(_ symbol: String) -> Error {
-        NSError(domain: "OurinShioriXPC", code: 3, userInfo: [NSLocalizedDescriptionKey: "Missing required symbol: \(symbol)"])
-    }
-
-    private func symbol<T>(in bundle: CFBundle, names: [String], as type: T.Type) -> T? {
-        for name in names {
-            if let pointer = CFBundleGetFunctionPointerForName(bundle, name as CFString) {
-                return unsafeBitCast(pointer, to: type)
-            }
-        }
-        return nil
-    }
-
-    private func symbol<T>(in handle: UnsafeMutableRawPointer, names: [String], as type: T.Type) -> T? {
-        for name in names {
-            if let pointer = dlsym(handle, name) { return unsafeBitCast(pointer, to: type) }
-        }
-        return nil
-    }
-}
-
 private final class ShioriSession: NSObject, OurinShioriXPC {
     private let queue = DispatchQueue(label: "jp.ourin.shiori.session")
     private var module: NativeShioriModule?
@@ -139,6 +43,10 @@ private final class ShioriSession: NSObject, OurinShioriXPC {
     func ping(withReply reply: @escaping () -> Void) { reply() }
 
     func load(_ bundlePath: String, withReply reply: @escaping (Bool, String?) -> Void) {
+        load(bundlePath, loadDirectory: URL(fileURLWithPath: bundlePath).deletingLastPathComponent().path, shiori2Compatibility: true, withReply: reply)
+    }
+
+    func load(_ bundlePath: String, loadDirectory: String, shiori2Compatibility: Bool, withReply reply: @escaping (Bool, String?) -> Void) {
         runWithWatchdog {
             self.module?.unload()
             self.module = nil
@@ -147,7 +55,7 @@ private final class ShioriSession: NSObject, OurinShioriXPC {
                 guard FileManager.default.fileExists(atPath: url.path) else {
                     throw NSError(domain: "OurinShioriXPC", code: 5, userInfo: [NSLocalizedDescriptionKey: "Module not found: \(url.path)"])
                 }
-                self.module = try NativeShioriModule(url: url)
+                self.module = try NativeShioriModule(url: url, loadDirectory: URL(fileURLWithPath: loadDirectory))
                 reply(true, nil)
             } catch {
                 reply(false, error.localizedDescription)

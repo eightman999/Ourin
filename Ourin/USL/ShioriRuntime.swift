@@ -7,6 +7,7 @@ import Foundation
 enum ShioriRuntimeKind: String, Codable, Equatable {
     case yaya
     case satori
+    case shiolink
     case native
 }
 
@@ -40,6 +41,8 @@ struct ShioriRuntimeLoadContext {
     let moduleName: String
     let dictionaryEntries: [DicEntry]
     let dictionaryEncoding: String
+    /// YAYA の設定の fncdepth。nil なら yaya_core の既定（本家と同じ 32）。
+    let functionDepthLimit: Int?
     let communication: ShioriCommunicationOptions
 
     init(
@@ -48,6 +51,7 @@ struct ShioriRuntimeLoadContext {
         moduleName: String,
         dictionaryEntries: [DicEntry] = [],
         dictionaryEncoding: String = "auto",
+        functionDepthLimit: Int? = nil,
         communication: ShioriCommunicationOptions = .init()
     ) {
         self.ghostURL = ghostURL
@@ -55,6 +59,7 @@ struct ShioriRuntimeLoadContext {
         self.moduleName = moduleName
         self.dictionaryEntries = dictionaryEntries
         self.dictionaryEncoding = dictionaryEncoding
+        self.functionDepthLimit = functionDepthLimit
         self.communication = communication
     }
 }

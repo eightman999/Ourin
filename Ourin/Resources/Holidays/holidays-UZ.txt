@@ -1,0 +1,396 @@
+# UZ の祝日（2020〜2050年、言語: uz）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Yangi yil
+2020/1/2,Dam olish kuni (04/01 2020 dan koʻchirilgan)
+2020/3/8,Xotin-qizlar kuni
+2020/3/21,Navroʻz bayrami
+2020/3/23,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2020/5/9,Xotira va qadrlash kuni
+2020/5/24,Roʻza hayit
+2020/7/31,Qurbon hayit
+2020/8/31,Dam olish kuni (29/08 2020 dan koʻchirilgan)
+2020/9/1,Mustaqillik kuni
+2020/10/1,Oʻqituvchi va murabbiylar kuni
+2020/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2021/1/1,Yangi yil
+2021/3/8,Xotin-qizlar kuni
+2021/3/21,Navroʻz bayrami
+2021/3/22,Dam olish kuni (27/03 2021 dan koʻchirilgan)
+2021/5/9,Xotira va qadrlash kuni
+2021/5/13,Roʻza hayit
+2021/5/14,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2021/7/20,Qurbon hayit
+2021/7/21,Dam olish kuni (17/07 2021 dan koʻchirilgan)
+2021/7/22,Dam olish kuni (24/07 2021 dan koʻchirilgan)
+2021/9/1,Mustaqillik kuni
+2021/9/2,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2021/9/3,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2021/10/1,Oʻqituvchi va murabbiylar kuni
+2021/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2021/12/31,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2022/1/1,Yangi yil
+2022/1/3,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2022/1/4,Dam olish kuni (08/01 2022 dan koʻchirilgan)
+2022/3/8,Xotin-qizlar kuni
+2022/3/21,Navroʻz bayrami
+2022/3/22,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2022/3/23,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2022/5/2,Roʻza hayit
+2022/5/3,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2022/5/4,Dam olish kuni (07/05 2022 dan koʻchirilgan)
+2022/5/9,Xotira va qadrlash kuni
+2022/7/9,Qurbon hayit
+2022/7/11,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2022/7/12,Dam olish kuni (16/07 2022 dan koʻchirilgan)
+2022/9/1,Mustaqillik kuni
+2022/9/2,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2022/10/1,Oʻqituvchi va murabbiylar kuni
+2022/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2023/1/1,Yangi yil
+2023/1/2,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2023/1/3,Dam olish kuni (07/01 2023 dan koʻchirilgan)
+2023/3/8,Xotin-qizlar kuni
+2023/3/20,Dam olish kuni (11/03 2023 dan koʻchirilgan)
+2023/3/21,Navroʻz bayrami
+2023/3/22,Dam olish kuni (25/03 2023 dan koʻchirilgan)
+2023/4/21,Roʻza hayit
+2023/4/24,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2023/5/9,Xotira va qadrlash kuni
+2023/6/28,Qurbon hayit
+2023/6/29,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2023/6/30,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2023/9/1,Mustaqillik kuni
+2023/10/1,Oʻqituvchi va murabbiylar kuni
+2023/10/2,Oʻqituvchi va murabbiylar kuni (koʻchirilgan)
+2023/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2024/1/1,Yangi yil
+2024/1/2,Dam olish kuni (06/01 2024 dan koʻchirilgan)
+2024/3/8,Xotin-qizlar kuni
+2024/3/21,Navroʻz bayrami
+2024/3/22,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2024/4/10,Roʻza hayit
+2024/4/11,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2024/4/12,Dam olish kuni (13/04 2024 dan koʻchirilgan)
+2024/5/9,Xotira va qadrlash kuni
+2024/6/16,Qurbon hayit
+2024/6/17,Qurbon hayit (koʻchirilgan)
+2024/6/18,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2024/9/1,Mustaqillik kuni
+2024/9/2,Mustaqillik kuni (koʻchirilgan)
+2024/9/3,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2024/10/1,Oʻqituvchi va murabbiylar kuni
+2024/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2024/12/9,Oʻzbekiston Respublikasi Konstitutsiyasi kuni (koʻchirilgan)
+2024/12/30,Dam olish kuni (14/12 2024 dan koʻchirilgan)
+2024/12/31,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2025/1/1,Yangi yil
+2025/1/2,Dam olish kuni (04/01 2025 dan koʻchirilgan)
+2025/3/8,Xotin-qizlar kuni
+2025/3/10,Xotin-qizlar kuni (koʻchirilgan)
+2025/3/21,Navroʻz bayrami
+2025/3/30,Roʻza hayit
+2025/3/31,Roʻza hayit (koʻchirilgan)
+2025/5/9,Xotira va qadrlash kuni
+2025/6/6,Qurbon hayit
+2025/9/1,Mustaqillik kuni
+2025/10/1,Oʻqituvchi va murabbiylar kuni
+2025/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2025/12/31,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2026/1/1,Yangi yil
+2026/1/2,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2026/3/8,Xotin-qizlar kuni
+2026/3/9,Xotin-qizlar kuni (koʻchirilgan)
+2026/3/20,Roʻza hayit (taxminiy)
+2026/3/21,Navroʻz bayrami
+2026/3/23,Navroʻz bayrami (koʻchirilgan)
+2026/5/9,Xotira va qadrlash kuni
+2026/5/11,Xotira va qadrlash kuni (koʻchirilgan)
+2026/5/27,Qurbon hayit (taxminiy)
+2026/5/28,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2026/5/29,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2026/8/31,Prezidentining farmoni bilan qoʻshimcha dam olish kuni
+2026/9/1,Mustaqillik kuni
+2026/10/1,Oʻqituvchi va murabbiylar kuni
+2026/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2026/12/31,Dam olish kuni (12/12 2026 dan koʻchirilgan)
+2027/1/1,Yangi yil
+2027/3/8,Xotin-qizlar kuni
+2027/3/9,Roʻza hayit (taxminiy)
+2027/3/21,Navroʻz bayrami
+2027/3/22,Navroʻz bayrami (koʻchirilgan)
+2027/5/9,Xotira va qadrlash kuni
+2027/5/10,Xotira va qadrlash kuni (koʻchirilgan)
+2027/5/16,Qurbon hayit (taxminiy)
+2027/5/17,Qurbon hayit (koʻchirilgan, taxminiy)
+2027/9/1,Mustaqillik kuni
+2027/10/1,Oʻqituvchi va murabbiylar kuni
+2027/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2028/1/1,Yangi yil
+2028/1/3,Yangi yil (koʻchirilgan)
+2028/2/26,Roʻza hayit (taxminiy)
+2028/2/28,Roʻza hayit (koʻchirilgan, taxminiy)
+2028/3/8,Xotin-qizlar kuni
+2028/3/21,Navroʻz bayrami
+2028/5/5,Qurbon hayit (taxminiy)
+2028/5/9,Xotira va qadrlash kuni
+2028/9/1,Mustaqillik kuni
+2028/10/1,Oʻqituvchi va murabbiylar kuni
+2028/10/2,Oʻqituvchi va murabbiylar kuni (koʻchirilgan)
+2028/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2029/1/1,Yangi yil
+2029/2/14,Roʻza hayit (taxminiy)
+2029/3/8,Xotin-qizlar kuni
+2029/3/21,Navroʻz bayrami
+2029/4/24,Qurbon hayit (taxminiy)
+2029/5/9,Xotira va qadrlash kuni
+2029/9/1,Mustaqillik kuni
+2029/9/3,Mustaqillik kuni (koʻchirilgan)
+2029/10/1,Oʻqituvchi va murabbiylar kuni
+2029/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2029/12/10,Oʻzbekiston Respublikasi Konstitutsiyasi kuni (koʻchirilgan)
+2030/1/1,Yangi yil
+2030/2/4,Roʻza hayit (taxminiy)
+2030/3/8,Xotin-qizlar kuni
+2030/3/21,Navroʻz bayrami
+2030/4/13,Qurbon hayit (taxminiy)
+2030/4/15,Qurbon hayit (koʻchirilgan, taxminiy)
+2030/5/9,Xotira va qadrlash kuni
+2030/9/1,Mustaqillik kuni
+2030/9/2,Mustaqillik kuni (koʻchirilgan)
+2030/10/1,Oʻqituvchi va murabbiylar kuni
+2030/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2030/12/9,Oʻzbekiston Respublikasi Konstitutsiyasi kuni (koʻchirilgan)
+2031/1/1,Yangi yil
+2031/1/24,Roʻza hayit (taxminiy)
+2031/3/8,Xotin-qizlar kuni
+2031/3/10,Xotin-qizlar kuni (koʻchirilgan)
+2031/3/21,Navroʻz bayrami
+2031/4/2,Qurbon hayit (taxminiy)
+2031/5/9,Xotira va qadrlash kuni
+2031/9/1,Mustaqillik kuni
+2031/10/1,Oʻqituvchi va murabbiylar kuni
+2031/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2032/1/1,Yangi yil
+2032/1/14,Roʻza hayit (taxminiy)
+2032/3/8,Xotin-qizlar kuni
+2032/3/21,Navroʻz bayrami
+2032/3/22,Qurbon hayit (taxminiy)
+2032/3/23,Navroʻz bayrami (koʻchirilgan)
+2032/5/9,Xotira va qadrlash kuni
+2032/5/10,Xotira va qadrlash kuni (koʻchirilgan)
+2032/9/1,Mustaqillik kuni
+2032/10/1,Oʻqituvchi va murabbiylar kuni
+2032/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2033/1/1,Yangi yil
+2033/1/2,Roʻza hayit (taxminiy)
+2033/1/3,Yangi yil (koʻchirilgan)
+2033/1/4,Roʻza hayit (koʻchirilgan, taxminiy)
+2033/3/8,Xotin-qizlar kuni
+2033/3/11,Qurbon hayit (taxminiy)
+2033/3/21,Navroʻz bayrami
+2033/5/9,Xotira va qadrlash kuni
+2033/9/1,Mustaqillik kuni
+2033/10/1,Oʻqituvchi va murabbiylar kuni
+2033/10/3,Oʻqituvchi va murabbiylar kuni (koʻchirilgan)
+2033/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2033/12/23,Roʻza hayit (taxminiy)
+2034/1/1,Yangi yil
+2034/1/2,Yangi yil (koʻchirilgan)
+2034/3/1,Qurbon hayit (taxminiy)
+2034/3/8,Xotin-qizlar kuni
+2034/3/21,Navroʻz bayrami
+2034/5/9,Xotira va qadrlash kuni
+2034/9/1,Mustaqillik kuni
+2034/10/1,Oʻqituvchi va murabbiylar kuni
+2034/10/2,Oʻqituvchi va murabbiylar kuni (koʻchirilgan)
+2034/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2034/12/12,Roʻza hayit (taxminiy)
+2035/1/1,Yangi yil
+2035/2/18,Qurbon hayit (taxminiy)
+2035/2/19,Qurbon hayit (koʻchirilgan, taxminiy)
+2035/3/8,Xotin-qizlar kuni
+2035/3/21,Navroʻz bayrami
+2035/5/9,Xotira va qadrlash kuni
+2035/9/1,Mustaqillik kuni
+2035/9/3,Mustaqillik kuni (koʻchirilgan)
+2035/10/1,Oʻqituvchi va murabbiylar kuni
+2035/12/1,Roʻza hayit (taxminiy)
+2035/12/3,Roʻza hayit (koʻchirilgan, taxminiy)
+2035/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2035/12/10,Oʻzbekiston Respublikasi Konstitutsiyasi kuni (koʻchirilgan)
+2036/1/1,Yangi yil
+2036/2/7,Qurbon hayit (taxminiy)
+2036/3/8,Xotin-qizlar kuni
+2036/3/10,Xotin-qizlar kuni (koʻchirilgan)
+2036/3/21,Navroʻz bayrami
+2036/5/9,Xotira va qadrlash kuni
+2036/9/1,Mustaqillik kuni
+2036/10/1,Oʻqituvchi va murabbiylar kuni
+2036/11/19,Roʻza hayit (taxminiy)
+2036/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2037/1/1,Yangi yil
+2037/1/26,Qurbon hayit (taxminiy)
+2037/3/8,Xotin-qizlar kuni
+2037/3/9,Xotin-qizlar kuni (koʻchirilgan)
+2037/3/21,Navroʻz bayrami
+2037/3/23,Navroʻz bayrami (koʻchirilgan)
+2037/5/9,Xotira va qadrlash kuni
+2037/5/11,Xotira va qadrlash kuni (koʻchirilgan)
+2037/9/1,Mustaqillik kuni
+2037/10/1,Oʻqituvchi va murabbiylar kuni
+2037/11/8,Roʻza hayit (taxminiy)
+2037/11/9,Roʻza hayit (koʻchirilgan, taxminiy)
+2037/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2038/1/1,Yangi yil
+2038/1/16,Qurbon hayit (taxminiy)
+2038/1/18,Qurbon hayit (koʻchirilgan, taxminiy)
+2038/3/8,Xotin-qizlar kuni
+2038/3/21,Navroʻz bayrami
+2038/3/22,Navroʻz bayrami (koʻchirilgan)
+2038/5/9,Xotira va qadrlash kuni
+2038/5/10,Xotira va qadrlash kuni (koʻchirilgan)
+2038/9/1,Mustaqillik kuni
+2038/10/1,Oʻqituvchi va murabbiylar kuni
+2038/10/29,Roʻza hayit (taxminiy)
+2038/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2039/1/1,Yangi yil
+2039/1/3,Yangi yil (koʻchirilgan)
+2039/1/5,Qurbon hayit (taxminiy)
+2039/3/8,Xotin-qizlar kuni
+2039/3/21,Navroʻz bayrami
+2039/5/9,Xotira va qadrlash kuni
+2039/9/1,Mustaqillik kuni
+2039/10/1,Oʻqituvchi va murabbiylar kuni
+2039/10/3,Oʻqituvchi va murabbiylar kuni (koʻchirilgan)
+2039/10/19,Roʻza hayit (taxminiy)
+2039/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2039/12/26,Qurbon hayit (taxminiy)
+2040/1/1,Yangi yil
+2040/1/2,Yangi yil (koʻchirilgan)
+2040/3/8,Xotin-qizlar kuni
+2040/3/21,Navroʻz bayrami
+2040/5/9,Xotira va qadrlash kuni
+2040/9/1,Mustaqillik kuni
+2040/9/3,Mustaqillik kuni (koʻchirilgan)
+2040/10/1,Oʻqituvchi va murabbiylar kuni
+2040/10/7,Roʻza hayit (taxminiy)
+2040/10/8,Roʻza hayit (koʻchirilgan, taxminiy)
+2040/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2040/12/10,Oʻzbekiston Respublikasi Konstitutsiyasi kuni (koʻchirilgan)
+2040/12/14,Qurbon hayit (taxminiy)
+2041/1/1,Yangi yil
+2041/3/8,Xotin-qizlar kuni
+2041/3/21,Navroʻz bayrami
+2041/5/9,Xotira va qadrlash kuni
+2041/9/1,Mustaqillik kuni
+2041/9/2,Mustaqillik kuni (koʻchirilgan)
+2041/9/26,Roʻza hayit (taxminiy)
+2041/10/1,Oʻqituvchi va murabbiylar kuni
+2041/12/4,Qurbon hayit (taxminiy)
+2041/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2041/12/9,Oʻzbekiston Respublikasi Konstitutsiyasi kuni (koʻchirilgan)
+2042/1/1,Yangi yil
+2042/3/8,Xotin-qizlar kuni
+2042/3/10,Xotin-qizlar kuni (koʻchirilgan)
+2042/3/21,Navroʻz bayrami
+2042/5/9,Xotira va qadrlash kuni
+2042/9/1,Mustaqillik kuni
+2042/9/15,Roʻza hayit (taxminiy)
+2042/10/1,Oʻqituvchi va murabbiylar kuni
+2042/11/23,Qurbon hayit (taxminiy)
+2042/11/24,Qurbon hayit (koʻchirilgan, taxminiy)
+2042/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2043/1/1,Yangi yil
+2043/3/8,Xotin-qizlar kuni
+2043/3/9,Xotin-qizlar kuni (koʻchirilgan)
+2043/3/21,Navroʻz bayrami
+2043/3/23,Navroʻz bayrami (koʻchirilgan)
+2043/5/9,Xotira va qadrlash kuni
+2043/5/11,Xotira va qadrlash kuni (koʻchirilgan)
+2043/9/1,Mustaqillik kuni
+2043/9/4,Roʻza hayit (taxminiy)
+2043/10/1,Oʻqituvchi va murabbiylar kuni
+2043/11/12,Qurbon hayit (taxminiy)
+2043/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2044/1/1,Yangi yil
+2044/3/8,Xotin-qizlar kuni
+2044/3/21,Navroʻz bayrami
+2044/5/9,Xotira va qadrlash kuni
+2044/8/24,Roʻza hayit (taxminiy)
+2044/9/1,Mustaqillik kuni
+2044/10/1,Oʻqituvchi va murabbiylar kuni
+2044/10/3,Oʻqituvchi va murabbiylar kuni (koʻchirilgan)
+2044/10/31,Qurbon hayit (taxminiy)
+2044/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2045/1/1,Yangi yil
+2045/1/2,Yangi yil (koʻchirilgan)
+2045/3/8,Xotin-qizlar kuni
+2045/3/21,Navroʻz bayrami
+2045/5/9,Xotira va qadrlash kuni
+2045/8/14,Roʻza hayit (taxminiy)
+2045/9/1,Mustaqillik kuni
+2045/10/1,Oʻqituvchi va murabbiylar kuni
+2045/10/2,Oʻqituvchi va murabbiylar kuni (koʻchirilgan)
+2045/10/21,Qurbon hayit (taxminiy)
+2045/10/23,Qurbon hayit (koʻchirilgan, taxminiy)
+2045/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2046/1/1,Yangi yil
+2046/3/8,Xotin-qizlar kuni
+2046/3/21,Navroʻz bayrami
+2046/5/9,Xotira va qadrlash kuni
+2046/8/3,Roʻza hayit (taxminiy)
+2046/9/1,Mustaqillik kuni
+2046/9/3,Mustaqillik kuni (koʻchirilgan)
+2046/10/1,Oʻqituvchi va murabbiylar kuni
+2046/10/10,Qurbon hayit (taxminiy)
+2046/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2046/12/10,Oʻzbekiston Respublikasi Konstitutsiyasi kuni (koʻchirilgan)
+2047/1/1,Yangi yil
+2047/3/8,Xotin-qizlar kuni
+2047/3/21,Navroʻz bayrami
+2047/5/9,Xotira va qadrlash kuni
+2047/7/24,Roʻza hayit (taxminiy)
+2047/9/1,Mustaqillik kuni
+2047/9/2,Mustaqillik kuni (koʻchirilgan)
+2047/9/30,Qurbon hayit (taxminiy)
+2047/10/1,Oʻqituvchi va murabbiylar kuni
+2047/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2047/12/9,Oʻzbekiston Respublikasi Konstitutsiyasi kuni (koʻchirilgan)
+2048/1/1,Yangi yil
+2048/3/8,Xotin-qizlar kuni
+2048/3/9,Xotin-qizlar kuni (koʻchirilgan)
+2048/3/21,Navroʻz bayrami
+2048/3/23,Navroʻz bayrami (koʻchirilgan)
+2048/5/9,Xotira va qadrlash kuni
+2048/5/11,Xotira va qadrlash kuni (koʻchirilgan)
+2048/7/12,Roʻza hayit (taxminiy)
+2048/7/13,Roʻza hayit (koʻchirilgan, taxminiy)
+2048/9/1,Mustaqillik kuni
+2048/9/19,Qurbon hayit (taxminiy)
+2048/9/21,Qurbon hayit (koʻchirilgan, taxminiy)
+2048/10/1,Oʻqituvchi va murabbiylar kuni
+2048/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2049/1/1,Yangi yil
+2049/3/8,Xotin-qizlar kuni
+2049/3/21,Navroʻz bayrami
+2049/3/22,Navroʻz bayrami (koʻchirilgan)
+2049/5/9,Xotira va qadrlash kuni
+2049/5/10,Xotira va qadrlash kuni (koʻchirilgan)
+2049/7/1,Roʻza hayit (taxminiy)
+2049/9/1,Mustaqillik kuni
+2049/9/8,Qurbon hayit (taxminiy)
+2049/10/1,Oʻqituvchi va murabbiylar kuni
+2049/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni
+2050/1/1,Yangi yil
+2050/1/3,Yangi yil (koʻchirilgan)
+2050/3/8,Xotin-qizlar kuni
+2050/3/21,Navroʻz bayrami
+2050/5/9,Xotira va qadrlash kuni
+2050/6/20,Roʻza hayit (taxminiy)
+2050/8/28,Qurbon hayit (taxminiy)
+2050/8/29,Qurbon hayit (koʻchirilgan, taxminiy)
+2050/9/1,Mustaqillik kuni
+2050/10/1,Oʻqituvchi va murabbiylar kuni
+2050/10/3,Oʻqituvchi va murabbiylar kuni (koʻchirilgan)
+2050/12/8,Oʻzbekiston Respublikasi Konstitutsiyasi kuni

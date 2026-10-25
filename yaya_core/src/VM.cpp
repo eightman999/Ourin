@@ -35,7 +35,8 @@
 
 namespace {
 
-// yaya.txt の charset 表記ゆれを吸収する。戻り値: "UTF-8" / "CP932" / "AUTO"
+// yaya.txt の charset 表記ゆれを吸収する。戻り値: "UTF-8" / "CP932" / "AUTO"、
+// または中国語・韓国語の iconv 名 "CP950" / "CP936" / "GB18030" / "CP949"
 // (DictionaryManager.cpp の normalizeEncodingName と同等のロジック)
 std::string normalizeEncodingNameVM(std::string enc) {
     std::transform(enc.begin(), enc.end(), enc.begin(),
@@ -45,7 +46,13 @@ std::string normalizeEncodingNameVM(std::string enc) {
               enc.end());
     if (enc == "utf8") return "UTF-8";
     if (enc == "shiftjis" || enc == "sjis" || enc == "cp932" ||
-        enc == "windows31j" || enc == "ms932" || enc == "ms_kanji") return "CP932";
+        enc == "windows31j" || enc == "ms932" || enc == "mskanji") return "CP932";
+    if (enc == "big5" || enc == "cp950" || enc == "windows950" || enc == "xbig5") return "CP950";
+    if (enc == "gb2312" || enc == "gbk" || enc == "cp936" || enc == "windows936" ||
+        enc == "euccn" || enc == "xgbk") return "CP936";
+    if (enc == "gb18030") return "GB18030";
+    if (enc == "euckr" || enc == "cp949" || enc == "windows949" || enc == "uhc" ||
+        enc == "ksc56011987" || enc == "ksc5601") return "CP949";
     if (enc.empty() || enc == "auto" || enc == "default") return "AUTO";
     return "AUTO";
 }
@@ -447,6 +454,92 @@ static std::vector<std::string> splitPseudoArray(const std::string& text,
     return parts;
 }
 
+// YAYA の `a[i]` の読み出し（yaya-shiori の CValue::operator[] の添字 1 つの場合）。
+// 汎用配列はその要素、文字列は delimiter で分けた簡易配列の要素、整数・実数は [0] だけその値。
+// 範囲外（負の添字を含む）は VOID。
+static Value yayaElementGet(const Value& container, std::int64_t index, const std::string& delimiter) {
+    switch (container.getType()) {
+        case Value::Type::Array:
+            return index >= 0 ? container.arrayGet(static_cast<size_t>(index)) : Value();
+        case Value::Type::String: {
+            const auto parts = splitPseudoArray(container.asString(), delimiter);
+            return (index >= 0 && index < static_cast<std::int64_t>(parts.size()))
+                ? Value(parts[static_cast<size_t>(index)]) : Value();
+        }
+        case Value::Type::Integer:
+        case Value::Type::Real:
+            return index == 0 ? container : Value();
+        default:
+            return Value();
+    }
+}
+
+// YAYA の `a[i] = value`（yaya-shiori の CValue::SetArrayValue の添字 1 つの場合）。
+// - 範囲内なら置き換え、範囲外は空の要素で埋めてから末尾に追加する。負の添字は埋めずに末尾に追加する。
+// - 右辺が配列なら要素を展開して差し込む。汎用配列では spread が false のとき（多次元の代入で
+//   手前の次元へ書き戻すとき）と、今の要素が配列のときは展開しない。
+// - 文字列は簡易配列として delimiter で分けて書き換え、つなぎ直す。
+// - 未定義・整数・実数は、元の値を捨てて [0] が VOID の汎用配列に変えてから書き込む。
+static void yayaElementSet(Value& container, std::int64_t index, const Value& value,
+                           const std::string& delimiter, bool spread) {
+    // YAYA は埋める要素が多すぎる代入（`_a[2000000000] = 1` など）をメモリ不足として扱う。
+    static constexpr std::int64_t kMaxPad = 0x1000000;
+    if (container.getType() == Value::Type::Dictionary) return;
+
+    if (container.getType() == Value::Type::String) {
+        std::vector<std::string> parts = splitPseudoArray(container.asString(), delimiter);
+        if (index - static_cast<std::int64_t>(parts.size()) > kMaxPad) return;
+        std::vector<std::string> inserted;
+        if (value.getType() == Value::Type::Array) {
+            for (const auto& element : value.asArray()) inserted.push_back(element.asString());
+        } else {
+            inserted.push_back(value.asString());
+        }
+        if (index >= 0 && index < static_cast<std::int64_t>(parts.size())) {
+            auto position = parts.erase(parts.begin() + index);
+            parts.insert(position, inserted.begin(), inserted.end());
+        } else {
+            if (index > static_cast<std::int64_t>(parts.size())) parts.resize(static_cast<size_t>(index));
+            parts.insert(parts.end(), inserted.begin(), inserted.end());
+        }
+        std::string joined;
+        for (size_t i = 0; i < parts.size(); ++i) {
+            if (i) joined += delimiter;
+            joined += parts[i];
+        }
+        container = Value(joined);
+        return;
+    }
+
+    const std::int64_t size = container.getType() == Value::Type::Array
+        ? static_cast<std::int64_t>(container.arraySize()) : 1;
+    if (index - size > kMaxPad) return;
+    if (container.getType() != Value::Type::Array) {
+        container = Value(std::vector<Value>{ Value() });
+    }
+    auto& elements = container.asArrayMutable();
+    bool expand = spread && value.getType() == Value::Type::Array;
+    if (index >= 0 && index < static_cast<std::int64_t>(elements.size())) {
+        auto position = elements.begin() + index;
+        if (position->getType() == Value::Type::Array || position->getType() == Value::Type::Dictionary) {
+            expand = false;
+        }
+        if (expand) {
+            position = elements.erase(position);
+            elements.insert(position, value.asArray().begin(), value.asArray().end());
+        } else {
+            *position = value;
+        }
+        return;
+    }
+    if (index > static_cast<std::int64_t>(elements.size())) elements.resize(static_cast<size_t>(index));
+    if (expand) {
+        elements.insert(elements.end(), value.asArray().begin(), value.asArray().end());
+    } else {
+        elements.push_back(value);
+    }
+}
+
 // These AST calls mutate a variable and are statement-like in YAYA. Their
 // return value is useful when nested inside an expression, but must not become
 // an output candidate when the call is a standalone statement.
@@ -600,12 +693,17 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
         return Value();
     }
 
-    // 再帰深度チェック（無限ループ防止）
-    recursion_depth_++;
+    // 再帰深度チェック（無限ループ防止）。どの抜け方（早期 return・組み込み関数や関数本体からの
+    // 例外）でも必ず 1 つ戻す。戻し損ねると深さが要求をまたいで積み上がり、やがてすべての
+    // 呼び出しが MAX_RECURSION_DEPTH で失敗する。
+    struct RecursionDepthGuard {
+        int& depth;
+        explicit RecursionDepthGuard(int& d) : depth(d) { ++depth; }
+        ~RecursionDepthGuard() { --depth; }
+    } recursionDepthGuard(recursion_depth_);
     if (recursion_depth_ > MAX_RECURSION_DEPTH) {
         std::cerr << "[VM::execute] ERROR: Maximum recursion depth (" << MAX_RECURSION_DEPTH
                   << ") exceeded while calling: " << functionName << std::endl;
-        recursion_depth_--;
         return Value();
     }
 
@@ -630,7 +728,6 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     // Check if it's a built-in function
     if (builtins_.find(functionName) != builtins_.end()) {
         Value result = callBuiltin(functionName, args);
-        recursion_depth_--;
         return result;
     }
 
@@ -638,7 +735,6 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     auto it = functions_.find(functionName);
     if (it == functions_.end() || it->second.empty()) {
         std::cerr << "[VM::execute] WARNING: Function not found: \"" << functionName << "\", returning void" << std::endl;
-        recursion_depth_--;
         return Value();
     }
 
@@ -649,7 +745,31 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     }
     if (active.empty()) {
         std::cerr << "[VM::execute] WARNING: Function disabled: \"" << functionName << "\", returning void" << std::endl;
-        recursion_depth_--;
+        return Value();
+    }
+
+    // fncdepth: 上限を超えた呼び出しは本体を実行せずに空を返す（yaya-shiori の CFunction::Execute）。
+    // shiori.OnCallLimit があれば上限を一時的に外して呼ぶ（_argv[0] は辞書名。本家の _argv[1] の
+    // 行番号は持っていないので空）。無ければエラー E_E 97 を記録する。
+    struct FunctionDepthGuard {
+        int& depth;
+        explicit FunctionDepthGuard(int& d) : depth(d) { ++depth; }
+        ~FunctionDepthGuard() { --depth; }
+    } functionDepthGuard(functionDepth_);
+    if (maxFunctionDepth_ > 0 && functionDepth_ > maxFunctionDepth_) {
+        std::cerr << "[VM::execute] ERROR: function call depth limit (fncdepth " << maxFunctionDepth_
+                  << ") exceeded while calling: " << functionName << std::endl;
+        const auto source = sourceNames_.find(active.front()->sourceId);
+        const std::string dicName = source == sourceNames_.end() ? "" : source->second;
+        if (functionName != "shiori.OnCallLimit" && hasFunction("shiori.OnCallLimit")) {
+            const int savedLimit = maxFunctionDepth_;
+            maxFunctionDepth_ = 0;
+            execute("shiori.OnCallLimit", {Value(dicName), Value(std::string())});
+            maxFunctionDepth_ = savedLimit;
+        } else {
+            lastError_ = 97;
+            errorLog_.push_back("E_E 97: function call depth limit exceeded: " + functionName);
+        }
         return Value();
     }
 
@@ -664,6 +784,14 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
 
     // Push new local variable scope (YAYA: variables starting with '_' are function-local)
     localScopes_.emplace_back();
+    // 例外で抜けても、このスコープを必ず戻す（戻さないと呼び出し元のローカル変数がずれる）。
+    struct CallFrameGuard {
+        VM& vm;
+        bool active = true;
+        ~CallFrameGuard() {
+            if (active) vm.localScopes_.pop_back();
+        }
+    } callFrameGuard{*this};
 
     // Set _argv / _argc for this function call (now goes to local scope)
     std::vector<Value> argArray;
@@ -680,6 +808,9 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     bool anyNonoverload = false;
     for (const auto* d : active) { if (d->nonoverload) { anyNonoverload = true; break; } }
 
+    // YAYA の break / continue は関数をまたがない。ループの外のものはここで止め、関数を終える
+    // （止めないと呼び出し元のループを抜けさせてしまう）。
+    try {
     if (active.size() == 1 || anyNonoverload) {
         result = executeFunctionDecl(*active.front());
     } else {
@@ -708,6 +839,9 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
             result = Value(s);
         }
     }
+    } catch (const BreakException&) {
+    } catch (const ContinueException&) {
+    }
 
     // 関数内で `_argv[index] = ...` された値を、参照引数の元の格納場所へ戻す。
     // 書き戻しはローカルスコープをまだ保持している間に行う必要がある。
@@ -724,6 +858,7 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     }
 
     // Pop local variable scope
+    callFrameGuard.active = false;
     localScopes_.pop_back();
 
     auto exec_end = std::chrono::steady_clock::now();
@@ -736,7 +871,6 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
     }
     std::cerr << std::endl;
 
-    recursion_depth_--;
     return result;
 }
 
@@ -1003,6 +1137,23 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             auto* feNode = dynamic_cast<AST::ForeachNode*>(node.get());
             Value result;
             Value arrayVal = executeNode(feNode->arrayExpr);
+            // 文字列は簡易配列（区切りで分けた要素）として回す（YAYA の foreach）。
+            if (arrayVal.getType() == Value::Type::String) {
+                const std::string text = arrayVal.asString();
+                const auto* sourceVar = dynamic_cast<AST::VariableNode*>(feNode->arrayExpr.get());
+                const std::string delimiter = sourceVar ? variableDelimiter(sourceVar->name) : arrayDelimiter_;
+                std::vector<Value> parts;
+                if (!text.empty()) {
+                    size_t start = 0;
+                    while (true) {
+                        size_t found = delimiter.empty() ? std::string::npos : text.find(delimiter, start);
+                        parts.emplace_back(text.substr(start, found == std::string::npos ? std::string::npos : found - start));
+                        if (found == std::string::npos) break;
+                        start = found + delimiter.size();
+                    }
+                }
+                arrayVal = Value(parts);
+            }
             if (arrayVal.getType() == Value::Type::Array) {
                 const auto& arr = arrayVal.asArray();
                 // Snapshot elements so mutation of the source array mid-loop is safe.
@@ -1142,8 +1293,10 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                     Value idxV = executeNode(call->arguments[1]);
                     int idx = idxV.asInt();
 
-                    if (base.getType() == Value::Type::Array) {
-                        return base.arrayGet(idx);
+                    // 変数でない項（文字列リテラル、多次元の手前の要素など）の簡易配列は既定の区切り ","。
+                    if (base.getType() == Value::Type::Array || base.getType() == Value::Type::String ||
+                        base.getType() == Value::Type::Integer || base.getType() == Value::Type::Real) {
+                        return yayaElementGet(base, idxV.asInt64(), ",");
                     }
 
                     // Special handling if base was a variable named 'reference'
@@ -1217,63 +1370,85 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             };
             if (assignOps.count(call->functionName) &&
                 call->arguments.size() == 2) {
-                auto rhs = executeNode(call->arguments[1]);
-
-                // Determine target variable name from LHS AST node
-                std::string varName;
-                int arrayIdx = -1;
-                if (auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get())) {
-                    varName = var->name;
-                } else if (auto* acc = dynamic_cast<AST::ArrayAccessNode*>(call->arguments[0].get())) {
-                    varName = acc->arrayName;
-                    arrayIdx = executeNode(acc->index).asInt();
+                // 左辺は変数そのものか、変数の要素（`a[i]`、`a[i][j]`）。YAYA と同じく左辺の添字を先に
+                // 評価し、要素は汎用配列・簡易配列（文字列）の意味で書き換える。`a[i]++` / `a[i]--` も
+                // Parser が `a[i] += 1` / `a[i] -= 1` にしてここへ来る。
+                auto target = resolveElementLvalue(call->arguments[0]);
+                if (!target) {
+                    auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get());
+                    if (!var) {
+                        executeNode(call->arguments[1]);
+                        return Value();
+                    }
+                    target = ElementLvalue{ var->name, {} };
                 }
 
-                if (!varName.empty()) {
-                    if (call->functionName == "__assign__") {
-                        if (arrayIdx >= 0) {
-                            Value arr = getVariable(varName);
-                            arr.arraySet(arrayIdx, rhs);
-                            setVariable(varName, arr);
+                Value rhs = executeNode(call->arguments[1]);
+                if (call->functionName == "__assign__") {
+                    writeElementLvalue(*target, rhs);
+                    return rhs;
+                }
+
+                // Compound assignments
+                Value current = readElementLvalue(*target);
+                Value result;
+                if (call->functionName == "__plus_assign__") {
+                    result = evaluateBinaryOp("+", current, rhs);
+                } else if (call->functionName == "__minus_assign__") {
+                    result = evaluateBinaryOp("-", current, rhs);
+                } else if (call->functionName == "__star_assign__") {
+                    result = evaluateBinaryOp("*", current, rhs);
+                } else if (call->functionName == "__slash_assign__") {
+                    result = evaluateBinaryOp("/", current, rhs);
+                } else if (call->functionName == "__percent_assign__") {
+                    result = evaluateBinaryOp("%", current, rhs);
+                } else if (!target->indices.empty()) {
+                    // `a[i] ,= x`: 今の要素と右辺をつないだ配列を、要素の位置へ展開して書き込む。
+                    std::vector<Value> joined;
+                    for (const Value* part : { &current, &rhs }) {
+                        if (part->getType() == Value::Type::Array) {
+                            joined.insert(joined.end(), part->asArray().begin(), part->asArray().end());
                         } else {
-                            setVariable(varName, rhs);
+                            joined.push_back(*part);
                         }
-                        return rhs;
                     }
-                    // Compound assignments
-                    Value current = (arrayIdx >= 0) ? getVariable(varName).arrayGet(arrayIdx) : getVariable(varName);
-                    Value result;
-                    if (call->functionName == "__plus_assign__") {
-                        result = evaluateBinaryOp("+", current, rhs);
-                    } else if (call->functionName == "__minus_assign__") {
-                        result = evaluateBinaryOp("-", current, rhs);
-                    } else if (call->functionName == "__star_assign__") {
-                        result = evaluateBinaryOp("*", current, rhs);
-                    } else if (call->functionName == "__slash_assign__") {
-                        result = evaluateBinaryOp("/", current, rhs);
-                    } else if (call->functionName == "__percent_assign__") {
-                        result = evaluateBinaryOp("%", current, rhs);
-                    } else if (call->functionName == "__concat_assign__") {
-                        // YAYA ,= operator: array append or string concat
-                        if (current.getType() == Value::Type::Array) {
-                            current.arrayConcat(rhs);
-                            result = current;
-                        } else {
-                            result = Value(current.asString() + rhs.asString());
-                        }
+                    result = Value(joined);
+                } else {
+                    // YAYA ,= operator: array append or string concat
+                    if (current.getType() == Value::Type::Array) {
+                        current.arrayConcat(rhs);
+                        result = current;
                     } else {
-                        result = rhs;
+                        result = Value(current.asString() + rhs.asString());
                     }
-                    if (arrayIdx >= 0) {
-                        Value arr = getVariable(varName);
-                        arr.arraySet(arrayIdx, result);
-                        setVariable(varName, arr);
-                    } else {
-                        setVariable(varName, result);
-                    }
-                    return result;
+                }
+                writeElementLvalue(*target, result);
+                return result;
+            }
+
+            // SETDELIM(変数, 区切り) / GETDELIM(変数) / ARRAYSIZE(変数): YAYA は変数ごとに簡易配列の
+            // 区切りを持つ。値ではなく変数そのものが要るので、引数を値にする前にここで扱う。
+            if (call->functionName == "SETDELIM" && call->arguments.size() >= 2) {
+                auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get());
+                const Value delimiter = executeNode(call->arguments[1]);
+                // YAYA は変数でないもの・文字列でない区切り・空の区切りを警告して無視する。
+                if (var && delimiter.getType() == Value::Type::String && !delimiter.asString().empty()) {
+                    setVariableDelimiter(var->name, delimiter.asString());
                 }
                 return Value();
+            }
+            if (call->functionName == "GETDELIM" && !call->arguments.empty()) {
+                auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get());
+                return Value(var ? variableDelimiter(var->name) : std::string());
+            }
+            if (call->functionName == "ARRAYSIZE" && call->arguments.size() == 1) {
+                if (auto* var = dynamic_cast<AST::VariableNode*>(call->arguments[0].get())) {
+                    const Value value = getVariable(var->name);
+                    if (value.getType() == Value::Type::String) {
+                        return Value(static_cast<int>(
+                            splitPseudoArray(value.asString(), variableDelimiter(var->name)).size()));
+                    }
+                }
             }
 
             // E.Swap(&a, &b): YAYA の参照渡し（&）で2つの変数/配列要素を in-place 交換する。
@@ -1322,6 +1497,11 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             Value arrayVar = getVariable(access->arrayName);
             if (arrayVar.getType() == Value::Type::Array) {
                 return arrayVar.arrayGet(index);
+            }
+            // 文字列は簡易配列（変数の区切りで分けた要素）、整数・実数は [0] だけその値（YAYA）。
+            if (arrayVar.getType() == Value::Type::String || arrayVar.getType() == Value::Type::Integer ||
+                arrayVar.getType() == Value::Type::Real) {
+                return yayaElementGet(arrayVar, indexVal.asInt64(), variableDelimiter(access->arrayName));
             }
 
             if (access->arrayName == "reference" &&
@@ -1653,6 +1833,85 @@ void VM::writeReference(const RefTarget& target, const Value& value) {
     }
 }
 
+std::optional<VM::ElementLvalue> VM::resolveElementLvalue(const std::shared_ptr<AST::Node>& node) {
+    // Parser は変数の最初の添字を ArrayAccessNode、2 つ目からを __index__ の入れ子で表す。
+    std::vector<std::shared_ptr<AST::Node>> indexNodes;
+    std::shared_ptr<AST::Node> current = node;
+    while (auto* call = dynamic_cast<AST::CallNode*>(current.get())) {
+        if (call->functionName != "__index__" || call->arguments.size() != 2) return std::nullopt;
+        indexNodes.push_back(call->arguments[1]);
+        current = call->arguments[0];
+    }
+    auto* access = dynamic_cast<AST::ArrayAccessNode*>(current.get());
+    if (!access) return std::nullopt;
+    indexNodes.push_back(access->index);
+
+    ElementLvalue target;
+    target.varName = access->arrayName;
+    for (auto it = indexNodes.rbegin(); it != indexNodes.rend(); ++it) {
+        target.indices.push_back(executeNode(*it).asInt64());
+    }
+    return target;
+}
+
+// 複合代入の左辺の値。範囲外の要素は VOID（yaya-shiori の GetCompoundSubstLeftValue）。
+Value VM::readElementLvalue(const ElementLvalue& target) {
+    Value value = getVariable(target.varName);
+    for (size_t level = 0; level < target.indices.size(); ++level) {
+        // 簡易配列の区切りは、変数に直接付けた添字だけがその変数の区切りを使う。
+        const std::string delimiter = level == 0 ? variableDelimiter(target.varName) : ",";
+        value = yayaElementGet(value, target.indices[level], delimiter);
+    }
+    return value;
+}
+
+// 一番内側の要素を書き換え、手前の次元へ順に書き戻す（yaya-shiori の SubstToArray）。
+// 手前の次元へ書き戻すときは、入れ子が崩れないよう配列を展開しない。
+void VM::writeElementLvalue(const ElementLvalue& target, const Value& value) {
+    if (target.indices.empty()) {
+        setVariable(target.varName, value);
+        return;
+    }
+    std::vector<Value> containers{ getVariable(target.varName) };
+    for (size_t level = 0; level + 1 < target.indices.size(); ++level) {
+        const std::string delimiter = level == 0 ? variableDelimiter(target.varName) : ",";
+        containers.push_back(yayaElementGet(containers[level], target.indices[level], delimiter));
+    }
+    for (size_t level = target.indices.size(); level-- > 0;) {
+        const std::string delimiter = level == 0 ? variableDelimiter(target.varName) : ",";
+        const bool innermost = level + 1 == target.indices.size();
+        yayaElementSet(containers[level], target.indices[level],
+                       innermost ? value : containers[level + 1], delimiter, innermost);
+    }
+    setVariable(target.varName, containers[0]);
+}
+
+namespace {
+// ローカル変数の区切りを、そのローカルスコープの中に変数名と衝突しない名前で持つ。
+// 関数を抜けてスコープが消えると区切りも消える（YAYA でもローカル変数とともに消える）。
+std::string localDelimiterKey(const std::string& name) {
+    return std::string("\x1F" "delimiter:") + name;
+}
+} // namespace
+
+std::string VM::variableDelimiter(const std::string& name) const {
+    if (!name.empty() && name[0] == '_' && !localScopes_.empty()) {
+        const auto& scope = localScopes_.back();
+        auto it = scope.find(localDelimiterKey(name));
+        return it != scope.end() ? it->second.asString() : std::string(",");
+    }
+    auto it = variableDelimiters_.find(name);
+    return it != variableDelimiters_.end() ? it->second : std::string(",");
+}
+
+void VM::setVariableDelimiter(const std::string& name, const std::string& delimiter) {
+    if (!name.empty() && name[0] == '_' && !localScopes_.empty()) {
+        localScopes_.back()[localDelimiterKey(name)] = Value(delimiter);
+    } else {
+        variableDelimiters_[name] = delimiter;
+    }
+}
+
 Value VM::callBuiltin(const std::string& name, const std::vector<Value>& args) {
     auto it = builtins_.find(name);
     if (it != builtins_.end()) {
@@ -1866,10 +2125,18 @@ void VM::registerBuiltins() {
     };
     
     // ARRAYSIZE(arr) - Get array size
+    // 文字列は簡易配列の要素数（区切りは ","。変数の区切りは呼び出し側の ARRAYSIZE(変数) で扱う）、
+    // 整数・実数は 1、VOID は 0（YAYA）。
     builtins_["ARRAYSIZE"] = [](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         if (args[0].getType() == Value::Type::Array) {
             return Value(static_cast<int>(args[0].arraySize()));
+        }
+        if (args[0].getType() == Value::Type::String) {
+            return Value(static_cast<int>(splitPseudoArray(args[0].asString(), ",").size()));
+        }
+        if (args[0].getType() == Value::Type::Integer || args[0].getType() == Value::Type::Real) {
+            return Value(1);
         }
         return Value(0);
     };
@@ -2534,6 +2801,7 @@ void VM::registerBuiltins() {
     builtins_["ERASEVAR"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
         std::string varName = args[0].asString();
+        variableDelimiters_.erase(varName);
         auto it = variables_.find(varName);
         if (it != variables_.end()) {
             variables_.erase(it);
@@ -2561,12 +2829,14 @@ void VM::registerBuiltins() {
         return Value(result);
     };
     
-    // GETVARLIST() - Get list of variables
+    // Prefix filtering is essential: ghost cleanup calls GETVARLIST("Temp.").
+    // Ignoring it would erase persistent variables as well as temporary ones.
     builtins_["GETVARLIST"] = [this](const std::vector<Value>& args) -> Value {
-        (void)args;
+        const std::string prefix = !args.empty() && args[0].getType() == Value::Type::String
+            ? args[0].asString() : std::string();
         std::vector<Value> result;
         for (const auto& pair : variables_) {
-            result.push_back(Value(pair.first));
+            if (pair.first.compare(0, prefix.size(), prefix) == 0) result.emplace_back(pair.first);
         }
         return Value(result);
     };
@@ -2612,8 +2882,7 @@ void VM::registerBuiltins() {
     // File handles stored in a map for management
     
     // File handle management (shared between file operation functions)
-    static std::map<int, std::unique_ptr<std::fstream>> fileHandles;
-    static int nextHandle = 1;
+    // The registry belongs to this VM, not to the helper process.
     // Helper to validate path is within ghost directory
     auto isPathSafe = [](const std::string& path) -> bool {
         // For now, allow relative paths only (no absolute paths, no .. )
@@ -2625,104 +2894,83 @@ void VM::registerBuiltins() {
 
     // YAYA の相対ファイル名は辞書を実行しているゴーストのルートへ解決する。
     // セキュリティ判定は元の文字列に対して先に行い、絶対パスは既存の FENUM 互換のため保持する。
+    // `\` は YAYA 本体の POSIX 版（posix_path）と同じく区切りとして扱う。元の文字列が `\` で
+    // 始まっていても、安全確認を通った相対パスなので絶対パスにはしない。
     auto resolveGhostPath = [this](const std::string& path) -> std::string {
         namespace fs = std::filesystem;
-        const fs::path candidate(path);
+        std::string unixPath = path;
+        std::replace(unixPath.begin(), unixPath.end(), '\\', '/');
+        if (!path.empty() && path[0] == '\\') {
+            const auto first = unixPath.find_first_not_of('/');
+            unixPath = first == std::string::npos ? std::string() : unixPath.substr(first);
+        }
+        const fs::path candidate(unixPath);
         if (candidate.is_absolute() || ghostRootPath_.empty()) return candidate.string();
         return (fs::path(ghostRootPath_) / candidate).lexically_normal().string();
     };
-    
-    // FOPEN(filename, mode) - Open file
-    builtins_["FOPEN"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value(-1);
-        std::string filename = args[0].asString();
-        std::string mode = args[1].asString();
-        
-        // Security check
-        if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
-            return Value(-1);
-        }
-        filename = resolveGhostPath(filename);
-        
-        // Determine open mode
-        std::ios_base::openmode openMode = std::ios_base::binary;
-        if (mode.find('r') != std::string::npos) openMode |= std::ios_base::in;
-        if (mode.find('w') != std::string::npos) openMode |= std::ios_base::out | std::ios_base::trunc;
-        if (mode.find('a') != std::string::npos) openMode |= std::ios_base::out | std::ios_base::app;
-        if (mode.find('+') != std::string::npos) openMode |= std::ios_base::in | std::ios_base::out;
-        
-        try {
-            auto file = std::make_unique<std::fstream>(filename, openMode);
-            if (!file->is_open()) {
-                return Value(-1);
-            }
-            
-            int handle = nextHandle++;
-            fileHandles[handle] = std::move(file);
-            return Value(handle);
-        } catch (...) {
-            return Value(-1);
-        }
+
+    // FCOPY / FMOVE のコピー先が既存のフォルダなら、その中に同じ名前で置く
+    // （YAYA 本体の Windows 版は常にコピー先をフォルダとして扱い、POSIX 版はこの形）。
+    auto placeInExistingDirectory = [](const std::string& src, const std::string& dst) -> std::string {
+        namespace fs = std::filesystem;
+        std::error_code ec;
+        if (!fs::is_directory(dst, ec)) return dst;
+        return (fs::path(dst) / fs::path(src).filename()).string();
     };
     
-    // FCLOSE(handle) - Close file
-    builtins_["FCLOSE"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        int handle = args[0].asInt();
-        
-        auto it = fileHandles.find(handle);
-        if (it != fileHandles.end()) {
-            it->second->close();
-            fileHandles.erase(it);
-            return Value(1);
-        }
-        return Value(0);
+    // YAYA's public file identifier is a filename, not an integer handle.
+    // FOPEN: 0=failure, 1=opened, 2=already open (without truncating again).
+    builtins_["FOPEN"] = [this, isPathSafe, resolveGhostPath](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2 || !isPathSafe(args[0].asString())) return Value(0);
+        const auto filename = resolveGhostPath(args[0].asString());
+        if (fileHandles_.count(filename)) return Value(2);
+        const std::string mode = args[1].asString();
+        if (mode.empty() || (mode[0] != 'r' && mode[0] != 'w' && mode[0] != 'a')) return Value(0);
+        if (mode.find_first_not_of("rwa+bt") != std::string::npos) return Value(0);
+        std::ios_base::openmode flags = std::ios::binary;
+        if (mode[0] == 'r') flags |= std::ios::in;
+        if (mode[0] == 'w') flags |= std::ios::out | std::ios::trunc;
+        if (mode[0] == 'a') flags |= std::ios::out | std::ios::app;
+        if (mode.find('+') != std::string::npos) flags |= std::ios::in | std::ios::out;
+        auto stream = std::make_unique<std::fstream>(filename, flags);
+        if (!stream->is_open()) return Value(0);
+        fileHandles_[filename] = std::move(stream);
+        return Value(1);
     };
-    
-    // FREAD(handle) - Read from file
-    builtins_["FREAD"] = [this](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value("");
-        int handle = args[0].asInt();
-        
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
-            return Value("");
-        }
-        
+
+    builtins_["FCLOSE"] = [this, resolveGhostPath](const std::vector<Value>& args) -> Value {
+        if (!args.empty()) fileHandles_.erase(resolveGhostPath(args[0].asString()));
+        return Value();
+    };
+
+    builtins_["FREAD"] = [this, resolveGhostPath](const std::vector<Value>& args) -> Value {
+        if (args.empty()) return Value(-1);
+        auto it = fileHandles_.find(resolveGhostPath(args[0].asString()));
+        if (it == fileHandles_.end()) return Value(-1);
         std::string line;
-        if (std::getline(*it->second, line)) {
-            if (fileCharset_ == 0) {
-                std::string converted;
-                if (convertEncodingVM(line, "CP932", "UTF-8", converted)) {
-                    return Value(converted);
-                }
-            }
-            return Value(line);
-        }
-        return Value("");
-    };
-    
-    // FWRITE(handle, data) - Write to file
-    builtins_["FWRITE"] = [this](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value(0);
-        int handle = args[0].asInt();
-        std::string data = args[1].asString();
-        
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
-            return Value(0);
-        }
-        
-        std::string encoded = data;
+        if (!std::getline(*it->second, line)) return Value(-1);
+        if (!line.empty() && line.back() == '\r') line.pop_back();
         if (fileCharset_ == 0) {
-            if (!convertEncodingVM(data, "UTF-8", "CP932", encoded)) {
-                return Value(0);
-            }
+            std::string converted;
+            if (convertEncodingVM(line, "CP932", "UTF-8", converted)) return Value(converted);
         }
-        *it->second << encoded;
-        return Value(static_cast<int>(encoded.length()));
+        return Value(line);
     };
-    
+
+    builtins_["FWRITE"] = [this, resolveGhostPath](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value();
+        auto it = fileHandles_.find(resolveGhostPath(args[0].asString()));
+        if (it == fileHandles_.end()) return Value();
+        std::string data = args[1].asString() + "\n";
+        if (fileCharset_ == 0) {
+            std::string encoded;
+            if (!convertEncodingVM(data, "UTF-8", "CP932", encoded)) return Value();
+            data = encoded;
+        }
+        it->second->write(data.data(), data.size());
+        return Value();
+    };
+
     // FWRITE2(filename, data) - Write to file directly
     builtins_["FWRITE2"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
@@ -2792,7 +3040,7 @@ void VM::registerBuiltins() {
     };
     
     // FCOPY(src, dst) - Copy file
-    builtins_["FCOPY"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
+    builtins_["FCOPY"] = [resolveGhostPath, placeInExistingDirectory](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string src = args[0].asString();
         std::string dst = args[1].asString();
@@ -2803,12 +3051,19 @@ void VM::registerBuiltins() {
             return Value(0);
         }
         src = resolveGhostPath(src);
-        dst = resolveGhostPath(dst);
+        dst = placeInExistingDirectory(src, resolveGhostPath(dst));
         
         try {
+            namespace fs = std::filesystem;
+            std::error_code ec;
+            // コピー元は通常のファイル。コピー先がフォルダ、またはコピー元と同じファイルなら何もしない。
+            if (!fs::is_regular_file(src, ec)) return Value(0);
+            if (fs::is_directory(dst, ec) || fs::equivalent(src, dst, ec)) return Value(0);
+
             std::ifstream srcFile(src, std::ios_base::binary);
             if (!srcFile.is_open()) return Value(0);
             
+            std::remove(dst.c_str()); // コピー先がシンボリックリンクなら、リンク先へ書かない
             std::ofstream dstFile(dst, std::ios_base::binary);
             if (!dstFile.is_open()) return Value(0);
             
@@ -2820,7 +3075,7 @@ void VM::registerBuiltins() {
     };
     
     // FMOVE(src, dst) - Move file
-    builtins_["FMOVE"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
+    builtins_["FMOVE"] = [resolveGhostPath, placeInExistingDirectory](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string src = args[0].asString();
         std::string dst = args[1].asString();
@@ -2831,9 +3086,12 @@ void VM::registerBuiltins() {
             return Value(0);
         }
         src = resolveGhostPath(src);
-        dst = resolveGhostPath(dst);
+        dst = placeInExistingDirectory(src, resolveGhostPath(dst));
         
         try {
+            // YAYA 本体（MoveFile）と同じく、移動先が既にあれば失敗する。
+            std::error_code ec;
+            if (std::filesystem::exists(std::filesystem::symlink_status(dst, ec))) return Value(0);
             if (std::rename(src.c_str(), dst.c_str()) == 0) {
                 return Value(1);
             }
@@ -2920,27 +3178,28 @@ void VM::registerBuiltins() {
     };
     
     // FSEEK(handle, pos) - Seek in file
-    builtins_["FSEEK"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FSEEK"] = [this, resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(-1);
-        int handle = args[0].asInt();
+        const std::string handle = resolveGhostPath(args[0].asString());
         int pos = args[1].asInt();
         
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
+        auto it = fileHandles_.find(handle);
+        if (it == fileHandles_.end() || !it->second->is_open()) {
             return Value(-1);
         }
         
+        it->second->clear();
         it->second->seekg(pos, std::ios_base::beg);
         return Value(0);
     };
     
     // FTELL(handle) - Get file position
-    builtins_["FTELL"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FTELL"] = [this, resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(-1);
-        int handle = args[0].asInt();
+        const std::string handle = resolveGhostPath(args[0].asString());
         
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
+        auto it = fileHandles_.find(handle);
+        if (it == fileHandles_.end() || !it->second->is_open()) {
             return Value(-1);
         }
         
@@ -2949,7 +3208,7 @@ void VM::registerBuiltins() {
     
     // FCHARSET(charset) - Set the default text-file charset.
     // Upstream values: 0=Shift_JIS, 1=UTF-8, 127=OS default.
-    builtins_["FCHARSET"] = [this](const std::vector<Value>& args) -> Value {
+    builtins_["FCHARSET"] = [this, resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.empty()) {
             lastError_ = 8;
             return Value();
@@ -3006,32 +3265,33 @@ void VM::registerBuiltins() {
         return Value(attributes);
     };
     
-    // FREADBIN(handle) - Read binary from file
-    builtins_["FREADBIN"] = [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value("");
-        int handle = args[0].asInt();
-        
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
-            return Value("");
-        }
-        
+    auto readFileBytes = [this, resolveGhostPath](const std::vector<Value>& args) -> std::string {
+        if (args.empty()) return {};
+        auto it = fileHandles_.find(resolveGhostPath(args[0].asString()));
+        if (it == fileHandles_.end()) return {};
+        const auto count = args.size() > 1 ? args[1].asInt64() : 0;
+        if (count < 0) return {};
         std::string data;
         char ch;
-        while (it->second->get(ch)) {
-            data += ch;
-        }
-        return Value(data);
+        while ((count == 0 || data.size() < static_cast<size_t>(count)) && it->second->get(ch)) data += ch;
+        return data;
     };
-    
+    builtins_["FREADBIN"] = [readFileBytes](const std::vector<Value>& args) -> Value {
+        const auto raw = readFileBytes(args);
+        const auto replacement = args.size() > 2 ? decodeUtf8(args[2].asString()) : std::vector<uint32_t>{32};
+        std::vector<uint32_t> chars;
+        for (unsigned char ch : raw) chars.push_back(ch ? ch : (replacement.empty() ? 32 : replacement[0]));
+        return Value(utf8Slice(chars, 0, chars.size()));
+    };
+
     // FWRITEBIN(handle, data) - Write binary to file
-    builtins_["FWRITEBIN"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["FWRITEBIN"] = [this, resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
-        int handle = args[0].asInt();
+        const std::string handle = resolveGhostPath(args[0].asString());
         std::string data = args[1].asString();
         
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
+        auto it = fileHandles_.find(handle);
+        if (it == fileHandles_.end() || !it->second->is_open()) {
             return Value(0);
         }
         
@@ -3039,63 +3299,47 @@ void VM::registerBuiltins() {
         return Value(static_cast<int>(data.length()));
     };
     
-    // FREADENCODE(handle, encoding) - 指定エンコーディングでファイル残り全体を読み込み、
-    // UTF-8 に変換して返す。ハンドル不正/未オープン時は空文字列。
-    builtins_["FREADENCODE"] = [this](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value("");
-        int handle = args[0].asInt();
-        std::string encoding = args.size() >= 2 ? args[1].asString()
-                                                : (fileCharset_ == 0 ? "CP932" : "UTF-8");
-
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
-            return Value("");
+    // Binary encoding is independent of FCHARSET. Default is base64, then form/URL.
+    builtins_["FREADENCODE"] = [readFileBytes](const std::vector<Value>& args) -> Value {
+        const std::string raw = readFileBytes(args);
+        std::string type = args.size() > 2 ? args[2].asString() : "base64";
+        std::transform(type.begin(), type.end(), type.begin(), ::tolower);
+        if (type == "base64") return Value(Base64::encode(raw));
+        std::string result;
+        const char* hex = "0123456789ABCDEF";
+        for (unsigned char c : raw) {
+            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.' || c == '~') result += c;
+            else if (c == ' ' && type == "form") result += '+';
+            else { result += '%'; result += hex[c >> 4]; result += hex[c & 15]; }
         }
-
-        std::ostringstream buffer;
-        buffer << it->second->rdbuf();
-        std::string raw = buffer.str();
-
-        std::string norm = normalizeEncodingNameVM(encoding);
-        if (norm == "UTF-8" || norm == "AUTO") {
-            return Value(raw);
-        }
-        std::string converted;
-        if (convertEncodingVM(raw, "CP932", "UTF-8", converted)) {
-            return Value(converted);
-        }
-        return Value("");
+        return Value(result);
     };
-
-    // FWRITEDECODE(handle, data, encoding) - UTF-8 の data を指定エンコーディングへ変換し
-    // ファイルへ書き込む。書き込みバイト数を返す（失敗時は0）。
-    builtins_["FWRITEDECODE"] = [this](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value(0);
-        int handle = args[0].asInt();
-        std::string data = args[1].asString();
-        std::string encoding = args.size() >= 3 ? args[2].asString()
-                                                : (fileCharset_ == 0 ? "CP932" : "UTF-8");
-
-        auto it = fileHandles.find(handle);
-        if (it == fileHandles.end() || !it->second->is_open()) {
-            return Value(0);
-        }
-
-        std::string norm = normalizeEncodingNameVM(encoding);
-        std::string toWrite = data;
-        if (norm == "CP932") {
-            std::string converted;
-            if (!convertEncodingVM(data, "UTF-8", "CP932", converted)) {
-                return Value(0);
+    builtins_["FWRITEDECODE"] = [this, resolveGhostPath](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) return Value();
+        auto it = fileHandles_.find(resolveGhostPath(args[0].asString()));
+        if (it == fileHandles_.end()) return Value();
+        std::string type = args.size() > 2 ? args[2].asString() : "base64";
+        std::transform(type.begin(), type.end(), type.begin(), ::tolower);
+        const auto data = args[1].asString();
+        std::string raw;
+        if (type == "base64") raw = Base64::decode(data);
+        else {
+            auto hex = [](char c) -> int {
+                if (c >= '0' && c <= '9') return c - '0';
+                if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+                if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+                return -1;
+            };
+            for (size_t i = 0; i < data.size(); ++i) {
+                if (data[i] == '%' && i + 2 < data.size() && hex(data[i+1]) >= 0 && hex(data[i+2]) >= 0) {
+                    raw += static_cast<char>((hex(data[i+1]) << 4) | hex(data[i+2])); i += 2;
+                } else raw += data[i] == '+' && type == "form" ? ' ' : data[i];
             }
-            toWrite = converted;
         }
-        // UTF-8 / AUTO はそのまま書き込む
-
-        it->second->write(toWrite.c_str(), toWrite.length());
-        return Value(static_cast<int>(toWrite.length()));
+        it->second->write(raw.data(), raw.size());
+        return Value();
     };
-    
+
     // FDIGEST(filename, algorithm) - File hash/digest (md5/sha1/crc32)
     builtins_["FDIGEST"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value("");
@@ -3484,23 +3728,29 @@ void VM::registerBuiltins() {
     
     // ===== Additional Variable/Function Management =====
     
+    auto persistencePath = [this, isPathSafe, resolveGhostPath](const std::vector<Value>& args) -> std::string {
+        if (args.empty() || args[0].asString().empty()) {
+            return saveFilePath_.empty() ? resolveGhostPath("yaya_variable.cfg") : saveFilePath_;
+        }
+        return isPathSafe(args[0].asString()) ? resolveGhostPath(args[0].asString()) : std::string();
+    };
+    // Only Ourin typed JSON is writable. Never overwrite upstream text/encrypted saves.
+    auto isSaveObject = [](const nlohmann::json& root) {
+        if (!root.is_object()) return false;
+        for (const auto& v : root) {
+            if (!v.is_object() || !v.contains("t") || !v["t"].is_string()) return false;
+            const auto t = v["t"].get<std::string>();
+            if (t != "s" && t != "i" && t != "r" && t != "a" && t != "v") return false;
+        }
+        return true;
+    };
+
     // SAVEVAR(filename) - グローバル変数を JSON で指定ファイルへ保存する。
     // 型情報（s=文字列, i=整数, r=実数, a=配列, v=void）を保持し RESTOREVAR で復元可能にする。
     // Phase 7: relative paths anchor under the ghost root; temp vars are excluded.
-    builtins_["SAVEVAR"] = [this](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        std::string filename = args[0].asString();
-        // Sandbox: relative paths only, no parent traversal.
-        if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
-            return Value(0);
-        }
-        // Anchor under ghost root when available.
-        std::string full = filename;
-        if (!ghostRootPath_.empty()) {
-            std::string base = ghostRootPath_;
-            if (!base.empty() && base.back() != '/') base += '/';
-            full = base + filename;
-        }
+    builtins_["SAVEVAR"] = [this, persistencePath, isSaveObject](const std::vector<Value>& args) -> Value {
+        const std::string full = persistencePath(args);
+        if (full.empty()) return Value(0);
         std::function<nlohmann::json(const Value&)> toJson = [&toJson](const Value& v) -> nlohmann::json {
             nlohmann::json j;
             switch (v.getType()) {
@@ -3524,8 +3774,17 @@ void VM::registerBuiltins() {
         for (const auto& kv : variables_) {
             if (excluded.count(kv.first)) continue;  // registered temp vars are not persisted
             root[kv.first] = toJson(kv.second);
+            root[kv.first]["delimiter"] = variableDelimiter(kv.first);
         }
         try {
+            if (std::filesystem::exists(full)) {
+                std::ifstream existing(full, std::ios::binary);
+                const auto previous = nlohmann::json::parse(existing, nullptr, false);
+                if (previous.is_discarded() || !isSaveObject(previous)) {
+                    std::cerr << "[YAYA] SAVEVAR refused unsupported existing save format: " << full << std::endl;
+                    return Value(0);
+                }
+            }
             std::ofstream ofs(full, std::ios::binary | std::ios::trunc);
             if (!ofs.is_open()) return Value(0);
             ofs << root.dump();
@@ -3536,18 +3795,9 @@ void VM::registerBuiltins() {
     };
 
     // RESTOREVAR(filename) - SAVEVAR で保存した JSON からグローバル変数を復元する。
-    builtins_["RESTOREVAR"] = [this](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        std::string filename = args[0].asString();
-        if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
-            return Value(0);
-        }
-        std::string full = filename;
-        if (!ghostRootPath_.empty()) {
-            std::string base = ghostRootPath_;
-            if (!base.empty() && base.back() != '/') base += '/';
-            full = base + filename;
-        }
+    builtins_["RESTOREVAR"] = [this, persistencePath, isSaveObject](const std::vector<Value>& args) -> Value {
+        const std::string full = persistencePath(args);
+        if (full.empty()) return Value(0);
         std::function<Value(const nlohmann::json&)> fromJson = [&fromJson](const nlohmann::json& j) -> Value {
             std::string t = j.value("t", std::string("v"));
             if (t == "s") return Value(j.value("v", std::string()));
@@ -3566,9 +3816,10 @@ void VM::registerBuiltins() {
             std::ifstream ifs(full, std::ios::binary);
             if (!ifs.is_open()) return Value(0);
             nlohmann::json root = nlohmann::json::parse(ifs);
-            if (!root.is_object()) return Value(0);
+            if (!isSaveObject(root)) return Value(0);
             for (auto it = root.begin(); it != root.end(); ++it) {
                 variables_[it.key()] = fromJson(it.value());
+                setVariableDelimiter(it.key(), it.value().value("delimiter", std::string(",")));
             }
             return Value(1);
         } catch (...) {
@@ -3852,26 +4103,32 @@ void VM::registerBuiltins() {
         return Value("YAYA_core - YAYA interpreter for Ourin\nBased on YAYA specification");
     };
     
-    // SPLITPATH(path) - Split file path into components
+    // SPLITPATH(path) - (ドライブ, フォルダ, 名前, 拡張子) の 4 要素に分ける。
+    // YAYA 本体の Windows 版（_wsplitpath）と同じく、フォルダは末尾の区切りを含み、拡張子は '.' を
+    // 含む（"C:\dir\name.ext" → "C:", "\dir\", "name", ".ext"）。区切りは '\' と '/' の両方。
+    // ゴーストは名前と拡張子をつないでファイル名に戻す（Taromati2 の SPLITPATH.roughly）。
     builtins_["SPLITPATH"] = [](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(std::vector<Value>());
-        std::string path = args[0].asString();
-        
-        std::vector<Value> result;
-        // Simple split by / or backslash
-        size_t pos = 0;
-        size_t found;
-        while ((found = path.find_first_of("/\\\\", pos)) != std::string::npos) {
-            if (found > pos) {
-                result.push_back(Value(path.substr(pos, found - pos)));
-            }
-            pos = found + 1;
+        std::string rest = args[0].asString();
+
+        std::string drive;
+        if (rest.size() >= 2 && rest[1] == ':' && std::isalpha(static_cast<unsigned char>(rest[0]))) {
+            drive = rest.substr(0, 2);
+            rest = rest.substr(2);
         }
-        if (pos < path.length()) {
-            result.push_back(Value(path.substr(pos)));
+        std::string dir;
+        const size_t lastSeparator = rest.find_last_of("/\\");
+        if (lastSeparator != std::string::npos) {
+            dir = rest.substr(0, lastSeparator + 1);
+            rest = rest.substr(lastSeparator + 1);
         }
-        
-        return Value(result);
+        std::string ext;
+        const size_t lastPeriod = rest.rfind('.');
+        if (lastPeriod != std::string::npos) {
+            ext = rest.substr(lastPeriod);
+            rest = rest.substr(0, lastPeriod);
+        }
+        return Value(std::vector<Value>{Value(drive), Value(dir), Value(rest), Value(ext)});
     };
     
     // GETSTRBYTES(str) - Get string byte length
@@ -3919,22 +4176,22 @@ void VM::registerBuiltins() {
         return Value(-1);
     };
     
-    // GETDELIM() - 現在の配列区切り文字を返す
-    builtins_["GETDELIM"] = [this](const std::vector<Value>& args) -> Value {
+    // GETDELIM(変数) / SETDELIM(変数, 区切り) は変数そのものが要るので executeNode の CallNode で扱う。
+    // ここに来るのは引数が変数でない（または足りない）呼び出しで、YAYA は警告して何もしない。
+    builtins_["GETDELIM"] = [](const std::vector<Value>& args) -> Value {
         (void)args;
-        return Value(arrayDelimiter_);
+        return Value(std::string());
     };
 
-    // SETDELIM(delim) - 配列区切り文字を設定する（SPLIT の区切り省略時に使用）
-    builtins_["SETDELIM"] = [this](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value(0);
-        arrayDelimiter_ = args[0].asString();
-        return Value(1);
+    builtins_["SETDELIM"] = [](const std::vector<Value>& args) -> Value {
+        (void)args;
+        return Value();
     };
     
     // GETSETTING(key) - Get setting value (Phase 7).
-    builtins_["GETSETTING"] = [this](const std::vector<Value>& args) -> Value {
+    builtins_["GETSETTING"] = [this, persistencePath](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
+        if (args[0].asString() == "coreinfo.savefile") return Value(persistencePath({}));
         auto it = settings_.find(args[0].asString());
         return (it != settings_.end()) ? it->second : Value("");
     };
@@ -4379,7 +4636,8 @@ void VM::registerBuiltins() {
 
 // Interpolate embedded expressions in strings like %(_varname) or %(funcname()).
 // %[n] refers to the n-th preceding embedded value in this same string.
-// IMPORTANT: SSP/baseware percent variables like %(charname(0)) should NOT be interpolated by YAYA.
+// YAYA 本家（CParser0::ConvertEmbedStringToFormula）は %(…) を名前に関係なく TOSTR(…) として評価する。
+// SSP の環境変数は括弧なしの %username 形式なので、ここでは手を付けずベースウェアに残す。
 std::string VM::interpolateString(const std::string& str) {
     std::string result;
     size_t pos = 0;
@@ -4388,13 +4646,6 @@ std::string VM::interpolateString(const std::string& str) {
     // Preserve the caller's history while the nested expression is evaluated.
     const auto previousHistory = embeddedHistory_;
     embeddedHistory_.clear();
-
-    // List of SSP/baseware variables that should NOT be interpolated by YAYA.
-    static const std::unordered_set<std::string> ssp_vars = {
-        "charname", "username", "selfname", "selfname2", "keroname",
-        "month", "day", "hour", "minute", "second",
-        "screenwidth", "screenheight", "property"
-    };
 
     auto trim = [](std::string value) {
         const auto first = value.find_first_not_of(" \t\r\n");
@@ -4503,19 +4754,8 @@ std::string VM::interpolateString(const std::string& str) {
 
         const std::string expr = str.substr(start + 2, end - start - 2);
 
-        bool is_ssp_var = false;
-        for (const auto& ssp_var : ssp_vars) {
-            if (expr == ssp_var || expr.rfind(ssp_var + "(", 0) == 0 ||
-                expr.rfind(ssp_var + "[", 0) == 0) {
-                is_ssp_var = true;
-                break;
-            }
-        }
-
         std::string expansion;
-        if (is_ssp_var) {
-            expansion = "%(" + expr + ")";
-        } else if (const auto value = evaluateEmbeddedExpression(expr)) {
+        if (const auto value = evaluateEmbeddedExpression(expr)) {
             expansion = value->asString();
         } else {
             const Value variableValue = getVariable(expr);

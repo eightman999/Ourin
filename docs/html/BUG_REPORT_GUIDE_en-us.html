@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Report Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="BUG_REPORT_GUIDE_ja-jp.html" class="">日本語</a> | <a href="BUG_REPORT_GUIDE_en-us.html" class="active">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="bug-report-guide">Bug Report Guide</h1>
+<p>Updated: 2026-10-25. <a href="BUG_REPORT_GUIDE_ja-jp.html">日本語</a> / <a href="KNOWN_ISSUES_en-us.html">Known Issues</a></p>
+<p>Check <a href="https://github.com/eightman999/Ourin/issues">existing issues</a> and Known Issues first. If no matching report exists, use the <a href="https://github.com/eightman999/Ourin/issues/new?template=bug_report.md">Bug report template</a>. “Unknown” or “not performed” is acceptable for information or checks you cannot provide.</p>
+<h2 id="minimum-useful-information">Minimum useful information</h2>
+<ul>
+<li>Ourin version/build (from About Ourin), download source or development commit.</li>
+<li>macOS version, Intel/Apple Silicon, and whether Rosetta was used if known.</li>
+<li>Public ghost name/version/download URL and SHIORI type/version if known. Relevant shell, balloon, SAORI, or plugin.</li>
+<li>Reproduction steps, expected and actual behavior, frequency, and occurrence time/timezone.</li>
+<li>Whether the problem occurs during startup, conversation, saving, or after restarting. You do not need to delete real save data to investigate.</li>
+</ul>
+<p>If the ghost name or download URL cannot be shared publicly, say so and discuss a redistributable minimal fixture. Private dictionaries, conversations, NARs, and save files are not required report materials.</p>
+<h2 id="collecting-logs">Collecting logs</h2>
+<p>The following controls were verified in the current source. If your release or language setting shows different labels, report the version and visible labels.</p>
+<h3 id="copy-only-relevant-entries">Copy only relevant entries</h3>
+<ol>
+<li>Open Ourin's <code>Settings...</code> (⌘,) and select <code>Logging &amp; Diagnostics</code>.</li>
+<li>Set <code>Since</code> to cover the occurrence and choose the relevant <code>Subsystem</code>, then click “更新” (Refresh).</li>
+<li>Select related entries around the failure and click “コピー” (Copy). Paste them into a separate text file for sharing, then apply the redactions below.</li>
+</ol>
+<h3 id="export-from-settings">Export from Settings</h3>
+<p>Use the share icon (upward arrow, tooltip <code>Export</code>) at the top of Settings to create <code>OurinDiagnostics.txt</code> and reveal it in Finder. The file is in a temporary directory; save relevant excerpts in a separate sharing copy.</p>
+<p><strong>This export covers only the last 24 hours of <code>jp.ourin.devtools</code>.</strong> It does not follow the visible log filters, collect all SHIORI/helper logs, or bundle environment information. <strong>The Debug menu's diagnostic export currently writes only a timestamp message</strong>; do not treat that output as a complete diagnostic report. If zero entries are found, report that fact and the reproduction time.</p>
+<h3 id="when-a-file-log-is-needed">When a file log is needed</h3>
+<ol>
+<li>In Settings → <code>General</code> → “ログ設定” (Log settings), enable “ファイルへのログ出力を有効化” (Enable file logging).</li>
+<li>Check the displayed log output path and click “設定を保存” (Save settings). The default is <code>Library/Logs/Ourin/ourin.log</code> under the app's home directory; use the actual path shown in Settings.</li>
+<li>Note the time, reproduce once, and copy only the relevant surrounding lines into a sharing copy.</li>
+<li>After investigation, turn the toggle off and save settings. You do not need to delete existing logs or real ghost data.</li>
+</ol>
+<p>File logging captures entries sent through <code>Log</code>; it does not cover every OSLog entry, helper stderr, or third-party output. If no file is produced, you may report that logs could not be obtained.</p>
+<h2 id="before-sharing">Before sharing</h2>
+<p>GitHub issues are public. Automatic anonymization is not guaranteed. <strong>Leave original data unchanged and inspect a sharing copy</strong>, removing:</p>
+<ul>
+<li>API keys, tokens, passwords, cookies, Authorization headers, private keys, and <code>.env</code> contents.</li>
+<li>Personal paths such as <code>/Users/real-name/...</code>, usernames, email addresses, and device identifiers. For example, replace a path with <code>/Users/&lt;user&gt;/...</code>.</li>
+<li>Private conversations, dictionaries, saved content, clipboard contents, external request/response bodies, private URLs, and hostnames.</li>
+<li>Other apps, notifications, and account names in screenshots. Crop to the relevant area.</li>
+</ul>
+<p>Preserve error codes, event names, relative timing, and extensions where possible. If safe redaction is difficult, report the symptom without attachments. Publishing a full <code>sysdiagnose</code>, home folder, or ghost directory is unnecessary.</p>
+<h2 id="crashes-and-hangs">Crashes and hangs</h2>
+<p>Report which process exited (for example, Ourin / yaya_core / satori_core / OurinShioriXPCService), the time, the preceding operation, and whether the main app also exited. If macOS Console contains a matching crash report, attach redacted excerpts covering version/OS/architecture, Exception/Termination Reason, and the relevant thread. Remove personal paths and identifiers; “unavailable” is acceptable if no report exists.</p>
+<p>For a hang, report how long you waited and whether only the display or also conversation/quit operations stopped responding. You do not need to repeatedly reproduce long hangs or delete unsaved data for diagnosis.</p>
+<h2 id="implementation-evidence-and-remaining-work">Implementation evidence and remaining work</h2>
+<p>Control labels and collection scope were checked in <a href="../../Ourin/ContentView.swift">ContentView.swift</a>, <a href="../../Ourin/DevTools/DevToolsCommands.swift">DevToolsCommands.swift</a>, and <a href="../../Ourin/Utils/Log.swift">Log.swift</a> as of 2026-10-25. This is source verification, not a new GUI execution test. Environment export, unified export entry points, and anonymization remain candidates for further implementation/validation under <a href="https://github.com/eightman999/Ourin/issues/104">#104</a>.</p>
+<p>Translation: procedures, limitations, and privacy guidance checked against the <a href="BUG_REPORT_GUIDE_ja-jp.html">Japanese version</a> on 2026-10-25.</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../BUG_REPORT_GUIDE_en-us.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

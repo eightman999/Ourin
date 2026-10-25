@@ -165,14 +165,19 @@ class OwnerDrawMenuView: NSView {
         }
     }
     
+    /// 文字 1 行ぶんの高さ。pt 数の高さで描くと g・p・y などの下端が切れる。
+    private var textLineHeight: CGFloat {
+        ceil(config.font.ascender - config.font.descender + config.font.leading)
+    }
+
     private func drawItemText(_ item: OwnerDrawMenuItem, in rect: NSRect, isHighlighted: Bool) {
         let textColor: NSColor = item.enabled ? (isHighlighted ? config.foregroundColor : config.backgroundColor) : config.disabledColor
         
         let textRect = NSRect(
             x: config.sidebarWidth + config.textMarginLeft + CGFloat(item.indentation * 20),
-            y: rect.minY + (rect.height - config.font.pointSize) / 2,
+            y: rect.minY + (rect.height - textLineHeight) / 2,
             width: rect.width - config.textMarginLeft - config.textMarginRight - config.sidebarWidth,
-            height: config.font.pointSize
+            height: textLineHeight
         )
         
         let paragraphStyle = NSMutableParagraphStyle()
@@ -192,9 +197,9 @@ class OwnerDrawMenuView: NSView {
         let text = String(shortcut).uppercased()
         let textRect = NSRect(
             x: rect.maxX - config.textMarginRight - config.textMarginLeft,
-            y: rect.minY + (rect.height - config.font.pointSize) / 2,
+            y: rect.minY + (rect.height - textLineHeight) / 2,
             width: config.textMarginRight,
-            height: config.font.pointSize
+            height: textLineHeight
         )
         
         let paragraphStyle = NSMutableParagraphStyle()

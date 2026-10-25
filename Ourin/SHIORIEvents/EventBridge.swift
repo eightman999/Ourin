@@ -104,6 +104,7 @@ final class EventBridge {
             SystemLoadObserver.shared.start(forward)
             SleepObserver.shared.start(forward)
             DisplayObserver.shared.start(forward)
+            DesktopWallpaperObserver.shared.start(forward)
             SpaceObserver.shared.start(forward)
             PowerObserver.shared.start(forward)
             LocaleObserver.shared.start(forward)
@@ -131,6 +132,7 @@ final class EventBridge {
         InputMonitor.shared.ghostClickHandler = nil
         InputMonitor.shared.stop()
         DisplayObserver.shared.stop()
+        DesktopWallpaperObserver.shared.stop()
         SpaceObserver.shared.stop()
         PowerObserver.shared.stop()
         LocaleObserver.shared.stop()
@@ -177,6 +179,7 @@ final class EventBridge {
             SystemLoadObserver.shared.start(forward)
             SleepObserver.shared.start(forward)
             DisplayObserver.shared.start(forward)
+            DesktopWallpaperObserver.shared.start(forward)
             SpaceObserver.shared.start(forward)
             PowerObserver.shared.start(forward)
             LocaleObserver.shared.start(forward)
@@ -199,6 +202,7 @@ final class EventBridge {
             InputMonitor.shared.ghostClickHandler = nil
             InputMonitor.shared.stop()
             DisplayObserver.shared.stop()
+            DesktopWallpaperObserver.shared.stop()
             SpaceObserver.shared.stop()
             PowerObserver.shared.stop()
             LocaleObserver.shared.stop()
@@ -657,7 +661,7 @@ final class EventBridge {
                 if notify {
                     gm.runTranslatedNotifyScript(translated)
                 } else {
-                    gm.runTranslatedScript(translated)
+                    gm.runTranslatedScript(translated, isExternal: translationContext.isSSTP)
                 }
             }
             return jobs.first?.1
@@ -674,6 +678,25 @@ final class EventBridge {
     func notifyCustom(_ eventName: String, params: [String:String] = [:], ignoreResponseScript: Bool = false, security: ShioriSecurityContext = .local) {
         performOnMain {
             self.broadcastNotifyCustomImmediate(eventName: eventName, params: params, ignoreResponseScript: ignoreResponseScript, security: security)
+        }
+    }
+
+    /// 指定した場所のゴーストへだけ NOTIFY する（どのスレッドからでも呼べる）。そのゴーストが終了していれば何もしない。
+    func notifyCustom(_ eventName: String,
+                      params: [String:String],
+                      toGhostAt ghostURL: URL,
+                      ignoreResponseScript: Bool = false,
+                      security: ShioriSecurityContext = .local) {
+        let key = ghostURL.standardizedFileURL.path
+        performOnMain {
+            for (_, session) in self.sessions where session.ghostManager?.ghostURL.standardizedFileURL.path == key {
+                session.dispatcher.sendNotifyCustom(
+                    eventName: eventName,
+                    params: params,
+                    ignoreResponseScript: ignoreResponseScript,
+                    security: security
+                )
+            }
         }
     }
 
@@ -775,6 +798,45 @@ final class EventBridge {
             return find()
         }
         return DispatchQueue.main.sync(execute: find)
+    }
+
+    /// FINE MessageSend の名前を一意な起動中セッションへ解決して再生する。
+    /// さくら名の一致を優先し、一致しない場合だけけろ名を試す。
+    /// 未指定・不一致・複数一致は配送しない（SSPの優先ゴーストfallbackは未実装）。
+    @discardableResult
+    func playFineScript(
+        _ script: String,
+        sakuraName: String?,
+        keroName: String?,
+        translationContext: ScriptTranslationContext
+    ) -> Bool {
+        let sakura = sakuraName?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+        let kero = keroName?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+        let content = script.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !content.isEmpty, !sakura.isEmpty || !kero.isEmpty else { return false }
+        let deliver = {
+            var seen = Set<ObjectIdentifier>()
+            let managers = self.sessions.values.compactMap(\.ghostManager).filter {
+                seen.insert(ObjectIdentifier($0)).inserted
+            }
+            let sakuraMatches = sakura.isEmpty ? [] : managers.filter {
+                $0.ghostConfig?.name.lowercased() == sakura
+                    || $0.ghostConfig?.sakuraName.lowercased() == sakura
+                    || $0.ghostURL.lastPathComponent.lowercased() == sakura
+            }
+            let candidates = sakuraMatches.isEmpty && !kero.isEmpty
+                ? managers.filter { $0.ghostConfig?.keroName?.lowercased() == kero }
+                : sakuraMatches
+            guard candidates.count == 1, let target = candidates.first else { return false }
+            DispatchQueue.main.async {
+                target.runScript(content, translationContext: translationContext)
+            }
+            return true
+        }
+        if Thread.isMainThread {
+            return deliver()
+        }
+        return DispatchQueue.main.sync(execute: deliver)
     }
 
     /// FINE SetScript / SetScriptPartial 用のスクリプト入力ボックスを表示する。
@@ -1094,7 +1156,7 @@ final class EventBridge {
     }
 
     // 時刻系イベント: Reference3（トーク再生可否）に応じて GET / NOTIFY を切り替える（UKADOC）
-    private static let timeSignalEvents: Set<EventID> = [.OnSecondChange, .OnMinuteChange, .OnHourTimeSignal]
+    private static let timeSignalEvents: Set<EventID> = [.OnSecondChange, .OnMinuteChange, .OnHourTimeSignal, .OnIdle]
 
     // ユーザー操作で会話を返しうるイベントは GET で問い合わせる。
     private static let mouseTalkEvents: Set<EventID> = [

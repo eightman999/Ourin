@@ -1,0 +1,411 @@
+# AM holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/1/2,New Year's Day
+2020/1/3,Christmas Holidays
+2020/1/4,Christmas Holidays
+2020/1/5,Christmas Holidays
+2020/1/6,Christmas and Epiphany
+2020/1/7,Day of Remembrance of the Dead
+2020/1/27,Day off (substituted from 02/01/2020)
+2020/1/28,Army Day
+2020/3/8,Women's Day
+2020/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2020/5/1,Labor Day
+2020/5/9,Victory and Peace Day
+2020/5/28,Republic Day
+2020/5/29,Day off (substituted from 05/23/2020)
+2020/7/5,Constitution Day
+2020/9/21,Independence Day
+2020/12/31,New Year's Eve
+2021/1/1,New Year's Day
+2021/1/2,New Year's Day
+2021/1/3,Christmas Holidays
+2021/1/4,Christmas Holidays
+2021/1/5,Christmas Holidays
+2021/1/6,Christmas and Epiphany
+2021/1/7,Day of Remembrance of the Dead
+2021/1/28,Army Day
+2021/3/8,Women's Day
+2021/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2021/5/1,Labor Day
+2021/5/9,Victory and Peace Day
+2021/5/28,Republic Day
+2021/7/5,Constitution Day
+2021/9/20,Day off (substituted from 09/25/2021)
+2021/9/21,Independence Day
+2021/12/31,New Year's Eve
+2022/1/1,New Year's Day
+2022/1/2,New Year's Day
+2022/1/6,Christmas and Epiphany
+2022/1/28,Army Day
+2022/3/8,Women's Day
+2022/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2022/5/1,Labor Day
+2022/5/9,Victory and Peace Day
+2022/5/28,Republic Day
+2022/7/5,Constitution Day
+2022/9/21,Independence Day
+2022/12/31,New Year's Eve
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day
+2023/1/6,Christmas and Epiphany
+2023/1/28,Army Day
+2023/3/8,Women's Day
+2023/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2023/5/1,Labor Day
+2023/5/9,Victory and Peace Day
+2023/5/28,Republic Day
+2023/7/5,Constitution Day
+2023/9/21,Independence Day
+2023/12/31,New Year's Eve
+2024/1/1,New Year's Day
+2024/1/2,New Year's Day
+2024/1/6,Christmas and Epiphany
+2024/1/28,Army Day
+2024/3/8,Women's Day
+2024/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2024/5/1,Labor Day
+2024/5/9,Victory and Peace Day
+2024/5/28,Republic Day
+2024/7/5,Constitution Day
+2024/9/21,Independence Day
+2024/12/31,New Year's Eve
+2025/1/1,New Year's Day
+2025/1/2,New Year's Day
+2025/1/6,Christmas and Epiphany
+2025/1/28,Army Day
+2025/3/8,Women's Day
+2025/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2025/5/1,Labor Day
+2025/5/9,Victory and Peace Day
+2025/5/28,Republic Day
+2025/7/5,Constitution Day
+2025/9/21,Independence Day
+2025/12/31,New Year's Eve
+2026/1/1,New Year's Day
+2026/1/2,New Year's Day
+2026/1/6,Christmas and Epiphany
+2026/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2026/1/28,Army Day
+2026/3/8,Women's Day
+2026/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2026/5/1,Labor Day
+2026/5/9,Victory and Peace Day
+2026/5/28,Republic Day
+2026/7/5,Constitution Day
+2026/9/21,Independence Day
+2026/12/31,New Year's Eve
+2027/1/1,New Year's Day
+2027/1/2,New Year's Day
+2027/1/6,Christmas and Epiphany
+2027/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2027/1/28,Army Day
+2027/3/8,Women's Day
+2027/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2027/5/1,Labor Day
+2027/5/9,Victory and Peace Day
+2027/5/28,Republic Day
+2027/7/5,Constitution Day
+2027/9/21,Independence Day
+2027/12/31,New Year's Eve
+2028/1/1,New Year's Day
+2028/1/2,New Year's Day
+2028/1/6,Christmas and Epiphany
+2028/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2028/1/28,Army Day
+2028/3/8,Women's Day
+2028/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2028/5/1,Labor Day
+2028/5/9,Victory and Peace Day
+2028/5/28,Republic Day
+2028/7/5,Constitution Day
+2028/9/21,Independence Day
+2028/12/31,New Year's Eve
+2029/1/1,New Year's Day
+2029/1/2,New Year's Day
+2029/1/6,Christmas and Epiphany
+2029/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2029/1/28,Army Day
+2029/3/8,Women's Day
+2029/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2029/5/1,Labor Day
+2029/5/9,Victory and Peace Day
+2029/5/28,Republic Day
+2029/7/5,Constitution Day
+2029/9/21,Independence Day
+2029/12/31,New Year's Eve
+2030/1/1,New Year's Day
+2030/1/2,New Year's Day
+2030/1/6,Christmas and Epiphany
+2030/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2030/1/28,Army Day
+2030/3/8,Women's Day
+2030/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2030/5/1,Labor Day
+2030/5/9,Victory and Peace Day
+2030/5/28,Republic Day
+2030/7/5,Constitution Day
+2030/9/21,Independence Day
+2030/12/31,New Year's Eve
+2031/1/1,New Year's Day
+2031/1/2,New Year's Day
+2031/1/6,Christmas and Epiphany
+2031/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2031/1/28,Army Day
+2031/3/8,Women's Day
+2031/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2031/5/1,Labor Day
+2031/5/9,Victory and Peace Day
+2031/5/28,Republic Day
+2031/7/5,Constitution Day
+2031/9/21,Independence Day
+2031/12/31,New Year's Eve
+2032/1/1,New Year's Day
+2032/1/2,New Year's Day
+2032/1/6,Christmas and Epiphany
+2032/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2032/1/28,Army Day
+2032/3/8,Women's Day
+2032/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2032/5/1,Labor Day
+2032/5/9,Victory and Peace Day
+2032/5/28,Republic Day
+2032/7/5,Constitution Day
+2032/9/21,Independence Day
+2032/12/31,New Year's Eve
+2033/1/1,New Year's Day
+2033/1/2,New Year's Day
+2033/1/6,Christmas and Epiphany
+2033/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2033/1/28,Army Day
+2033/3/8,Women's Day
+2033/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2033/5/1,Labor Day
+2033/5/9,Victory and Peace Day
+2033/5/28,Republic Day
+2033/7/5,Constitution Day
+2033/9/21,Independence Day
+2033/12/31,New Year's Eve
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day
+2034/1/6,Christmas and Epiphany
+2034/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2034/1/28,Army Day
+2034/3/8,Women's Day
+2034/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2034/5/1,Labor Day
+2034/5/9,Victory and Peace Day
+2034/5/28,Republic Day
+2034/7/5,Constitution Day
+2034/9/21,Independence Day
+2034/12/31,New Year's Eve
+2035/1/1,New Year's Day
+2035/1/2,New Year's Day
+2035/1/6,Christmas and Epiphany
+2035/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2035/1/28,Army Day
+2035/3/8,Women's Day
+2035/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2035/5/1,Labor Day
+2035/5/9,Victory and Peace Day
+2035/5/28,Republic Day
+2035/7/5,Constitution Day
+2035/9/21,Independence Day
+2035/12/31,New Year's Eve
+2036/1/1,New Year's Day
+2036/1/2,New Year's Day
+2036/1/6,Christmas and Epiphany
+2036/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2036/1/28,Army Day
+2036/3/8,Women's Day
+2036/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2036/5/1,Labor Day
+2036/5/9,Victory and Peace Day
+2036/5/28,Republic Day
+2036/7/5,Constitution Day
+2036/9/21,Independence Day
+2036/12/31,New Year's Eve
+2037/1/1,New Year's Day
+2037/1/2,New Year's Day
+2037/1/6,Christmas and Epiphany
+2037/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2037/1/28,Army Day
+2037/3/8,Women's Day
+2037/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2037/5/1,Labor Day
+2037/5/9,Victory and Peace Day
+2037/5/28,Republic Day
+2037/7/5,Constitution Day
+2037/9/21,Independence Day
+2037/12/31,New Year's Eve
+2038/1/1,New Year's Day
+2038/1/2,New Year's Day
+2038/1/6,Christmas and Epiphany
+2038/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2038/1/28,Army Day
+2038/3/8,Women's Day
+2038/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2038/5/1,Labor Day
+2038/5/9,Victory and Peace Day
+2038/5/28,Republic Day
+2038/7/5,Constitution Day
+2038/9/21,Independence Day
+2038/12/31,New Year's Eve
+2039/1/1,New Year's Day
+2039/1/2,New Year's Day
+2039/1/6,Christmas and Epiphany
+2039/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2039/1/28,Army Day
+2039/3/8,Women's Day
+2039/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2039/5/1,Labor Day
+2039/5/9,Victory and Peace Day
+2039/5/28,Republic Day
+2039/7/5,Constitution Day
+2039/9/21,Independence Day
+2039/12/31,New Year's Eve
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day
+2040/1/6,Christmas and Epiphany
+2040/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2040/1/28,Army Day
+2040/3/8,Women's Day
+2040/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2040/5/1,Labor Day
+2040/5/9,Victory and Peace Day
+2040/5/28,Republic Day
+2040/7/5,Constitution Day
+2040/9/21,Independence Day
+2040/12/31,New Year's Eve
+2041/1/1,New Year's Day
+2041/1/2,New Year's Day
+2041/1/6,Christmas and Epiphany
+2041/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2041/1/28,Army Day
+2041/3/8,Women's Day
+2041/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2041/5/1,Labor Day
+2041/5/9,Victory and Peace Day
+2041/5/28,Republic Day
+2041/7/5,Constitution Day
+2041/9/21,Independence Day
+2041/12/31,New Year's Eve
+2042/1/1,New Year's Day
+2042/1/2,New Year's Day
+2042/1/6,Christmas and Epiphany
+2042/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2042/1/28,Army Day
+2042/3/8,Women's Day
+2042/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2042/5/1,Labor Day
+2042/5/9,Victory and Peace Day
+2042/5/28,Republic Day
+2042/7/5,Constitution Day
+2042/9/21,Independence Day
+2042/12/31,New Year's Eve
+2043/1/1,New Year's Day
+2043/1/2,New Year's Day
+2043/1/6,Christmas and Epiphany
+2043/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2043/1/28,Army Day
+2043/3/8,Women's Day
+2043/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2043/5/1,Labor Day
+2043/5/9,Victory and Peace Day
+2043/5/28,Republic Day
+2043/7/5,Constitution Day
+2043/9/21,Independence Day
+2043/12/31,New Year's Eve
+2044/1/1,New Year's Day
+2044/1/2,New Year's Day
+2044/1/6,Christmas and Epiphany
+2044/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2044/1/28,Army Day
+2044/3/8,Women's Day
+2044/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2044/5/1,Labor Day
+2044/5/9,Victory and Peace Day
+2044/5/28,Republic Day
+2044/7/5,Constitution Day
+2044/9/21,Independence Day
+2044/12/31,New Year's Eve
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day
+2045/1/6,Christmas and Epiphany
+2045/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2045/1/28,Army Day
+2045/3/8,Women's Day
+2045/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2045/5/1,Labor Day
+2045/5/9,Victory and Peace Day
+2045/5/28,Republic Day
+2045/7/5,Constitution Day
+2045/9/21,Independence Day
+2045/12/31,New Year's Eve
+2046/1/1,New Year's Day
+2046/1/2,New Year's Day
+2046/1/6,Christmas and Epiphany
+2046/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2046/1/28,Army Day
+2046/3/8,Women's Day
+2046/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2046/5/1,Labor Day
+2046/5/9,Victory and Peace Day
+2046/5/28,Republic Day
+2046/7/5,Constitution Day
+2046/9/21,Independence Day
+2046/12/31,New Year's Eve
+2047/1/1,New Year's Day
+2047/1/2,New Year's Day
+2047/1/6,Christmas and Epiphany
+2047/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2047/1/28,Army Day
+2047/3/8,Women's Day
+2047/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2047/5/1,Labor Day
+2047/5/9,Victory and Peace Day
+2047/5/28,Republic Day
+2047/7/5,Constitution Day
+2047/9/21,Independence Day
+2047/12/31,New Year's Eve
+2048/1/1,New Year's Day
+2048/1/2,New Year's Day
+2048/1/6,Christmas and Epiphany
+2048/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2048/1/28,Army Day
+2048/3/8,Women's Day
+2048/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2048/5/1,Labor Day
+2048/5/9,Victory and Peace Day
+2048/5/28,Republic Day
+2048/7/5,Constitution Day
+2048/9/21,Independence Day
+2048/12/31,New Year's Eve
+2049/1/1,New Year's Day
+2049/1/2,New Year's Day
+2049/1/6,Christmas and Epiphany
+2049/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2049/1/28,Army Day
+2049/3/8,Women's Day
+2049/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2049/5/1,Labor Day
+2049/5/9,Victory and Peace Day
+2049/5/28,Republic Day
+2049/7/5,Constitution Day
+2049/9/21,Independence Day
+2049/12/31,New Year's Eve
+2050/1/1,New Year's Day
+2050/1/2,New Year's Day
+2050/1/6,Christmas and Epiphany
+2050/1/27,Day of Remembrance for the Fallen Defenders of the Fatherland
+2050/1/28,Army Day
+2050/3/8,Women's Day
+2050/4/24,Day of Remembrance of the Victims of Armenian Genocide
+2050/5/1,Labor Day
+2050/5/9,Victory and Peace Day
+2050/5/28,Republic Day
+2050/7/5,Constitution Day
+2050/9/21,Independence Day
+2050/12/31,New Year's Eve

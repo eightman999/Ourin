@@ -59,7 +59,7 @@
 | `OnBoot` | アプリ起動 | Ourin 起動直後 |
 | `OnClose` | 終了（Terminate） | 終了前 |
 | `OnGhostChanged` | ゴースト切替 | 既存語彙準拠 |
-| `OnIdle`/`OnMinuteChange` | タイマー | 既存間隔通り |
+| `OnIdle`/`OnMinuteChange` | タイマー | 既存間隔通り。`OnIdle` は毎秒発火し、`OnSecondChange` と同じ R0..R4（R3=トーク再生可否、R4=システム全体の放置秒数）を持つ |
 
 ### 4.2 入力（キーボード/マウス）
 | Event | トリガ | パラメータ例 |

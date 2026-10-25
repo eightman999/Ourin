@@ -16,8 +16,62 @@ struct ShioriRuntimeFactory {
             return .yaya
         case "satori", "satoriya", "satori_core":
             return .satori
+        case "shiolink", "shiolink_core":
+            return .shiolink
         default:
             return .native
+        }
+    }
+
+    /// 名前で決まらない Windows の DLL は、DLL と同じフォルダの `<DLL名>.txt` が YAYA の設定なら
+    /// YAYA とみなす。YAYA は自分のファイル名から設定ファイル名を決めるため、YAYA を
+    /// aya.dll などの別名で同梱したゴースト（Taromati2 の shiori/aya.dll など）がある。
+    static func kind(for moduleName: String, ghostRoot: URL) -> ShioriRuntimeKind {
+        let byName = kind(for: normalizedModulePath(moduleName))
+        guard byName == .native, moduleName.lowercased().hasSuffix(".dll") else { return byName }
+        return isYayaConfig(at: yayaConfigURL(for: moduleName, ghostRoot: ghostRoot)) ? .yaya : .native
+    }
+
+    /// YAYA の基準フォルダ。SHIORI の load にはモジュール（DLL）のあるフォルダを渡す（UKADOC spec_dll）。
+    static func yayaBaseURL(for moduleName: String, ghostRoot: URL) -> URL {
+        ghostRoot.appendingPathComponent(normalizedModulePath(moduleName)).deletingLastPathComponent()
+    }
+
+    /// YAYA の設定ファイル。yaya.dll なら yaya.txt、aya.dll なら aya.txt。
+    static func yayaConfigURL(for moduleName: String, ghostRoot: URL) -> URL {
+        let module = URL(fileURLWithPath: normalizedModulePath(moduleName))
+        return yayaBaseURL(for: moduleName, ghostRoot: ghostRoot)
+            .appendingPathComponent(module.deletingPathExtension().lastPathComponent + ".txt")
+    }
+
+    /// 辞書を読む指定（dic・dicdir・include）がある設定ファイルを YAYA（AYA 互換）の設定とみなす。
+    /// 値の文字コードは問わないので、キーだけを Latin-1 で読む。
+    static func isYayaConfig(at url: URL) -> Bool {
+        guard let data = try? Data(contentsOf: url), let text = String(data: data, encoding: .isoLatin1) else { return false }
+        return text.components(separatedBy: .newlines).contains { line in
+            let body = line.components(separatedBy: "//")[0]
+            guard let comma = body.firstIndex(of: ",") else { return false }
+            let key = body[..<comma].trimmingCharacters(in: .whitespaces).lowercased()
+            return ["dic", "dicdir", "include"].contains(key)
+        }
+    }
+
+    /// descript.txt の `shiori,shiori\aya.dll` のような Windows 区切りも受け付ける。
+    private static func normalizedModulePath(_ moduleName: String) -> String {
+        moduleName.replacingOccurrences(of: "\\", with: "/")
+    }
+
+    /// ゴーストのフォルダも見て、名前で決まらない YAYA を判定したうえでランタイムを生成する。
+    static func makeRuntime(for moduleName: String, ghostRoot: URL) -> GhostShioriRuntime? {
+        switch kind(for: moduleName, ghostRoot: ghostRoot) {
+        case .yaya:
+            return YayaAdapter()
+        case .satori:
+            return SatoriAdapter()
+        case .shiolink:
+            return ShiolinkAdapter()
+        case .native:
+            return NativeShioriRuntime()
         }
     }
 
@@ -28,6 +82,8 @@ struct ShioriRuntimeFactory {
             return YayaAdapter()
         case .satori:
             return SatoriAdapter()
+        case .shiolink:
+            return ShiolinkAdapter()
         case .native:
             return NativeShioriRuntime()
         }
@@ -51,10 +107,31 @@ final class NativeShioriRuntime: GhostShioriRuntime {
     private var loader: ShioriRequesting?
     private var communication = ShioriCommunicationOptions()
 
-    init(loaderFactory: @escaping LoaderFactory = { context in
-        ShioriLoader(module: context.moduleName, base: context.ghostURL, communication: context.communication)
-    }) {
+    init(loaderFactory: @escaping LoaderFactory = NativeShioriRuntime.defaultLoaderFactory) {
         self.loaderFactory = loaderFactory
+    }
+
+    private static func defaultLoaderFactory(context: ShioriRuntimeLoadContext) -> ShioriRequesting? {
+        let loadDirectory = context.ghostRoot
+            .appendingPathComponent(context.moduleName.replacingOccurrences(of: "\\", with: "/"))
+            .deletingLastPathComponent()
+        if let url = BundledShioriEngine.resolveModuleURL(
+            moduleName: context.moduleName,
+            ghostURL: context.ghostURL,
+            ghostRoot: context.ghostRoot
+        ) {
+            return ShioriLoader(
+                moduleURL: url,
+                communication: context.communication,
+                loadDirectory: loadDirectory
+            )
+        }
+        return ShioriLoader(
+            module: context.moduleName,
+            base: context.ghostURL,
+            communication: context.communication,
+            loadDirectory: loadDirectory
+        )
     }
 
     @discardableResult

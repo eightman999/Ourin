@@ -1,0 +1,816 @@
+# AZ の祝日（2020〜2050年、言語: az）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Yeni il bayramı
+2020/1/2,Yeni il bayramı
+2020/1/3,İstirahət günü (28.12.2019 ilə əvəz edilmişdir)
+2020/1/6,İstirahət günü (29.12.2019 ilə əvəz edilmişdir)
+2020/1/20,Ümumxalq hüzn günü
+2020/3/8,Qadınlar günü
+2020/3/9,Qadınlar günü (müşahidə olunur)
+2020/3/20,Novruz bayramı
+2020/3/21,Novruz bayramı
+2020/3/22,Novruz bayramı
+2020/3/23,Novruz bayramı
+2020/3/24,Novruz bayramı
+2020/3/25,Novruz bayramı (müşahidə olunur)
+2020/3/26,Novruz bayramı (müşahidə olunur)
+2020/3/27,İstirahət günü (29.03.2020 ilə əvəz edilmişdir)
+2020/5/9,Faşizm üzərində qələbə günü
+2020/5/11,Faşizm üzərində qələbə günü (müşahidə olunur)
+2020/5/24,Ramazan bayrami
+2020/5/25,Ramazan bayrami
+2020/5/26,Ramazan bayrami (müşahidə olunur)
+2020/5/27,İstirahət günü (31.05.2020 ilə əvəz edilmişdir)
+2020/5/28,Respublika Günü
+2020/6/15,Azərbaycan xalqının milli qurtuluş günü
+2020/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2020/7/31,Qurban bayrami
+2020/8/1,Qurban bayrami
+2020/8/3,Qurban bayrami (müşahidə olunur)
+2020/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2020/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2021/1/1,Yeni il bayramı
+2021/1/2,Yeni il bayramı
+2021/1/4,Yeni il bayramı (müşahidə olunur)
+2021/1/20,Ümumxalq hüzn günü
+2021/3/8,Qadınlar günü
+2021/3/20,Novruz bayramı
+2021/3/21,Novruz bayramı
+2021/3/22,Novruz bayramı
+2021/3/23,Novruz bayramı
+2021/3/24,Novruz bayramı
+2021/3/25,Novruz bayramı (müşahidə olunur)
+2021/3/26,Novruz bayramı (müşahidə olunur)
+2021/5/9,Faşizm üzərində qələbə günü
+2021/5/10,Faşizm üzərində qələbə günü (müşahidə olunur)
+2021/5/11,İstirahət günü (08.05.2021 ilə əvəz edilmişdir)
+2021/5/12,İstirahət günü (16.05.2021 ilə əvəz edilmişdir)
+2021/5/13,Ramazan bayrami
+2021/5/14,Ramazan bayrami
+2021/5/28,Müstəqillik Günü
+2021/6/15,Azərbaycan xalqının milli qurtuluş günü
+2021/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2021/6/28,Azərbaycan Respublikasının Silahlı Qüvvələri günü (müşahidə olunur)
+2021/7/19,İstirahət günü (17.07.2021 ilə əvəz edilmişdir)
+2021/7/20,Qurban bayrami
+2021/7/21,Qurban bayrami
+2021/11/8,Zəfər Günü
+2021/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2021/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2022/1/1,Yeni il bayramı
+2022/1/2,Yeni il bayramı
+2022/1/3,Yeni il bayramı (müşahidə olunur)
+2022/1/4,Yeni il bayramı (müşahidə olunur)
+2022/1/20,Ümumxalq hüzn günü
+2022/3/7,İstirahət günü (05.03.2022 ilə əvəz edilmişdir)
+2022/3/8,Qadınlar günü
+2022/3/20,Novruz bayramı
+2022/3/21,Novruz bayramı
+2022/3/22,Novruz bayramı
+2022/3/23,Novruz bayramı
+2022/3/24,Novruz bayramı
+2022/3/25,Novruz bayramı (müşahidə olunur)
+2022/5/2,Ramazan bayrami
+2022/5/3,Ramazan bayrami
+2022/5/9,Faşizm üzərində qələbə günü
+2022/5/28,Müstəqillik Günü
+2022/5/30,Müstəqillik Günü (müşahidə olunur)
+2022/6/15,Azərbaycan xalqının milli qurtuluş günü
+2022/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2022/6/27,Azərbaycan Respublikasının Silahlı Qüvvələri günü (müşahidə olunur)
+2022/7/9,Qurban bayrami
+2022/7/10,Qurban bayrami
+2022/7/11,Qurban bayrami (müşahidə olunur)
+2022/7/12,Qurban bayrami (müşahidə olunur)
+2022/11/7,İstirahət günü (05.11.2022 ilə əvəz edilmişdir)
+2022/11/8,Zəfər Günü
+2022/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2022/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2023/1/1,Yeni il bayramı
+2023/1/2,Yeni il bayramı
+2023/1/3,Dünya azərbaycanlılarının həmrəyliyi günü (müşahidə olunur)
+2023/1/4,Yeni il bayramı (müşahidə olunur)
+2023/1/20,Ümumxalq hüzn günü
+2023/3/8,Qadınlar günü
+2023/3/20,Novruz bayramı
+2023/3/21,Novruz bayramı
+2023/3/22,Novruz bayramı
+2023/3/23,Novruz bayramı
+2023/3/24,Novruz bayramı
+2023/4/21,Ramazan bayrami
+2023/4/22,Ramazan bayrami
+2023/4/24,Ramazan bayrami (müşahidə olunur)
+2023/5/9,Faşizm üzərində qələbə günü
+2023/5/28,Müstəqillik Günü
+2023/5/29,Müstəqillik Günü (müşahidə olunur)
+2023/6/15,Azərbaycan xalqının milli qurtuluş günü
+2023/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2023/6/27,İstirahət günü (24.06.2023 ilə əvəz edilmişdir)
+2023/6/28,Qurban bayrami
+2023/6/29,Qurban bayrami
+2023/6/30,İstirahət günü (25.06.2023 ilə əvəz edilmişdir)
+2023/11/8,Zəfər Günü
+2023/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2023/11/10,İstirahət günü (04.11.2023 ilə əvəz edilmişdir)
+2023/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2024/1/1,Yeni il bayramı
+2024/1/2,Yeni il bayramı
+2024/1/3,Dünya azərbaycanlılarının həmrəyliyi günü (müşahidə olunur)
+2024/1/4,İstirahət günü (30.12.2023 ilə əvəz edilmişdir)
+2024/1/5,İstirahət günü (07.01.2024 ilə əvəz edilmişdir)
+2024/1/20,Ümumxalq hüzn günü
+2024/2/7,Prezidenti seçkiləri
+2024/3/8,Qadınlar günü
+2024/3/20,Novruz bayramı
+2024/3/21,Novruz bayramı
+2024/3/22,Novruz bayramı
+2024/3/23,Novruz bayramı
+2024/3/24,Novruz bayramı
+2024/3/25,Novruz bayramı (müşahidə olunur)
+2024/3/26,Novruz bayramı (müşahidə olunur)
+2024/4/10,Ramazan bayrami
+2024/4/11,Ramazan bayrami
+2024/4/12,İstirahət günü (06.04.2024 ilə əvəz edilmişdir)
+2024/5/9,Faşizm üzərində qələbə günü
+2024/5/28,Müstəqillik Günü
+2024/6/15,Azərbaycan xalqının milli qurtuluş günü
+2024/6/16,Qurban bayrami
+2024/6/17,Qurban bayrami
+2024/6/18,Azərbaycan xalqının milli qurtuluş günü (müşahidə olunur)
+2024/6/19,Qurban bayrami (müşahidə olunur)
+2024/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2024/11/8,Zəfər Günü
+2024/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2024/11/11,Azərbaycan Respublikasının Dövlət bayrağı günü (müşahidə olunur)
+2024/11/12,İstirahət günü (16.11.2024 ilə əvəz edilmişdir)
+2024/11/13,İstirahət günü (23.11.2024 ilə əvəz edilmişdir)
+2024/12/30,İstirahət günü (28.12.2024 ilə əvəz edilmişdir)
+2024/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2025/1/1,Yeni il bayramı
+2025/1/2,Yeni il bayramı
+2025/1/3,İstirahət günü (29.12.2024 ilə əvəz edilmişdir)
+2025/1/20,Ümumxalq hüzn günü
+2025/1/29,Bələdiyyə seçkiləri
+2025/3/8,Qadınlar günü
+2025/3/20,Novruz bayramı
+2025/3/21,Novruz bayramı
+2025/3/22,Novruz bayramı
+2025/3/23,Novruz bayramı
+2025/3/24,Novruz bayramı
+2025/3/25,Novruz bayramı (müşahidə olunur)
+2025/3/26,Novruz bayramı (müşahidə olunur)
+2025/3/27,İstirahət günü (10.03.2025 ilə əvəz edilmişdir)
+2025/3/28,İstirahət günü (01.04.2025 ilə əvəz edilmişdir)
+2025/3/30,Ramazan bayrami
+2025/3/31,Ramazan bayrami
+2025/5/9,Faşizm üzərində qələbə günü
+2025/5/28,Müstəqillik Günü
+2025/6/6,Qurban bayrami
+2025/6/7,Qurban bayrami
+2025/6/9,Qurban bayrami (müşahidə olunur)
+2025/6/15,Azərbaycan xalqının milli qurtuluş günü
+2025/6/16,Azərbaycan xalqının milli qurtuluş günü (müşahidə olunur)
+2025/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2025/6/27,İstirahət günü (21.06.2025 ilə əvəz edilmişdir)
+2025/11/8,Zəfər Günü
+2025/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2025/11/10,Zəfər Günü (müşahidə olunur)
+2025/11/11,Azərbaycan Respublikasının Dövlət bayrağı günü (müşahidə olunur)
+2025/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2026/1/1,Yeni il bayramı
+2026/1/2,Yeni il bayramı
+2026/1/20,Ümumxalq hüzn günü
+2026/3/8,Qadınlar günü
+2026/3/9,Qadınlar günü (müşahidə olunur)
+2026/3/20,Novruz bayramı; Ramazan bayrami
+2026/3/21,Novruz bayramı; Ramazan bayrami
+2026/3/22,Novruz bayramı
+2026/3/23,Novruz bayramı
+2026/3/24,Novruz bayramı
+2026/3/25,Novruz bayramı (müşahidə olunur)
+2026/3/26,Ramazan bayrami (müşahidə olunur)
+2026/3/27,Novruz bayramı (müşahidə olunur)
+2026/3/30,Ramazan bayrami (müşahidə olunur)
+2026/5/9,Faşizm üzərində qələbə günü
+2026/5/11,Faşizm üzərində qələbə günü (müşahidə olunur)
+2026/5/27,Qurban bayrami
+2026/5/28,Müstəqillik Günü; Qurban bayrami
+2026/5/29,Qurban bayrami (müşahidə olunur)
+2026/6/15,Azərbaycan xalqının milli qurtuluş günü
+2026/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2026/11/8,Zəfər Günü
+2026/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2026/11/10,Zəfər Günü (müşahidə olunur)
+2026/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2027/1/1,Yeni il bayramı
+2027/1/2,Yeni il bayramı
+2027/1/4,Yeni il bayramı (müşahidə olunur)
+2027/1/20,Ümumxalq hüzn günü
+2027/3/8,Qadınlar günü
+2027/3/9,Ramazan bayrami (təxmini)
+2027/3/10,Ramazan bayrami (təxmini)
+2027/3/20,Novruz bayramı
+2027/3/21,Novruz bayramı
+2027/3/22,Novruz bayramı
+2027/3/23,Novruz bayramı
+2027/3/24,Novruz bayramı
+2027/3/25,Novruz bayramı (müşahidə olunur)
+2027/3/26,Novruz bayramı (müşahidə olunur)
+2027/5/9,Faşizm üzərində qələbə günü
+2027/5/10,Faşizm üzərində qələbə günü (müşahidə olunur)
+2027/5/16,Qurban bayrami (təxmini)
+2027/5/17,Qurban bayrami (təxmini)
+2027/5/18,Qurban bayrami (müşahidə olunur, təxmini)
+2027/5/28,Müstəqillik Günü
+2027/6/15,Azərbaycan xalqının milli qurtuluş günü
+2027/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2027/6/28,Azərbaycan Respublikasının Silahlı Qüvvələri günü (müşahidə olunur)
+2027/11/8,Zəfər Günü
+2027/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2027/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2028/1/1,Yeni il bayramı
+2028/1/2,Yeni il bayramı
+2028/1/3,Yeni il bayramı (müşahidə olunur)
+2028/1/4,Yeni il bayramı (müşahidə olunur)
+2028/1/20,Ümumxalq hüzn günü
+2028/2/26,Ramazan bayrami (təxmini)
+2028/2/27,Ramazan bayrami (təxmini)
+2028/2/28,Ramazan bayrami (müşahidə olunur, təxmini)
+2028/2/29,Ramazan bayrami (müşahidə olunur, təxmini)
+2028/3/8,Qadınlar günü
+2028/3/20,Novruz bayramı
+2028/3/21,Novruz bayramı
+2028/3/22,Novruz bayramı
+2028/3/23,Novruz bayramı
+2028/3/24,Novruz bayramı
+2028/5/5,Qurban bayrami (təxmini)
+2028/5/6,Qurban bayrami (təxmini)
+2028/5/8,Qurban bayrami (müşahidə olunur, təxmini)
+2028/5/9,Faşizm üzərində qələbə günü
+2028/5/28,Müstəqillik Günü
+2028/5/29,Müstəqillik Günü (müşahidə olunur)
+2028/6/15,Azərbaycan xalqının milli qurtuluş günü
+2028/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2028/11/8,Zəfər Günü
+2028/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2028/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2029/1/1,Yeni il bayramı
+2029/1/2,Yeni il bayramı
+2029/1/3,Dünya azərbaycanlılarının həmrəyliyi günü (müşahidə olunur)
+2029/1/20,Ümumxalq hüzn günü
+2029/2/14,Ramazan bayrami (təxmini)
+2029/2/15,Ramazan bayrami (təxmini)
+2029/3/8,Qadınlar günü
+2029/3/20,Novruz bayramı
+2029/3/21,Novruz bayramı
+2029/3/22,Novruz bayramı
+2029/3/23,Novruz bayramı
+2029/3/24,Novruz bayramı
+2029/3/26,Novruz bayramı (müşahidə olunur)
+2029/4/24,Qurban bayrami (təxmini)
+2029/4/25,Qurban bayrami (təxmini)
+2029/5/9,Faşizm üzərində qələbə günü
+2029/5/28,Müstəqillik Günü
+2029/6/15,Azərbaycan xalqının milli qurtuluş günü
+2029/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2029/11/8,Zəfər Günü
+2029/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2029/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2030/1/1,Yeni il bayramı
+2030/1/2,Yeni il bayramı
+2030/1/20,Ümumxalq hüzn günü
+2030/2/4,Ramazan bayrami (təxmini)
+2030/2/5,Ramazan bayrami (təxmini)
+2030/3/8,Qadınlar günü
+2030/3/20,Novruz bayramı
+2030/3/21,Novruz bayramı
+2030/3/22,Novruz bayramı
+2030/3/23,Novruz bayramı
+2030/3/24,Novruz bayramı
+2030/3/25,Novruz bayramı (müşahidə olunur)
+2030/3/26,Novruz bayramı (müşahidə olunur)
+2030/4/13,Qurban bayrami (təxmini)
+2030/4/14,Qurban bayrami (təxmini)
+2030/4/15,Qurban bayrami (müşahidə olunur, təxmini)
+2030/4/16,Qurban bayrami (müşahidə olunur, təxmini)
+2030/5/9,Faşizm üzərində qələbə günü
+2030/5/28,Müstəqillik Günü
+2030/6/15,Azərbaycan xalqının milli qurtuluş günü
+2030/6/17,Azərbaycan xalqının milli qurtuluş günü (müşahidə olunur)
+2030/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2030/11/8,Zəfər Günü
+2030/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2030/11/11,Azərbaycan Respublikasının Dövlət bayrağı günü (müşahidə olunur)
+2030/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2031/1/1,Yeni il bayramı
+2031/1/2,Yeni il bayramı
+2031/1/20,Ümumxalq hüzn günü
+2031/1/24,Ramazan bayrami (təxmini)
+2031/1/25,Ramazan bayrami (təxmini)
+2031/1/27,Ramazan bayrami (müşahidə olunur, təxmini)
+2031/3/8,Qadınlar günü
+2031/3/10,Qadınlar günü (müşahidə olunur)
+2031/3/20,Novruz bayramı
+2031/3/21,Novruz bayramı
+2031/3/22,Novruz bayramı
+2031/3/23,Novruz bayramı
+2031/3/24,Novruz bayramı
+2031/3/25,Novruz bayramı (müşahidə olunur)
+2031/3/26,Novruz bayramı (müşahidə olunur)
+2031/4/2,Qurban bayrami (təxmini)
+2031/4/3,Qurban bayrami (təxmini)
+2031/5/9,Faşizm üzərində qələbə günü
+2031/5/28,Müstəqillik Günü
+2031/6/15,Azərbaycan xalqının milli qurtuluş günü
+2031/6/16,Azərbaycan xalqının milli qurtuluş günü (müşahidə olunur)
+2031/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2031/11/8,Zəfər Günü
+2031/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2031/11/10,Zəfər Günü (müşahidə olunur)
+2031/11/11,Azərbaycan Respublikasının Dövlət bayrağı günü (müşahidə olunur)
+2031/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2032/1/1,Yeni il bayramı
+2032/1/2,Yeni il bayramı
+2032/1/14,Ramazan bayrami (təxmini)
+2032/1/15,Ramazan bayrami (təxmini)
+2032/1/20,Ümumxalq hüzn günü
+2032/3/8,Qadınlar günü
+2032/3/20,Novruz bayramı
+2032/3/21,Novruz bayramı
+2032/3/22,Novruz bayramı; Qurban bayrami (təxmini)
+2032/3/23,Novruz bayramı; Qurban bayrami (təxmini)
+2032/3/24,Novruz bayramı
+2032/3/25,Novruz bayramı (müşahidə olunur)
+2032/3/26,Novruz bayramı (müşahidə olunur)
+2032/3/29,Qurban bayrami (müşahidə olunur, təxmini)
+2032/3/30,Qurban bayrami (müşahidə olunur, təxmini)
+2032/5/9,Faşizm üzərində qələbə günü
+2032/5/10,Faşizm üzərində qələbə günü (müşahidə olunur)
+2032/5/28,Müstəqillik Günü
+2032/6/15,Azərbaycan xalqının milli qurtuluş günü
+2032/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2032/6/28,Azərbaycan Respublikasının Silahlı Qüvvələri günü (müşahidə olunur)
+2032/11/8,Zəfər Günü
+2032/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2032/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2033/1/1,Yeni il bayramı
+2033/1/2,Ramazan bayrami (təxmini); Yeni il bayramı
+2033/1/3,Ramazan bayrami (təxmini)
+2033/1/4,Yeni il bayramı (müşahidə olunur)
+2033/1/5,Ramazan bayrami (müşahidə olunur, təxmini)
+2033/1/6,Yeni il bayramı (müşahidə olunur)
+2033/1/20,Ümumxalq hüzn günü
+2033/3/8,Qadınlar günü
+2033/3/11,Qurban bayrami (təxmini)
+2033/3/12,Qurban bayrami (təxmini)
+2033/3/14,Qurban bayrami (müşahidə olunur, təxmini)
+2033/3/20,Novruz bayramı
+2033/3/21,Novruz bayramı
+2033/3/22,Novruz bayramı
+2033/3/23,Novruz bayramı
+2033/3/24,Novruz bayramı
+2033/3/25,Novruz bayramı (müşahidə olunur)
+2033/5/9,Faşizm üzərində qələbə günü
+2033/5/28,Müstəqillik Günü
+2033/5/30,Müstəqillik Günü (müşahidə olunur)
+2033/6/15,Azərbaycan xalqının milli qurtuluş günü
+2033/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2033/6/27,Azərbaycan Respublikasının Silahlı Qüvvələri günü (müşahidə olunur)
+2033/11/8,Zəfər Günü
+2033/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2033/12/23,Ramazan bayrami (təxmini)
+2033/12/24,Ramazan bayrami (təxmini)
+2033/12/26,Ramazan bayrami (müşahidə olunur, təxmini)
+2033/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2034/1/1,Yeni il bayramı
+2034/1/2,Yeni il bayramı
+2034/1/3,Dünya azərbaycanlılarının həmrəyliyi günü (müşahidə olunur)
+2034/1/4,Yeni il bayramı (müşahidə olunur)
+2034/1/20,Ümumxalq hüzn günü
+2034/3/1,Qurban bayrami (təxmini)
+2034/3/2,Qurban bayrami (təxmini)
+2034/3/8,Qadınlar günü
+2034/3/20,Novruz bayramı
+2034/3/21,Novruz bayramı
+2034/3/22,Novruz bayramı
+2034/3/23,Novruz bayramı
+2034/3/24,Novruz bayramı
+2034/5/9,Faşizm üzərində qələbə günü
+2034/5/28,Müstəqillik Günü
+2034/5/29,Müstəqillik Günü (müşahidə olunur)
+2034/6/15,Azərbaycan xalqının milli qurtuluş günü
+2034/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2034/11/8,Zəfər Günü
+2034/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2034/12/12,Ramazan bayrami (təxmini)
+2034/12/13,Ramazan bayrami (təxmini)
+2034/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2035/1/1,Yeni il bayramı
+2035/1/2,Yeni il bayramı
+2035/1/3,Dünya azərbaycanlılarının həmrəyliyi günü (müşahidə olunur)
+2035/1/20,Ümumxalq hüzn günü
+2035/2/18,Qurban bayrami (təxmini)
+2035/2/19,Qurban bayrami (təxmini)
+2035/2/20,Qurban bayrami (müşahidə olunur, təxmini)
+2035/3/8,Qadınlar günü
+2035/3/20,Novruz bayramı
+2035/3/21,Novruz bayramı
+2035/3/22,Novruz bayramı
+2035/3/23,Novruz bayramı
+2035/3/24,Novruz bayramı
+2035/3/26,Novruz bayramı (müşahidə olunur)
+2035/5/9,Faşizm üzərində qələbə günü
+2035/5/28,Müstəqillik Günü
+2035/6/15,Azərbaycan xalqının milli qurtuluş günü
+2035/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2035/11/8,Zəfər Günü
+2035/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2035/12/1,Ramazan bayrami (təxmini)
+2035/12/2,Ramazan bayrami (təxmini)
+2035/12/3,Ramazan bayrami (müşahidə olunur, təxmini)
+2035/12/4,Ramazan bayrami (müşahidə olunur, təxmini)
+2035/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2036/1/1,Yeni il bayramı
+2036/1/2,Yeni il bayramı
+2036/1/20,Ümumxalq hüzn günü
+2036/2/7,Qurban bayrami (təxmini)
+2036/2/8,Qurban bayrami (təxmini)
+2036/3/8,Qadınlar günü
+2036/3/10,Qadınlar günü (müşahidə olunur)
+2036/3/20,Novruz bayramı
+2036/3/21,Novruz bayramı
+2036/3/22,Novruz bayramı
+2036/3/23,Novruz bayramı
+2036/3/24,Novruz bayramı
+2036/3/25,Novruz bayramı (müşahidə olunur)
+2036/3/26,Novruz bayramı (müşahidə olunur)
+2036/5/9,Faşizm üzərində qələbə günü
+2036/5/28,Müstəqillik Günü
+2036/6/15,Azərbaycan xalqının milli qurtuluş günü
+2036/6/16,Azərbaycan xalqının milli qurtuluş günü (müşahidə olunur)
+2036/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2036/11/8,Zəfər Günü
+2036/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2036/11/10,Zəfər Günü (müşahidə olunur)
+2036/11/11,Azərbaycan Respublikasının Dövlət bayrağı günü (müşahidə olunur)
+2036/11/19,Ramazan bayrami (təxmini)
+2036/11/20,Ramazan bayrami (təxmini)
+2036/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2037/1/1,Yeni il bayramı
+2037/1/2,Yeni il bayramı
+2037/1/20,Ümumxalq hüzn günü
+2037/1/26,Qurban bayrami (təxmini)
+2037/1/27,Qurban bayrami (təxmini)
+2037/3/8,Qadınlar günü
+2037/3/9,Qadınlar günü (müşahidə olunur)
+2037/3/20,Novruz bayramı
+2037/3/21,Novruz bayramı
+2037/3/22,Novruz bayramı
+2037/3/23,Novruz bayramı
+2037/3/24,Novruz bayramı
+2037/3/25,Novruz bayramı (müşahidə olunur)
+2037/3/26,Novruz bayramı (müşahidə olunur)
+2037/5/9,Faşizm üzərində qələbə günü
+2037/5/11,Faşizm üzərində qələbə günü (müşahidə olunur)
+2037/5/28,Müstəqillik Günü
+2037/6/15,Azərbaycan xalqının milli qurtuluş günü
+2037/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2037/11/8,Ramazan bayrami (təxmini); Zəfər Günü
+2037/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü; Ramazan bayrami (təxmini)
+2037/11/10,Ramazan bayrami (müşahidə olunur, təxmini)
+2037/11/11,Zəfər Günü (müşahidə olunur)
+2037/11/12,Ramazan bayrami (müşahidə olunur, təxmini)
+2037/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2038/1/1,Yeni il bayramı
+2038/1/2,Yeni il bayramı
+2038/1/4,Yeni il bayramı (müşahidə olunur)
+2038/1/16,Qurban bayrami (təxmini)
+2038/1/17,Qurban bayrami (təxmini)
+2038/1/18,Qurban bayrami (müşahidə olunur, təxmini)
+2038/1/19,Qurban bayrami (müşahidə olunur, təxmini)
+2038/1/20,Ümumxalq hüzn günü
+2038/3/8,Qadınlar günü
+2038/3/20,Novruz bayramı
+2038/3/21,Novruz bayramı
+2038/3/22,Novruz bayramı
+2038/3/23,Novruz bayramı
+2038/3/24,Novruz bayramı
+2038/3/25,Novruz bayramı (müşahidə olunur)
+2038/3/26,Novruz bayramı (müşahidə olunur)
+2038/5/9,Faşizm üzərində qələbə günü
+2038/5/10,Faşizm üzərində qələbə günü (müşahidə olunur)
+2038/5/28,Müstəqillik Günü
+2038/6/15,Azərbaycan xalqının milli qurtuluş günü
+2038/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2038/6/28,Azərbaycan Respublikasının Silahlı Qüvvələri günü (müşahidə olunur)
+2038/10/29,Ramazan bayrami (təxmini)
+2038/10/30,Ramazan bayrami (təxmini)
+2038/11/1,Ramazan bayrami (müşahidə olunur, təxmini)
+2038/11/8,Zəfər Günü
+2038/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2038/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2039/1/1,Yeni il bayramı
+2039/1/2,Yeni il bayramı
+2039/1/3,Yeni il bayramı (müşahidə olunur)
+2039/1/4,Yeni il bayramı (müşahidə olunur)
+2039/1/5,Qurban bayrami (təxmini)
+2039/1/6,Qurban bayrami (təxmini)
+2039/1/20,Ümumxalq hüzn günü
+2039/3/8,Qadınlar günü
+2039/3/20,Novruz bayramı
+2039/3/21,Novruz bayramı
+2039/3/22,Novruz bayramı
+2039/3/23,Novruz bayramı
+2039/3/24,Novruz bayramı
+2039/3/25,Novruz bayramı (müşahidə olunur)
+2039/5/9,Faşizm üzərində qələbə günü
+2039/5/28,Müstəqillik Günü
+2039/5/30,Müstəqillik Günü (müşahidə olunur)
+2039/6/15,Azərbaycan xalqının milli qurtuluş günü
+2039/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2039/6/27,Azərbaycan Respublikasının Silahlı Qüvvələri günü (müşahidə olunur)
+2039/10/19,Ramazan bayrami (təxmini)
+2039/10/20,Ramazan bayrami (təxmini)
+2039/11/8,Zəfər Günü
+2039/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2039/12/26,Qurban bayrami (təxmini)
+2039/12/27,Qurban bayrami (təxmini)
+2039/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2040/1/1,Yeni il bayramı
+2040/1/2,Yeni il bayramı
+2040/1/3,Dünya azərbaycanlılarının həmrəyliyi günü (müşahidə olunur)
+2040/1/4,Yeni il bayramı (müşahidə olunur)
+2040/1/20,Ümumxalq hüzn günü
+2040/3/8,Qadınlar günü
+2040/3/20,Novruz bayramı
+2040/3/21,Novruz bayramı
+2040/3/22,Novruz bayramı
+2040/3/23,Novruz bayramı
+2040/3/24,Novruz bayramı
+2040/3/26,Novruz bayramı (müşahidə olunur)
+2040/5/9,Faşizm üzərində qələbə günü
+2040/5/28,Müstəqillik Günü
+2040/6/15,Azərbaycan xalqının milli qurtuluş günü
+2040/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2040/10/7,Ramazan bayrami (təxmini)
+2040/10/8,Ramazan bayrami (təxmini)
+2040/10/9,Ramazan bayrami (müşahidə olunur, təxmini)
+2040/11/8,Zəfər Günü
+2040/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2040/12/14,Qurban bayrami (təxmini)
+2040/12/15,Qurban bayrami (təxmini)
+2040/12/17,Qurban bayrami (müşahidə olunur, təxmini)
+2040/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2041/1/1,Yeni il bayramı
+2041/1/2,Yeni il bayramı
+2041/1/20,Ümumxalq hüzn günü
+2041/3/8,Qadınlar günü
+2041/3/20,Novruz bayramı
+2041/3/21,Novruz bayramı
+2041/3/22,Novruz bayramı
+2041/3/23,Novruz bayramı
+2041/3/24,Novruz bayramı
+2041/3/25,Novruz bayramı (müşahidə olunur)
+2041/3/26,Novruz bayramı (müşahidə olunur)
+2041/5/9,Faşizm üzərində qələbə günü
+2041/5/28,Müstəqillik Günü
+2041/6/15,Azərbaycan xalqının milli qurtuluş günü
+2041/6/17,Azərbaycan xalqının milli qurtuluş günü (müşahidə olunur)
+2041/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2041/9/26,Ramazan bayrami (təxmini)
+2041/9/27,Ramazan bayrami (təxmini)
+2041/11/8,Zəfər Günü
+2041/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2041/11/11,Azərbaycan Respublikasının Dövlət bayrağı günü (müşahidə olunur)
+2041/12/4,Qurban bayrami (təxmini)
+2041/12/5,Qurban bayrami (təxmini)
+2041/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2042/1/1,Yeni il bayramı
+2042/1/2,Yeni il bayramı
+2042/1/20,Ümumxalq hüzn günü
+2042/3/8,Qadınlar günü
+2042/3/10,Qadınlar günü (müşahidə olunur)
+2042/3/20,Novruz bayramı
+2042/3/21,Novruz bayramı
+2042/3/22,Novruz bayramı
+2042/3/23,Novruz bayramı
+2042/3/24,Novruz bayramı
+2042/3/25,Novruz bayramı (müşahidə olunur)
+2042/3/26,Novruz bayramı (müşahidə olunur)
+2042/5/9,Faşizm üzərində qələbə günü
+2042/5/28,Müstəqillik Günü
+2042/6/15,Azərbaycan xalqının milli qurtuluş günü
+2042/6/16,Azərbaycan xalqının milli qurtuluş günü (müşahidə olunur)
+2042/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2042/9/15,Ramazan bayrami (təxmini)
+2042/9/16,Ramazan bayrami (təxmini)
+2042/11/8,Zəfər Günü
+2042/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2042/11/10,Zəfər Günü (müşahidə olunur)
+2042/11/11,Azərbaycan Respublikasının Dövlət bayrağı günü (müşahidə olunur)
+2042/11/23,Qurban bayrami (təxmini)
+2042/11/24,Qurban bayrami (təxmini)
+2042/11/25,Qurban bayrami (müşahidə olunur, təxmini)
+2042/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2043/1/1,Yeni il bayramı
+2043/1/2,Yeni il bayramı
+2043/1/20,Ümumxalq hüzn günü
+2043/3/8,Qadınlar günü
+2043/3/9,Qadınlar günü (müşahidə olunur)
+2043/3/20,Novruz bayramı
+2043/3/21,Novruz bayramı
+2043/3/22,Novruz bayramı
+2043/3/23,Novruz bayramı
+2043/3/24,Novruz bayramı
+2043/3/25,Novruz bayramı (müşahidə olunur)
+2043/3/26,Novruz bayramı (müşahidə olunur)
+2043/5/9,Faşizm üzərində qələbə günü
+2043/5/11,Faşizm üzərində qələbə günü (müşahidə olunur)
+2043/5/28,Müstəqillik Günü
+2043/6/15,Azərbaycan xalqının milli qurtuluş günü
+2043/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2043/9/4,Ramazan bayrami (təxmini)
+2043/9/5,Ramazan bayrami (təxmini)
+2043/9/7,Ramazan bayrami (müşahidə olunur, təxmini)
+2043/11/8,Zəfər Günü
+2043/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2043/11/10,Zəfər Günü (müşahidə olunur)
+2043/11/12,Qurban bayrami (təxmini)
+2043/11/13,Qurban bayrami (təxmini)
+2043/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2044/1/1,Yeni il bayramı
+2044/1/2,Yeni il bayramı
+2044/1/4,Yeni il bayramı (müşahidə olunur)
+2044/1/20,Ümumxalq hüzn günü
+2044/3/8,Qadınlar günü
+2044/3/20,Novruz bayramı
+2044/3/21,Novruz bayramı
+2044/3/22,Novruz bayramı
+2044/3/23,Novruz bayramı
+2044/3/24,Novruz bayramı
+2044/3/25,Novruz bayramı (müşahidə olunur)
+2044/5/9,Faşizm üzərində qələbə günü
+2044/5/28,Müstəqillik Günü
+2044/5/30,Müstəqillik Günü (müşahidə olunur)
+2044/6/15,Azərbaycan xalqının milli qurtuluş günü
+2044/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2044/6/27,Azərbaycan Respublikasının Silahlı Qüvvələri günü (müşahidə olunur)
+2044/8/24,Ramazan bayrami (təxmini)
+2044/8/25,Ramazan bayrami (təxmini)
+2044/10/31,Qurban bayrami (təxmini)
+2044/11/1,Qurban bayrami (təxmini)
+2044/11/8,Zəfər Günü
+2044/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2044/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2045/1/1,Yeni il bayramı
+2045/1/2,Yeni il bayramı
+2045/1/3,Dünya azərbaycanlılarının həmrəyliyi günü (müşahidə olunur)
+2045/1/4,Yeni il bayramı (müşahidə olunur)
+2045/1/20,Ümumxalq hüzn günü
+2045/3/8,Qadınlar günü
+2045/3/20,Novruz bayramı
+2045/3/21,Novruz bayramı
+2045/3/22,Novruz bayramı
+2045/3/23,Novruz bayramı
+2045/3/24,Novruz bayramı
+2045/5/9,Faşizm üzərində qələbə günü
+2045/5/28,Müstəqillik Günü
+2045/5/29,Müstəqillik Günü (müşahidə olunur)
+2045/6/15,Azərbaycan xalqının milli qurtuluş günü
+2045/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2045/8/14,Ramazan bayrami (təxmini)
+2045/8/15,Ramazan bayrami (təxmini)
+2045/10/21,Qurban bayrami (təxmini)
+2045/10/22,Qurban bayrami (təxmini)
+2045/10/23,Qurban bayrami (müşahidə olunur, təxmini)
+2045/10/24,Qurban bayrami (müşahidə olunur, təxmini)
+2045/11/8,Zəfər Günü
+2045/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2045/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2046/1/1,Yeni il bayramı
+2046/1/2,Yeni il bayramı
+2046/1/3,Dünya azərbaycanlılarının həmrəyliyi günü (müşahidə olunur)
+2046/1/20,Ümumxalq hüzn günü
+2046/3/8,Qadınlar günü
+2046/3/20,Novruz bayramı
+2046/3/21,Novruz bayramı
+2046/3/22,Novruz bayramı
+2046/3/23,Novruz bayramı
+2046/3/24,Novruz bayramı
+2046/3/26,Novruz bayramı (müşahidə olunur)
+2046/5/9,Faşizm üzərində qələbə günü
+2046/5/28,Müstəqillik Günü
+2046/6/15,Azərbaycan xalqının milli qurtuluş günü
+2046/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2046/8/3,Ramazan bayrami (təxmini)
+2046/8/4,Ramazan bayrami (təxmini)
+2046/8/6,Ramazan bayrami (müşahidə olunur, təxmini)
+2046/10/10,Qurban bayrami (təxmini)
+2046/10/11,Qurban bayrami (təxmini)
+2046/11/8,Zəfər Günü
+2046/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2046/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2047/1/1,Yeni il bayramı
+2047/1/2,Yeni il bayramı
+2047/1/20,Ümumxalq hüzn günü
+2047/3/8,Qadınlar günü
+2047/3/20,Novruz bayramı
+2047/3/21,Novruz bayramı
+2047/3/22,Novruz bayramı
+2047/3/23,Novruz bayramı
+2047/3/24,Novruz bayramı
+2047/3/25,Novruz bayramı (müşahidə olunur)
+2047/3/26,Novruz bayramı (müşahidə olunur)
+2047/5/9,Faşizm üzərində qələbə günü
+2047/5/28,Müstəqillik Günü
+2047/6/15,Azərbaycan xalqının milli qurtuluş günü
+2047/6/17,Azərbaycan xalqının milli qurtuluş günü (müşahidə olunur)
+2047/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2047/7/24,Ramazan bayrami (təxmini)
+2047/7/25,Ramazan bayrami (təxmini)
+2047/9/30,Qurban bayrami (təxmini)
+2047/10/1,Qurban bayrami (təxmini)
+2047/11/8,Zəfər Günü
+2047/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2047/11/11,Azərbaycan Respublikasının Dövlət bayrağı günü (müşahidə olunur)
+2047/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2048/1/1,Yeni il bayramı
+2048/1/2,Yeni il bayramı
+2048/1/20,Ümumxalq hüzn günü
+2048/3/8,Qadınlar günü
+2048/3/9,Qadınlar günü (müşahidə olunur)
+2048/3/20,Novruz bayramı
+2048/3/21,Novruz bayramı
+2048/3/22,Novruz bayramı
+2048/3/23,Novruz bayramı
+2048/3/24,Novruz bayramı
+2048/3/25,Novruz bayramı (müşahidə olunur)
+2048/3/26,Novruz bayramı (müşahidə olunur)
+2048/5/9,Faşizm üzərində qələbə günü
+2048/5/11,Faşizm üzərində qələbə günü (müşahidə olunur)
+2048/5/28,Müstəqillik Günü
+2048/6/15,Azərbaycan xalqının milli qurtuluş günü
+2048/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2048/7/12,Ramazan bayrami (təxmini)
+2048/7/13,Ramazan bayrami (təxmini)
+2048/7/14,Ramazan bayrami (müşahidə olunur, təxmini)
+2048/9/19,Qurban bayrami (təxmini)
+2048/9/20,Qurban bayrami (təxmini)
+2048/9/21,Qurban bayrami (müşahidə olunur, təxmini)
+2048/9/22,Qurban bayrami (müşahidə olunur, təxmini)
+2048/11/8,Zəfər Günü
+2048/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2048/11/10,Zəfər Günü (müşahidə olunur)
+2048/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2049/1/1,Yeni il bayramı
+2049/1/2,Yeni il bayramı
+2049/1/4,Yeni il bayramı (müşahidə olunur)
+2049/1/20,Ümumxalq hüzn günü
+2049/3/8,Qadınlar günü
+2049/3/20,Novruz bayramı
+2049/3/21,Novruz bayramı
+2049/3/22,Novruz bayramı
+2049/3/23,Novruz bayramı
+2049/3/24,Novruz bayramı
+2049/3/25,Novruz bayramı (müşahidə olunur)
+2049/3/26,Novruz bayramı (müşahidə olunur)
+2049/5/9,Faşizm üzərində qələbə günü
+2049/5/10,Faşizm üzərində qələbə günü (müşahidə olunur)
+2049/5/28,Müstəqillik Günü
+2049/6/15,Azərbaycan xalqının milli qurtuluş günü
+2049/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2049/6/28,Azərbaycan Respublikasının Silahlı Qüvvələri günü (müşahidə olunur)
+2049/7/1,Ramazan bayrami (təxmini)
+2049/7/2,Ramazan bayrami (təxmini)
+2049/9/8,Qurban bayrami (təxmini)
+2049/9/9,Qurban bayrami (təxmini)
+2049/11/8,Zəfər Günü
+2049/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2049/12/31,Dünya azərbaycanlılarının həmrəyliyi günü
+2050/1/1,Yeni il bayramı
+2050/1/2,Yeni il bayramı
+2050/1/3,Yeni il bayramı (müşahidə olunur)
+2050/1/4,Yeni il bayramı (müşahidə olunur)
+2050/1/20,Ümumxalq hüzn günü
+2050/3/8,Qadınlar günü
+2050/3/20,Novruz bayramı
+2050/3/21,Novruz bayramı
+2050/3/22,Novruz bayramı
+2050/3/23,Novruz bayramı
+2050/3/24,Novruz bayramı
+2050/3/25,Novruz bayramı (müşahidə olunur)
+2050/5/9,Faşizm üzərində qələbə günü
+2050/5/28,Müstəqillik Günü
+2050/5/30,Müstəqillik Günü (müşahidə olunur)
+2050/6/15,Azərbaycan xalqının milli qurtuluş günü
+2050/6/20,Ramazan bayrami (təxmini)
+2050/6/21,Ramazan bayrami (təxmini)
+2050/6/26,Azərbaycan Respublikasının Silahlı Qüvvələri günü
+2050/6/27,Azərbaycan Respublikasının Silahlı Qüvvələri günü (müşahidə olunur)
+2050/8/28,Qurban bayrami (təxmini)
+2050/8/29,Qurban bayrami (təxmini)
+2050/8/30,Qurban bayrami (müşahidə olunur, təxmini)
+2050/11/8,Zəfər Günü
+2050/11/9,Azərbaycan Respublikasının Dövlət bayrağı günü
+2050/12/31,Dünya azərbaycanlılarının həmrəyliyi günü

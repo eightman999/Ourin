@@ -1,0 +1,444 @@
+# AF holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/2/15,Liberation Day
+2020/3/20,Nowruz
+2020/4/24,First Day of Ramadan
+2020/4/28,Mojahedin's Victory Day
+2020/5/1,International Workers' Day
+2020/5/24,Eid al-Fitr
+2020/5/25,Eid al-Fitr
+2020/5/26,Eid al-Fitr
+2020/7/30,Day of Arafah
+2020/7/31,Eid al-Adha
+2020/8/1,Eid al-Adha
+2020/8/2,Eid al-Adha
+2020/8/19,Afghanistan Independence Day
+2020/8/30,Ashura
+2020/9/9,Martyrs' Day
+2020/10/29,Prophet's Birthday
+2021/2/15,Liberation Day
+2021/4/13,First Day of Ramadan
+2021/4/28,Mojahedin's Victory Day
+2021/5/1,International Workers' Day
+2021/5/13,Eid al-Fitr
+2021/5/14,Eid al-Fitr
+2021/5/15,Eid al-Fitr
+2021/7/19,Day of Arafah
+2021/7/20,Eid al-Adha
+2021/7/21,Eid al-Adha
+2021/7/22,Eid al-Adha
+2021/8/19,Afghanistan Independence Day; Ashura
+2021/10/19,Prophet's Birthday
+2022/2/15,Liberation Day
+2022/4/2,First Day of Ramadan
+2022/4/28,Mojahedin's Victory Day
+2022/5/1,Eid al-Fitr
+2022/5/2,Eid al-Fitr
+2022/5/3,Eid al-Fitr
+2022/7/8,Day of Arafah
+2022/7/9,Eid al-Adha
+2022/7/10,Eid al-Adha
+2022/7/11,Eid al-Adha
+2022/8/15,Islamic Emirate Victory Day
+2022/8/19,Afghanistan Independence Day
+2022/8/31,American Withdrawal Day
+2022/10/8,Prophet's Birthday
+2023/2/15,Liberation Day
+2023/3/23,First Day of Ramadan
+2023/4/22,Eid al-Fitr
+2023/4/23,Eid al-Fitr
+2023/4/24,Eid al-Fitr
+2023/4/28,Mojahedin's Victory Day
+2023/6/27,Day of Arafah
+2023/6/28,Eid al-Adha
+2023/6/29,Eid al-Adha
+2023/6/30,Eid al-Adha
+2023/8/15,Islamic Emirate Victory Day
+2023/8/19,Afghanistan Independence Day
+2023/8/31,American Withdrawal Day
+2023/9/27,Prophet's Birthday
+2024/2/15,Liberation Day
+2024/3/11,First Day of Ramadan
+2024/4/10,Eid al-Fitr
+2024/4/11,Eid al-Fitr
+2024/4/12,Eid al-Fitr
+2024/4/28,Mojahedin's Victory Day
+2024/6/16,Day of Arafah
+2024/6/17,Eid al-Adha
+2024/6/18,Eid al-Adha
+2024/6/19,Eid al-Adha
+2024/8/14,Islamic Emirate Victory Day
+2024/8/19,Afghanistan Independence Day
+2024/8/31,American Withdrawal Day
+2024/9/16,Prophet's Birthday
+2025/2/15,Liberation Day
+2025/3/1,First Day of Ramadan
+2025/3/30,Eid al-Fitr
+2025/3/31,Eid al-Fitr
+2025/4/1,Eid al-Fitr
+2025/4/28,Mojahedin's Victory Day
+2025/6/6,Day of Arafah
+2025/6/7,Eid al-Adha
+2025/6/8,Eid al-Adha
+2025/6/9,Eid al-Adha
+2025/8/15,Islamic Emirate Victory Day
+2025/8/19,Afghanistan Independence Day
+2025/8/31,American Withdrawal Day
+2025/9/5,Prophet's Birthday
+2026/2/15,Liberation Day
+2026/2/18,First Day of Ramadan (estimated)
+2026/3/20,Eid al-Fitr (estimated)
+2026/3/21,Eid al-Fitr (estimated)
+2026/3/22,Eid al-Fitr (estimated)
+2026/4/28,Mojahedin's Victory Day
+2026/5/26,Day of Arafah (estimated)
+2026/5/27,Eid al-Adha (estimated)
+2026/5/28,Eid al-Adha (estimated)
+2026/5/29,Eid al-Adha (estimated)
+2026/8/15,Islamic Emirate Victory Day
+2026/8/19,Afghanistan Independence Day
+2026/8/25,Prophet's Birthday (estimated)
+2026/8/31,American Withdrawal Day
+2027/2/8,First Day of Ramadan (estimated)
+2027/2/15,Liberation Day
+2027/3/9,Eid al-Fitr (estimated)
+2027/3/10,Eid al-Fitr (estimated)
+2027/3/11,Eid al-Fitr (estimated)
+2027/4/28,Mojahedin's Victory Day
+2027/5/15,Day of Arafah (estimated)
+2027/5/16,Eid al-Adha (estimated)
+2027/5/17,Eid al-Adha (estimated)
+2027/5/18,Eid al-Adha (estimated)
+2027/8/14,Prophet's Birthday (estimated)
+2027/8/15,Islamic Emirate Victory Day
+2027/8/19,Afghanistan Independence Day
+2027/8/31,American Withdrawal Day
+2028/1/28,First Day of Ramadan (estimated)
+2028/2/15,Liberation Day
+2028/2/26,Eid al-Fitr (estimated)
+2028/2/27,Eid al-Fitr (estimated)
+2028/2/28,Eid al-Fitr (estimated)
+2028/4/28,Mojahedin's Victory Day
+2028/5/4,Day of Arafah (estimated)
+2028/5/5,Eid al-Adha (estimated)
+2028/5/6,Eid al-Adha (estimated)
+2028/5/7,Eid al-Adha (estimated)
+2028/8/3,Prophet's Birthday (estimated)
+2028/8/14,Islamic Emirate Victory Day
+2028/8/19,Afghanistan Independence Day
+2028/8/31,American Withdrawal Day
+2029/1/16,First Day of Ramadan (estimated)
+2029/2/14,Eid al-Fitr (estimated)
+2029/2/15,Eid al-Fitr (estimated); Liberation Day
+2029/2/16,Eid al-Fitr (estimated)
+2029/4/23,Day of Arafah (estimated)
+2029/4/24,Eid al-Adha (estimated)
+2029/4/25,Eid al-Adha (estimated)
+2029/4/26,Eid al-Adha (estimated)
+2029/4/28,Mojahedin's Victory Day
+2029/7/24,Prophet's Birthday (estimated)
+2029/8/14,Islamic Emirate Victory Day
+2029/8/19,Afghanistan Independence Day
+2029/8/31,American Withdrawal Day
+2030/1/5,First Day of Ramadan (estimated)
+2030/2/4,Eid al-Fitr (estimated)
+2030/2/5,Eid al-Fitr (estimated)
+2030/2/6,Eid al-Fitr (estimated)
+2030/2/15,Liberation Day
+2030/4/12,Day of Arafah (estimated)
+2030/4/13,Eid al-Adha (estimated)
+2030/4/14,Eid al-Adha (estimated)
+2030/4/15,Eid al-Adha (estimated)
+2030/4/28,Mojahedin's Victory Day
+2030/7/13,Prophet's Birthday (estimated)
+2030/8/15,Islamic Emirate Victory Day
+2030/8/19,Afghanistan Independence Day
+2030/8/31,American Withdrawal Day
+2030/12/26,First Day of Ramadan (estimated)
+2031/1/24,Eid al-Fitr (estimated)
+2031/1/25,Eid al-Fitr (estimated)
+2031/1/26,Eid al-Fitr (estimated)
+2031/2/15,Liberation Day
+2031/4/1,Day of Arafah (estimated)
+2031/4/2,Eid al-Adha (estimated)
+2031/4/3,Eid al-Adha (estimated)
+2031/4/4,Eid al-Adha (estimated)
+2031/4/28,Mojahedin's Victory Day
+2031/7/2,Prophet's Birthday (estimated)
+2031/8/15,Islamic Emirate Victory Day
+2031/8/19,Afghanistan Independence Day
+2031/8/31,American Withdrawal Day
+2031/12/15,First Day of Ramadan (estimated)
+2032/1/14,Eid al-Fitr (estimated)
+2032/1/15,Eid al-Fitr (estimated)
+2032/1/16,Eid al-Fitr (estimated)
+2032/2/15,Liberation Day
+2032/3/21,Day of Arafah (estimated)
+2032/3/22,Eid al-Adha (estimated)
+2032/3/23,Eid al-Adha (estimated)
+2032/3/24,Eid al-Adha (estimated)
+2032/4/28,Mojahedin's Victory Day
+2032/6/20,Prophet's Birthday (estimated)
+2032/8/14,Islamic Emirate Victory Day
+2032/8/19,Afghanistan Independence Day
+2032/8/31,American Withdrawal Day
+2032/12/4,First Day of Ramadan (estimated)
+2033/1/2,Eid al-Fitr (estimated)
+2033/1/3,Eid al-Fitr (estimated)
+2033/1/4,Eid al-Fitr (estimated)
+2033/2/15,Liberation Day
+2033/3/10,Day of Arafah (estimated)
+2033/3/11,Eid al-Adha (estimated)
+2033/3/12,Eid al-Adha (estimated)
+2033/3/13,Eid al-Adha (estimated)
+2033/4/28,Mojahedin's Victory Day
+2033/6/9,Prophet's Birthday (estimated)
+2033/8/14,Islamic Emirate Victory Day
+2033/8/19,Afghanistan Independence Day
+2033/8/31,American Withdrawal Day
+2033/11/23,First Day of Ramadan (estimated)
+2033/12/23,Eid al-Fitr (estimated)
+2033/12/24,Eid al-Fitr (estimated)
+2033/12/25,Eid al-Fitr (estimated)
+2034/2/15,Liberation Day
+2034/2/28,Day of Arafah (estimated)
+2034/3/1,Eid al-Adha (estimated)
+2034/3/2,Eid al-Adha (estimated)
+2034/3/3,Eid al-Adha (estimated)
+2034/4/28,Mojahedin's Victory Day
+2034/5/30,Prophet's Birthday (estimated)
+2034/8/15,Islamic Emirate Victory Day
+2034/8/19,Afghanistan Independence Day
+2034/8/31,American Withdrawal Day
+2034/11/12,First Day of Ramadan (estimated)
+2034/12/12,Eid al-Fitr (estimated)
+2034/12/13,Eid al-Fitr (estimated)
+2034/12/14,Eid al-Fitr (estimated)
+2035/2/15,Liberation Day
+2035/2/17,Day of Arafah (estimated)
+2035/2/18,Eid al-Adha (estimated)
+2035/2/19,Eid al-Adha (estimated)
+2035/2/20,Eid al-Adha (estimated)
+2035/4/28,Mojahedin's Victory Day
+2035/5/20,Prophet's Birthday (estimated)
+2035/8/15,Islamic Emirate Victory Day
+2035/8/19,Afghanistan Independence Day
+2035/8/31,American Withdrawal Day
+2035/11/1,First Day of Ramadan (estimated)
+2035/12/1,Eid al-Fitr (estimated)
+2035/12/2,Eid al-Fitr (estimated)
+2035/12/3,Eid al-Fitr (estimated)
+2036/2/6,Day of Arafah (estimated)
+2036/2/7,Eid al-Adha (estimated)
+2036/2/8,Eid al-Adha (estimated)
+2036/2/9,Eid al-Adha (estimated)
+2036/2/15,Liberation Day
+2036/4/28,Mojahedin's Victory Day
+2036/5/8,Prophet's Birthday (estimated)
+2036/8/14,Islamic Emirate Victory Day
+2036/8/19,Afghanistan Independence Day
+2036/8/31,American Withdrawal Day
+2036/10/20,First Day of Ramadan (estimated)
+2036/11/19,Eid al-Fitr (estimated)
+2036/11/20,Eid al-Fitr (estimated)
+2036/11/21,Eid al-Fitr (estimated)
+2037/1/25,Day of Arafah (estimated)
+2037/1/26,Eid al-Adha (estimated)
+2037/1/27,Eid al-Adha (estimated)
+2037/1/28,Eid al-Adha (estimated)
+2037/2/15,Liberation Day
+2037/4/28,Mojahedin's Victory Day; Prophet's Birthday (estimated)
+2037/8/14,Islamic Emirate Victory Day
+2037/8/19,Afghanistan Independence Day
+2037/8/31,American Withdrawal Day
+2037/10/10,First Day of Ramadan (estimated)
+2037/11/8,Eid al-Fitr (estimated)
+2037/11/9,Eid al-Fitr (estimated)
+2037/11/10,Eid al-Fitr (estimated)
+2038/1/15,Day of Arafah (estimated)
+2038/1/16,Eid al-Adha (estimated)
+2038/1/17,Eid al-Adha (estimated)
+2038/1/18,Eid al-Adha (estimated)
+2038/2/15,Liberation Day
+2038/4/17,Prophet's Birthday (estimated)
+2038/4/28,Mojahedin's Victory Day
+2038/8/15,Islamic Emirate Victory Day
+2038/8/19,Afghanistan Independence Day
+2038/8/31,American Withdrawal Day
+2038/9/30,First Day of Ramadan (estimated)
+2038/10/29,Eid al-Fitr (estimated)
+2038/10/30,Eid al-Fitr (estimated)
+2038/10/31,Eid al-Fitr (estimated)
+2039/1/4,Day of Arafah (estimated)
+2039/1/5,Eid al-Adha (estimated)
+2039/1/6,Eid al-Adha (estimated)
+2039/1/7,Eid al-Adha (estimated)
+2039/2/15,Liberation Day
+2039/4/6,Prophet's Birthday (estimated)
+2039/4/28,Mojahedin's Victory Day
+2039/8/15,Islamic Emirate Victory Day
+2039/8/19,Afghanistan Independence Day
+2039/8/31,American Withdrawal Day
+2039/9/19,First Day of Ramadan (estimated)
+2039/10/19,Eid al-Fitr (estimated)
+2039/10/20,Eid al-Fitr (estimated)
+2039/10/21,Eid al-Fitr (estimated)
+2039/12/25,Day of Arafah (estimated)
+2039/12/26,Eid al-Adha (estimated)
+2039/12/27,Eid al-Adha (estimated)
+2039/12/28,Eid al-Adha (estimated)
+2040/2/15,Liberation Day
+2040/3/25,Prophet's Birthday (estimated)
+2040/4/28,Mojahedin's Victory Day
+2040/8/14,Islamic Emirate Victory Day
+2040/8/19,Afghanistan Independence Day
+2040/8/31,American Withdrawal Day
+2040/9/7,First Day of Ramadan (estimated)
+2040/10/7,Eid al-Fitr (estimated)
+2040/10/8,Eid al-Fitr (estimated)
+2040/10/9,Eid al-Fitr (estimated)
+2040/12/13,Day of Arafah (estimated)
+2040/12/14,Eid al-Adha (estimated)
+2040/12/15,Eid al-Adha (estimated)
+2040/12/16,Eid al-Adha (estimated)
+2041/2/15,Liberation Day
+2041/3/15,Prophet's Birthday (estimated)
+2041/4/28,Mojahedin's Victory Day
+2041/8/14,Islamic Emirate Victory Day
+2041/8/19,Afghanistan Independence Day
+2041/8/28,First Day of Ramadan (estimated)
+2041/8/31,American Withdrawal Day
+2041/9/26,Eid al-Fitr (estimated)
+2041/9/27,Eid al-Fitr (estimated)
+2041/9/28,Eid al-Fitr (estimated)
+2041/12/3,Day of Arafah (estimated)
+2041/12/4,Eid al-Adha (estimated)
+2041/12/5,Eid al-Adha (estimated)
+2041/12/6,Eid al-Adha (estimated)
+2042/2/15,Liberation Day
+2042/3/4,Prophet's Birthday (estimated)
+2042/4/28,Mojahedin's Victory Day
+2042/8/15,Islamic Emirate Victory Day
+2042/8/17,First Day of Ramadan (estimated)
+2042/8/19,Afghanistan Independence Day
+2042/8/31,American Withdrawal Day
+2042/9/15,Eid al-Fitr (estimated)
+2042/9/16,Eid al-Fitr (estimated)
+2042/9/17,Eid al-Fitr (estimated)
+2042/11/22,Day of Arafah (estimated)
+2042/11/23,Eid al-Adha (estimated)
+2042/11/24,Eid al-Adha (estimated)
+2042/11/25,Eid al-Adha (estimated)
+2043/2/15,Liberation Day
+2043/2/22,Prophet's Birthday (estimated)
+2043/4/28,Mojahedin's Victory Day
+2043/8/6,First Day of Ramadan (estimated)
+2043/8/15,Islamic Emirate Victory Day
+2043/8/19,Afghanistan Independence Day
+2043/8/31,American Withdrawal Day
+2043/9/4,Eid al-Fitr (estimated)
+2043/9/5,Eid al-Fitr (estimated)
+2043/9/6,Eid al-Fitr (estimated)
+2043/11/11,Day of Arafah (estimated)
+2043/11/12,Eid al-Adha (estimated)
+2043/11/13,Eid al-Adha (estimated)
+2043/11/14,Eid al-Adha (estimated)
+2044/2/11,Prophet's Birthday (estimated)
+2044/2/15,Liberation Day
+2044/4/28,Mojahedin's Victory Day
+2044/7/26,First Day of Ramadan (estimated)
+2044/8/14,Islamic Emirate Victory Day
+2044/8/19,Afghanistan Independence Day
+2044/8/24,Eid al-Fitr (estimated)
+2044/8/25,Eid al-Fitr (estimated)
+2044/8/26,Eid al-Fitr (estimated)
+2044/8/31,American Withdrawal Day
+2044/10/30,Day of Arafah (estimated)
+2044/10/31,Eid al-Adha (estimated)
+2044/11/1,Eid al-Adha (estimated)
+2044/11/2,Eid al-Adha (estimated)
+2045/1/30,Prophet's Birthday (estimated)
+2045/2/15,Liberation Day
+2045/4/28,Mojahedin's Victory Day
+2045/7/15,First Day of Ramadan (estimated)
+2045/8/14,Eid al-Fitr (estimated); Islamic Emirate Victory Day
+2045/8/15,Eid al-Fitr (estimated)
+2045/8/16,Eid al-Fitr (estimated)
+2045/8/19,Afghanistan Independence Day
+2045/8/31,American Withdrawal Day
+2045/10/20,Day of Arafah (estimated)
+2045/10/21,Eid al-Adha (estimated)
+2045/10/22,Eid al-Adha (estimated)
+2045/10/23,Eid al-Adha (estimated)
+2046/1/19,Prophet's Birthday (estimated)
+2046/2/15,Liberation Day
+2046/4/28,Mojahedin's Victory Day
+2046/7/5,First Day of Ramadan (estimated)
+2046/8/3,Eid al-Fitr (estimated)
+2046/8/4,Eid al-Fitr (estimated)
+2046/8/5,Eid al-Fitr (estimated)
+2046/8/15,Islamic Emirate Victory Day
+2046/8/19,Afghanistan Independence Day
+2046/8/31,American Withdrawal Day
+2046/10/9,Day of Arafah (estimated)
+2046/10/10,Eid al-Adha (estimated)
+2046/10/11,Eid al-Adha (estimated)
+2046/10/12,Eid al-Adha (estimated)
+2047/1/8,Prophet's Birthday (estimated)
+2047/2/15,Liberation Day
+2047/4/28,Mojahedin's Victory Day
+2047/6/24,First Day of Ramadan (estimated)
+2047/7/24,Eid al-Fitr (estimated)
+2047/7/25,Eid al-Fitr (estimated)
+2047/7/26,Eid al-Fitr (estimated)
+2047/8/15,Islamic Emirate Victory Day
+2047/8/19,Afghanistan Independence Day
+2047/8/31,American Withdrawal Day
+2047/9/29,Day of Arafah (estimated)
+2047/9/30,Eid al-Adha (estimated)
+2047/10/1,Eid al-Adha (estimated)
+2047/10/2,Eid al-Adha (estimated)
+2047/12/29,Prophet's Birthday (estimated)
+2048/2/15,Liberation Day
+2048/4/28,Mojahedin's Victory Day
+2048/6/12,First Day of Ramadan (estimated)
+2048/7/12,Eid al-Fitr (estimated)
+2048/7/13,Eid al-Fitr (estimated)
+2048/7/14,Eid al-Fitr (estimated)
+2048/8/14,Islamic Emirate Victory Day
+2048/8/19,Afghanistan Independence Day
+2048/8/31,American Withdrawal Day
+2048/9/18,Day of Arafah (estimated)
+2048/9/19,Eid al-Adha (estimated)
+2048/9/20,Eid al-Adha (estimated)
+2048/9/21,Eid al-Adha (estimated)
+2048/12/18,Prophet's Birthday (estimated)
+2049/2/15,Liberation Day
+2049/4/28,Mojahedin's Victory Day
+2049/6/2,First Day of Ramadan (estimated)
+2049/7/1,Eid al-Fitr (estimated)
+2049/7/2,Eid al-Fitr (estimated)
+2049/7/3,Eid al-Fitr (estimated)
+2049/8/14,Islamic Emirate Victory Day
+2049/8/19,Afghanistan Independence Day
+2049/8/31,American Withdrawal Day
+2049/9/7,Day of Arafah (estimated)
+2049/9/8,Eid al-Adha (estimated)
+2049/9/9,Eid al-Adha (estimated)
+2049/9/10,Eid al-Adha (estimated)
+2049/12/7,Prophet's Birthday (estimated)
+2050/2/15,Liberation Day
+2050/4/28,Mojahedin's Victory Day
+2050/5/22,First Day of Ramadan (estimated)
+2050/6/20,Eid al-Fitr (estimated)
+2050/6/21,Eid al-Fitr (estimated)
+2050/6/22,Eid al-Fitr (estimated)
+2050/8/15,Islamic Emirate Victory Day
+2050/8/19,Afghanistan Independence Day
+2050/8/27,Day of Arafah (estimated)
+2050/8/28,Eid al-Adha (estimated)
+2050/8/29,Eid al-Adha (estimated)
+2050/8/30,Eid al-Adha (estimated)
+2050/8/31,American Withdrawal Day
+2050/11/26,Prophet's Birthday (estimated)

@@ -1,0 +1,496 @@
+# MG の祝日（2020〜2050年、言語: mg）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Taom-baovao
+2020/3/8,Fetin'ny vehivavy
+2020/3/29,Fetin'ny mahery fo
+2020/4/12,Fetin'ny paska
+2020/4/13,Alatsinain'ny paska
+2020/5/1,Fetin'ny asa
+2020/5/21,Fiakaran'ny Jesosy kristy tany an-danitra
+2020/5/31,Pentekosta
+2020/6/1,Alatsinain'ny pentekosta
+2020/6/7,Fetin'ny reny
+2020/6/21,Fetin'ny ray
+2020/6/26,Fetin'ny fahaleovantena
+2020/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2020/11/1,Fetin'ny olo-masina
+2020/12/11,Fetin'ny Repoblika
+2020/12/25,Fetin'ny noely
+2021/1/1,Taom-baovao
+2021/3/8,Fetin'ny vehivavy
+2021/3/29,Fetin'ny mahery fo
+2021/4/4,Fetin'ny paska
+2021/4/5,Alatsinain'ny paska
+2021/5/1,Fetin'ny asa
+2021/5/13,Fiakaran'ny Jesosy kristy tany an-danitra
+2021/5/23,Pentekosta
+2021/5/24,Alatsinain'ny pentekosta
+2021/5/30,Fetin'ny reny
+2021/6/20,Fetin'ny ray
+2021/6/26,Fetin'ny fahaleovantena
+2021/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2021/11/1,Fetin'ny olo-masina
+2021/12/11,Fetin'ny Repoblika
+2021/12/25,Fetin'ny noely
+2022/1/1,Taom-baovao
+2022/3/8,Fetin'ny vehivavy
+2022/3/29,Fetin'ny mahery fo
+2022/4/17,Fetin'ny paska
+2022/4/18,Alatsinain'ny paska
+2022/5/1,Fetin'ny asa
+2022/5/26,Fiakaran'ny Jesosy kristy tany an-danitra
+2022/5/29,Fetin'ny reny
+2022/6/5,Pentekosta
+2022/6/6,Alatsinain'ny pentekosta
+2022/6/19,Fetin'ny ray
+2022/6/26,Fetin'ny fahaleovantena
+2022/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2022/11/1,Fetin'ny olo-masina
+2022/12/11,Fetin'ny Repoblika
+2022/12/25,Fetin'ny noely
+2023/1/1,Taom-baovao
+2023/3/8,Fetin'ny vehivavy
+2023/3/29,Fetin'ny mahery fo
+2023/4/9,Fetin'ny paska
+2023/4/10,Alatsinain'ny paska
+2023/5/1,Fetin'ny asa
+2023/5/18,Fiakaran'ny Jesosy kristy tany an-danitra
+2023/5/28,Pentekosta
+2023/5/29,Alatsinain'ny pentekosta
+2023/6/4,Fetin'ny reny
+2023/6/18,Fetin'ny ray
+2023/6/26,Fetin'ny fahaleovantena
+2023/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2023/11/1,Fetin'ny olo-masina
+2023/12/11,Fetin'ny Repoblika
+2023/12/25,Fetin'ny noely
+2024/1/1,Taom-baovao
+2024/3/8,Fetin'ny vehivavy
+2024/3/29,Fetin'ny mahery fo
+2024/3/31,Fetin'ny paska
+2024/4/1,Alatsinain'ny paska
+2024/5/1,Fetin'ny asa
+2024/5/9,Fiakaran'ny Jesosy kristy tany an-danitra
+2024/5/19,Pentekosta
+2024/5/20,Alatsinain'ny pentekosta
+2024/5/26,Fetin'ny reny
+2024/6/16,Fetin'ny ray
+2024/6/26,Fetin'ny fahaleovantena
+2024/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2024/11/1,Fetin'ny olo-masina
+2024/12/11,Fetin'ny Repoblika
+2024/12/25,Fetin'ny noely
+2025/1/1,Taom-baovao
+2025/3/8,Fetin'ny vehivavy
+2025/3/29,Fetin'ny mahery fo
+2025/4/20,Fetin'ny paska
+2025/4/21,Alatsinain'ny paska
+2025/5/1,Fetin'ny asa
+2025/5/25,Fetin'ny reny
+2025/5/29,Fiakaran'ny Jesosy kristy tany an-danitra
+2025/6/8,Pentekosta
+2025/6/9,Alatsinain'ny pentekosta
+2025/6/15,Fetin'ny ray
+2025/6/26,Fetin'ny fahaleovantena
+2025/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2025/11/1,Fetin'ny olo-masina
+2025/12/11,Fetin'ny Repoblika
+2025/12/25,Fetin'ny noely
+2026/1/1,Taom-baovao
+2026/3/8,Fetin'ny vehivavy
+2026/3/29,Fetin'ny mahery fo
+2026/4/5,Fetin'ny paska
+2026/4/6,Alatsinain'ny paska
+2026/5/1,Fetin'ny asa
+2026/5/14,Fiakaran'ny Jesosy kristy tany an-danitra
+2026/5/24,Pentekosta
+2026/5/25,Alatsinain'ny pentekosta
+2026/5/31,Fetin'ny reny
+2026/6/21,Fetin'ny ray
+2026/6/26,Fetin'ny fahaleovantena
+2026/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2026/11/1,Fetin'ny olo-masina
+2026/12/11,Fetin'ny Repoblika
+2026/12/25,Fetin'ny noely
+2027/1/1,Taom-baovao
+2027/3/8,Fetin'ny vehivavy
+2027/3/28,Fetin'ny paska
+2027/3/29,Alatsinain'ny paska; Fetin'ny mahery fo
+2027/5/1,Fetin'ny asa
+2027/5/6,Fiakaran'ny Jesosy kristy tany an-danitra
+2027/5/16,Pentekosta
+2027/5/17,Alatsinain'ny pentekosta
+2027/5/30,Fetin'ny reny
+2027/6/20,Fetin'ny ray
+2027/6/26,Fetin'ny fahaleovantena
+2027/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2027/11/1,Fetin'ny olo-masina
+2027/12/11,Fetin'ny Repoblika
+2027/12/25,Fetin'ny noely
+2028/1/1,Taom-baovao
+2028/3/8,Fetin'ny vehivavy
+2028/3/29,Fetin'ny mahery fo
+2028/4/16,Fetin'ny paska
+2028/4/17,Alatsinain'ny paska
+2028/5/1,Fetin'ny asa
+2028/5/25,Fiakaran'ny Jesosy kristy tany an-danitra
+2028/5/28,Fetin'ny reny
+2028/6/4,Pentekosta
+2028/6/5,Alatsinain'ny pentekosta
+2028/6/18,Fetin'ny ray
+2028/6/26,Fetin'ny fahaleovantena
+2028/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2028/11/1,Fetin'ny olo-masina
+2028/12/11,Fetin'ny Repoblika
+2028/12/25,Fetin'ny noely
+2029/1/1,Taom-baovao
+2029/3/8,Fetin'ny vehivavy
+2029/3/29,Fetin'ny mahery fo
+2029/4/1,Fetin'ny paska
+2029/4/2,Alatsinain'ny paska
+2029/5/1,Fetin'ny asa
+2029/5/10,Fiakaran'ny Jesosy kristy tany an-danitra
+2029/5/20,Pentekosta
+2029/5/21,Alatsinain'ny pentekosta
+2029/5/27,Fetin'ny reny
+2029/6/17,Fetin'ny ray
+2029/6/26,Fetin'ny fahaleovantena
+2029/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2029/11/1,Fetin'ny olo-masina
+2029/12/11,Fetin'ny Repoblika
+2029/12/25,Fetin'ny noely
+2030/1/1,Taom-baovao
+2030/3/8,Fetin'ny vehivavy
+2030/3/29,Fetin'ny mahery fo
+2030/4/21,Fetin'ny paska
+2030/4/22,Alatsinain'ny paska
+2030/5/1,Fetin'ny asa
+2030/5/26,Fetin'ny reny
+2030/5/30,Fiakaran'ny Jesosy kristy tany an-danitra
+2030/6/9,Pentekosta
+2030/6/10,Alatsinain'ny pentekosta
+2030/6/16,Fetin'ny ray
+2030/6/26,Fetin'ny fahaleovantena
+2030/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2030/11/1,Fetin'ny olo-masina
+2030/12/11,Fetin'ny Repoblika
+2030/12/25,Fetin'ny noely
+2031/1/1,Taom-baovao
+2031/3/8,Fetin'ny vehivavy
+2031/3/29,Fetin'ny mahery fo
+2031/4/13,Fetin'ny paska
+2031/4/14,Alatsinain'ny paska
+2031/5/1,Fetin'ny asa
+2031/5/22,Fiakaran'ny Jesosy kristy tany an-danitra
+2031/5/25,Fetin'ny reny
+2031/6/1,Pentekosta
+2031/6/2,Alatsinain'ny pentekosta
+2031/6/15,Fetin'ny ray
+2031/6/26,Fetin'ny fahaleovantena
+2031/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2031/11/1,Fetin'ny olo-masina
+2031/12/11,Fetin'ny Repoblika
+2031/12/25,Fetin'ny noely
+2032/1/1,Taom-baovao
+2032/3/8,Fetin'ny vehivavy
+2032/3/28,Fetin'ny paska
+2032/3/29,Alatsinain'ny paska; Fetin'ny mahery fo
+2032/5/1,Fetin'ny asa
+2032/5/6,Fiakaran'ny Jesosy kristy tany an-danitra
+2032/5/16,Pentekosta
+2032/5/17,Alatsinain'ny pentekosta
+2032/5/30,Fetin'ny reny
+2032/6/20,Fetin'ny ray
+2032/6/26,Fetin'ny fahaleovantena
+2032/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2032/11/1,Fetin'ny olo-masina
+2032/12/11,Fetin'ny Repoblika
+2032/12/25,Fetin'ny noely
+2033/1/1,Taom-baovao
+2033/3/8,Fetin'ny vehivavy
+2033/3/29,Fetin'ny mahery fo
+2033/4/17,Fetin'ny paska
+2033/4/18,Alatsinain'ny paska
+2033/5/1,Fetin'ny asa
+2033/5/26,Fiakaran'ny Jesosy kristy tany an-danitra
+2033/5/29,Fetin'ny reny
+2033/6/5,Pentekosta
+2033/6/6,Alatsinain'ny pentekosta
+2033/6/19,Fetin'ny ray
+2033/6/26,Fetin'ny fahaleovantena
+2033/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2033/11/1,Fetin'ny olo-masina
+2033/12/11,Fetin'ny Repoblika
+2033/12/25,Fetin'ny noely
+2034/1/1,Taom-baovao
+2034/3/8,Fetin'ny vehivavy
+2034/3/29,Fetin'ny mahery fo
+2034/4/9,Fetin'ny paska
+2034/4/10,Alatsinain'ny paska
+2034/5/1,Fetin'ny asa
+2034/5/18,Fiakaran'ny Jesosy kristy tany an-danitra
+2034/5/28,Pentekosta
+2034/5/29,Alatsinain'ny pentekosta
+2034/6/4,Fetin'ny reny
+2034/6/18,Fetin'ny ray
+2034/6/26,Fetin'ny fahaleovantena
+2034/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2034/11/1,Fetin'ny olo-masina
+2034/12/11,Fetin'ny Repoblika
+2034/12/25,Fetin'ny noely
+2035/1/1,Taom-baovao
+2035/3/8,Fetin'ny vehivavy
+2035/3/25,Fetin'ny paska
+2035/3/26,Alatsinain'ny paska
+2035/3/29,Fetin'ny mahery fo
+2035/5/1,Fetin'ny asa
+2035/5/3,Fiakaran'ny Jesosy kristy tany an-danitra
+2035/5/13,Pentekosta
+2035/5/14,Alatsinain'ny pentekosta
+2035/5/27,Fetin'ny reny
+2035/6/17,Fetin'ny ray
+2035/6/26,Fetin'ny fahaleovantena
+2035/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2035/11/1,Fetin'ny olo-masina
+2035/12/11,Fetin'ny Repoblika
+2035/12/25,Fetin'ny noely
+2036/1/1,Taom-baovao
+2036/3/8,Fetin'ny vehivavy
+2036/3/29,Fetin'ny mahery fo
+2036/4/13,Fetin'ny paska
+2036/4/14,Alatsinain'ny paska
+2036/5/1,Fetin'ny asa
+2036/5/22,Fiakaran'ny Jesosy kristy tany an-danitra
+2036/5/25,Fetin'ny reny
+2036/6/1,Pentekosta
+2036/6/2,Alatsinain'ny pentekosta
+2036/6/15,Fetin'ny ray
+2036/6/26,Fetin'ny fahaleovantena
+2036/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2036/11/1,Fetin'ny olo-masina
+2036/12/11,Fetin'ny Repoblika
+2036/12/25,Fetin'ny noely
+2037/1/1,Taom-baovao
+2037/3/8,Fetin'ny vehivavy
+2037/3/29,Fetin'ny mahery fo
+2037/4/5,Fetin'ny paska
+2037/4/6,Alatsinain'ny paska
+2037/5/1,Fetin'ny asa
+2037/5/14,Fiakaran'ny Jesosy kristy tany an-danitra
+2037/5/24,Pentekosta
+2037/5/25,Alatsinain'ny pentekosta
+2037/5/31,Fetin'ny reny
+2037/6/21,Fetin'ny ray
+2037/6/26,Fetin'ny fahaleovantena
+2037/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2037/11/1,Fetin'ny olo-masina
+2037/12/11,Fetin'ny Repoblika
+2037/12/25,Fetin'ny noely
+2038/1/1,Taom-baovao
+2038/3/8,Fetin'ny vehivavy
+2038/3/29,Fetin'ny mahery fo
+2038/4/25,Fetin'ny paska
+2038/4/26,Alatsinain'ny paska
+2038/5/1,Fetin'ny asa
+2038/5/30,Fetin'ny reny
+2038/6/3,Fiakaran'ny Jesosy kristy tany an-danitra
+2038/6/13,Pentekosta
+2038/6/14,Alatsinain'ny pentekosta
+2038/6/20,Fetin'ny ray
+2038/6/26,Fetin'ny fahaleovantena
+2038/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2038/11/1,Fetin'ny olo-masina
+2038/12/11,Fetin'ny Repoblika
+2038/12/25,Fetin'ny noely
+2039/1/1,Taom-baovao
+2039/3/8,Fetin'ny vehivavy
+2039/3/29,Fetin'ny mahery fo
+2039/4/10,Fetin'ny paska
+2039/4/11,Alatsinain'ny paska
+2039/5/1,Fetin'ny asa
+2039/5/19,Fiakaran'ny Jesosy kristy tany an-danitra
+2039/5/29,Pentekosta
+2039/5/30,Alatsinain'ny pentekosta
+2039/6/5,Fetin'ny reny
+2039/6/19,Fetin'ny ray
+2039/6/26,Fetin'ny fahaleovantena
+2039/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2039/11/1,Fetin'ny olo-masina
+2039/12/11,Fetin'ny Repoblika
+2039/12/25,Fetin'ny noely
+2040/1/1,Taom-baovao
+2040/3/8,Fetin'ny vehivavy
+2040/3/29,Fetin'ny mahery fo
+2040/4/1,Fetin'ny paska
+2040/4/2,Alatsinain'ny paska
+2040/5/1,Fetin'ny asa
+2040/5/10,Fiakaran'ny Jesosy kristy tany an-danitra
+2040/5/20,Pentekosta
+2040/5/21,Alatsinain'ny pentekosta
+2040/5/27,Fetin'ny reny
+2040/6/17,Fetin'ny ray
+2040/6/26,Fetin'ny fahaleovantena
+2040/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2040/11/1,Fetin'ny olo-masina
+2040/12/11,Fetin'ny Repoblika
+2040/12/25,Fetin'ny noely
+2041/1/1,Taom-baovao
+2041/3/8,Fetin'ny vehivavy
+2041/3/29,Fetin'ny mahery fo
+2041/4/21,Fetin'ny paska
+2041/4/22,Alatsinain'ny paska
+2041/5/1,Fetin'ny asa
+2041/5/26,Fetin'ny reny
+2041/5/30,Fiakaran'ny Jesosy kristy tany an-danitra
+2041/6/9,Pentekosta
+2041/6/10,Alatsinain'ny pentekosta
+2041/6/16,Fetin'ny ray
+2041/6/26,Fetin'ny fahaleovantena
+2041/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2041/11/1,Fetin'ny olo-masina
+2041/12/11,Fetin'ny Repoblika
+2041/12/25,Fetin'ny noely
+2042/1/1,Taom-baovao
+2042/3/8,Fetin'ny vehivavy
+2042/3/29,Fetin'ny mahery fo
+2042/4/6,Fetin'ny paska
+2042/4/7,Alatsinain'ny paska
+2042/5/1,Fetin'ny asa
+2042/5/15,Fiakaran'ny Jesosy kristy tany an-danitra
+2042/5/25,Pentekosta
+2042/5/26,Alatsinain'ny pentekosta
+2042/6/1,Fetin'ny reny
+2042/6/15,Fetin'ny ray
+2042/6/26,Fetin'ny fahaleovantena
+2042/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2042/11/1,Fetin'ny olo-masina
+2042/12/11,Fetin'ny Repoblika
+2042/12/25,Fetin'ny noely
+2043/1/1,Taom-baovao
+2043/3/8,Fetin'ny vehivavy
+2043/3/29,Fetin'ny mahery fo; Fetin'ny paska
+2043/3/30,Alatsinain'ny paska
+2043/5/1,Fetin'ny asa
+2043/5/7,Fiakaran'ny Jesosy kristy tany an-danitra
+2043/5/17,Pentekosta
+2043/5/18,Alatsinain'ny pentekosta
+2043/5/31,Fetin'ny reny
+2043/6/21,Fetin'ny ray
+2043/6/26,Fetin'ny fahaleovantena
+2043/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2043/11/1,Fetin'ny olo-masina
+2043/12/11,Fetin'ny Repoblika
+2043/12/25,Fetin'ny noely
+2044/1/1,Taom-baovao
+2044/3/8,Fetin'ny vehivavy
+2044/3/29,Fetin'ny mahery fo
+2044/4/17,Fetin'ny paska
+2044/4/18,Alatsinain'ny paska
+2044/5/1,Fetin'ny asa
+2044/5/26,Fiakaran'ny Jesosy kristy tany an-danitra
+2044/5/29,Fetin'ny reny
+2044/6/5,Pentekosta
+2044/6/6,Alatsinain'ny pentekosta
+2044/6/19,Fetin'ny ray
+2044/6/26,Fetin'ny fahaleovantena
+2044/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2044/11/1,Fetin'ny olo-masina
+2044/12/11,Fetin'ny Repoblika
+2044/12/25,Fetin'ny noely
+2045/1/1,Taom-baovao
+2045/3/8,Fetin'ny vehivavy
+2045/3/29,Fetin'ny mahery fo
+2045/4/9,Fetin'ny paska
+2045/4/10,Alatsinain'ny paska
+2045/5/1,Fetin'ny asa
+2045/5/18,Fiakaran'ny Jesosy kristy tany an-danitra
+2045/5/28,Pentekosta
+2045/5/29,Alatsinain'ny pentekosta
+2045/6/4,Fetin'ny reny
+2045/6/18,Fetin'ny ray
+2045/6/26,Fetin'ny fahaleovantena
+2045/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2045/11/1,Fetin'ny olo-masina
+2045/12/11,Fetin'ny Repoblika
+2045/12/25,Fetin'ny noely
+2046/1/1,Taom-baovao
+2046/3/8,Fetin'ny vehivavy
+2046/3/25,Fetin'ny paska
+2046/3/26,Alatsinain'ny paska
+2046/3/29,Fetin'ny mahery fo
+2046/5/1,Fetin'ny asa
+2046/5/3,Fiakaran'ny Jesosy kristy tany an-danitra
+2046/5/13,Pentekosta
+2046/5/14,Alatsinain'ny pentekosta
+2046/5/27,Fetin'ny reny
+2046/6/17,Fetin'ny ray
+2046/6/26,Fetin'ny fahaleovantena
+2046/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2046/11/1,Fetin'ny olo-masina
+2046/12/11,Fetin'ny Repoblika
+2046/12/25,Fetin'ny noely
+2047/1/1,Taom-baovao
+2047/3/8,Fetin'ny vehivavy
+2047/3/29,Fetin'ny mahery fo
+2047/4/14,Fetin'ny paska
+2047/4/15,Alatsinain'ny paska
+2047/5/1,Fetin'ny asa
+2047/5/23,Fiakaran'ny Jesosy kristy tany an-danitra
+2047/5/26,Fetin'ny reny
+2047/6/2,Pentekosta
+2047/6/3,Alatsinain'ny pentekosta
+2047/6/16,Fetin'ny ray
+2047/6/26,Fetin'ny fahaleovantena
+2047/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2047/11/1,Fetin'ny olo-masina
+2047/12/11,Fetin'ny Repoblika
+2047/12/25,Fetin'ny noely
+2048/1/1,Taom-baovao
+2048/3/8,Fetin'ny vehivavy
+2048/3/29,Fetin'ny mahery fo
+2048/4/5,Fetin'ny paska
+2048/4/6,Alatsinain'ny paska
+2048/5/1,Fetin'ny asa
+2048/5/14,Fiakaran'ny Jesosy kristy tany an-danitra
+2048/5/24,Pentekosta
+2048/5/25,Alatsinain'ny pentekosta
+2048/5/31,Fetin'ny reny
+2048/6/21,Fetin'ny ray
+2048/6/26,Fetin'ny fahaleovantena
+2048/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2048/11/1,Fetin'ny olo-masina
+2048/12/11,Fetin'ny Repoblika
+2048/12/25,Fetin'ny noely
+2049/1/1,Taom-baovao
+2049/3/8,Fetin'ny vehivavy
+2049/3/29,Fetin'ny mahery fo
+2049/4/18,Fetin'ny paska
+2049/4/19,Alatsinain'ny paska
+2049/5/1,Fetin'ny asa
+2049/5/27,Fiakaran'ny Jesosy kristy tany an-danitra
+2049/5/30,Fetin'ny reny
+2049/6/6,Pentekosta
+2049/6/7,Alatsinain'ny pentekosta
+2049/6/20,Fetin'ny ray
+2049/6/26,Fetin'ny fahaleovantena
+2049/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2049/11/1,Fetin'ny olo-masina
+2049/12/11,Fetin'ny Repoblika
+2049/12/25,Fetin'ny noely
+2050/1/1,Taom-baovao
+2050/3/8,Fetin'ny vehivavy
+2050/3/29,Fetin'ny mahery fo
+2050/4/10,Fetin'ny paska
+2050/4/11,Alatsinain'ny paska
+2050/5/1,Fetin'ny asa
+2050/5/19,Fiakaran'ny Jesosy kristy tany an-danitra
+2050/5/29,Pentekosta
+2050/5/30,Alatsinain'ny pentekosta
+2050/6/5,Fetin'ny reny
+2050/6/19,Fetin'ny ray
+2050/6/26,Fetin'ny fahaleovantena
+2050/8/15,Fiakaran'ny Masina Maria tany an-danitra
+2050/11/1,Fetin'ny olo-masina
+2050/12/11,Fetin'ny Repoblika
+2050/12/25,Fetin'ny noely

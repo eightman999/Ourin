@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Native SHIORI ABI</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="NATIVE_SHIORI_ABI_ja-jp.html" class="">日本語</a> | <a href="NATIVE_SHIORI_ABI_en-us.html" class="active">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="native-shiori-abi">Native SHIORI ABI</h1>
+<p><a href="NATIVE_SHIORI_ABI_ja-jp.html">日本語</a></p>
+<p>Updated: 2026-10-25. This contract describes the development implementation, not support in previously published binaries.</p>
+<h2 id="declaration">Declaration</h2>
+<p>For macOS <code>.bundle</code> / <code>.plugin</code> modules, set <code>OurinShioriABI</code> in <code>Contents/Info.plist</code>. For standalone libraries, append <code>.plist</code> to the library filename and place that file beside it (for example, <code>engine.dylib.plist</code>).</p>
+<pre class="codehilite"><code class="language-xml">&lt;key&gt;OurinShioriABI&lt;/key&gt;
+&lt;string&gt;ukagaka-int32&lt;/string&gt;
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>load</th>
+<th>request</th>
+<th>unload</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ourin</code></td>
+<td><code>bool(const char *)</code></td>
+<td><code>bool(const unsigned char *, size_t, unsigned char **, size_t *)</code></td>
+<td><code>void(void)</code></td>
+</tr>
+<tr>
+<td><code>ukagaka-long</code></td>
+<td><code>int32_t(void *, long)</code></td>
+<td><code>void *(void *, long *)</code></td>
+<td><code>int32_t(void)</code></td>
+</tr>
+<tr>
+<td><code>ukagaka-int32</code></td>
+<td><code>int32_t(void *, int32_t)</code></td>
+<td><code>void *(void *, int32_t *)</code></td>
+<td><code>int32_t(void)</code></td>
+</tr>
+<tr>
+<td><code>kagari</code></td>
+<td><code>int32_t(void *, long)</code> → instance ID</td>
+<td><code>void *(int32_t id, void *, long *)</code></td>
+<td><code>int32_t(int32_t id)</code></td>
+</tr>
+</tbody>
+</table>
+<p>The <code>long</code> in <code>ukagaka-long</code> is a 64-bit integer on macOS. <code>kagari</code> is the KAGARI POSIX export set; see <a href="KAWARI_KAGARI_ENGINES_ja-jp.html">KAWARI/KAGARI engines</a>. Ports that retain Windows-style 32-bit lengths must use <code>ukagaka-int32</code>. This SHIORI-specific key is separate from the <code>OurinModuleABI</code> contract used by SAORI and other modules.</p>
+<p>Without a declaration, only the existing Ourin ABI exporting <code>shiori_request</code> is accepted. An unprefixed <code>request</code> is rejected rather than having its signature guessed. Unknown declaration values also cause a load error.</p>
+<h2 id="symbols-and-ownership">Symbols and ownership</h2>
+<p>The loader prefers <code>loadu</code>, searching <code>shiori_loadu</code>, <code>loadu</code>, <code>shiori_load</code>, then <code>load</code>. Requests use <code>shiori_request</code> / <code>request</code>; unloading uses <code>shiori_unloadu</code> / <code>unloadu</code> / <code>shiori_unload</code> / <code>unload</code>. The load and unload functions are optional. If a present load function returns failure, the entire module load fails.</p>
+<ul>
+<li><code>ourin</code>: Input remains host-owned and valid until the call returns. The host copies the response and releases it with <code>shiori_free</code>, or libc <code>free</code> if that symbol is absent.</li>
+<li><code>ukagaka-*</code>: load/request inputs are NUL-terminated <code>malloc</code> buffers whose ownership transfers to the module. Lengths exclude the NUL. The request length is an input/output parameter. The module allocates the response with <code>malloc</code>; the host copies it and then calls <code>free</code>.</li>
+<li>Negative response lengths and responses larger than 64 MiB are rejected. This does not make arbitrary malformed native code safe.</li>
+</ul>
+<h2 id="dictionary-directory-and-process">Dictionary directory and process</h2>
+<p>The executable library location and the directory passed to load are separate values. Ghost startup derives the dictionary directory from <code>ghostRoot</code> and the original relative <code>shiori</code> path, passing UTF-8 with a trailing <code>/</code>. Omitting <code>loadDirectory</code> from the standalone loader API uses the library's parent directory.</p>
+<p>The app and XPC service share <code>NativeShioriModule</code>. Failure to connect or load under the default XPC isolation does not automatically fall back to loading in the app process. The existing adapter handles SHIORI/2.x conversion. ABI support alone does not establish compatibility with an individual engine or dictionary.</p>
+<h2 id="verification">Verification</h2>
+<p><code>NativeShioriABITests</code> builds real C libraries for both standard ABI widths and checks GET/NOTIFY, dictionary paths, unload, failed loads, missing declarations, and the separate XPC PID. The <code>nativeDylibFixture*</code> cases in <code>ShioriLoaderTests</code> cover the existing Ourin ABI.</p>
+<p>Translation: Codex. Japanese/English content comparison: 2026-10-25. Consult the individual verification reports for execution results.</p>
+<p>The path is UTF-8 even when only <code>load</code> is exported. ACP/Shift_JIS-only path loaders require a wrapper. KAGARI’s instance-ID POSIX API is declared with <code>OurinShioriABI</code> = <code>kagari</code>.</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../NATIVE_SHIORI_ABI_en-us.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

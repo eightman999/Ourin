@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>実ゴースト・helper再検証（2026-10-25）</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="helper2026-10-25">実ゴースト・helper再検証（2026-10-25）</h1>
+<p>本記録は辞書とSHIORI応答を実プロセスで検証した結果であり、Ourinの画面、クリックの座標変換、バルーン表示、アニメーションを確認したものではない。Windows DLLや第三者NARはリポジトリへ同梱しない。</p>
+<h2 id="_1">方法と再実行</h2>
+<p><code>scripts/verify_real_ghosts.py</code> にJSON形式のケース一覧と<strong>新規</strong>出力ディレクトリを渡す。入力ツリーの全ファイルをSHA-256で記録して一時コピーを作り、そのコピーだけを実行する。終了後に元ツリーの不変を再確認する。YAYAの設定は現在の <code>ShioriLoader.swift</code> の本番 <code>DicCollector</code> / <code>collectDicEntries</code> / <code>applyYayaBasePath</code> を抽出してSwiftコンパイルし、同じ処理で解決する。</p>
+<pre class="codehilite"><code class="language-sh">python3 scripts/verify_real_ghosts.py --cases /tmp/cases.json --output /tmp/new-ghost-results
+</code></pre>
+
+<pre class="codehilite"><code class="language-json">[
+  {&quot;name&quot;:&quot;Emily4&quot;,&quot;engine&quot;:&quot;yaya_core&quot;,&quot;root&quot;:&quot;/absolute/path/to/emily4&quot;},
+  {&quot;name&quot;:&quot;Taromati2&quot;,&quot;engine&quot;:&quot;yaya_core&quot;,&quot;root&quot;:&quot;/absolute/path/to/Taromati2&quot;,&quot;config&quot;:&quot;ghost/master/shiori/aya.txt&quot;},
+  {&quot;name&quot;:&quot;Satori&quot;,&quot;engine&quot;:&quot;satori_core&quot;,&quot;root&quot;:&quot;/absolute/path/to/ghost&quot;},
+  {&quot;name&quot;:&quot;LOBO&quot;,&quot;engine&quot;:&quot;kawari&quot;,&quot;root&quot;:&quot;/absolute/path/to/LOBO&quot;,&quot;library&quot;:&quot;/absolute/path/to/libshiori.bundle&quot;}
+]
+</code></pre>
+
+<p>各ケースの <code>events</code> でイベントを指定できる。既定は <code>OnNotifyUserInfo</code> → <code>OnBoot</code> → <code>OnMouseDoubleClick</code> → <code>OnCommunicate</code> → <code>OnClose</code> → <code>OnDestroy</code> → unload。別プロセスを起動し、保存を残した同じコピーを再loadしてOnBoot/OnClose/OnDestroy/unloadを実行する。既存GhostManagerと同様、コピーの辞書rootに空のprofileディレクトリを準備する。YAYAのFMO応答は空のデスクトップ相当とし、plugin/execute等は未提供エラーを返す。したがってSAORI実連携の確認ではない。</p>
+<p><code>result.json</code> の <code>passed</code> は要求が期限内に正常応答し元ツリーが不変だったことのみを示す。修正版harnessではSHIORI 4xx/5xxも既定で不合格とする。ケースが特定イベント・method・期待status・辞書根拠を明示した場合だけ、その正確なstatusを期待応答として評価する。保存・GUI・会話内容の完全な互換性判定とは分ける。要求期限は通常20秒、辞書loadは60秒。stderrをファイルに流してpipe詰まりを避け、タイムアウト時は当該子プロセスを終了する。</p>
+<h2 id="_2">修正前の実測結果</h2>
+<table>
+<thead>
+<tr>
+<th>対象</th>
+<th>起動・会話・終了</th>
+<th>保存と別プロセス再起動</th>
+<th>判定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Emily/Phase4.5（Emily4） / Ourin yaya_core</td>
+<td>33辞書load、OnBoot 200/830文字、ダブルクリック200/710文字、OnCommunicate 204、OnClose 200/30文字、OnDestroy 204、unload成功</td>
+<td>再load/OnBoot/OnClose成功。ただし2cycleともファイル変更なし。既定SAVEVAR未対応が残る</td>
+<td>通信は成功、保存は未達</td>
+</tr>
+<tr>
+<td>Taromati2 / Ourin yaya_core</td>
+<td>77辞書load、OnBoot 200/34文字、クリック200/73文字。OnMinuteChangeが20秒でtimeout</td>
+<td>新processで再load成功、OnClose200/空、unload成功。profile/debeso.db等の初期コピーは生じたが設定保存成功の証拠ではない</td>
+<td>不合格：定期イベント停止</td>
+</tr>
+<tr>
+<td>LOBO 1.0.0 / KAWARI上流8098dfb</td>
+<td>load、OnBoot200/30文字、クリック200/524文字、OnCommunicate204、OnClose200/64文字、OnDestroy204、unload成功</td>
+<td><code>profile/dict-savedata.txt</code>（546 bytes）とbackupを生成。User・talkinterval=300等を保存したコピーを別processで再loadし、OnBoot200/130文字・終了成功</td>
+<td>実nativeライブラリと実辞書の通信・保存cycle成功。Ourinのloader/XPC/GUIは別途検証</td>
+</tr>
+<tr>
+<td>里々 / repository basic fixture</td>
+<td>実satori_core load、OnBoot200/21文字、OnClose200/17文字、unload成功。クリック/OnCommunicate204</td>
+<td>savedata生成、別process再load/OnBoot/OnClose成功</td>
+<td>fixture回帰成功。第三者ゴースト9-1の再確認とは扱わない</td>
+</tr>
+</tbody>
+</table>
+<p>全4入力ツリーは実行前後でファイルハッシュ不変。応答文字数は今回の一例で、乱数や時刻で変わる。入力・応答全文は公開資料へ転載せず、結果JSONには応答長・応答SHA-256を記録している。</p>
+<p>LOBOの初回harnessではprofileディレクトリ準備が不足し、KAWARIログにsave failedが出た。GhostManagerの通常準備と同じ空profile作成・OnDestroy通知を加え、上表の結果まで再検証した。ゴースト辞書本体は変更していない。</p>
+<p>里々9-1の2026-07-14検証は既存互換表に記録されているが、今回読み取り可能なコピーと配布元を特定できなかった。ユーザーContainers内ghost一覧取得が応答せず、当該読み取りを打ち切った。権限変更や迂回は行っていない。今回実行したbasic fixtureを「9-1再検証」と読み替えない。</p>
+<h2 id="_3">出所とチェックサム</h2>
+<ul>
+<li>Emily4: 既存検証用 <code>emily4_backup</code> を使用。descriptには <code>[SSPBT/GL03B]Emily Development Team</code> と <code>http://ssp.shillest.net/</code> を記載。今回配布元から再取得していないため配布版の同一性は未確認。</li>
+<li>Taromati2: 既存のNAR展開検証コピー <code>bsdchk/Taromati2</code> を使用。descriptに <a href="https://github.com/Taromati2/Taromati2">Taromati2/Taromati2</a> を記載。今回再取得していない。</li>
+<li>LOBO: <a href="https://github.com/Okuajub/pcPets/blob/508f130e/Ukagakas/LOBO/LOBO_1.0.0.nar">Okuajub/pcPetsのNAR</a> を親タスクが取得。NARのWindows区切り文字をパス区切りとして展開したコピー。</li>
+<li>KAWARI: 親タスクが上流commit <code>8098dfb</code> を <code>/tmp/ourin-kawari-build-20261025</code> に固定してbuildした <code>build/mach/darwin/libshiori.bundle</code>。<code>shiori.h</code> のPOSIX <code>long</code> ABIと <code>loadu</code> をctypes子processから使用。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>入力</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Emily4ファイル一覧＋各内容hashのJSON</td>
+<td><code>0b20b191baaad7f34edac19bef75d18b1d3dd0b8ba7ebdc6ebd570266409225c</code></td>
+</tr>
+<tr>
+<td>Taromati2同上</td>
+<td><code>ebecac382e1e12c19141d51d47e4e7d2826c4c715b979066ceb911d1957022af</code></td>
+</tr>
+<tr>
+<td>LOBO同上</td>
+<td><code>bb4ddb09feca884f235b40c8d4cbd358b86278684649f4d03006d446162b9b35</code></td>
+</tr>
+<tr>
+<td>LOBO_1.0.0.nar</td>
+<td><code>f4e90615cf40801d4a7a7170762b6c0d6dddf18324f9ba146f4a700cbe2bebf7</code></td>
+</tr>
+<tr>
+<td>実行yaya_core</td>
+<td><code>48b443fd4b30f46106c33c59df9cae0817c6c876e950aec006e48e8443401968</code></td>
+</tr>
+<tr>
+<td>実行KAWARI library</td>
+<td><code>ad9d408f6266b90c27319748368fc44fce5f24154a0ef4620565141c280efce1</code></td>
+</tr>
+</tbody>
+</table>
+<p>ローカル証跡は <code>/tmp/ourin-real-ghosts-20261025/</code> の <code>lifecycle-results/Emily4/result.json</code>、<code>existing-results-r2/Taromati2/result.json</code>、<code>lobo-lifecycle-profile-results/LOBO/result.json</code>、<code>satori-fixture-results/Satori-upstream-fixture/result.json</code>。一時領域のため永続配布物ではない。</p>
+<h2 id="taromati2">修正前のTaromati2停止と最小再現</h2>
+<p>stderrの最後は <code>OnMinuteChange</code> → <code>AgendaMonitor</code> → <code>OnEventRead</code> → year/month/day。</p>
+<ul>
+<li><code>dic/system/clock.dic:150</code> がAgendaMonitorを呼ぶ。定義は796行。</li>
+<li><code>dic/system/Calendar.dic:1097</code> のOnEventReadは、ファイル名でFOPEN/FREAD/FCLOSEし、FREADが <code>-1</code> になるまでwhileを続ける（1114行以降）。</li>
+<li>今回実行版 <code>yaya_core/src/VM.cpp:2919</code> はFOPEN失敗で <code>-1</code>（真）を返す。2966行のFREADは整数handle方式で、不明handle/EOFで空文字を返す。ファイル名を渡す実辞書との組合せでwhileが終了できない。</li>
+<li>ローカル上流500 <code>CORE_SAMPLES/yaya-shiori-500/sysfunc.cpp:2176</code> はFOPEN失敗0、2230行のFREADはファイル名を引き、失敗/EOFで <code>-1</code>。ゴーストのwhileを書き換える修正は不適切。</li>
+</ul>
+<p>次は実データと独立した再現辞書であり、元ゴーストへのパッチではない。</p>
+<pre class="codehilite"><code class="language-text">ProbeOpen { &quot;value=%(FOPEN('missing.txt', 'r'))&quot; }
+ProbeRead { &quot;value=%(FREAD('missing.txt'))&quot; }
+ProbeDelim {
+    _s = &quot;a|b&quot;
+    SETDELIM(_s, &quot;|&quot;)
+    _count = 0
+    foreach _s; _entry { _count++ }
+    &quot;%(_count)&quot;
+}
+ProbeSave { Persisted = 42
+    &quot;value=%(SAVEVAR())&quot; }
+</code></pre>
+
+<p>この辞書をloadし、上記4関数へrequestした結果は順に <code>value=-1</code>、<code>value=</code>、<code>1</code>、<code>value=0</code>。<code>/tmp/ourin-real-ghosts-20261025/minimal-repro/</code> に辞書、入力JSONL、stdout、stderrを保存した。</p>
+<p>SETDELIMの別問題はforeach実装（VM.cpp:1136）が変数固有delimiterでなく <code>arrayDelimiter_</code> を使う点。<code>a|b</code> は2要素でなく1要素になる。これは予定表の読み取り停止を解消した後も残る互換差分であり、今回timeoutの直接原因と同一視しない。</p>
+<p>SAVEVARの別問題は引数省略で即0を返す点（VM.cpp:3783）。上流500のsysfunc.cpp:5635は省略時に既定のSaveVariableを呼ぶ。Emily4のyaya_shiori3.dic:107等は <code>SAVEVAR()</code> を使用するため、通信成功のみで永続化成功と判断できない。実行版のSAVEVARは独自JSON形式であり、既存YAYA保存形式との互換確認も必要。</p>
+<p>修正後は、最小再現→Taromati2のOnMinuteChange→OnDestroy/unload→保存状態を残した再loadの順で確認した（後述）。SAORI未提供エラーが別に10回発生したため、SAORI連携を含む完全な会話確認は実app経路で別途必要。</p>
+<h2 id="yaya">YAYA修正後の再検証</h2>
+<p>2026-10-25にファイル名方式のFOPEN/FREAD、EOF、変数delimiter、既定保存先、保存/復元を修正。実検証でさらにGETVARLIST(prefix)の無視を発見したため修正した。prefix無視によりTaromati2の一時変数掃除が全globalを削除していた。詳細と残件は <a href="yaya-real-ghost-fixes_unknown.html">実装記録</a>。上の修正前結果は比較のため保持する。</p>
+<table>
+<thead>
+<tr>
+<th>対象</th>
+<th>修正後の実process応答</th>
+<th>保存・再起動</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Emily4</td>
+<td>33辞書load、OnBoot200/830文字、クリック200/707文字、OnCommunicate204、OnClose200/30文字、OnDestroy204、unload成功</td>
+<td><code>ghost/master/yaya_variable.cfg</code> を生成。別processで再load、OnBoot200/475文字・OnClose/OnDestroy/unload成功。2cycle終了時5457 bytes・84変数</td>
+</tr>
+<tr>
+<td>Taromati2</td>
+<td>77辞書load、OnBoot200/34文字、クリック200/73文字、OnMinuteChange <strong>200/82文字、51ms</strong>、OnClose200/69文字</td>
+<td><code>ghost/master/shiori/aya_variable.cfg</code> を生成。別process再load、OnBoot200/34文字・OnClose200/69文字・unload成功。2cycle終了時5900 bytes・89変数。両cycleのOnDestroyは400。追加調査により辞書の未定義イベントへの期待応答と判明</td>
+</tr>
+</tbody>
+</table>
+<p>実行helper SHA-256: <code>1db0b4f2c2273ab77bccebefd8158a63124c3e6b019ad38232f5a15098be5a86</code>。証跡は <code>/tmp/ourin-real-ghosts-20261025/yaya-fixed-prefix-results/{Emily4,Taromati2}/result.json</code>。元ツリーhashは修正前表と同一で不変。実ゴーストの保存ファイル内容が次processで使えることに加え、独立fixtureで数値とカスタムdelimiterの別process復元をassertした。既存上流テキスト/暗号化保存のimportは未対応で、未知の既存保存ファイルは上書きしない。</p>
+<p>最小再現4件は順に <code>value=0</code>、<code>value=-1</code>、<code>2</code>、<code>value=1</code> に改善。<code>yaya_core/tests/test_file_persistence.py</code> の9テストが全PASS。Xcode/実GUIはこのhelper検証とは別であり、Taromati2のSAORI未提供は未検証として残す。OnDestroy400は以下のとおり対象辞書の非対応応答であり、Ourinの未修正不具合とは分類しない。</p>
+<h2 id="ondestroy400status">OnDestroy400の分類と期待status指定</h2>
+<p>Taromati2の <code>dic/aya/master/shiori.dic:439-449</code> は、イベント関数が存在せず <code>SHIORI_FW.IsImportantEvent</code> でもない場合に <code>SHIORI_FW.NoMatchingEvent</code> → <code>MakeBadResponse</code> を呼ぶ。791–793行が400応答を生成する。OnDestroy / SHIORI_EV.OnDestroyは未定義で、ログでは要求解析とID解決が正常に完了した後、この分岐を通る。別コピーでload直後のNOTIFY OnDestroy、GET OnDestroy、別の未定義イベント、OnClose後のOnDestroyがすべて400となり、既知のOnBoot/OnCloseは200だった。したがって終了処理や保存失敗による400ではなく、辞書が実装しないイベントへの明示応答と分類する。上流YAYAのISFUNC未定義=0はソースで照合したが、上流バイナリとの同一入力実行比較は未実施。</p>
+<p>ケースJSONには以下のように例外を限定して指定できる。method・イベント名のワイルドカードや根拠の省略は拒否する。指定外イベント、GET OnDestroy、期待400に対する500等は不合格のまま。結果JSONは <code>status_matches</code> / <code>expected_status</code> / <code>expected_status_reason</code> を保持する。</p>
+<pre class="codehilite"><code class="language-json">&quot;expected_statuses&quot;: [
+  {
+    &quot;event&quot;: &quot;OnDestroy&quot;,
+    &quot;method&quot;: &quot;NOTIFY&quot;,
+    &quot;status&quot;: 400,
+    &quot;reason&quot;: &quot;Taromati2 shiori.dic:439-449 routes undefined events to NoMatchingEvent; :791-793 returns 400. OnDestroy is not defined.&quot;
+  }
+]
+</code></pre>
+
+<p>根拠付き設定 <code>/tmp/ourin-real-ghosts-20261025/yaya-expected-cases.json</code> で新たなコピーを実行し、Emily4 / Taromati2とも起動・会話要求・終了・保存・別process再loadのケース判定に合格した。証跡は <code>yaya-expected-results/{Emily4,Taromati2}/result.json</code>。元ツリーhashは不変。これは設定したhelper検証範囲での合格であり、GUI・SAORI・全ゴースト・上流保存形式の互換性を保証しない。期待status境界の <code>scripts/test_verify_real_ghosts.py</code> は5件PASS。</p>
+<h2 id="ourin">Ourin実アプリでの華和梨起動（統合側）</h2>
+<p>2026-10-25、<code>/tmp/ourin-integration-dd-20261025/Build/Products/Debug/Ourin.app</code> を <code>OURIN_TEST_BASE_DIR=/tmp/ourin-lobo-app-r2-20261025</code>、起動ghost LOBOで起動。原NARを正規化済みコピーから配置し、実データには触れていない。通常factoryから <code>shiori.dll</code>→同梱 <code>libkawari_shiori.dylib</code>→XPCへ接続し、<code>kind=native</code>、OnBoot成功・本文34文字を実appログで確認。ログ: <code>/tmp/ourin-lobo-app-r2-20261025.log</code>。Macがロック中のため描画・クリック操作は未確認。試行したSSTPクリック要求は400となり、操作検証の成功には数えない。検証用app processは終了済み。</p>
+<p>同梱エンジン/XPCと入力窓関連の対象テストは42実行・35固有テスト、失敗0/skip0。結果 <code>/tmp/ourin-engines-targeted-20261025.xcresult</code>。これは後続のYAYA GETVARLIST修正を含む全体結果ではない。</p>
+<h2 id="final-app-unit-test-run">最終アプリ単体テスト / Final app unit test run</h2>
+<p>後続のYAYA GETVARLIST・ファイルAPI・FINE単一宛先修正を含むOurinTests全体は <strong>1,541実行ケース / 1,520集計テスト、失敗0・報告skip0</strong>。<code>/tmp/ourin-delegated-unit-final-r4-20261025.xcresult</code>（macOS 26.6.2 / arm64）。optional fixture未指定の早期returnがあり、実ゴースト・GUI網羅を意味しない。</p>
+<p>The final unit run passed after all listed changes. Parameter-expanded executions and aggregate test count differ; environment-dependent early returns are not reported as skips. Real-ghost and GUI coverage remains as recorded above.</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../REAL_GHOST_VERIFICATION_2026-10-25.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

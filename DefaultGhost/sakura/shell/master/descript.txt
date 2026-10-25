@@ -1,0 +1,19 @@
+charset,UTF-8
+type,shell
+name,master
+craftman,Ourin
+
+// 既定配置は右から さくら → りんね → ベル の順に並ぶ。さくらのバルーンを左置きにすると
+// 左隣のりんねの体に掛かるため、さくらだけ頭上（バルーン高 169 + 余白）へ上げる。
+sakura.balloon.alignment,left
+sakura.balloon.offsetx,0
+sakura.balloon.offsety,-180
+sakura.seriko.alignmenttodesktop,bottom
+kero.balloon.alignment,left
+kero.balloon.offsetx,0
+kero.balloon.offsety,40
+kero.seriko.alignmenttodesktop,bottom
+char2.balloon.alignment,left
+char2.balloon.offsetx,0
+char2.balloon.offsety,20
+char2.seriko.alignmenttodesktop,bottom

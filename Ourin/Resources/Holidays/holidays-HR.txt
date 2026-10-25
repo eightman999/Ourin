@@ -1,0 +1,436 @@
+# HR の祝日（2020〜2050年、言語: hr）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Nova godina
+2020/1/6,Bogojavljenje ili Sveta tri kralja
+2020/4/12,Uskrs
+2020/4/13,Uskrsni ponedjeljak
+2020/5/1,Praznik rada
+2020/5/30,Dan državnosti
+2020/6/11,Tijelovo
+2020/6/22,Dan antifašističke borbe
+2020/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2020/8/15,Velika Gospa
+2020/11/1,Svi sveti
+2020/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2020/12/25,Božić
+2020/12/26,Sveti Stjepan
+2021/1/1,Nova godina
+2021/1/6,Bogojavljenje ili Sveta tri kralja
+2021/4/4,Uskrs
+2021/4/5,Uskrsni ponedjeljak
+2021/5/1,Praznik rada
+2021/5/30,Dan državnosti
+2021/6/3,Tijelovo
+2021/6/22,Dan antifašističke borbe
+2021/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2021/8/15,Velika Gospa
+2021/11/1,Svi sveti
+2021/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2021/12/25,Božić
+2021/12/26,Sveti Stjepan
+2022/1/1,Nova godina
+2022/1/6,Bogojavljenje ili Sveta tri kralja
+2022/4/17,Uskrs
+2022/4/18,Uskrsni ponedjeljak
+2022/5/1,Praznik rada
+2022/5/30,Dan državnosti
+2022/6/16,Tijelovo
+2022/6/22,Dan antifašističke borbe
+2022/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2022/8/15,Velika Gospa
+2022/11/1,Svi sveti
+2022/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2022/12/25,Božić
+2022/12/26,Sveti Stjepan
+2023/1/1,Nova godina
+2023/1/6,Bogojavljenje ili Sveta tri kralja
+2023/4/9,Uskrs
+2023/4/10,Uskrsni ponedjeljak
+2023/5/1,Praznik rada
+2023/5/30,Dan državnosti
+2023/6/8,Tijelovo
+2023/6/22,Dan antifašističke borbe
+2023/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2023/8/15,Velika Gospa
+2023/11/1,Svi sveti
+2023/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2023/12/25,Božić
+2023/12/26,Sveti Stjepan
+2024/1/1,Nova godina
+2024/1/6,Bogojavljenje ili Sveta tri kralja
+2024/3/31,Uskrs
+2024/4/1,Uskrsni ponedjeljak
+2024/5/1,Praznik rada
+2024/5/30,Dan državnosti; Tijelovo
+2024/6/22,Dan antifašističke borbe
+2024/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2024/8/15,Velika Gospa
+2024/11/1,Svi sveti
+2024/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2024/12/25,Božić
+2024/12/26,Sveti Stjepan
+2025/1/1,Nova godina
+2025/1/6,Bogojavljenje ili Sveta tri kralja
+2025/4/20,Uskrs
+2025/4/21,Uskrsni ponedjeljak
+2025/5/1,Praznik rada
+2025/5/30,Dan državnosti
+2025/6/19,Tijelovo
+2025/6/22,Dan antifašističke borbe
+2025/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2025/8/15,Velika Gospa
+2025/11/1,Svi sveti
+2025/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2025/12/25,Božić
+2025/12/26,Sveti Stjepan
+2026/1/1,Nova godina
+2026/1/6,Bogojavljenje ili Sveta tri kralja
+2026/4/5,Uskrs
+2026/4/6,Uskrsni ponedjeljak
+2026/5/1,Praznik rada
+2026/5/30,Dan državnosti
+2026/6/4,Tijelovo
+2026/6/22,Dan antifašističke borbe
+2026/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2026/8/15,Velika Gospa
+2026/11/1,Svi sveti
+2026/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2026/12/25,Božić
+2026/12/26,Sveti Stjepan
+2027/1/1,Nova godina
+2027/1/6,Bogojavljenje ili Sveta tri kralja
+2027/3/28,Uskrs
+2027/3/29,Uskrsni ponedjeljak
+2027/5/1,Praznik rada
+2027/5/27,Tijelovo
+2027/5/30,Dan državnosti
+2027/6/22,Dan antifašističke borbe
+2027/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2027/8/15,Velika Gospa
+2027/11/1,Svi sveti
+2027/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2027/12/25,Božić
+2027/12/26,Sveti Stjepan
+2028/1/1,Nova godina
+2028/1/6,Bogojavljenje ili Sveta tri kralja
+2028/4/16,Uskrs
+2028/4/17,Uskrsni ponedjeljak
+2028/5/1,Praznik rada
+2028/5/30,Dan državnosti
+2028/6/15,Tijelovo
+2028/6/22,Dan antifašističke borbe
+2028/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2028/8/15,Velika Gospa
+2028/11/1,Svi sveti
+2028/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2028/12/25,Božić
+2028/12/26,Sveti Stjepan
+2029/1/1,Nova godina
+2029/1/6,Bogojavljenje ili Sveta tri kralja
+2029/4/1,Uskrs
+2029/4/2,Uskrsni ponedjeljak
+2029/5/1,Praznik rada
+2029/5/30,Dan državnosti
+2029/5/31,Tijelovo
+2029/6/22,Dan antifašističke borbe
+2029/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2029/8/15,Velika Gospa
+2029/11/1,Svi sveti
+2029/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2029/12/25,Božić
+2029/12/26,Sveti Stjepan
+2030/1/1,Nova godina
+2030/1/6,Bogojavljenje ili Sveta tri kralja
+2030/4/21,Uskrs
+2030/4/22,Uskrsni ponedjeljak
+2030/5/1,Praznik rada
+2030/5/30,Dan državnosti
+2030/6/20,Tijelovo
+2030/6/22,Dan antifašističke borbe
+2030/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2030/8/15,Velika Gospa
+2030/11/1,Svi sveti
+2030/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2030/12/25,Božić
+2030/12/26,Sveti Stjepan
+2031/1/1,Nova godina
+2031/1/6,Bogojavljenje ili Sveta tri kralja
+2031/4/13,Uskrs
+2031/4/14,Uskrsni ponedjeljak
+2031/5/1,Praznik rada
+2031/5/30,Dan državnosti
+2031/6/12,Tijelovo
+2031/6/22,Dan antifašističke borbe
+2031/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2031/8/15,Velika Gospa
+2031/11/1,Svi sveti
+2031/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2031/12/25,Božić
+2031/12/26,Sveti Stjepan
+2032/1/1,Nova godina
+2032/1/6,Bogojavljenje ili Sveta tri kralja
+2032/3/28,Uskrs
+2032/3/29,Uskrsni ponedjeljak
+2032/5/1,Praznik rada
+2032/5/27,Tijelovo
+2032/5/30,Dan državnosti
+2032/6/22,Dan antifašističke borbe
+2032/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2032/8/15,Velika Gospa
+2032/11/1,Svi sveti
+2032/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2032/12/25,Božić
+2032/12/26,Sveti Stjepan
+2033/1/1,Nova godina
+2033/1/6,Bogojavljenje ili Sveta tri kralja
+2033/4/17,Uskrs
+2033/4/18,Uskrsni ponedjeljak
+2033/5/1,Praznik rada
+2033/5/30,Dan državnosti
+2033/6/16,Tijelovo
+2033/6/22,Dan antifašističke borbe
+2033/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2033/8/15,Velika Gospa
+2033/11/1,Svi sveti
+2033/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2033/12/25,Božić
+2033/12/26,Sveti Stjepan
+2034/1/1,Nova godina
+2034/1/6,Bogojavljenje ili Sveta tri kralja
+2034/4/9,Uskrs
+2034/4/10,Uskrsni ponedjeljak
+2034/5/1,Praznik rada
+2034/5/30,Dan državnosti
+2034/6/8,Tijelovo
+2034/6/22,Dan antifašističke borbe
+2034/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2034/8/15,Velika Gospa
+2034/11/1,Svi sveti
+2034/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2034/12/25,Božić
+2034/12/26,Sveti Stjepan
+2035/1/1,Nova godina
+2035/1/6,Bogojavljenje ili Sveta tri kralja
+2035/3/25,Uskrs
+2035/3/26,Uskrsni ponedjeljak
+2035/5/1,Praznik rada
+2035/5/24,Tijelovo
+2035/5/30,Dan državnosti
+2035/6/22,Dan antifašističke borbe
+2035/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2035/8/15,Velika Gospa
+2035/11/1,Svi sveti
+2035/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2035/12/25,Božić
+2035/12/26,Sveti Stjepan
+2036/1/1,Nova godina
+2036/1/6,Bogojavljenje ili Sveta tri kralja
+2036/4/13,Uskrs
+2036/4/14,Uskrsni ponedjeljak
+2036/5/1,Praznik rada
+2036/5/30,Dan državnosti
+2036/6/12,Tijelovo
+2036/6/22,Dan antifašističke borbe
+2036/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2036/8/15,Velika Gospa
+2036/11/1,Svi sveti
+2036/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2036/12/25,Božić
+2036/12/26,Sveti Stjepan
+2037/1/1,Nova godina
+2037/1/6,Bogojavljenje ili Sveta tri kralja
+2037/4/5,Uskrs
+2037/4/6,Uskrsni ponedjeljak
+2037/5/1,Praznik rada
+2037/5/30,Dan državnosti
+2037/6/4,Tijelovo
+2037/6/22,Dan antifašističke borbe
+2037/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2037/8/15,Velika Gospa
+2037/11/1,Svi sveti
+2037/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2037/12/25,Božić
+2037/12/26,Sveti Stjepan
+2038/1/1,Nova godina
+2038/1/6,Bogojavljenje ili Sveta tri kralja
+2038/4/25,Uskrs
+2038/4/26,Uskrsni ponedjeljak
+2038/5/1,Praznik rada
+2038/5/30,Dan državnosti
+2038/6/22,Dan antifašističke borbe
+2038/6/24,Tijelovo
+2038/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2038/8/15,Velika Gospa
+2038/11/1,Svi sveti
+2038/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2038/12/25,Božić
+2038/12/26,Sveti Stjepan
+2039/1/1,Nova godina
+2039/1/6,Bogojavljenje ili Sveta tri kralja
+2039/4/10,Uskrs
+2039/4/11,Uskrsni ponedjeljak
+2039/5/1,Praznik rada
+2039/5/30,Dan državnosti
+2039/6/9,Tijelovo
+2039/6/22,Dan antifašističke borbe
+2039/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2039/8/15,Velika Gospa
+2039/11/1,Svi sveti
+2039/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2039/12/25,Božić
+2039/12/26,Sveti Stjepan
+2040/1/1,Nova godina
+2040/1/6,Bogojavljenje ili Sveta tri kralja
+2040/4/1,Uskrs
+2040/4/2,Uskrsni ponedjeljak
+2040/5/1,Praznik rada
+2040/5/30,Dan državnosti
+2040/5/31,Tijelovo
+2040/6/22,Dan antifašističke borbe
+2040/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2040/8/15,Velika Gospa
+2040/11/1,Svi sveti
+2040/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2040/12/25,Božić
+2040/12/26,Sveti Stjepan
+2041/1/1,Nova godina
+2041/1/6,Bogojavljenje ili Sveta tri kralja
+2041/4/21,Uskrs
+2041/4/22,Uskrsni ponedjeljak
+2041/5/1,Praznik rada
+2041/5/30,Dan državnosti
+2041/6/20,Tijelovo
+2041/6/22,Dan antifašističke borbe
+2041/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2041/8/15,Velika Gospa
+2041/11/1,Svi sveti
+2041/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2041/12/25,Božić
+2041/12/26,Sveti Stjepan
+2042/1/1,Nova godina
+2042/1/6,Bogojavljenje ili Sveta tri kralja
+2042/4/6,Uskrs
+2042/4/7,Uskrsni ponedjeljak
+2042/5/1,Praznik rada
+2042/5/30,Dan državnosti
+2042/6/5,Tijelovo
+2042/6/22,Dan antifašističke borbe
+2042/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2042/8/15,Velika Gospa
+2042/11/1,Svi sveti
+2042/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2042/12/25,Božić
+2042/12/26,Sveti Stjepan
+2043/1/1,Nova godina
+2043/1/6,Bogojavljenje ili Sveta tri kralja
+2043/3/29,Uskrs
+2043/3/30,Uskrsni ponedjeljak
+2043/5/1,Praznik rada
+2043/5/28,Tijelovo
+2043/5/30,Dan državnosti
+2043/6/22,Dan antifašističke borbe
+2043/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2043/8/15,Velika Gospa
+2043/11/1,Svi sveti
+2043/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2043/12/25,Božić
+2043/12/26,Sveti Stjepan
+2044/1/1,Nova godina
+2044/1/6,Bogojavljenje ili Sveta tri kralja
+2044/4/17,Uskrs
+2044/4/18,Uskrsni ponedjeljak
+2044/5/1,Praznik rada
+2044/5/30,Dan državnosti
+2044/6/16,Tijelovo
+2044/6/22,Dan antifašističke borbe
+2044/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2044/8/15,Velika Gospa
+2044/11/1,Svi sveti
+2044/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2044/12/25,Božić
+2044/12/26,Sveti Stjepan
+2045/1/1,Nova godina
+2045/1/6,Bogojavljenje ili Sveta tri kralja
+2045/4/9,Uskrs
+2045/4/10,Uskrsni ponedjeljak
+2045/5/1,Praznik rada
+2045/5/30,Dan državnosti
+2045/6/8,Tijelovo
+2045/6/22,Dan antifašističke borbe
+2045/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2045/8/15,Velika Gospa
+2045/11/1,Svi sveti
+2045/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2045/12/25,Božić
+2045/12/26,Sveti Stjepan
+2046/1/1,Nova godina
+2046/1/6,Bogojavljenje ili Sveta tri kralja
+2046/3/25,Uskrs
+2046/3/26,Uskrsni ponedjeljak
+2046/5/1,Praznik rada
+2046/5/24,Tijelovo
+2046/5/30,Dan državnosti
+2046/6/22,Dan antifašističke borbe
+2046/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2046/8/15,Velika Gospa
+2046/11/1,Svi sveti
+2046/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2046/12/25,Božić
+2046/12/26,Sveti Stjepan
+2047/1/1,Nova godina
+2047/1/6,Bogojavljenje ili Sveta tri kralja
+2047/4/14,Uskrs
+2047/4/15,Uskrsni ponedjeljak
+2047/5/1,Praznik rada
+2047/5/30,Dan državnosti
+2047/6/13,Tijelovo
+2047/6/22,Dan antifašističke borbe
+2047/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2047/8/15,Velika Gospa
+2047/11/1,Svi sveti
+2047/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2047/12/25,Božić
+2047/12/26,Sveti Stjepan
+2048/1/1,Nova godina
+2048/1/6,Bogojavljenje ili Sveta tri kralja
+2048/4/5,Uskrs
+2048/4/6,Uskrsni ponedjeljak
+2048/5/1,Praznik rada
+2048/5/30,Dan državnosti
+2048/6/4,Tijelovo
+2048/6/22,Dan antifašističke borbe
+2048/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2048/8/15,Velika Gospa
+2048/11/1,Svi sveti
+2048/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2048/12/25,Božić
+2048/12/26,Sveti Stjepan
+2049/1/1,Nova godina
+2049/1/6,Bogojavljenje ili Sveta tri kralja
+2049/4/18,Uskrs
+2049/4/19,Uskrsni ponedjeljak
+2049/5/1,Praznik rada
+2049/5/30,Dan državnosti
+2049/6/17,Tijelovo
+2049/6/22,Dan antifašističke borbe
+2049/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2049/8/15,Velika Gospa
+2049/11/1,Svi sveti
+2049/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2049/12/25,Božić
+2049/12/26,Sveti Stjepan
+2050/1/1,Nova godina
+2050/1/6,Bogojavljenje ili Sveta tri kralja
+2050/4/10,Uskrs
+2050/4/11,Uskrsni ponedjeljak
+2050/5/1,Praznik rada
+2050/5/30,Dan državnosti
+2050/6/9,Tijelovo
+2050/6/22,Dan antifašističke borbe
+2050/8/5,Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja
+2050/8/15,Velika Gospa
+2050/11/1,Svi sveti
+2050/11/18,Dan sjećanja na žrtve Domovinskog rata i Dan sjećanja na žrtvu Vukovara i Škabrnje
+2050/12/25,Božić
+2050/12/26,Sveti Stjepan

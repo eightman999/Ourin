@@ -1,0 +1,406 @@
+# CZ holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,Independent Czech State Restoration Day; New Year's Day
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/5/1,Labor Day
+2020/5/8,Victory Day
+2020/7/5,Saints Cyril and Methodius Day
+2020/7/6,Jan Hus Day
+2020/9/28,Statehood Day
+2020/10/28,Independent Czechoslovak State Day
+2020/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2020/12/24,Christmas Eve
+2020/12/25,Christmas Day
+2020/12/26,Second Day of Christmas
+2021/1/1,Independent Czech State Restoration Day; New Year's Day
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/5/1,Labor Day
+2021/5/8,Victory Day
+2021/7/5,Saints Cyril and Methodius Day
+2021/7/6,Jan Hus Day
+2021/9/28,Statehood Day
+2021/10/28,Independent Czechoslovak State Day
+2021/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2021/12/24,Christmas Eve
+2021/12/25,Christmas Day
+2021/12/26,Second Day of Christmas
+2022/1/1,Independent Czech State Restoration Day; New Year's Day
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/5/1,Labor Day
+2022/5/8,Victory Day
+2022/7/5,Saints Cyril and Methodius Day
+2022/7/6,Jan Hus Day
+2022/9/28,Statehood Day
+2022/10/28,Independent Czechoslovak State Day
+2022/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2022/12/24,Christmas Eve
+2022/12/25,Christmas Day
+2022/12/26,Second Day of Christmas
+2023/1/1,Independent Czech State Restoration Day; New Year's Day
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/5/1,Labor Day
+2023/5/8,Victory Day
+2023/7/5,Saints Cyril and Methodius Day
+2023/7/6,Jan Hus Day
+2023/9/28,Statehood Day
+2023/10/28,Independent Czechoslovak State Day
+2023/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2023/12/24,Christmas Eve
+2023/12/25,Christmas Day
+2023/12/26,Second Day of Christmas
+2024/1/1,Independent Czech State Restoration Day; New Year's Day
+2024/3/29,Good Friday
+2024/4/1,Easter Monday
+2024/5/1,Labor Day
+2024/5/8,Victory Day
+2024/7/5,Saints Cyril and Methodius Day
+2024/7/6,Jan Hus Day
+2024/9/28,Statehood Day
+2024/10/28,Independent Czechoslovak State Day
+2024/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2024/12/24,Christmas Eve
+2024/12/25,Christmas Day
+2024/12/26,Second Day of Christmas
+2025/1/1,Independent Czech State Restoration Day; New Year's Day
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/5/1,Labor Day
+2025/5/8,Victory Day
+2025/7/5,Saints Cyril and Methodius Day
+2025/7/6,Jan Hus Day
+2025/9/28,Statehood Day
+2025/10/28,Independent Czechoslovak State Day
+2025/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2025/12/24,Christmas Eve
+2025/12/25,Christmas Day
+2025/12/26,Second Day of Christmas
+2026/1/1,Independent Czech State Restoration Day; New Year's Day
+2026/4/3,Good Friday
+2026/4/6,Easter Monday
+2026/5/1,Labor Day
+2026/5/8,Victory Day
+2026/7/5,Saints Cyril and Methodius Day
+2026/7/6,Jan Hus Day
+2026/9/28,Statehood Day
+2026/10/28,Independent Czechoslovak State Day
+2026/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2026/12/24,Christmas Eve
+2026/12/25,Christmas Day
+2026/12/26,Second Day of Christmas
+2027/1/1,Independent Czech State Restoration Day; New Year's Day
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/5/1,Labor Day
+2027/5/8,Victory Day
+2027/7/5,Saints Cyril and Methodius Day
+2027/7/6,Jan Hus Day
+2027/9/28,Statehood Day
+2027/10/28,Independent Czechoslovak State Day
+2027/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2027/12/24,Christmas Eve
+2027/12/25,Christmas Day
+2027/12/26,Second Day of Christmas
+2028/1/1,Independent Czech State Restoration Day; New Year's Day
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/5/1,Labor Day
+2028/5/8,Victory Day
+2028/7/5,Saints Cyril and Methodius Day
+2028/7/6,Jan Hus Day
+2028/9/28,Statehood Day
+2028/10/28,Independent Czechoslovak State Day
+2028/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2028/12/24,Christmas Eve
+2028/12/25,Christmas Day
+2028/12/26,Second Day of Christmas
+2029/1/1,Independent Czech State Restoration Day; New Year's Day
+2029/3/30,Good Friday
+2029/4/2,Easter Monday
+2029/5/1,Labor Day
+2029/5/8,Victory Day
+2029/7/5,Saints Cyril and Methodius Day
+2029/7/6,Jan Hus Day
+2029/9/28,Statehood Day
+2029/10/28,Independent Czechoslovak State Day
+2029/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2029/12/24,Christmas Eve
+2029/12/25,Christmas Day
+2029/12/26,Second Day of Christmas
+2030/1/1,Independent Czech State Restoration Day; New Year's Day
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/5/1,Labor Day
+2030/5/8,Victory Day
+2030/7/5,Saints Cyril and Methodius Day
+2030/7/6,Jan Hus Day
+2030/9/28,Statehood Day
+2030/10/28,Independent Czechoslovak State Day
+2030/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2030/12/24,Christmas Eve
+2030/12/25,Christmas Day
+2030/12/26,Second Day of Christmas
+2031/1/1,Independent Czech State Restoration Day; New Year's Day
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/5/1,Labor Day
+2031/5/8,Victory Day
+2031/7/5,Saints Cyril and Methodius Day
+2031/7/6,Jan Hus Day
+2031/9/28,Statehood Day
+2031/10/28,Independent Czechoslovak State Day
+2031/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2031/12/24,Christmas Eve
+2031/12/25,Christmas Day
+2031/12/26,Second Day of Christmas
+2032/1/1,Independent Czech State Restoration Day; New Year's Day
+2032/3/26,Good Friday
+2032/3/29,Easter Monday
+2032/5/1,Labor Day
+2032/5/8,Victory Day
+2032/7/5,Saints Cyril and Methodius Day
+2032/7/6,Jan Hus Day
+2032/9/28,Statehood Day
+2032/10/28,Independent Czechoslovak State Day
+2032/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2032/12/24,Christmas Eve
+2032/12/25,Christmas Day
+2032/12/26,Second Day of Christmas
+2033/1/1,Independent Czech State Restoration Day; New Year's Day
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/5/1,Labor Day
+2033/5/8,Victory Day
+2033/7/5,Saints Cyril and Methodius Day
+2033/7/6,Jan Hus Day
+2033/9/28,Statehood Day
+2033/10/28,Independent Czechoslovak State Day
+2033/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2033/12/24,Christmas Eve
+2033/12/25,Christmas Day
+2033/12/26,Second Day of Christmas
+2034/1/1,Independent Czech State Restoration Day; New Year's Day
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/5/1,Labor Day
+2034/5/8,Victory Day
+2034/7/5,Saints Cyril and Methodius Day
+2034/7/6,Jan Hus Day
+2034/9/28,Statehood Day
+2034/10/28,Independent Czechoslovak State Day
+2034/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2034/12/24,Christmas Eve
+2034/12/25,Christmas Day
+2034/12/26,Second Day of Christmas
+2035/1/1,Independent Czech State Restoration Day; New Year's Day
+2035/3/23,Good Friday
+2035/3/26,Easter Monday
+2035/5/1,Labor Day
+2035/5/8,Victory Day
+2035/7/5,Saints Cyril and Methodius Day
+2035/7/6,Jan Hus Day
+2035/9/28,Statehood Day
+2035/10/28,Independent Czechoslovak State Day
+2035/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2035/12/24,Christmas Eve
+2035/12/25,Christmas Day
+2035/12/26,Second Day of Christmas
+2036/1/1,Independent Czech State Restoration Day; New Year's Day
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/5/1,Labor Day
+2036/5/8,Victory Day
+2036/7/5,Saints Cyril and Methodius Day
+2036/7/6,Jan Hus Day
+2036/9/28,Statehood Day
+2036/10/28,Independent Czechoslovak State Day
+2036/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2036/12/24,Christmas Eve
+2036/12/25,Christmas Day
+2036/12/26,Second Day of Christmas
+2037/1/1,Independent Czech State Restoration Day; New Year's Day
+2037/4/3,Good Friday
+2037/4/6,Easter Monday
+2037/5/1,Labor Day
+2037/5/8,Victory Day
+2037/7/5,Saints Cyril and Methodius Day
+2037/7/6,Jan Hus Day
+2037/9/28,Statehood Day
+2037/10/28,Independent Czechoslovak State Day
+2037/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2037/12/24,Christmas Eve
+2037/12/25,Christmas Day
+2037/12/26,Second Day of Christmas
+2038/1/1,Independent Czech State Restoration Day; New Year's Day
+2038/4/23,Good Friday
+2038/4/26,Easter Monday
+2038/5/1,Labor Day
+2038/5/8,Victory Day
+2038/7/5,Saints Cyril and Methodius Day
+2038/7/6,Jan Hus Day
+2038/9/28,Statehood Day
+2038/10/28,Independent Czechoslovak State Day
+2038/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2038/12/24,Christmas Eve
+2038/12/25,Christmas Day
+2038/12/26,Second Day of Christmas
+2039/1/1,Independent Czech State Restoration Day; New Year's Day
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/5/1,Labor Day
+2039/5/8,Victory Day
+2039/7/5,Saints Cyril and Methodius Day
+2039/7/6,Jan Hus Day
+2039/9/28,Statehood Day
+2039/10/28,Independent Czechoslovak State Day
+2039/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2039/12/24,Christmas Eve
+2039/12/25,Christmas Day
+2039/12/26,Second Day of Christmas
+2040/1/1,Independent Czech State Restoration Day; New Year's Day
+2040/3/30,Good Friday
+2040/4/2,Easter Monday
+2040/5/1,Labor Day
+2040/5/8,Victory Day
+2040/7/5,Saints Cyril and Methodius Day
+2040/7/6,Jan Hus Day
+2040/9/28,Statehood Day
+2040/10/28,Independent Czechoslovak State Day
+2040/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2040/12/24,Christmas Eve
+2040/12/25,Christmas Day
+2040/12/26,Second Day of Christmas
+2041/1/1,Independent Czech State Restoration Day; New Year's Day
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/5/1,Labor Day
+2041/5/8,Victory Day
+2041/7/5,Saints Cyril and Methodius Day
+2041/7/6,Jan Hus Day
+2041/9/28,Statehood Day
+2041/10/28,Independent Czechoslovak State Day
+2041/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2041/12/24,Christmas Eve
+2041/12/25,Christmas Day
+2041/12/26,Second Day of Christmas
+2042/1/1,Independent Czech State Restoration Day; New Year's Day
+2042/4/4,Good Friday
+2042/4/7,Easter Monday
+2042/5/1,Labor Day
+2042/5/8,Victory Day
+2042/7/5,Saints Cyril and Methodius Day
+2042/7/6,Jan Hus Day
+2042/9/28,Statehood Day
+2042/10/28,Independent Czechoslovak State Day
+2042/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2042/12/24,Christmas Eve
+2042/12/25,Christmas Day
+2042/12/26,Second Day of Christmas
+2043/1/1,Independent Czech State Restoration Day; New Year's Day
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/5/1,Labor Day
+2043/5/8,Victory Day
+2043/7/5,Saints Cyril and Methodius Day
+2043/7/6,Jan Hus Day
+2043/9/28,Statehood Day
+2043/10/28,Independent Czechoslovak State Day
+2043/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2043/12/24,Christmas Eve
+2043/12/25,Christmas Day
+2043/12/26,Second Day of Christmas
+2044/1/1,Independent Czech State Restoration Day; New Year's Day
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/5/1,Labor Day
+2044/5/8,Victory Day
+2044/7/5,Saints Cyril and Methodius Day
+2044/7/6,Jan Hus Day
+2044/9/28,Statehood Day
+2044/10/28,Independent Czechoslovak State Day
+2044/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2044/12/24,Christmas Eve
+2044/12/25,Christmas Day
+2044/12/26,Second Day of Christmas
+2045/1/1,Independent Czech State Restoration Day; New Year's Day
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/5/1,Labor Day
+2045/5/8,Victory Day
+2045/7/5,Saints Cyril and Methodius Day
+2045/7/6,Jan Hus Day
+2045/9/28,Statehood Day
+2045/10/28,Independent Czechoslovak State Day
+2045/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2045/12/24,Christmas Eve
+2045/12/25,Christmas Day
+2045/12/26,Second Day of Christmas
+2046/1/1,Independent Czech State Restoration Day; New Year's Day
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/5/1,Labor Day
+2046/5/8,Victory Day
+2046/7/5,Saints Cyril and Methodius Day
+2046/7/6,Jan Hus Day
+2046/9/28,Statehood Day
+2046/10/28,Independent Czechoslovak State Day
+2046/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2046/12/24,Christmas Eve
+2046/12/25,Christmas Day
+2046/12/26,Second Day of Christmas
+2047/1/1,Independent Czech State Restoration Day; New Year's Day
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/5/1,Labor Day
+2047/5/8,Victory Day
+2047/7/5,Saints Cyril and Methodius Day
+2047/7/6,Jan Hus Day
+2047/9/28,Statehood Day
+2047/10/28,Independent Czechoslovak State Day
+2047/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2047/12/24,Christmas Eve
+2047/12/25,Christmas Day
+2047/12/26,Second Day of Christmas
+2048/1/1,Independent Czech State Restoration Day; New Year's Day
+2048/4/3,Good Friday
+2048/4/6,Easter Monday
+2048/5/1,Labor Day
+2048/5/8,Victory Day
+2048/7/5,Saints Cyril and Methodius Day
+2048/7/6,Jan Hus Day
+2048/9/28,Statehood Day
+2048/10/28,Independent Czechoslovak State Day
+2048/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2048/12/24,Christmas Eve
+2048/12/25,Christmas Day
+2048/12/26,Second Day of Christmas
+2049/1/1,Independent Czech State Restoration Day; New Year's Day
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/5/1,Labor Day
+2049/5/8,Victory Day
+2049/7/5,Saints Cyril and Methodius Day
+2049/7/6,Jan Hus Day
+2049/9/28,Statehood Day
+2049/10/28,Independent Czechoslovak State Day
+2049/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2049/12/24,Christmas Eve
+2049/12/25,Christmas Day
+2049/12/26,Second Day of Christmas
+2050/1/1,Independent Czech State Restoration Day; New Year's Day
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/5/1,Labor Day
+2050/5/8,Victory Day
+2050/7/5,Saints Cyril and Methodius Day
+2050/7/6,Jan Hus Day
+2050/9/28,Statehood Day
+2050/10/28,Independent Czechoslovak State Day
+2050/11/17,Struggle for Freedom and Democracy Day and International Students' Day
+2050/12/24,Christmas Eve
+2050/12/25,Christmas Day
+2050/12/26,Second Day of Christmas

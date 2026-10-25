@@ -1,0 +1,375 @@
+# CV の祝日（2020〜2050年、言語: pt_CV）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Ano Novo
+2020/1/13,Dia da Liberdade e da Democracia
+2020/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2020/2/26,Quarta-feira de Cinzas
+2020/4/10,Sexta-feira Santa
+2020/4/12,Páscoa
+2020/5/1,Dia do Trabalhador
+2020/6/1,Dia Mundial da Criança
+2020/7/5,Dia da Independência Nacional
+2020/8/15,Dia da Assunção
+2020/11/1,Dia de Todos os Santos
+2020/12/25,Dia do Natal
+2021/1/1,Ano Novo
+2021/1/13,Dia da Liberdade e da Democracia
+2021/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2021/2/17,Quarta-feira de Cinzas
+2021/4/2,Sexta-feira Santa
+2021/4/4,Páscoa
+2021/5/1,Dia do Trabalhador
+2021/6/1,Dia Mundial da Criança
+2021/7/5,Dia da Independência Nacional
+2021/8/15,Dia da Assunção
+2021/11/1,Dia de Todos os Santos
+2021/12/25,Dia do Natal
+2022/1/1,Ano Novo
+2022/1/13,Dia da Liberdade e da Democracia
+2022/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2022/3/2,Quarta-feira de Cinzas
+2022/4/15,Sexta-feira Santa
+2022/4/17,Páscoa
+2022/5/1,Dia do Trabalhador
+2022/6/1,Dia Mundial da Criança
+2022/7/5,Dia da Independência Nacional
+2022/8/15,Dia da Assunção
+2022/11/1,Dia de Todos os Santos
+2022/12/25,Dia do Natal
+2023/1/1,Ano Novo
+2023/1/13,Dia da Liberdade e da Democracia
+2023/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2023/2/22,Quarta-feira de Cinzas
+2023/4/7,Sexta-feira Santa
+2023/4/9,Páscoa
+2023/5/1,Dia do Trabalhador
+2023/6/1,Dia Mundial da Criança
+2023/7/5,Dia da Independência Nacional
+2023/8/15,Dia da Assunção
+2023/11/1,Dia de Todos os Santos
+2023/12/25,Dia do Natal
+2024/1/1,Ano Novo
+2024/1/13,Dia da Liberdade e da Democracia
+2024/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2024/2/14,Quarta-feira de Cinzas
+2024/3/29,Sexta-feira Santa
+2024/3/31,Páscoa
+2024/5/1,Dia do Trabalhador
+2024/6/1,Dia Mundial da Criança
+2024/7/5,Dia da Independência Nacional
+2024/8/15,Dia da Assunção
+2024/11/1,Dia de Todos os Santos
+2024/12/25,Dia do Natal
+2025/1/1,Ano Novo
+2025/1/13,Dia da Liberdade e da Democracia
+2025/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2025/3/5,Quarta-feira de Cinzas
+2025/4/18,Sexta-feira Santa
+2025/4/20,Páscoa
+2025/5/1,Dia do Trabalhador
+2025/6/1,Dia Mundial da Criança
+2025/7/5,Dia da Independência Nacional
+2025/8/15,Dia da Assunção
+2025/11/1,Dia de Todos os Santos
+2025/12/25,Dia do Natal
+2026/1/1,Ano Novo
+2026/1/13,Dia da Liberdade e da Democracia
+2026/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2026/2/18,Quarta-feira de Cinzas
+2026/4/3,Sexta-feira Santa
+2026/4/5,Páscoa
+2026/5/1,Dia do Trabalhador
+2026/6/1,Dia Mundial da Criança
+2026/7/5,Dia da Independência Nacional
+2026/8/15,Dia da Assunção
+2026/11/1,Dia de Todos os Santos
+2026/12/25,Dia do Natal
+2027/1/1,Ano Novo
+2027/1/13,Dia da Liberdade e da Democracia
+2027/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2027/2/10,Quarta-feira de Cinzas
+2027/3/26,Sexta-feira Santa
+2027/3/28,Páscoa
+2027/5/1,Dia do Trabalhador
+2027/6/1,Dia Mundial da Criança
+2027/7/5,Dia da Independência Nacional
+2027/8/15,Dia da Assunção
+2027/11/1,Dia de Todos os Santos
+2027/12/25,Dia do Natal
+2028/1/1,Ano Novo
+2028/1/13,Dia da Liberdade e da Democracia
+2028/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2028/3/1,Quarta-feira de Cinzas
+2028/4/14,Sexta-feira Santa
+2028/4/16,Páscoa
+2028/5/1,Dia do Trabalhador
+2028/6/1,Dia Mundial da Criança
+2028/7/5,Dia da Independência Nacional
+2028/8/15,Dia da Assunção
+2028/11/1,Dia de Todos os Santos
+2028/12/25,Dia do Natal
+2029/1/1,Ano Novo
+2029/1/13,Dia da Liberdade e da Democracia
+2029/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2029/2/14,Quarta-feira de Cinzas
+2029/3/30,Sexta-feira Santa
+2029/4/1,Páscoa
+2029/5/1,Dia do Trabalhador
+2029/6/1,Dia Mundial da Criança
+2029/7/5,Dia da Independência Nacional
+2029/8/15,Dia da Assunção
+2029/11/1,Dia de Todos os Santos
+2029/12/25,Dia do Natal
+2030/1/1,Ano Novo
+2030/1/13,Dia da Liberdade e da Democracia
+2030/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2030/3/6,Quarta-feira de Cinzas
+2030/4/19,Sexta-feira Santa
+2030/4/21,Páscoa
+2030/5/1,Dia do Trabalhador
+2030/6/1,Dia Mundial da Criança
+2030/7/5,Dia da Independência Nacional
+2030/8/15,Dia da Assunção
+2030/11/1,Dia de Todos os Santos
+2030/12/25,Dia do Natal
+2031/1/1,Ano Novo
+2031/1/13,Dia da Liberdade e da Democracia
+2031/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2031/2/26,Quarta-feira de Cinzas
+2031/4/11,Sexta-feira Santa
+2031/4/13,Páscoa
+2031/5/1,Dia do Trabalhador
+2031/6/1,Dia Mundial da Criança
+2031/7/5,Dia da Independência Nacional
+2031/8/15,Dia da Assunção
+2031/11/1,Dia de Todos os Santos
+2031/12/25,Dia do Natal
+2032/1/1,Ano Novo
+2032/1/13,Dia da Liberdade e da Democracia
+2032/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2032/2/11,Quarta-feira de Cinzas
+2032/3/26,Sexta-feira Santa
+2032/3/28,Páscoa
+2032/5/1,Dia do Trabalhador
+2032/6/1,Dia Mundial da Criança
+2032/7/5,Dia da Independência Nacional
+2032/8/15,Dia da Assunção
+2032/11/1,Dia de Todos os Santos
+2032/12/25,Dia do Natal
+2033/1/1,Ano Novo
+2033/1/13,Dia da Liberdade e da Democracia
+2033/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2033/3/2,Quarta-feira de Cinzas
+2033/4/15,Sexta-feira Santa
+2033/4/17,Páscoa
+2033/5/1,Dia do Trabalhador
+2033/6/1,Dia Mundial da Criança
+2033/7/5,Dia da Independência Nacional
+2033/8/15,Dia da Assunção
+2033/11/1,Dia de Todos os Santos
+2033/12/25,Dia do Natal
+2034/1/1,Ano Novo
+2034/1/13,Dia da Liberdade e da Democracia
+2034/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2034/2/22,Quarta-feira de Cinzas
+2034/4/7,Sexta-feira Santa
+2034/4/9,Páscoa
+2034/5/1,Dia do Trabalhador
+2034/6/1,Dia Mundial da Criança
+2034/7/5,Dia da Independência Nacional
+2034/8/15,Dia da Assunção
+2034/11/1,Dia de Todos os Santos
+2034/12/25,Dia do Natal
+2035/1/1,Ano Novo
+2035/1/13,Dia da Liberdade e da Democracia
+2035/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2035/2/7,Quarta-feira de Cinzas
+2035/3/23,Sexta-feira Santa
+2035/3/25,Páscoa
+2035/5/1,Dia do Trabalhador
+2035/6/1,Dia Mundial da Criança
+2035/7/5,Dia da Independência Nacional
+2035/8/15,Dia da Assunção
+2035/11/1,Dia de Todos os Santos
+2035/12/25,Dia do Natal
+2036/1/1,Ano Novo
+2036/1/13,Dia da Liberdade e da Democracia
+2036/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2036/2/27,Quarta-feira de Cinzas
+2036/4/11,Sexta-feira Santa
+2036/4/13,Páscoa
+2036/5/1,Dia do Trabalhador
+2036/6/1,Dia Mundial da Criança
+2036/7/5,Dia da Independência Nacional
+2036/8/15,Dia da Assunção
+2036/11/1,Dia de Todos os Santos
+2036/12/25,Dia do Natal
+2037/1/1,Ano Novo
+2037/1/13,Dia da Liberdade e da Democracia
+2037/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2037/2/18,Quarta-feira de Cinzas
+2037/4/3,Sexta-feira Santa
+2037/4/5,Páscoa
+2037/5/1,Dia do Trabalhador
+2037/6/1,Dia Mundial da Criança
+2037/7/5,Dia da Independência Nacional
+2037/8/15,Dia da Assunção
+2037/11/1,Dia de Todos os Santos
+2037/12/25,Dia do Natal
+2038/1/1,Ano Novo
+2038/1/13,Dia da Liberdade e da Democracia
+2038/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2038/3/10,Quarta-feira de Cinzas
+2038/4/23,Sexta-feira Santa
+2038/4/25,Páscoa
+2038/5/1,Dia do Trabalhador
+2038/6/1,Dia Mundial da Criança
+2038/7/5,Dia da Independência Nacional
+2038/8/15,Dia da Assunção
+2038/11/1,Dia de Todos os Santos
+2038/12/25,Dia do Natal
+2039/1/1,Ano Novo
+2039/1/13,Dia da Liberdade e da Democracia
+2039/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2039/2/23,Quarta-feira de Cinzas
+2039/4/8,Sexta-feira Santa
+2039/4/10,Páscoa
+2039/5/1,Dia do Trabalhador
+2039/6/1,Dia Mundial da Criança
+2039/7/5,Dia da Independência Nacional
+2039/8/15,Dia da Assunção
+2039/11/1,Dia de Todos os Santos
+2039/12/25,Dia do Natal
+2040/1/1,Ano Novo
+2040/1/13,Dia da Liberdade e da Democracia
+2040/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2040/2/15,Quarta-feira de Cinzas
+2040/3/30,Sexta-feira Santa
+2040/4/1,Páscoa
+2040/5/1,Dia do Trabalhador
+2040/6/1,Dia Mundial da Criança
+2040/7/5,Dia da Independência Nacional
+2040/8/15,Dia da Assunção
+2040/11/1,Dia de Todos os Santos
+2040/12/25,Dia do Natal
+2041/1/1,Ano Novo
+2041/1/13,Dia da Liberdade e da Democracia
+2041/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2041/3/6,Quarta-feira de Cinzas
+2041/4/19,Sexta-feira Santa
+2041/4/21,Páscoa
+2041/5/1,Dia do Trabalhador
+2041/6/1,Dia Mundial da Criança
+2041/7/5,Dia da Independência Nacional
+2041/8/15,Dia da Assunção
+2041/11/1,Dia de Todos os Santos
+2041/12/25,Dia do Natal
+2042/1/1,Ano Novo
+2042/1/13,Dia da Liberdade e da Democracia
+2042/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2042/2/19,Quarta-feira de Cinzas
+2042/4/4,Sexta-feira Santa
+2042/4/6,Páscoa
+2042/5/1,Dia do Trabalhador
+2042/6/1,Dia Mundial da Criança
+2042/7/5,Dia da Independência Nacional
+2042/8/15,Dia da Assunção
+2042/11/1,Dia de Todos os Santos
+2042/12/25,Dia do Natal
+2043/1/1,Ano Novo
+2043/1/13,Dia da Liberdade e da Democracia
+2043/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2043/2/11,Quarta-feira de Cinzas
+2043/3/27,Sexta-feira Santa
+2043/3/29,Páscoa
+2043/5/1,Dia do Trabalhador
+2043/6/1,Dia Mundial da Criança
+2043/7/5,Dia da Independência Nacional
+2043/8/15,Dia da Assunção
+2043/11/1,Dia de Todos os Santos
+2043/12/25,Dia do Natal
+2044/1/1,Ano Novo
+2044/1/13,Dia da Liberdade e da Democracia
+2044/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2044/3/2,Quarta-feira de Cinzas
+2044/4/15,Sexta-feira Santa
+2044/4/17,Páscoa
+2044/5/1,Dia do Trabalhador
+2044/6/1,Dia Mundial da Criança
+2044/7/5,Dia da Independência Nacional
+2044/8/15,Dia da Assunção
+2044/11/1,Dia de Todos os Santos
+2044/12/25,Dia do Natal
+2045/1/1,Ano Novo
+2045/1/13,Dia da Liberdade e da Democracia
+2045/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2045/2/22,Quarta-feira de Cinzas
+2045/4/7,Sexta-feira Santa
+2045/4/9,Páscoa
+2045/5/1,Dia do Trabalhador
+2045/6/1,Dia Mundial da Criança
+2045/7/5,Dia da Independência Nacional
+2045/8/15,Dia da Assunção
+2045/11/1,Dia de Todos os Santos
+2045/12/25,Dia do Natal
+2046/1/1,Ano Novo
+2046/1/13,Dia da Liberdade e da Democracia
+2046/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2046/2/7,Quarta-feira de Cinzas
+2046/3/23,Sexta-feira Santa
+2046/3/25,Páscoa
+2046/5/1,Dia do Trabalhador
+2046/6/1,Dia Mundial da Criança
+2046/7/5,Dia da Independência Nacional
+2046/8/15,Dia da Assunção
+2046/11/1,Dia de Todos os Santos
+2046/12/25,Dia do Natal
+2047/1/1,Ano Novo
+2047/1/13,Dia da Liberdade e da Democracia
+2047/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2047/2/27,Quarta-feira de Cinzas
+2047/4/12,Sexta-feira Santa
+2047/4/14,Páscoa
+2047/5/1,Dia do Trabalhador
+2047/6/1,Dia Mundial da Criança
+2047/7/5,Dia da Independência Nacional
+2047/8/15,Dia da Assunção
+2047/11/1,Dia de Todos os Santos
+2047/12/25,Dia do Natal
+2048/1/1,Ano Novo
+2048/1/13,Dia da Liberdade e da Democracia
+2048/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2048/2/19,Quarta-feira de Cinzas
+2048/4/3,Sexta-feira Santa
+2048/4/5,Páscoa
+2048/5/1,Dia do Trabalhador
+2048/6/1,Dia Mundial da Criança
+2048/7/5,Dia da Independência Nacional
+2048/8/15,Dia da Assunção
+2048/11/1,Dia de Todos os Santos
+2048/12/25,Dia do Natal
+2049/1/1,Ano Novo
+2049/1/13,Dia da Liberdade e da Democracia
+2049/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2049/3/3,Quarta-feira de Cinzas
+2049/4/16,Sexta-feira Santa
+2049/4/18,Páscoa
+2049/5/1,Dia do Trabalhador
+2049/6/1,Dia Mundial da Criança
+2049/7/5,Dia da Independência Nacional
+2049/8/15,Dia da Assunção
+2049/11/1,Dia de Todos os Santos
+2049/12/25,Dia do Natal
+2050/1/1,Ano Novo
+2050/1/13,Dia da Liberdade e da Democracia
+2050/1/20,Dia da Nacionalidade e dos Heróis Nacionais
+2050/2/23,Quarta-feira de Cinzas
+2050/4/8,Sexta-feira Santa
+2050/4/10,Páscoa
+2050/5/1,Dia do Trabalhador
+2050/6/1,Dia Mundial da Criança
+2050/7/5,Dia da Independência Nacional
+2050/8/15,Dia da Assunção
+2050/11/1,Dia de Todos os Santos
+2050/12/25,Dia do Natal

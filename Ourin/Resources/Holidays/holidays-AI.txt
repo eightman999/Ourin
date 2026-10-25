@@ -1,0 +1,537 @@
+# AI の祝日（2020〜2050年、言語: en_AI）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/3/2,James Ronald Webster Day
+2020/4/10,Good Friday
+2020/4/12,Easter Sunday
+2020/4/13,Easter Monday
+2020/5/1,Labour Day
+2020/5/30,Anguilla Day
+2020/6/1,Whit Monday
+2020/6/2,Anguilla Day (observed)
+2020/6/8,Celebration of the Birthday of Her Majesty the Queen
+2020/8/3,August Monday
+2020/8/6,August Thursday
+2020/8/7,Constitution Day
+2020/12/18,National Heroes and Heroines Day (observed)
+2020/12/19,National Heroes and Heroines Day
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2020/12/28,Boxing Day (observed)
+2021/1/1,New Year's Day
+2021/3/2,James Ronald Webster Day
+2021/4/2,Good Friday
+2021/4/4,Easter Sunday
+2021/4/5,Easter Monday
+2021/5/1,Labour Day
+2021/5/3,Labour Day (observed)
+2021/5/24,Whit Monday
+2021/5/30,Anguilla Day
+2021/5/31,Anguilla Day (observed)
+2021/6/14,Celebration of the Birthday of Her Majesty the Queen
+2021/8/2,August Monday
+2021/8/5,August Thursday
+2021/8/6,Constitution Day
+2021/12/17,National Heroes and Heroines Day (observed)
+2021/12/19,National Heroes and Heroines Day
+2021/12/25,Christmas Day
+2021/12/26,Boxing Day
+2021/12/27,Christmas Day (observed)
+2021/12/28,Boxing Day (observed)
+2022/1/1,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/3/2,James Ronald Webster Day
+2022/4/15,Good Friday
+2022/4/17,Easter Sunday
+2022/4/18,Easter Monday
+2022/5/1,Labour Day
+2022/5/2,Labour Day (observed)
+2022/5/30,Anguilla Day
+2022/6/3,Celebration of the Birthday of Her Majesty the Queen
+2022/6/6,Whit Monday
+2022/8/1,August Monday
+2022/8/4,August Thursday
+2022/8/5,Constitution Day
+2022/9/19,Mourning the Death of Her Majesty The Queen Elizabeth II
+2022/12/19,National Heroes and Heroines Day
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day
+2022/12/27,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/3/2,James Ronald Webster Day
+2023/4/7,Good Friday
+2023/4/9,Easter Sunday
+2023/4/10,Easter Monday
+2023/5/1,Labour Day
+2023/5/29,Whit Monday
+2023/5/30,Anguilla Day
+2023/6/19,Celebration of the Birthday of His Majesty the King
+2023/8/7,August Monday
+2023/8/10,August Thursday
+2023/8/11,Constitution Day
+2023/12/19,National Heroes and Heroines Day
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/3/2,James Ronald Webster Day
+2024/3/4,James Ronald Webster Day (observed)
+2024/3/29,Good Friday
+2024/3/31,Easter Sunday
+2024/4/1,Easter Monday
+2024/5/1,Labour Day
+2024/5/20,Whit Monday
+2024/5/30,Anguilla Day
+2024/6/17,Celebration of the Birthday of His Majesty the King
+2024/8/5,August Monday
+2024/8/8,August Thursday
+2024/8/9,Constitution Day
+2024/12/19,National Heroes and Heroines Day
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/2/28,Special Public Holiday
+2025/3/2,James Ronald Webster Day
+2025/3/3,James Ronald Webster Day (observed)
+2025/4/18,Good Friday
+2025/4/20,Easter Sunday
+2025/4/21,Easter Monday
+2025/5/1,Labour Day
+2025/5/30,Anguilla Day
+2025/6/9,Whit Monday
+2025/6/16,Celebration of the Birthday of His Majesty the King
+2025/8/4,August Monday
+2025/8/7,August Thursday
+2025/8/8,Constitution Day
+2025/12/19,National Heroes and Heroines Day
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/3/2,James Ronald Webster Day
+2026/4/3,Good Friday
+2026/4/5,Easter Sunday
+2026/4/6,Easter Monday
+2026/5/1,Labour Day
+2026/5/25,Whit Monday
+2026/5/30,Anguilla Day
+2026/6/1,Anguilla Day (observed)
+2026/6/15,Celebration of the Birthday of His Majesty the King
+2026/8/3,August Monday
+2026/8/6,August Thursday
+2026/8/7,Constitution Day
+2026/12/18,National Heroes and Heroines Day (observed)
+2026/12/19,National Heroes and Heroines Day
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2026/12/28,Boxing Day (observed)
+2027/1/1,New Year's Day
+2027/3/2,James Ronald Webster Day
+2027/3/26,Good Friday
+2027/3/28,Easter Sunday
+2027/3/29,Easter Monday
+2027/5/1,Labour Day
+2027/5/3,Labour Day (observed)
+2027/5/17,Whit Monday
+2027/5/30,Anguilla Day
+2027/5/31,Anguilla Day (observed)
+2027/6/21,Celebration of the Birthday of His Majesty the King
+2027/8/2,August Monday
+2027/8/5,August Thursday
+2027/8/6,Constitution Day
+2027/12/17,National Heroes and Heroines Day (observed)
+2027/12/19,National Heroes and Heroines Day
+2027/12/25,Christmas Day
+2027/12/26,Boxing Day
+2027/12/27,Christmas Day (observed)
+2027/12/28,Boxing Day (observed)
+2028/1/1,New Year's Day
+2028/1/3,New Year's Day (observed)
+2028/3/2,James Ronald Webster Day
+2028/4/14,Good Friday
+2028/4/16,Easter Sunday
+2028/4/17,Easter Monday
+2028/5/1,Labour Day
+2028/5/30,Anguilla Day
+2028/6/5,Whit Monday
+2028/6/19,Celebration of the Birthday of His Majesty the King
+2028/8/7,August Monday
+2028/8/10,August Thursday
+2028/8/11,Constitution Day
+2028/12/19,National Heroes and Heroines Day
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/3/2,James Ronald Webster Day
+2029/3/30,Good Friday
+2029/4/1,Easter Sunday
+2029/4/2,Easter Monday
+2029/5/1,Labour Day
+2029/5/21,Whit Monday
+2029/5/30,Anguilla Day
+2029/6/18,Celebration of the Birthday of His Majesty the King
+2029/8/6,August Monday
+2029/8/9,August Thursday
+2029/8/10,Constitution Day
+2029/12/19,National Heroes and Heroines Day
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/3/2,James Ronald Webster Day
+2030/3/4,James Ronald Webster Day (observed)
+2030/4/19,Good Friday
+2030/4/21,Easter Sunday
+2030/4/22,Easter Monday
+2030/5/1,Labour Day
+2030/5/30,Anguilla Day
+2030/6/10,Whit Monday
+2030/6/17,Celebration of the Birthday of His Majesty the King
+2030/8/5,August Monday
+2030/8/8,August Thursday
+2030/8/9,Constitution Day
+2030/12/19,National Heroes and Heroines Day
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/3/2,James Ronald Webster Day
+2031/3/3,James Ronald Webster Day (observed)
+2031/4/11,Good Friday
+2031/4/13,Easter Sunday
+2031/4/14,Easter Monday
+2031/5/1,Labour Day
+2031/5/30,Anguilla Day
+2031/6/2,Whit Monday
+2031/6/16,Celebration of the Birthday of His Majesty the King
+2031/8/4,August Monday
+2031/8/7,August Thursday
+2031/8/8,Constitution Day
+2031/12/19,National Heroes and Heroines Day
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/3/2,James Ronald Webster Day
+2032/3/26,Good Friday
+2032/3/28,Easter Sunday
+2032/3/29,Easter Monday
+2032/5/1,Labour Day
+2032/5/3,Labour Day (observed)
+2032/5/17,Whit Monday
+2032/5/30,Anguilla Day
+2032/5/31,Anguilla Day (observed)
+2032/6/21,Celebration of the Birthday of His Majesty the King
+2032/8/2,August Monday
+2032/8/5,August Thursday
+2032/8/6,Constitution Day
+2032/12/17,National Heroes and Heroines Day (observed)
+2032/12/19,National Heroes and Heroines Day
+2032/12/25,Christmas Day
+2032/12/26,Boxing Day
+2032/12/27,Christmas Day (observed)
+2032/12/28,Boxing Day (observed)
+2033/1/1,New Year's Day
+2033/1/3,New Year's Day (observed)
+2033/3/2,James Ronald Webster Day
+2033/4/15,Good Friday
+2033/4/17,Easter Sunday
+2033/4/18,Easter Monday
+2033/5/1,Labour Day
+2033/5/2,Labour Day (observed)
+2033/5/30,Anguilla Day
+2033/6/6,Whit Monday
+2033/6/20,Celebration of the Birthday of His Majesty the King
+2033/8/1,August Monday
+2033/8/4,August Thursday
+2033/8/5,Constitution Day
+2033/12/19,National Heroes and Heroines Day
+2033/12/25,Christmas Day
+2033/12/26,Boxing Day
+2033/12/27,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/3/2,James Ronald Webster Day
+2034/4/7,Good Friday
+2034/4/9,Easter Sunday
+2034/4/10,Easter Monday
+2034/5/1,Labour Day
+2034/5/29,Whit Monday
+2034/5/30,Anguilla Day
+2034/6/19,Celebration of the Birthday of His Majesty the King
+2034/8/7,August Monday
+2034/8/10,August Thursday
+2034/8/11,Constitution Day
+2034/12/19,National Heroes and Heroines Day
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/3/2,James Ronald Webster Day
+2035/3/23,Good Friday
+2035/3/25,Easter Sunday
+2035/3/26,Easter Monday
+2035/5/1,Labour Day
+2035/5/14,Whit Monday
+2035/5/30,Anguilla Day
+2035/6/18,Celebration of the Birthday of His Majesty the King
+2035/8/6,August Monday
+2035/8/9,August Thursday
+2035/8/10,Constitution Day
+2035/12/19,National Heroes and Heroines Day
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/3/2,James Ronald Webster Day
+2036/3/3,James Ronald Webster Day (observed)
+2036/4/11,Good Friday
+2036/4/13,Easter Sunday
+2036/4/14,Easter Monday
+2036/5/1,Labour Day
+2036/5/30,Anguilla Day
+2036/6/2,Whit Monday
+2036/6/16,Celebration of the Birthday of His Majesty the King
+2036/8/4,August Monday
+2036/8/7,August Thursday
+2036/8/8,Constitution Day
+2036/12/19,National Heroes and Heroines Day
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/3/2,James Ronald Webster Day
+2037/4/3,Good Friday
+2037/4/5,Easter Sunday
+2037/4/6,Easter Monday
+2037/5/1,Labour Day
+2037/5/25,Whit Monday
+2037/5/30,Anguilla Day
+2037/6/1,Anguilla Day (observed)
+2037/6/15,Celebration of the Birthday of His Majesty the King
+2037/8/3,August Monday
+2037/8/6,August Thursday
+2037/8/7,Constitution Day
+2037/12/18,National Heroes and Heroines Day (observed)
+2037/12/19,National Heroes and Heroines Day
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2037/12/28,Boxing Day (observed)
+2038/1/1,New Year's Day
+2038/3/2,James Ronald Webster Day
+2038/4/23,Good Friday
+2038/4/25,Easter Sunday
+2038/4/26,Easter Monday
+2038/5/1,Labour Day
+2038/5/3,Labour Day (observed)
+2038/5/30,Anguilla Day
+2038/5/31,Anguilla Day (observed)
+2038/6/14,Whit Monday
+2038/6/21,Celebration of the Birthday of His Majesty the King
+2038/8/2,August Monday
+2038/8/5,August Thursday
+2038/8/6,Constitution Day
+2038/12/17,National Heroes and Heroines Day (observed)
+2038/12/19,National Heroes and Heroines Day
+2038/12/25,Christmas Day
+2038/12/26,Boxing Day
+2038/12/27,Christmas Day (observed)
+2038/12/28,Boxing Day (observed)
+2039/1/1,New Year's Day
+2039/1/3,New Year's Day (observed)
+2039/3/2,James Ronald Webster Day
+2039/4/8,Good Friday
+2039/4/10,Easter Sunday
+2039/4/11,Easter Monday
+2039/5/1,Labour Day
+2039/5/2,Labour Day (observed)
+2039/5/30,Anguilla Day; Whit Monday
+2039/5/31,Anguilla Day (observed)
+2039/6/20,Celebration of the Birthday of His Majesty the King
+2039/8/1,August Monday
+2039/8/4,August Thursday
+2039/8/5,Constitution Day
+2039/12/19,National Heroes and Heroines Day
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day
+2039/12/27,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/3/2,James Ronald Webster Day
+2040/3/30,Good Friday
+2040/4/1,Easter Sunday
+2040/4/2,Easter Monday
+2040/5/1,Labour Day
+2040/5/21,Whit Monday
+2040/5/30,Anguilla Day
+2040/6/18,Celebration of the Birthday of His Majesty the King
+2040/8/6,August Monday
+2040/8/9,August Thursday
+2040/8/10,Constitution Day
+2040/12/19,National Heroes and Heroines Day
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/3/2,James Ronald Webster Day
+2041/3/4,James Ronald Webster Day (observed)
+2041/4/19,Good Friday
+2041/4/21,Easter Sunday
+2041/4/22,Easter Monday
+2041/5/1,Labour Day
+2041/5/30,Anguilla Day
+2041/6/10,Whit Monday
+2041/6/17,Celebration of the Birthday of His Majesty the King
+2041/8/5,August Monday
+2041/8/8,August Thursday
+2041/8/9,Constitution Day
+2041/12/19,National Heroes and Heroines Day
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/3/2,James Ronald Webster Day
+2042/3/3,James Ronald Webster Day (observed)
+2042/4/4,Good Friday
+2042/4/6,Easter Sunday
+2042/4/7,Easter Monday
+2042/5/1,Labour Day
+2042/5/26,Whit Monday
+2042/5/30,Anguilla Day
+2042/6/16,Celebration of the Birthday of His Majesty the King
+2042/8/4,August Monday
+2042/8/7,August Thursday
+2042/8/8,Constitution Day
+2042/12/19,National Heroes and Heroines Day
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/3/2,James Ronald Webster Day
+2043/3/27,Good Friday
+2043/3/29,Easter Sunday
+2043/3/30,Easter Monday
+2043/5/1,Labour Day
+2043/5/18,Whit Monday
+2043/5/30,Anguilla Day
+2043/6/1,Anguilla Day (observed)
+2043/6/15,Celebration of the Birthday of His Majesty the King
+2043/8/3,August Monday
+2043/8/6,August Thursday
+2043/8/7,Constitution Day
+2043/12/18,National Heroes and Heroines Day (observed)
+2043/12/19,National Heroes and Heroines Day
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2043/12/28,Boxing Day (observed)
+2044/1/1,New Year's Day
+2044/3/2,James Ronald Webster Day
+2044/4/15,Good Friday
+2044/4/17,Easter Sunday
+2044/4/18,Easter Monday
+2044/5/1,Labour Day
+2044/5/2,Labour Day (observed)
+2044/5/30,Anguilla Day
+2044/6/6,Whit Monday
+2044/6/20,Celebration of the Birthday of His Majesty the King
+2044/8/1,August Monday
+2044/8/4,August Thursday
+2044/8/5,Constitution Day
+2044/12/19,National Heroes and Heroines Day
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day
+2044/12/27,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/3/2,James Ronald Webster Day
+2045/4/7,Good Friday
+2045/4/9,Easter Sunday
+2045/4/10,Easter Monday
+2045/5/1,Labour Day
+2045/5/29,Whit Monday
+2045/5/30,Anguilla Day
+2045/6/19,Celebration of the Birthday of His Majesty the King
+2045/8/7,August Monday
+2045/8/10,August Thursday
+2045/8/11,Constitution Day
+2045/12/19,National Heroes and Heroines Day
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/3/2,James Ronald Webster Day
+2046/3/23,Good Friday
+2046/3/25,Easter Sunday
+2046/3/26,Easter Monday
+2046/5/1,Labour Day
+2046/5/14,Whit Monday
+2046/5/30,Anguilla Day
+2046/6/18,Celebration of the Birthday of His Majesty the King
+2046/8/6,August Monday
+2046/8/9,August Thursday
+2046/8/10,Constitution Day
+2046/12/19,National Heroes and Heroines Day
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/3/2,James Ronald Webster Day
+2047/3/4,James Ronald Webster Day (observed)
+2047/4/12,Good Friday
+2047/4/14,Easter Sunday
+2047/4/15,Easter Monday
+2047/5/1,Labour Day
+2047/5/30,Anguilla Day
+2047/6/3,Whit Monday
+2047/6/17,Celebration of the Birthday of His Majesty the King
+2047/8/5,August Monday
+2047/8/8,August Thursday
+2047/8/9,Constitution Day
+2047/12/19,National Heroes and Heroines Day
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2048/1/1,New Year's Day
+2048/3/2,James Ronald Webster Day
+2048/4/3,Good Friday
+2048/4/5,Easter Sunday
+2048/4/6,Easter Monday
+2048/5/1,Labour Day
+2048/5/25,Whit Monday
+2048/5/30,Anguilla Day
+2048/6/1,Anguilla Day (observed)
+2048/6/15,Celebration of the Birthday of His Majesty the King
+2048/8/3,August Monday
+2048/8/6,August Thursday
+2048/8/7,Constitution Day
+2048/12/18,National Heroes and Heroines Day (observed)
+2048/12/19,National Heroes and Heroines Day
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2048/12/28,Boxing Day (observed)
+2049/1/1,New Year's Day
+2049/3/2,James Ronald Webster Day
+2049/4/16,Good Friday
+2049/4/18,Easter Sunday
+2049/4/19,Easter Monday
+2049/5/1,Labour Day
+2049/5/3,Labour Day (observed)
+2049/5/30,Anguilla Day
+2049/5/31,Anguilla Day (observed)
+2049/6/7,Whit Monday
+2049/6/21,Celebration of the Birthday of His Majesty the King
+2049/8/2,August Monday
+2049/8/5,August Thursday
+2049/8/6,Constitution Day
+2049/12/17,National Heroes and Heroines Day (observed)
+2049/12/19,National Heroes and Heroines Day
+2049/12/25,Christmas Day
+2049/12/26,Boxing Day
+2049/12/27,Christmas Day (observed)
+2049/12/28,Boxing Day (observed)
+2050/1/1,New Year's Day
+2050/1/3,New Year's Day (observed)
+2050/3/2,James Ronald Webster Day
+2050/4/8,Good Friday
+2050/4/10,Easter Sunday
+2050/4/11,Easter Monday
+2050/5/1,Labour Day
+2050/5/2,Labour Day (observed)
+2050/5/30,Anguilla Day; Whit Monday
+2050/5/31,Anguilla Day (observed)
+2050/6/20,Celebration of the Birthday of His Majesty the King
+2050/8/1,August Monday
+2050/8/4,August Thursday
+2050/8/5,Constitution Day
+2050/12/19,National Heroes and Heroines Day
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day
+2050/12/27,Christmas Day (observed)

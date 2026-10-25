@@ -1,0 +1,496 @@
+# GY の祝日（2020〜2050年、言語: en_GY）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/2/23,Republic Day
+2020/3/2,Public Holiday
+2020/3/10,Phagwah
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/5/1,Labour Day
+2020/5/5,Arrival Day
+2020/5/26,Independence Day
+2020/7/6,CARICOM Day
+2020/7/31,Eid-Ul-Azha
+2020/8/1,Emancipation Day
+2020/10/29,Youman Nabi
+2020/11/14,Deepavali
+2020/12/25,Christmas Day
+2020/12/26,Day After Christmas
+2020/12/28,Day After Christmas (observed)
+2021/1/1,New Year's Day
+2021/2/23,Republic Day
+2021/3/28,Phagwah
+2021/3/29,Phagwah (observed)
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/5/1,Labour Day
+2021/5/5,Arrival Day
+2021/5/26,Independence Day
+2021/7/5,CARICOM Day
+2021/7/21,Eid-Ul-Azha
+2021/8/1,Emancipation Day
+2021/8/2,Emancipation Day (observed)
+2021/10/19,Youman Nabi
+2021/11/4,Deepavali
+2021/12/25,Christmas Day
+2021/12/26,Day After Christmas
+2021/12/27,Christmas Day (observed)
+2021/12/28,Day After Christmas (observed)
+2022/1/1,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/2/23,Republic Day
+2022/3/18,Phagwah
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/5/1,Labour Day
+2022/5/2,Labour Day (observed)
+2022/5/5,Arrival Day
+2022/5/26,Independence Day
+2022/7/4,CARICOM Day
+2022/7/9,Eid-Ul-Azha
+2022/8/1,Emancipation Day
+2022/10/9,Youman Nabi
+2022/10/10,Youman Nabi (observed)
+2022/10/24,Deepavali
+2022/12/25,Christmas Day
+2022/12/26,Day After Christmas
+2022/12/27,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/2/23,Republic Day
+2023/3/7,Phagwah
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/5/1,Labour Day
+2023/5/5,Arrival Day
+2023/5/26,Independence Day
+2023/6/29,Eid-Ul-Azha
+2023/7/3,CARICOM Day
+2023/8/1,Emancipation Day
+2023/9/28,Youman Nabi
+2023/11/12,Deepavali
+2023/11/13,Deepavali (observed)
+2023/12/25,Christmas Day
+2023/12/26,Day After Christmas
+2024/1/1,New Year's Day
+2024/2/23,Republic Day
+2024/3/25,Phagwah
+2024/3/29,Good Friday
+2024/4/1,Easter Monday
+2024/5/1,Labour Day
+2024/5/5,Arrival Day
+2024/5/6,Arrival Day (observed)
+2024/5/26,Independence Day
+2024/6/17,Eid-Ul-Azha
+2024/7/1,CARICOM Day
+2024/8/1,Emancipation Day
+2024/9/16,Youman Nabi
+2024/10/31,Deepavali
+2024/12/25,Christmas Day
+2024/12/26,Day After Christmas
+2025/1/1,New Year's Day
+2025/2/23,Republic Day
+2025/3/14,Phagwah
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/5/1,Labour Day
+2025/5/5,Arrival Day
+2025/5/26,Independence Day
+2025/6/7,Eid-Ul-Azha
+2025/7/7,CARICOM Day
+2025/8/1,Emancipation Day
+2025/9/5,Youman Nabi
+2025/10/20,Deepavali
+2025/12/25,Christmas Day
+2025/12/26,Day After Christmas
+2026/1/1,New Year's Day
+2026/2/23,Republic Day
+2026/3/3,Phagwah
+2026/4/3,Good Friday
+2026/4/6,Easter Monday
+2026/5/1,Labour Day
+2026/5/5,Arrival Day
+2026/5/26,Independence Day
+2026/5/28,Eid-Ul-Azha (estimated)
+2026/7/6,CARICOM Day
+2026/8/1,Emancipation Day
+2026/8/26,Youman Nabi (estimated)
+2026/11/8,Deepavali
+2026/11/9,Deepavali (observed)
+2026/12/25,Christmas Day
+2026/12/26,Day After Christmas
+2026/12/28,Day After Christmas (observed)
+2027/1/1,New Year's Day
+2027/2/23,Republic Day
+2027/3/22,Phagwah
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/5/1,Labour Day
+2027/5/5,Arrival Day
+2027/5/17,Eid-Ul-Azha (estimated)
+2027/5/26,Independence Day
+2027/7/5,CARICOM Day
+2027/8/1,Emancipation Day
+2027/8/2,Emancipation Day (observed)
+2027/8/15,Youman Nabi (estimated)
+2027/8/16,Youman Nabi (observed, estimated)
+2027/10/29,Deepavali
+2027/12/25,Christmas Day
+2027/12/26,Day After Christmas
+2027/12/27,Christmas Day (observed)
+2027/12/28,Day After Christmas (observed)
+2028/1/1,New Year's Day
+2028/1/3,New Year's Day (observed)
+2028/2/23,Republic Day
+2028/3/11,Phagwah
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/5/1,Labour Day
+2028/5/5,Arrival Day
+2028/5/6,Eid-Ul-Azha (estimated)
+2028/5/26,Independence Day
+2028/7/3,CARICOM Day
+2028/8/1,Emancipation Day
+2028/8/4,Youman Nabi (estimated)
+2028/10/17,Deepavali
+2028/12/25,Christmas Day
+2028/12/26,Day After Christmas
+2029/1/1,New Year's Day
+2029/2/23,Republic Day
+2029/3/1,Phagwah
+2029/3/30,Good Friday
+2029/4/2,Easter Monday
+2029/4/25,Eid-Ul-Azha (estimated)
+2029/5/1,Labour Day
+2029/5/5,Arrival Day
+2029/5/26,Independence Day
+2029/7/2,CARICOM Day
+2029/7/25,Youman Nabi (estimated)
+2029/8/1,Emancipation Day
+2029/11/5,Deepavali
+2029/12/25,Christmas Day
+2029/12/26,Day After Christmas
+2030/1/1,New Year's Day
+2030/2/23,Republic Day
+2030/3/20,Phagwah
+2030/4/14,Eid-Ul-Azha (estimated)
+2030/4/15,Eid-Ul-Azha (observed, estimated)
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/5/1,Labour Day
+2030/5/5,Arrival Day
+2030/5/6,Arrival Day (observed)
+2030/5/26,Independence Day
+2030/7/1,CARICOM Day
+2030/7/14,Youman Nabi (estimated)
+2030/7/15,Youman Nabi (observed, estimated)
+2030/8/1,Emancipation Day
+2030/10/26,Deepavali
+2030/12/25,Christmas Day
+2030/12/26,Day After Christmas
+2031/1/1,New Year's Day
+2031/2/23,Republic Day
+2031/3/9,Phagwah
+2031/3/10,Phagwah (observed)
+2031/4/3,Eid-Ul-Azha (estimated)
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/5/1,Labour Day
+2031/5/5,Arrival Day
+2031/5/26,Independence Day
+2031/7/3,Youman Nabi (estimated)
+2031/7/7,CARICOM Day
+2031/8/1,Emancipation Day
+2031/11/14,Deepavali
+2031/12/25,Christmas Day
+2031/12/26,Day After Christmas
+2032/1/1,New Year's Day
+2032/2/23,Republic Day
+2032/3/23,Eid-Ul-Azha (estimated)
+2032/3/26,Good Friday
+2032/3/27,Phagwah
+2032/3/29,Easter Monday
+2032/5/1,Labour Day
+2032/5/5,Arrival Day
+2032/5/26,Independence Day
+2032/6/21,Youman Nabi (estimated)
+2032/7/5,CARICOM Day
+2032/8/1,Emancipation Day
+2032/8/2,Emancipation Day (observed)
+2032/11/2,Deepavali
+2032/12/25,Christmas Day
+2032/12/26,Day After Christmas
+2032/12/27,Christmas Day (observed)
+2032/12/28,Day After Christmas (observed)
+2033/1/1,New Year's Day
+2033/1/3,New Year's Day (observed)
+2033/2/23,Republic Day
+2033/3/12,Eid-Ul-Azha (estimated)
+2033/3/16,Phagwah
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/5/1,Labour Day
+2033/5/2,Labour Day (observed)
+2033/5/5,Arrival Day
+2033/5/26,Independence Day
+2033/6/10,Youman Nabi (estimated)
+2033/7/4,CARICOM Day
+2033/8/1,Emancipation Day
+2033/10/22,Deepavali
+2033/12/25,Christmas Day
+2033/12/26,Day After Christmas
+2033/12/27,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/2/23,Republic Day
+2034/3/2,Eid-Ul-Azha (estimated)
+2034/3/5,Phagwah
+2034/3/6,Phagwah (observed)
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/5/1,Labour Day
+2034/5/5,Arrival Day
+2034/5/26,Independence Day
+2034/5/31,Youman Nabi (estimated)
+2034/7/3,CARICOM Day
+2034/8/1,Emancipation Day
+2034/11/10,Deepavali
+2034/12/25,Christmas Day
+2034/12/26,Day After Christmas
+2035/1/1,New Year's Day
+2035/2/19,Eid-Ul-Azha (estimated)
+2035/2/23,Republic Day
+2035/3/23,Good Friday
+2035/3/24,Phagwah
+2035/3/26,Easter Monday
+2035/5/1,Labour Day
+2035/5/5,Arrival Day
+2035/5/21,Youman Nabi (estimated)
+2035/5/26,Independence Day
+2035/7/2,CARICOM Day
+2035/8/1,Emancipation Day
+2035/10/30,Deepavali
+2035/12/25,Christmas Day
+2035/12/26,Day After Christmas
+2036/1/1,New Year's Day
+2036/2/8,Eid-Ul-Azha (estimated)
+2036/2/23,Republic Day
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/5/1,Labour Day
+2036/5/5,Arrival Day
+2036/5/9,Youman Nabi (estimated)
+2036/5/26,Independence Day
+2036/7/7,CARICOM Day
+2036/8/1,Emancipation Day
+2036/12/25,Christmas Day
+2036/12/26,Day After Christmas
+2037/1/1,New Year's Day
+2037/1/27,Eid-Ul-Azha (estimated)
+2037/2/23,Republic Day
+2037/4/3,Good Friday
+2037/4/6,Easter Monday
+2037/4/29,Youman Nabi (estimated)
+2037/5/1,Labour Day
+2037/5/5,Arrival Day
+2037/5/26,Independence Day
+2037/7/6,CARICOM Day
+2037/8/1,Emancipation Day
+2037/12/25,Christmas Day
+2037/12/26,Day After Christmas
+2037/12/28,Day After Christmas (observed)
+2038/1/1,New Year's Day
+2038/1/17,Eid-Ul-Azha (estimated)
+2038/1/18,Eid-Ul-Azha (observed, estimated)
+2038/2/23,Republic Day
+2038/4/18,Youman Nabi (estimated)
+2038/4/19,Youman Nabi (observed, estimated)
+2038/4/23,Good Friday
+2038/4/26,Easter Monday
+2038/5/1,Labour Day
+2038/5/5,Arrival Day
+2038/5/26,Independence Day
+2038/7/5,CARICOM Day
+2038/8/1,Emancipation Day
+2038/8/2,Emancipation Day (observed)
+2038/12/25,Christmas Day
+2038/12/26,Day After Christmas
+2038/12/27,Christmas Day (observed)
+2038/12/28,Day After Christmas (observed)
+2039/1/1,New Year's Day
+2039/1/3,New Year's Day (observed)
+2039/1/6,Eid-Ul-Azha (estimated)
+2039/2/23,Republic Day
+2039/4/7,Youman Nabi (estimated)
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/5/1,Labour Day
+2039/5/2,Labour Day (observed)
+2039/5/5,Arrival Day
+2039/5/26,Independence Day
+2039/7/4,CARICOM Day
+2039/8/1,Emancipation Day
+2039/12/25,Christmas Day
+2039/12/26,Day After Christmas
+2039/12/27,Christmas Day (observed); Eid-Ul-Azha (estimated)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/2/23,Republic Day
+2040/3/26,Youman Nabi (estimated)
+2040/3/30,Good Friday
+2040/4/2,Easter Monday
+2040/5/1,Labour Day
+2040/5/5,Arrival Day
+2040/5/26,Independence Day
+2040/7/2,CARICOM Day
+2040/8/1,Emancipation Day
+2040/12/15,Eid-Ul-Azha (estimated)
+2040/12/25,Christmas Day
+2040/12/26,Day After Christmas
+2041/1/1,New Year's Day
+2041/2/23,Republic Day
+2041/3/16,Youman Nabi (estimated)
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/5/1,Labour Day
+2041/5/5,Arrival Day
+2041/5/6,Arrival Day (observed)
+2041/5/26,Independence Day
+2041/7/1,CARICOM Day
+2041/8/1,Emancipation Day
+2041/12/5,Eid-Ul-Azha (estimated)
+2041/12/25,Christmas Day
+2041/12/26,Day After Christmas
+2042/1/1,New Year's Day
+2042/2/23,Republic Day
+2042/3/5,Youman Nabi (estimated)
+2042/4/4,Good Friday
+2042/4/7,Easter Monday
+2042/5/1,Labour Day
+2042/5/5,Arrival Day
+2042/5/26,Independence Day
+2042/7/7,CARICOM Day
+2042/8/1,Emancipation Day
+2042/11/24,Eid-Ul-Azha (estimated)
+2042/12/25,Christmas Day
+2042/12/26,Day After Christmas
+2043/1/1,New Year's Day
+2043/2/23,Republic Day; Youman Nabi (estimated)
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/5/1,Labour Day
+2043/5/5,Arrival Day
+2043/5/26,Independence Day
+2043/7/6,CARICOM Day
+2043/8/1,Emancipation Day
+2043/11/13,Eid-Ul-Azha (estimated)
+2043/12/25,Christmas Day
+2043/12/26,Day After Christmas
+2043/12/28,Day After Christmas (observed)
+2044/1/1,New Year's Day
+2044/2/12,Youman Nabi (estimated)
+2044/2/23,Republic Day
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/5/1,Labour Day
+2044/5/2,Labour Day (observed)
+2044/5/5,Arrival Day
+2044/5/26,Independence Day
+2044/7/4,CARICOM Day
+2044/8/1,Emancipation Day
+2044/11/1,Eid-Ul-Azha (estimated)
+2044/12/25,Christmas Day
+2044/12/26,Day After Christmas
+2044/12/27,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/1/31,Youman Nabi (estimated)
+2045/2/23,Republic Day
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/5/1,Labour Day
+2045/5/5,Arrival Day
+2045/5/26,Independence Day
+2045/7/3,CARICOM Day
+2045/8/1,Emancipation Day
+2045/10/22,Eid-Ul-Azha (estimated)
+2045/10/23,Eid-Ul-Azha (observed, estimated)
+2045/12/25,Christmas Day
+2045/12/26,Day After Christmas
+2046/1/1,New Year's Day
+2046/1/20,Youman Nabi (estimated)
+2046/2/23,Republic Day
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/5/1,Labour Day
+2046/5/5,Arrival Day
+2046/5/26,Independence Day
+2046/7/2,CARICOM Day
+2046/8/1,Emancipation Day
+2046/10/11,Eid-Ul-Azha (estimated)
+2046/12/25,Christmas Day
+2046/12/26,Day After Christmas
+2047/1/1,New Year's Day
+2047/1/9,Youman Nabi (estimated)
+2047/2/23,Republic Day
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/5/1,Labour Day
+2047/5/5,Arrival Day
+2047/5/6,Arrival Day (observed)
+2047/5/26,Independence Day
+2047/7/1,CARICOM Day
+2047/8/1,Emancipation Day
+2047/10/1,Eid-Ul-Azha (estimated)
+2047/12/25,Christmas Day
+2047/12/26,Day After Christmas
+2047/12/30,Youman Nabi (estimated)
+2048/1/1,New Year's Day
+2048/2/23,Republic Day
+2048/4/3,Good Friday
+2048/4/6,Easter Monday
+2048/5/1,Labour Day
+2048/5/5,Arrival Day
+2048/5/26,Independence Day
+2048/7/6,CARICOM Day
+2048/8/1,Emancipation Day
+2048/9/20,Eid-Ul-Azha (estimated)
+2048/9/21,Eid-Ul-Azha (observed, estimated)
+2048/12/19,Youman Nabi (estimated)
+2048/12/25,Christmas Day
+2048/12/26,Day After Christmas
+2048/12/28,Day After Christmas (observed)
+2049/1/1,New Year's Day
+2049/2/23,Republic Day
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/5/1,Labour Day
+2049/5/5,Arrival Day
+2049/5/26,Independence Day
+2049/7/5,CARICOM Day
+2049/8/1,Emancipation Day
+2049/8/2,Emancipation Day (observed)
+2049/9/9,Eid-Ul-Azha (estimated)
+2049/12/8,Youman Nabi (estimated)
+2049/12/25,Christmas Day
+2049/12/26,Day After Christmas
+2049/12/27,Christmas Day (observed)
+2049/12/28,Day After Christmas (observed)
+2050/1/1,New Year's Day
+2050/1/3,New Year's Day (observed)
+2050/2/23,Republic Day
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/5/1,Labour Day
+2050/5/2,Labour Day (observed)
+2050/5/5,Arrival Day
+2050/5/26,Independence Day
+2050/7/4,CARICOM Day
+2050/8/1,Emancipation Day
+2050/8/29,Eid-Ul-Azha (estimated)
+2050/11/27,Youman Nabi (estimated)
+2050/11/28,Youman Nabi (observed, estimated)
+2050/12/25,Christmas Day
+2050/12/26,Day After Christmas
+2050/12/27,Christmas Day (observed)

@@ -51,12 +51,17 @@ public:
     bool appendRuntimeDic(const std::string& code);
     // Set the base directory used to anchor relative paths.
     void setGhostRoot(const std::string& root);
+    // YAYA の fncdepth（ユーザー関数の呼び出しの深さの上限）。load で作り直す VM にも引き継ぐ。
+    void setMaxFunctionDepth(int depth);
+    void setSaveFilePath(const std::string& path) { saveFilePath_ = path; if (vm_) vm_->setSaveFilePath(path); }
 
 private:
     std::unique_ptr<VM> vm_;
     VMCallback* storedCallback_ = nullptr;  // preserved across VM resets
     std::vector<std::string> loadedDicFiles_;  // Paths of successfully loaded dic files
     std::string ghostRoot_;
+    std::string saveFilePath_;
+    int maxFunctionDepth_ = VM::DEFAULT_FUNCTION_DEPTH;
     // #globaldefine で登録された置換（登録順を保持）。load() 開始時にクリアされ、
     // 登録以降にロードされる全ファイルへ適用される。
     std::vector<std::pair<std::string, std::string>> preprocessorGlobalDefines_;

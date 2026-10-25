@@ -1,0 +1,127 @@
+# AQ の祝日（2020〜2050年、言語: en）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/6/20,Midwinter Day
+2020/12/1,Antarctica Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/6/21,Midwinter Day
+2021/12/1,Antarctica Day
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/6/21,Midwinter Day
+2022/12/1,Antarctica Day
+2022/12/25,Christmas Day
+2023/1/1,New Year's Day
+2023/6/21,Midwinter Day
+2023/12/1,Antarctica Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/6/20,Midwinter Day
+2024/12/1,Antarctica Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/6/21,Midwinter Day
+2025/12/1,Antarctica Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/6/21,Midwinter Day
+2026/12/1,Antarctica Day
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/6/21,Midwinter Day
+2027/12/1,Antarctica Day
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/6/20,Midwinter Day
+2028/12/1,Antarctica Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/6/21,Midwinter Day
+2029/12/1,Antarctica Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/6/21,Midwinter Day
+2030/12/1,Antarctica Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/6/21,Midwinter Day
+2031/12/1,Antarctica Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/6/20,Midwinter Day
+2032/12/1,Antarctica Day
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/6/21,Midwinter Day
+2033/12/1,Antarctica Day
+2033/12/25,Christmas Day
+2034/1/1,New Year's Day
+2034/6/21,Midwinter Day
+2034/12/1,Antarctica Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/6/21,Midwinter Day
+2035/12/1,Antarctica Day
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/6/20,Midwinter Day
+2036/12/1,Antarctica Day
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/6/21,Midwinter Day
+2037/12/1,Antarctica Day
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/6/21,Midwinter Day
+2038/12/1,Antarctica Day
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/6/21,Midwinter Day
+2039/12/1,Antarctica Day
+2039/12/25,Christmas Day
+2040/1/1,New Year's Day
+2040/6/20,Midwinter Day
+2040/12/1,Antarctica Day
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/6/21,Midwinter Day
+2041/12/1,Antarctica Day
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/6/21,Midwinter Day
+2042/12/1,Antarctica Day
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/6/21,Midwinter Day
+2043/12/1,Antarctica Day
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/6/20,Midwinter Day
+2044/12/1,Antarctica Day
+2044/12/25,Christmas Day
+2045/1/1,New Year's Day
+2045/6/21,Midwinter Day
+2045/12/1,Antarctica Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/6/21,Midwinter Day
+2046/12/1,Antarctica Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/6/21,Midwinter Day
+2047/12/1,Antarctica Day
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/6/20,Midwinter Day
+2048/12/1,Antarctica Day
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/6/21,Midwinter Day
+2049/12/1,Antarctica Day
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/6/21,Midwinter Day
+2050/12/1,Antarctica Day
+2050/12/25,Christmas Day

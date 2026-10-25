@@ -794,7 +794,8 @@ std::shared_ptr<AST::Node> Parser::parseFor() {
     while (!check(TokenType::Semicolon) && !check(TokenType::EndOfFile) && !check(TokenType::LeftBrace)) {
         advance();
     }
-    match(TokenType::Semicolon);
+    // YAYA は `;` で分けた空の文を読み飛ばすので、`;;` は 1 つの区切りと同じ。
+    while (match(TokenType::Semicolon)) {}
 
     // --- Condition (until second ';') ---
     std::shared_ptr<AST::Node> cond;
@@ -804,7 +805,8 @@ std::shared_ptr<AST::Node> Parser::parseFor() {
     while (!check(TokenType::Semicolon) && !check(TokenType::EndOfFile) && !check(TokenType::LeftBrace)) {
         advance();
     }
-    match(TokenType::Semicolon);
+    // 条件の後の `;;` も同じ（Taromati2 の linkwnd.dic `... _buff != '';;_buff = FREAD(_mapfile){`）。
+    while (match(TokenType::Semicolon)) {}
 
     // --- Increment (until '{') ---
     std::shared_ptr<AST::Node> incr;
@@ -844,21 +846,9 @@ std::shared_ptr<AST::Node> Parser::parseForeach() {
     consume(TokenType::Foreach, "Expected 'foreach'");
     
     // Parse: foreach array ; variable { body }
-    // The array expression - support dotted identifiers (e.g., A.B.C)
+    // YAYA の配列には任意の式を書ける（#globaldefine で 'a,b,c' に置き換わる名前、関数の結果など）。
     skipNewlines();
-    if (!check(TokenType::Identifier)) {
-        throw std::runtime_error("Expected identifier for array in foreach at line " + std::to_string(current().line));
-    }
-    std::string arrayName = current().value;
-    advance();
-    while (match(TokenType::Dot)) {
-        if (!check(TokenType::Identifier)) {
-            throw std::runtime_error("Expected identifier after '.' in foreach array at line " + std::to_string(current().line));
-        }
-        arrayName += "." + current().value;
-        advance();
-    }
-    auto arrayExpr = std::make_shared<AST::VariableNode>(arrayName);
+    auto arrayExpr = parseExpression();
     
     // Expect semicolon separator (don't skip newlines before it!)
     if (!check(TokenType::Semicolon)) {
@@ -944,18 +934,30 @@ std::shared_ptr<AST::Node> Parser::parseSwitch() {
         }
         // A nested braced block literal: unwrap it so its '--'-separated elements
         // become individual cases.
+        // for・if などの文を含むブロックは式として読めないので、YAYA のサブブロックとして
+        // 1 つの case にする（Taromati2 の `{{CHAIN` → `{ switch CHAIN.Index { { ... if ... } } }`）。
         if (check(TokenType::LeftBrace)) {
-            consume(TokenType::LeftBrace, "Expected '{'");
-            skipNewlines();
-            while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
-                if (check(TokenType::MinusMinus)) { advance(); skipNewlines(); continue; }
-                auto caseExpr = parseExpression();
-                if (caseExpr) cases.push_back(caseExpr);
+            const size_t blockStart = pos_;
+            std::vector<std::shared_ptr<AST::Node>> unwrapped;
+            try {
+                consume(TokenType::LeftBrace, "Expected '{'");
                 skipNewlines();
-                // tolerate trailing separators
-                if (check(TokenType::MinusMinus)) { advance(); skipNewlines(); }
+                while (!check(TokenType::RightBrace) && !check(TokenType::EndOfFile)) {
+                    if (check(TokenType::MinusMinus)) { advance(); skipNewlines(); continue; }
+                    auto caseExpr = parseExpression();
+                    if (caseExpr) unwrapped.push_back(caseExpr);
+                    skipNewlines();
+                    // tolerate trailing separators
+                    if (check(TokenType::MinusMinus)) { advance(); skipNewlines(); }
+                }
+                consume(TokenType::RightBrace, "Expected '}' after switch block literal");
+                cases.insert(cases.end(), unwrapped.begin(), unwrapped.end());
+            } catch (const std::exception&) {
+                pos_ = blockStart;
+                blockLiteralMode_ = prevMode;
+                cases.push_back(parseBlock());
+                blockLiteralMode_ = true;
             }
-            consume(TokenType::RightBrace, "Expected '}' after switch block literal");
             skipNewlines();
             continue;
         }
@@ -1308,6 +1310,32 @@ std::shared_ptr<AST::Node> Parser::parseUnary() {
     return parsePrimary();
 }
 
+// 変数の要素（`a[i]`、`a[i][j]` ...）なら true。代入・`++`・`--` の左辺にできる形。
+bool Parser::isElementLvalue(const std::shared_ptr<AST::Node>& node) {
+    if (node && node->type == AST::NodeType::ArrayAccess) return true;
+    auto* call = dynamic_cast<AST::CallNode*>(node.get());
+    return call && call->functionName == "__index__" && call->arguments.size() == 2 &&
+           isElementLvalue(call->arguments[0]);
+}
+
+// 識別子以外の項（文字列リテラルなど）に続く `[...]` を添字として読む。
+// `[i]` は __index__、`[i, j]`・`[i, j, 区切り]` は __range__ にする（識別子の添字と同じ形）。
+std::shared_ptr<AST::Node> Parser::parseIndexSuffixes(std::shared_ptr<AST::Node> node) {
+    while (match(TokenType::LeftBracket)) {
+        auto indexExpr = parseExpression();
+        if (match(TokenType::Comma)) {
+            std::vector<std::shared_ptr<AST::Node>> rangeArguments{ node, indexExpr, parseExpression() };
+            if (match(TokenType::Comma)) rangeArguments.push_back(parseExpression());
+            node = std::make_shared<AST::CallNode>("__range__", rangeArguments);
+        } else {
+            node = std::make_shared<AST::CallNode>("__index__",
+                std::vector<std::shared_ptr<AST::Node>>{ node, indexExpr });
+        }
+        consume(TokenType::RightBracket, "Expected ']' after array index");
+    }
+    return node;
+}
+
 std::shared_ptr<AST::Node> Parser::parsePrimary() {
     // Regex-like concatenation used in YAYA optional scripts:
     // pattern written as: / 'part1' + / 'part2' + ... possibly across newlines.
@@ -1346,7 +1374,8 @@ std::shared_ptr<AST::Node> Parser::parsePrimary() {
     if (check(TokenType::String)) {
         auto value = current().value;
         advance();
-        return std::make_shared<AST::LiteralNode>(value, true);
+        // YAYA は文字列リテラルにも添字を付けられる（`'否,是'[_flag]` は簡易配列の要素）。
+        return parseIndexSuffixes(std::make_shared<AST::LiteralNode>(value, true));
     }
     
     // Integer literal
@@ -1393,7 +1422,12 @@ std::shared_ptr<AST::Node> Parser::parsePrimary() {
             std::vector<std::shared_ptr<AST::Node>> args;
             if (!check(TokenType::RightParen)) {
                 do {
-                    args.push_back(parseExpression());
+                    // YAYA は引数を省略できる（`f(,,,'all')`）。省略した引数は空文字列にする。
+                    if (check(TokenType::Comma) || check(TokenType::RightParen)) {
+                        args.push_back(std::make_shared<AST::LiteralNode>("", true));
+                    } else {
+                        args.push_back(parseExpression());
+                    }
                 } while (match(TokenType::Comma));
             }
             consume(TokenType::RightParen, "Expected ')' after function arguments");
@@ -1450,6 +1484,19 @@ std::shared_ptr<AST::Node> Parser::parsePrimary() {
             }
             
             consume(TokenType::RightBracket, "Expected ']' after array index");
+        }
+
+        // YAYA は `a[i]++` / `a[i]--` を `a[i] += 1` / `a[i] -= 1` に置き換えて解析する（多次元も同じ）。
+        // ブロックリテラル・switch の中の `--` は区切りなので、変数のときと同じく減算にしない。
+        if (isElementLvalue(node)) {
+            if (match(TokenType::PlusPlus)) {
+                return std::make_shared<AST::CallNode>("__plus_assign__",
+                    std::vector<std::shared_ptr<AST::Node>>{ node, std::make_shared<AST::LiteralNode>("1", false) });
+            }
+            if (!blockLiteralMode_ && match(TokenType::MinusMinus)) {
+                return std::make_shared<AST::CallNode>("__minus_assign__",
+                    std::vector<std::shared_ptr<AST::Node>>{ node, std::make_shared<AST::LiteralNode>("1", false) });
+            }
         }
 
         return node;

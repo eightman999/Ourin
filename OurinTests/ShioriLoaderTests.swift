@@ -1071,6 +1071,253 @@ struct ShioriLoaderTests {
         #expect(Self.runYayaCore(exe: exe, requests: [loadReq, rNm]) == "10")
     }
 
+    // MARK: - yaya_core: 配列要素の ++/--・文字列への添字・簡易配列（Taromati2 の辞書）
+
+    /// `dic` だけを読み込ませた yaya_core で、関数を名前で呼んでその値を返す `call` を body に渡す。
+    private static func withYayaCoreDic(_ dic: String, _ body: (_ call: (String) -> String?) throws -> Void) throws {
+        guard let exe = locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+        let load: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                   "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]]
+        try body { id in
+            runYayaCore(exe: exe, requests: [load, ["cmd": "request", "method": "GET", "id": id,
+                                                    "ref": [], "headers": ["Charset": "UTF-8"]]])
+        }
+    }
+
+    /// `a[i]++` / `a[i]--` は YAYA と同じく `a[i] += 1` / `a[i] -= 1`（linkwnd.dic `LinkWndMapNum[0]++` など）。
+    @Test
+    func yayaCoreIncrementsAndDecrementsArrayElements() throws {
+        try Self.withYayaCoreDic("""
+        ElemInc {
+            _a = (1, 2, 3)
+            _a[1]++
+            _a[1]
+        }
+        ElemDec {
+            _a = (1, 2, 3)
+            _a[1]--
+            _a[1]
+        }
+        // 要素の -- は出力しない（以前は `--` を出力の区切りと読み、要素の値を出力していた）
+        ElemDecNoOutput {
+            _a = (5, 5)
+            _a[0]--
+            'done'
+        }
+        // 範囲外の要素は VOID + 1 = 1 になり、間は空の要素で埋まる
+        ElemIncOutOfRange {
+            _a = (1)
+            _a[3]++
+            TOSTR(ARRAYSIZE(_a)) + ':' + _a[3]
+        }
+        // 簡易配列の要素は文字列なので、++ は「1」をつなぎ、-- は数として引く（YAYA の + と -）
+        SimpleElemIncDec {
+            _s = '1,2,3'
+            _s[1]++
+            _s[2]--
+            _s
+        }
+        NestedInc {
+            map = IARRAY
+            map[1][2] = 7
+            map[1][2]++
+            map[1][2]
+        }
+        DottedInc {
+            Game.count = (0, 0)
+            Game.count[1]++
+            Game.count[1]
+        }
+        UndefinedInc {
+            _c++
+            _c
+        }
+        ForIncrement {
+            _a = (0)
+            for _i = 0; _i < 3; _a[0]++ {
+                _i++
+            }
+            _a[0]
+        }
+        // switch の中の `--` は従来どおり区切り
+        SwitchSeparator {
+            _a = ('p', 'q')
+            switch 1 {
+                _a[0] -- _a[1]
+            }
+        }
+        """) { call in
+            #expect(call("ElemInc") == "3")
+            #expect(call("ElemDec") == "1")
+            #expect(call("ElemDecNoOutput") == "done")
+            #expect(call("ElemIncOutOfRange") == "4:1")
+            #expect(call("SimpleElemIncDec") == "1,21,2")
+            #expect(call("NestedInc") == "8")
+            #expect(call("DottedInc") == "1")
+            #expect(call("UndefinedInc") == "1")
+            #expect(call("ForIncrement") == "3")
+            #expect(call("SwitchSeparator") == "q")
+        }
+    }
+
+    /// 文字列リテラルへの添字は簡易配列の要素（Calendar.dic `'否,是'[_eventrange]` など）。
+    @Test
+    func yayaCoreIndexesStringLiterals() throws {
+        try Self.withYayaCoreDic("""
+        LiteralIndex {
+            _f = 1
+            '否,是'[_f]
+        }
+        LiteralIndexExpr {
+            _i = 2
+            'a,b,c,d'[_i - 1] + "x,y"[TOINT('1')]
+        }
+        LiteralIndexOutOfRange {
+            '[' + 'a,b'[5] + ']'
+        }
+        LiteralIndexDelimiter {
+            'a|b|c'[2, '|']
+        }
+        LiteralIndexEmbedded {
+            _f = 0
+            "[%('否,是'[_f])]"
+        }
+        LiteralIndexAssigned {
+            _t = 'OFF,ON'[1]
+            _t
+        }
+        """) { call in
+            #expect(call("LiteralIndex") == "是")
+            #expect(call("LiteralIndexExpr") == "by")
+            #expect(call("LiteralIndexOutOfRange") == "[]")
+            #expect(call("LiteralIndexDelimiter") == "c")
+            #expect(call("LiteralIndexEmbedded") == "[否]")
+            #expect(call("LiteralIndexAssigned") == "ON")
+        }
+    }
+
+    /// `a[i] = x` は YAYA の CValue::SetArrayValue と同じ（汎用配列・簡易配列・多次元）。
+    @Test
+    func yayaCoreAssignsArrayElementsLikeYaya() throws {
+        try Self.withYayaCoreDic("""
+        // 範囲外は空の要素で埋めて追加、負の添字は末尾に追加
+        GeneralPadAndAppend {
+            _a = (1, 2)
+            _a[4] = 5
+            _a[-1] = 6
+            TOSTR(ARRAYSIZE(_a)) + ':' + _a[2] + ':' + _a[4] + ':' + _a[5]
+        }
+        // 右辺の配列は展開して差し込む
+        GeneralSpread {
+            _a = (1, 2, 3)
+            _a[1] = (8, 9)
+            TOSTR(ARRAYSIZE(_a)) + ':' + _a[1] + _a[2] + _a[3]
+        }
+        // 未定義・整数の変数は汎用配列になる
+        BecomesArray {
+            _u[2] = 'x'
+            _n = 5
+            _n[1] = 6
+            TOSTR(ARRAYSIZE(_u)) + ':' + _u[2] + ':' + ARRAYSIZE(_n) + ':' + _n[1]
+        }
+        SimpleSet {
+            _s = 'a,b,c'
+            _s[1] = 'X'
+            _s[4] = 'e'
+            _s
+        }
+        SimpleRead {
+            _s = 'a,b,c'
+            _s[0] + _s[2] + '[' + _s[3] + ']'
+        }
+        CompoundElement {
+            _a = (10, 20)
+            _a[0] += 5
+            _a[1] *= 2
+            _s = 'x,y'
+            _s[1] += 'z'
+            TOSTR(_a[0]) + ':' + _a[1] + ':' + _s
+        }
+        // linkwnd.dic の `map=IARRAY` と `map[pos.i][pos.j] = 1`
+        NestedAssign {
+            map = IARRAY
+            map[1][2] = 7
+            map[0][0] = 1
+            TOSTR(ARRAYSIZE(map)) + ':' + ARRAYSIZE(map[1]) + ':' + map[1][2] + ':' + map[0][0]
+        }
+        """) { call in
+            #expect(call("GeneralPadAndAppend") == "6::5:6")
+            #expect(call("GeneralSpread") == "4:893")
+            #expect(call("BecomesArray") == "3:x:2:6")
+            #expect(call("SimpleSet") == "a,X,c,,e")
+            #expect(call("SimpleRead") == "ac[]")
+            #expect(call("CompoundElement") == "15:40:x,yz")
+            #expect(call("NestedAssign") == "2:3:7:1")
+        }
+    }
+
+    /// SETDELIM(変数, 区切り) は変数ごとの簡易配列の区切り（pseudoAI.dic `SETDELIM(_temp,'#')` など）。
+    @Test
+    func yayaCoreUsesPerVariableDelimiters() throws {
+        try Self.withYayaCoreDic("""
+        LocalDelimiter {
+            _t = 'a#b#c'
+            SETDELIM(_t, '#')
+            _t[1] = 'X'
+            _t[2] + ':' + _t + ':' + ARRAYSIZE(_t) + ':' + GETDELIM(_t)
+        }
+        GlobalDelimiter {
+            gdelim = 'p*q'
+            SETDELIM(gdelim, '*')
+            gdelim[1]
+        }
+        // ほかの変数の区切りは変わらない（以前は全体の区切りが `_t` の値になっていた）
+        DelimiterIsPerVariable {
+            _t = 'a#b'
+            SETDELIM(_t, '#')
+            _u = 'c,d'
+            _u[1] + ':' + ARRAYSIZE(_u) + ':' + GETDELIM(_u)
+        }
+        ArraySizeOfValues {
+            TOSTR(ARRAYSIZE('a,b,c')) + ':' + ARRAYSIZE('') + ':' + ARRAYSIZE(5)
+        }
+        """) { call in
+            #expect(call("LocalDelimiter") == "c:a#X#c:3:#")
+            #expect(call("GlobalDelimiter") == "q")
+            #expect(call("DelimiterIsPerVariable") == "d:2:,")
+            #expect(call("ArraySizeOfValues") == "3:0:1")
+        }
+    }
+
+    /// for の見出しの `;;` は YAYA では空の文として読み飛ばされる（linkwnd.dic `..._buff != '';;_buff = FREAD(_mapfile){`）。
+    @Test
+    func yayaCoreSkipsEmptyStatementsInForHeader() throws {
+        try Self.withYayaCoreDic("""
+        ForDoubleSemicolon {
+            _s = ''
+            _n = 0
+            for _i = 0; _i < 3;; _i++ {
+                _s += _i
+                _n++
+                if _n > 5 {
+                    break
+                }
+            }
+            _s
+        }
+        """) { call in
+            // 以前は増分が読み捨てられ、_i が 0 のまま回り続けていた。
+            #expect(call("ForDoubleSemicolon") == "012")
+        }
+    }
+
     @Test
     func yayaCoreCaseWhenFirstMatchAndOthers() throws {
         guard let exe = Self.locateYayaCore() else {
@@ -1319,10 +1566,11 @@ struct ShioriLoaderTests {
         #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "6,-3,6,1,5,6")
     }
 
-    /// 配列要素の連結代入 `arr[i] ,= value`（文字列要素は文字列連結）が、
-    /// 対象要素のみに反映されることを検証する。
+    /// 配列要素の連結代入 `arr[i] ,= value` は、YAYA と同じく `(arr[i], value)` を i の位置へ
+    /// 展開して書き込む（value が arr[i] の後ろに差し込まれ、ほかの要素はそのまま）。
+    /// Taromati2 の SQL.dic `_res[_ColumnID] ,= _argv[1]` は、これで列名を差し込んでいる。
     @Test
-    func yayaCoreArrayElementConcatAssignmentAppliesToElementOnly() throws {
+    func yayaCoreArrayElementConcatAssignmentInsertsAfterElement() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping C++ parser integration test")
             return
@@ -1335,7 +1583,7 @@ struct ShioriLoaderTests {
         ArrElemConcat {
             _arr = { 'a' -- 'b' -- 'c' }
             _arr[1] ,= 'X'
-            _arr[0] + _arr[1] + _arr[2]
+            TOSTR(ARRAYSIZE(_arr)) + ':' + _arr[0] + _arr[1] + _arr[2] + _arr[3]
         }
         """
         try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
@@ -1348,7 +1596,7 @@ struct ShioriLoaderTests {
             "ref": [], "headers": ["Charset": "UTF-8"]
         ]
 
-        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "abXc")
+        #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "4:abXc")
     }
 
     /// 範囲/スライス左辺値 `arr[a, b] = IARRAY` が、両端を含む閉区間を削除することを
@@ -1667,12 +1915,12 @@ struct ShioriLoaderTests {
         let dic = """
         FileFunctions {
             FCHARSET(0)
-            _h = FOPEN("cp932.txt", "w")
-            FWRITE(_h, "日本語")
-            FCLOSE(_h)
-            _h = FOPEN("cp932.txt", "r")
-            _text = FREAD(_h)
-            FCLOSE(_h)
+            FOPEN("cp932.txt", "w")
+            FWRITE("cp932.txt", "日本語")
+            FCLOSE("cp932.txt")
+            FOPEN("cp932.txt", "r")
+            _text = FREAD("cp932.txt")
+            FCLOSE("cp932.txt")
             _a = FATTRIB("cp932.txt")
             "text=%(_text),count=%(_a[0] + 11),directory=%(_a[2]),normal=%(_a[4]),created=%(_a[9]),modified=%(_a[10])"
         }
@@ -1697,7 +1945,321 @@ struct ShioriLoaderTests {
         #expect(value.contains("modified="))
 
         let bytes = try Data(contentsOf: ghost.appendingPathComponent("cp932.txt"))
-        #expect(bytes == Data([0x93, 0xFA, 0x96, 0x7B, 0x8C, 0xEA]))
+        #expect(bytes == Data([0x93, 0xFA, 0x96, 0x7B, 0x8C, 0xEA, 0x0A]))
+    }
+
+    private static func encoding(_ cf: CFStringEncodings) -> String.Encoding {
+        String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(cf.rawValue)))
+    }
+
+    /// 中国語・韓国語の文字コードで書いた辞書を、charset の指定どおりに読む（#171）。
+    @Test
+    func yayaCoreDecodesChineseAndKoreanDictionaries() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let cases: [(charset: String, encoding: String.Encoding, text: String)] = [
+            ("Big5", Self.encoding(.dosChineseTrad), "繁體中文：龍鬱體，人格與氣泡"),
+            ("cp950", Self.encoding(.dosChineseTrad), "外觀"),
+            ("GBK", Self.encoding(.dosChineseSimplif), "简体中文：龙郁体，人格与气泡"),
+            ("GB2312", Self.encoding(.dosChineseSimplif), "外观"),
+            ("gb18030", Self.encoding(.GB_18030_2000), "头条"),
+            ("EUC-KR", Self.encoding(.dosKorean), "한국어 테스트: 고스트와 말풍선"),
+            ("ks_c_5601-1987", Self.encoding(.dosKorean), "셸"),
+        ]
+        for c in cases {
+            let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+            try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: ghost) }
+            let bytes = try #require("Greeting {\n    \"\(c.text)\"\n}\n".data(using: c.encoding), "\(c.charset)")
+            // UTF-8 として読めてしまうと変換を試せないので、そうでないことを確かめておく。
+            #expect(String(data: bytes, encoding: .utf8) == nil, "\(c.charset)")
+            try bytes.write(to: ghost.appendingPathComponent("t.dic"))
+
+            // yaya.txt の charset（全体）と、dic 行の文字コード（辞書ごと）の両方で読める。
+            let request: [String: Any] = ["cmd": "request", "method": "GET", "id": "Greeting",
+                                          "ref": [], "headers": ["Charset": "UTF-8"]]
+            let global: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": c.charset,
+                                         "dic_entries": [["path": "t.dic"]]]
+            #expect(Self.runYayaCore(exe: exe, requests: [global, request]) == c.text, "\(c.charset)")
+            let perDic: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                         "dic_entries": [["path": "t.dic", "encoding": c.charset]]]
+            #expect(Self.runYayaCore(exe: exe, requests: [perDic, request]) == c.text, "\(c.charset)")
+        }
+    }
+
+    /// FREADENCODE(filename, count, type) / FWRITEDECODE(filename, data, type) は
+    /// 文字コード変換ではなくbinaryのbase64/form/URL変換（YAYA500 sysfunc.cpp:2310/2417）。
+    /// 多言語encodingのbytesを、標準のファイル名APIで欠損なく読み書きできることを検証する。
+    @Test
+    func yayaCoreFileEncodingFunctionsHandleChineseAndKorean() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+        let gbk = try #require("简体中文".data(using: Self.encoding(.dosChineseSimplif)))
+        let big5 = try #require("繁體".data(using: Self.encoding(.dosChineseTrad)))
+        let korean = try #require("한국어".data(using: Self.encoding(.dosKorean)))
+        try gbk.write(to: ghost.appendingPathComponent("gbk.txt"))
+        let dic = """
+        ReadGbk {
+            FOPEN("gbk.txt", "r")
+            _s = FREADENCODE("gbk.txt", 0, "base64")
+            FCLOSE("gbk.txt")
+            _s
+        }
+        WriteBig5AndKorean {
+            FOPEN("big5.txt", "w")
+            FWRITEDECODE("big5.txt", "\(big5.base64EncodedString())", "base64")
+            FCLOSE("big5.txt")
+            FOPEN("euckr.txt", "w")
+            FWRITEDECODE("euckr.txt", "\(korean.base64EncodedString())", "base64")
+            FCLOSE("euckr.txt")
+            "done"
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+        let load: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                   "dic_entries": [["path": "t.dic"]]]
+        func request(_ id: String) -> String? {
+            Self.runYayaCore(exe: exe, requests: [load, ["cmd": "request", "method": "GET", "id": id,
+                                                         "ref": [], "headers": ["Charset": "UTF-8"]]])
+        }
+        #expect(request("ReadGbk") == gbk.base64EncodedString())
+        #expect(request("WriteBig5AndKorean") == "done")
+        #expect(try Data(contentsOf: ghost.appendingPathComponent("big5.txt")) == big5)
+        #expect(try Data(contentsOf: ghost.appendingPathComponent("euckr.txt")) == korean)
+    }
+
+    /// YAYA の fncdepth（#176）: 既定 32、0 は無制限。超えた呼び出しは空を返し、shiori.OnCallLimit を呼ぶ。
+    @Test
+    func yayaCoreLimitsFunctionCallDepthLikeYaya() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+        let dic = """
+        Rec {
+            if _argv[0] <= 0 {
+                'bottom'
+            }
+            else {
+                Rec(_argv[0] - 1)
+            }
+        }
+        Shallow {
+            Rec(20)
+        }
+        Deep {
+            Rec(40)
+        }
+        LimitProbe {
+            _x = Rec(40)
+            CallLimitDic
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+        try "shiori.OnCallLimit {\n    CallLimitDic = 'hit:' + _argv[0]\n}\n"
+            .write(to: ghost.appendingPathComponent("limit.dic"), atomically: true, encoding: .utf8)
+
+        func request(_ id: String, fncdepth: Int?, dics: [String] = ["t.dic"]) -> String? {
+            var load: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                       "dic_entries": dics.map { ["path": $0] }]
+            if let fncdepth { load["fncdepth"] = fncdepth }
+            return Self.runYayaCore(exe: exe, requests: [load, ["cmd": "request", "method": "GET", "id": id,
+                                                                 "ref": [], "headers": ["Charset": "UTF-8"]]])
+        }
+        // 既定（本家と同じ 32）: 22 段は届き、42 段は上限で空になる。
+        #expect(request("Shallow", fncdepth: nil) == "bottom")
+        #expect(request("Deep", fncdepth: nil) == "")
+        // 0 は無制限。指定した深さを超えると空。
+        #expect(request("Deep", fncdepth: 0) == "bottom")
+        #expect(request("Deep", fncdepth: 100) == "bottom")
+        #expect(request("Shallow", fncdepth: 10) == "")
+        // 上限を超えたら shiori.OnCallLimit を呼ぶ（_argv[0] は辞書名）。
+        let hit = request("LimitProbe", fncdepth: nil, dics: ["t.dic", "limit.dic"])
+        #expect(hit?.hasPrefix("hit:") == true, "\(String(describing: hit))")
+    }
+
+    /// fncdepth,0（無制限）で止まらない再帰も、スタックを使い切って落ちずに空を返す（#176）。
+    /// Taromati2 では関数が欠けた状態の再帰で yaya_core が SIGSEGV で落ちていた。
+    @Test
+    func yayaCoreSurvivesRunawayRecursionWithUnlimitedDepth() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+        // 1 段ごとにスタックを多めに使うよう、式と制御構造を重ねる。
+        let dic = """
+        Runaway {
+            _a = (1, 2, 3)
+            if ARRAYSIZE(_a) == 3 {
+                foreach _a; _i {
+                    if _i == 1 {
+                        _s = 'x' + TOSTR(_i) + Runaway(_argv[0] + 1)
+                    }
+                }
+            }
+            _s
+        }
+        Ping {
+            'pong'
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+        let load: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                   "dic_entries": [["path": "t.dic"]], "fncdepth": 0]
+        func get(_ id: String) -> [String: Any] {
+            ["cmd": "request", "method": "GET", "id": id, "ref": [], "headers": ["Charset": "UTF-8"]]
+        }
+        // 落ちていなければ、続く Ping に応答する。
+        #expect(Self.runYayaCore(exe: exe, requests: [load, get("Runaway"), get("Ping")]) == "pong")
+    }
+
+    /// ループの外の break は関数をまたがず、例外で抜けても再帰の深さとスコープが戻る（#176）。
+    /// 戻らないと深さが要求をまたいで積み上がり、Taromati2 では OnBoot 以降の呼び出しが
+    /// すべて MAX_RECURSION_DEPTH で失敗していた。
+    @Test
+    func yayaCoreBreakOutsideLoopDoesNotLeakCallFrames() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+        let dic = """
+        Breaker {
+            break
+            'x'
+        }
+        Counter {
+            _n = 0
+            for _i = 0; _i < 5; _i++ {
+                _x = Breaker()
+                _n++
+            }
+            TOSTR(_n)
+        }
+        Many {
+            for _i = 0; _i < 1500; _i++ {
+                _x = Breaker()
+            }
+            Ok()
+        }
+        Ok {
+            'ok'
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+        let load: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                   "dic_entries": [["path": "t.dic"]], "fncdepth": 0]
+        func get(_ id: String) -> [String: Any] {
+            ["cmd": "request", "method": "GET", "id": id, "ref": [], "headers": ["Charset": "UTF-8"]]
+        }
+        #expect(Self.runYayaCore(exe: exe, requests: [load, get("Counter")]) == "5")
+        // 1500 回分の break の後でも、深さが残らず次の呼び出しが通る。
+        #expect(Self.runYayaCore(exe: exe, requests: [load, get("Many")]) == "ok")
+    }
+
+    @Test
+    func yayaConfigFunctionDepthIsCollected() {
+        var collector = DicCollector()
+        collectDicEntries(content: "fncdepth, 0\r\nfncdepth, 64\r\ndic, a.dic\r\n",
+                          baseURL: URL(fileURLWithPath: "/tmp"), sourceName: "yaya.txt",
+                          collector: &collector, visited: [])
+        #expect(collector.functionDepth == 0)
+        #expect(collector.entries.map(\.path) == ["a.dic"])
+    }
+
+    /// Taromati2 の辞書で構文エラーになっていた YAYA の書き方（#175）。
+    @Test
+    func yayaCoreParsesTaromati2SyntaxForms() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping C++ parser integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+        let dic = """
+        #define LIST 'a,b,c'
+        // switch の中の { } に for・if を書ける（YAYA のサブブロック）
+        Sw {
+            switch _argv[0] {
+                'zero'
+                {
+                    _s = ''
+                    for _i = 0; _i < 3; _i++ {
+                        _s += TOSTR(_i)
+                    }
+                    if _s == '012' {
+                        'loop:' + _s
+                    }
+                }
+            }
+        }
+        SwProbe {
+            Sw(1)
+        }
+        // 名前の中の予約語や数字の区切り
+        Cfg.default:void {
+            Hit = 'default-ok'
+        }
+        Talk.0.0 {
+            'talk00'
+        }
+        NameProbe {
+            _x = Cfg.default()
+            Hit + ',' + Talk.0.0()
+        }
+        // foreach の配列に式（define で置き換わる文字列・配列リテラル）
+        EachProbe {
+            _r = ''
+            foreach LIST; _e {
+                _r += _e
+            }
+            foreach ('x', 'y'); _e {
+                _r += _e
+            }
+            _r
+        }
+        // 引数の省略
+        ArgCount {
+            TOSTR(_argc) + ':' + _argv[2] + ':' + _argv[0]
+        }
+        ArgProbe {
+            ArgCount(,,'z')
+        }
+        // 行末の / による行の継続
+        ContProbe {
+            _a = (1, 2,/
+                  3, 4)
+            ARRAYSIZE(_a)
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+        let load: [String: Any] = ["cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+                                   "dic_entries": [["path": "t.dic"]]]
+        func request(_ id: String) -> String? {
+            Self.runYayaCore(exe: exe, requests: [load, ["cmd": "request", "method": "GET", "id": id,
+                                                         "ref": [], "headers": ["Charset": "UTF-8"]]])
+        }
+        #expect(request("SwProbe") == "loop:012")
+        #expect(request("NameProbe") == "default-ok,talk00")
+        #expect(request("EachProbe") == "abcxy")
+        #expect(request("ArgProbe") == "3:z:")
+        #expect(request("ContProbe") == "4")
     }
 
     /// Run yaya_core with a sequence of JSON-line requests; return the `value` of the
@@ -1713,7 +2275,9 @@ struct ShioriLoaderTests {
         let outPipe = Pipe()
         proc.standardInput = inPipe
         proc.standardOutput = outPipe
-        proc.standardError = Pipe()
+        // 読まないパイプにすると、深い再帰などで stderr のトレースが 64KB を超えたとき
+        // yaya_core の書き込みが止まって返らなくなる。
+        proc.standardError = FileHandle.nullDevice
         do { try proc.run() } catch { return nil }
         inPipe.fileHandleForWriting.write(Data(stdin.utf8))
         inPipe.fileHandleForWriting.closeFile()

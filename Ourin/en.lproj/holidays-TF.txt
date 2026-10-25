@@ -1,0 +1,344 @@
+# TF holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/4/13,Easter Monday
+2020/5/1,Labor Day
+2020/5/8,Victory Day
+2020/5/21,Ascension Day
+2020/6/1,Pentecost Monday
+2020/7/14,National Day
+2020/8/15,Assumption Day
+2020/11/1,All Saints' Day
+2020/11/11,Armistice Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/4/5,Easter Monday
+2021/5/1,Labor Day
+2021/5/8,Victory Day
+2021/5/13,Ascension Day
+2021/5/24,Pentecost Monday
+2021/7/14,National Day
+2021/8/15,Assumption Day
+2021/11/1,All Saints' Day
+2021/11/11,Armistice Day
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/4/18,Easter Monday
+2022/5/1,Labor Day
+2022/5/8,Victory Day
+2022/5/26,Ascension Day
+2022/6/6,Pentecost Monday
+2022/7/14,National Day
+2022/8/15,Assumption Day
+2022/11/1,All Saints' Day
+2022/11/11,Armistice Day
+2022/12/25,Christmas Day
+2023/1/1,New Year's Day
+2023/4/10,Easter Monday
+2023/5/1,Labor Day
+2023/5/8,Victory Day
+2023/5/18,Ascension Day
+2023/5/29,Pentecost Monday
+2023/7/14,National Day
+2023/8/15,Assumption Day
+2023/11/1,All Saints' Day
+2023/11/11,Armistice Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/4/1,Easter Monday
+2024/5/1,Labor Day
+2024/5/8,Victory Day
+2024/5/9,Ascension Day
+2024/5/20,Pentecost Monday
+2024/7/14,National Day
+2024/8/15,Assumption Day
+2024/11/1,All Saints' Day
+2024/11/11,Armistice Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/4/21,Easter Monday
+2025/5/1,Labor Day
+2025/5/8,Victory Day
+2025/5/29,Ascension Day
+2025/6/9,Pentecost Monday
+2025/7/14,National Day
+2025/8/15,Assumption Day
+2025/11/1,All Saints' Day
+2025/11/11,Armistice Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/4/6,Easter Monday
+2026/5/1,Labor Day
+2026/5/8,Victory Day
+2026/5/14,Ascension Day
+2026/5/25,Pentecost Monday
+2026/7/14,National Day
+2026/8/15,Assumption Day
+2026/11/1,All Saints' Day
+2026/11/11,Armistice Day
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/3/29,Easter Monday
+2027/5/1,Labor Day
+2027/5/6,Ascension Day
+2027/5/8,Victory Day
+2027/5/17,Pentecost Monday
+2027/7/14,National Day
+2027/8/15,Assumption Day
+2027/11/1,All Saints' Day
+2027/11/11,Armistice Day
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/4/17,Easter Monday
+2028/5/1,Labor Day
+2028/5/8,Victory Day
+2028/5/25,Ascension Day
+2028/6/5,Pentecost Monday
+2028/7/14,National Day
+2028/8/15,Assumption Day
+2028/11/1,All Saints' Day
+2028/11/11,Armistice Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/4/2,Easter Monday
+2029/5/1,Labor Day
+2029/5/8,Victory Day
+2029/5/10,Ascension Day
+2029/5/21,Pentecost Monday
+2029/7/14,National Day
+2029/8/15,Assumption Day
+2029/11/1,All Saints' Day
+2029/11/11,Armistice Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/4/22,Easter Monday
+2030/5/1,Labor Day
+2030/5/8,Victory Day
+2030/5/30,Ascension Day
+2030/6/10,Pentecost Monday
+2030/7/14,National Day
+2030/8/15,Assumption Day
+2030/11/1,All Saints' Day
+2030/11/11,Armistice Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/4/14,Easter Monday
+2031/5/1,Labor Day
+2031/5/8,Victory Day
+2031/5/22,Ascension Day
+2031/6/2,Pentecost Monday
+2031/7/14,National Day
+2031/8/15,Assumption Day
+2031/11/1,All Saints' Day
+2031/11/11,Armistice Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/3/29,Easter Monday
+2032/5/1,Labor Day
+2032/5/6,Ascension Day
+2032/5/8,Victory Day
+2032/5/17,Pentecost Monday
+2032/7/14,National Day
+2032/8/15,Assumption Day
+2032/11/1,All Saints' Day
+2032/11/11,Armistice Day
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/4/18,Easter Monday
+2033/5/1,Labor Day
+2033/5/8,Victory Day
+2033/5/26,Ascension Day
+2033/6/6,Pentecost Monday
+2033/7/14,National Day
+2033/8/15,Assumption Day
+2033/11/1,All Saints' Day
+2033/11/11,Armistice Day
+2033/12/25,Christmas Day
+2034/1/1,New Year's Day
+2034/4/10,Easter Monday
+2034/5/1,Labor Day
+2034/5/8,Victory Day
+2034/5/18,Ascension Day
+2034/5/29,Pentecost Monday
+2034/7/14,National Day
+2034/8/15,Assumption Day
+2034/11/1,All Saints' Day
+2034/11/11,Armistice Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/3/26,Easter Monday
+2035/5/1,Labor Day
+2035/5/3,Ascension Day
+2035/5/8,Victory Day
+2035/5/14,Pentecost Monday
+2035/7/14,National Day
+2035/8/15,Assumption Day
+2035/11/1,All Saints' Day
+2035/11/11,Armistice Day
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/4/14,Easter Monday
+2036/5/1,Labor Day
+2036/5/8,Victory Day
+2036/5/22,Ascension Day
+2036/6/2,Pentecost Monday
+2036/7/14,National Day
+2036/8/15,Assumption Day
+2036/11/1,All Saints' Day
+2036/11/11,Armistice Day
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/4/6,Easter Monday
+2037/5/1,Labor Day
+2037/5/8,Victory Day
+2037/5/14,Ascension Day
+2037/5/25,Pentecost Monday
+2037/7/14,National Day
+2037/8/15,Assumption Day
+2037/11/1,All Saints' Day
+2037/11/11,Armistice Day
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/4/26,Easter Monday
+2038/5/1,Labor Day
+2038/5/8,Victory Day
+2038/6/3,Ascension Day
+2038/6/14,Pentecost Monday
+2038/7/14,National Day
+2038/8/15,Assumption Day
+2038/11/1,All Saints' Day
+2038/11/11,Armistice Day
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/4/11,Easter Monday
+2039/5/1,Labor Day
+2039/5/8,Victory Day
+2039/5/19,Ascension Day
+2039/5/30,Pentecost Monday
+2039/7/14,National Day
+2039/8/15,Assumption Day
+2039/11/1,All Saints' Day
+2039/11/11,Armistice Day
+2039/12/25,Christmas Day
+2040/1/1,New Year's Day
+2040/4/2,Easter Monday
+2040/5/1,Labor Day
+2040/5/8,Victory Day
+2040/5/10,Ascension Day
+2040/5/21,Pentecost Monday
+2040/7/14,National Day
+2040/8/15,Assumption Day
+2040/11/1,All Saints' Day
+2040/11/11,Armistice Day
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/4/22,Easter Monday
+2041/5/1,Labor Day
+2041/5/8,Victory Day
+2041/5/30,Ascension Day
+2041/6/10,Pentecost Monday
+2041/7/14,National Day
+2041/8/15,Assumption Day
+2041/11/1,All Saints' Day
+2041/11/11,Armistice Day
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/4/7,Easter Monday
+2042/5/1,Labor Day
+2042/5/8,Victory Day
+2042/5/15,Ascension Day
+2042/5/26,Pentecost Monday
+2042/7/14,National Day
+2042/8/15,Assumption Day
+2042/11/1,All Saints' Day
+2042/11/11,Armistice Day
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/3/30,Easter Monday
+2043/5/1,Labor Day
+2043/5/7,Ascension Day
+2043/5/8,Victory Day
+2043/5/18,Pentecost Monday
+2043/7/14,National Day
+2043/8/15,Assumption Day
+2043/11/1,All Saints' Day
+2043/11/11,Armistice Day
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/4/18,Easter Monday
+2044/5/1,Labor Day
+2044/5/8,Victory Day
+2044/5/26,Ascension Day
+2044/6/6,Pentecost Monday
+2044/7/14,National Day
+2044/8/15,Assumption Day
+2044/11/1,All Saints' Day
+2044/11/11,Armistice Day
+2044/12/25,Christmas Day
+2045/1/1,New Year's Day
+2045/4/10,Easter Monday
+2045/5/1,Labor Day
+2045/5/8,Victory Day
+2045/5/18,Ascension Day
+2045/5/29,Pentecost Monday
+2045/7/14,National Day
+2045/8/15,Assumption Day
+2045/11/1,All Saints' Day
+2045/11/11,Armistice Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/3/26,Easter Monday
+2046/5/1,Labor Day
+2046/5/3,Ascension Day
+2046/5/8,Victory Day
+2046/5/14,Pentecost Monday
+2046/7/14,National Day
+2046/8/15,Assumption Day
+2046/11/1,All Saints' Day
+2046/11/11,Armistice Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/4/15,Easter Monday
+2047/5/1,Labor Day
+2047/5/8,Victory Day
+2047/5/23,Ascension Day
+2047/6/3,Pentecost Monday
+2047/7/14,National Day
+2047/8/15,Assumption Day
+2047/11/1,All Saints' Day
+2047/11/11,Armistice Day
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/4/6,Easter Monday
+2048/5/1,Labor Day
+2048/5/8,Victory Day
+2048/5/14,Ascension Day
+2048/5/25,Pentecost Monday
+2048/7/14,National Day
+2048/8/15,Assumption Day
+2048/11/1,All Saints' Day
+2048/11/11,Armistice Day
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/4/19,Easter Monday
+2049/5/1,Labor Day
+2049/5/8,Victory Day
+2049/5/27,Ascension Day
+2049/6/7,Pentecost Monday
+2049/7/14,National Day
+2049/8/15,Assumption Day
+2049/11/1,All Saints' Day
+2049/11/11,Armistice Day
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/4/11,Easter Monday
+2050/5/1,Labor Day
+2050/5/8,Victory Day
+2050/5/19,Ascension Day
+2050/5/30,Pentecost Monday
+2050/7/14,National Day
+2050/8/15,Assumption Day
+2050/11/1,All Saints' Day
+2050/11/11,Armistice Day
+2050/12/25,Christmas Day

@@ -34,7 +34,7 @@ func surfaceTestCatalogHidesDisabledGroupsAndAddsUnlistedImages() {
         nameAliases: ["smile": 1]
     )
 
-    #expect(groups.map(\.name) == ["本体", "未分類（実ファイル・定義）"])
+    #expect(groups.map(\.name) == ["本体", NSLocalizedString("未分類（実ファイル・定義）", comment: "Surface test group")])
     #expect(groups[0].entries.map(\.surfaceID) == [0])
     #expect(groups[1].entries.map(\.surfaceID) == [1, 2])
     #expect(groups[1].entries[0].name == "smile")

@@ -21,7 +21,7 @@ struct YayaEmily4RegressionTests {
         var dir = URL(fileURLWithPath: #file).deletingLastPathComponent() // OurinTests/
         for _ in 0..<4 {
             dir = dir.deletingLastPathComponent()
-            if FileManager.default.fileExists(atPath: dir.appendingPathComponent("emily4/ghost/master/yaya.txt").path) {
+            if FileManager.default.fileExists(atPath: dir.appendingPathComponent("yaya_core/CMakeLists.txt").path) {
                 return dir
             }
         }
@@ -38,9 +38,10 @@ struct YayaEmily4RegressionTests {
     /// Emily4 の `ghost/master` を一時ディレクトリへコピーしたものを返す。
     /// テスト専用の追加辞書（SRAND シード検証用ラッパー等）を、git 管理下の実データを汚さずに
     /// 追加投入できるようにするため。
+    /// Emily4 は同梱しないため、`OURIN_EMILY4_DIR`（Emily4 ゴーストのルート）を指定した場合だけ実行する。
     private static func copyEmily4Master() throws -> URL? {
-        guard let root = repoRoot() else { return nil }
-        let source = root.appendingPathComponent("emily4/ghost/master")
+        guard let dir = ProcessInfo.processInfo.environment["OURIN_EMILY4_DIR"], !dir.isEmpty else { return nil }
+        let source = URL(fileURLWithPath: dir).appendingPathComponent("ghost/master")
         guard FileManager.default.fileExists(atPath: source.path) else { return nil }
         let dest = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
         try FileManager.default.copyItem(at: source, to: dest)
@@ -187,7 +188,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -218,7 +219,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -251,7 +252,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -302,7 +303,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -324,7 +325,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -352,7 +353,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -386,7 +387,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -417,7 +418,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -483,7 +484,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -523,7 +524,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -580,7 +581,7 @@ struct YayaEmily4RegressionTests {
             return
         }
         guard let master = try Self.copyEmily4Master() else {
-            print("[skip] emily4/ghost/master fixture not found; skipping")
+            print("[skip] OURIN_EMILY4_DIR is not set; skipping")
             return
         }
         defer { try? FileManager.default.removeItem(at: master) }
@@ -608,5 +609,195 @@ struct YayaEmily4RegressionTests {
         #expect(first != nil && !(first?.isEmpty ?? true), "parallel in non-array context must select one candidate")
         #expect(first == second, "Same SRAND seed must reproduce the same parallel selection")
         #expect(third != nil && !(third?.isEmpty ?? true))
+    }
+
+    // MARK: - 標準ゴースト（さくら）
+
+    /// リポジトリの `DefaultGhost/sakura/ghost/master` を実際に yaya_core へロードして発話を確認する。
+    @Test
+    func sakuraDefaultGhostLoadsAndTalks() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping Rin regression test")
+            return
+        }
+        let source = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("DefaultGhost/sakura/ghost/master")
+        let master = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.copyItem(at: source, to: master)
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master)
+
+        for id in ["OnBoot", "OnClose", "OnMouseDoubleClick", "OnAiTalk"] {
+            let resp = session.exchange([
+                "cmd": "request", "method": "GET", "id": id,
+                "ref": [], "headers": ["Charset": "UTF-8"]
+            ])
+            #expect(resp?["ok"] as? Bool == true, "\(id)")
+            #expect(resp?["status"] as? Int == 200, "\(id)")
+            let value = resp?["value"] as? String ?? ""
+            #expect(value.contains("\\0") || value.contains("\\1"), "\(id) should return a Sakura Script: \(value)")
+        }
+    }
+
+    /// キャラクターごと・部位ごとの当たり判定に応じて、別々のキャラが別々の台詞を返すこと。
+    @Test
+    func sakuraGhostRespondsPerCharacterAndRegion() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping")
+            return
+        }
+        let source = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("DefaultGhost/sakura/ghost/master")
+        let master = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.copyItem(at: source, to: master)
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master)
+
+        func click(_ scope: String, _ region: String) -> String {
+            let resp = session.exchange([
+                "cmd": "request", "method": "GET", "id": "OnMouseClick",
+                "ref": ["10", "10", "0", scope, region, "0"], "headers": ["Charset": "UTF-8"]
+            ])
+            return resp?["value"] as? String ?? ""
+        }
+        let sakuraFace = click("0", "Face")
+        let rinneFace = click("1", "Face")
+        let bellHead = click("2", "Head")
+        // 台本は別キャラの台詞から始まることがあるため、対象キャラが話すことだけを確認する。
+        #expect(sakuraFace.contains("\\0"), "\(sakuraFace)")
+        #expect(rinneFace.contains("\\1"), "\(rinneFace)")
+        #expect(bellHead.contains("\\p[2]"), "\(bellHead)")
+        #expect(click("0", "Skirt") != click("0", "Head"))
+        #expect(!click("1", "Legs").isEmpty)
+    }
+
+    /// 起動・クリック（EVAL によるキャラ別・部位別の振り分け）・OnIdle の放置検出が動くこと。
+    @Test
+    func sakuraGhostDialogueDispatchAndIdle() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping")
+            return
+        }
+        let source = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("DefaultGhost/sakura/ghost/master")
+        let master = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.copyItem(at: source, to: master)
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master)
+
+        func get(_ id: String, _ refs: [String]) -> String {
+            let resp = session.exchange([
+                "cmd": "request", "method": "GET", "id": id,
+                "ref": refs, "headers": ["Charset": "UTF-8"]
+            ])
+            return resp?["value"] as? String ?? ""
+        }
+
+        // 起動・終了は台本を返す。
+        for id in ["OnBoot", "OnClose"] {
+            let value = get(id, [])
+            #expect(value.hasSuffix("\\e") && value.contains("\\s["), "\(id): \(value)")
+        }
+
+        // 存在しない部位名でも既定の応答に落ちる（空にならない）。
+        #expect(!get("OnMouseClick", ["1", "1", "0", "0", "NoSuchPart", "0"]).isEmpty)
+        // 部位ごとの台本が振り分けられる（Bell の Body など別カテゴリでも空にならない）。
+        #expect(get("OnMouseClick", ["1", "1", "0", "2", "Body", "0"]).contains("\\p[2]"))
+
+        // OnIdle: R3=トーク可否, R4=放置秒数。10分以上で一度だけ話し、操作が戻ればまた話せる。
+        func idle(canTalk: String, seconds: String) -> String {
+            get("OnIdle", ["1", "", "", canTalk, seconds])
+        }
+        #expect(idle(canTalk: "1", seconds: "30").isEmpty)
+        #expect(idle(canTalk: "0", seconds: "700").isEmpty)
+        let first = idle(canTalk: "1", seconds: "700")
+        #expect(first.hasSuffix("\\e"), "\(first)")
+        #expect(idle(canTalk: "1", seconds: "701").isEmpty)
+        #expect(idle(canTalk: "1", seconds: "0").isEmpty)
+        #expect(!idle(canTalk: "1", seconds: "900").isEmpty)
+    }
+
+    /// システムイベント・なでなで・ホイール・時報の台本が返り、参照値は無害化されて埋め込まれること。
+    @Test
+    func sakuraGhostHandlesSystemEvents() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping")
+            return
+        }
+        let source = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("DefaultGhost/sakura/ghost/master")
+        let master = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.copyItem(at: source, to: master)
+        defer { try? FileManager.default.removeItem(at: master) }
+
+        let session = try YayaCoreSession(exe: exe)
+        defer { session.finish() }
+        try Self.loadEmily4(session: session, master: master)
+
+        func get(_ id: String, _ refs: [String]) -> String {
+            let resp = session.exchange([
+                "cmd": "request", "method": "GET", "id": id,
+                "ref": refs, "headers": ["Charset": "UTF-8"]
+            ])
+            return resp?["value"] as? String ?? ""
+        }
+
+        // 台本を返すイベント（参照値は各イベントの UKADOC 順）。
+        let events: [(String, [String])] = [
+            ("OnHourTimeSignal", ["1", "", "", "1", "0"]),
+            ("OnVanishSelecting", []), ("OnVanishSelected", []), ("OnVanishCancel", []),
+            ("OnVanishButtonHold", ["", "0", ""]), ("OnVanished", ["Other"]),
+            ("OnInstallBegin", []), ("OnInstallComplete", ["id", "Name", ""]),
+            ("OnInstallFailure", ["reason"]), ("OnInstallRefuse", ["0", "id", "Name"]),
+            ("OnInstallCompleteAll", ["a", "b", "c"]), ("OnCloseAll", ["", "", ""]),
+            ("OnGhostChanging", ["Next", "", "", ""]), ("OnGhostChanged", ["Prev", "", "", ""]),
+            ("OnGhostCalling", ["Next", "", "", ""]),
+            ("OnBatteryLow", ["20", "", "", ""]), ("OnBatteryCritical", ["5", "", "", ""]),
+            ("OnNetworkOffline", []), ("OnNetworkOnline", []),
+            ("OnScreenSaverStart", ["", "", ""]), ("OnScreenSaverEnd", ["", "", ""]),
+            ("OnDisplayChange", ["32", "1920", "1080"]), ("OnFileDrop", ["/tmp/a.txt", "0", ""]),
+            ("OnShellChanged", ["old", "new"]),
+        ]
+        for (id, refs) in events {
+            let value = get(id, refs)
+            #expect(value.hasSuffix("\\e") && value.contains("\\s["), "\(id): \(value)")
+        }
+
+        // 参照値の埋め込みは Sakura Script を注入できない（\ と % は取り除かれる）。
+        let injected = get("OnInstallComplete", ["id", "Evil\\![vanishbymyself]%(x)", ""])
+        #expect(injected.contains("Evil![vanishbymyself](x)"), "\(injected)")
+        #expect(!injected.contains("\\![vanishbymyself]"), "\(injected)")
+
+        // なでなで: 同じ部位の上で動かし続けると、トーク可能な OnSecondChange で一度だけ話す。
+        func move(_ scope: String, _ part: String) {
+            _ = get("OnMouseMove", ["10", "10", "0", scope, part, "0", "0"])
+        }
+        func second(canTalk: String) -> String {
+            get("OnSecondChange", ["1", "", "", canTalk, "0"])
+        }
+        for _ in 0..<119 { move("0", "Head") }
+        move("0", "Head")
+        #expect(second(canTalk: "0").isEmpty)
+        let stroke = second(canTalk: "1")
+        #expect(stroke.contains("\\0") && stroke.hasSuffix("\\e"), "\(stroke)")
+
+        // ホイール: 直前の反応から間がないため、クールダウン中は予約された反応を話さない。
+        // （約1/90 で出るランダムトークだけは出うるので、出た場合は台本の形であることだけ確認する。）
+        _ = get("OnMouseWheel", ["10", "10", "-120", "1", "", "0", "0"])
+        let wheelCooldown = second(canTalk: "1")
+        #expect(wheelCooldown.isEmpty || wheelCooldown.hasSuffix("\\e"))
     }
 }

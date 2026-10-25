@@ -75,6 +75,8 @@ class BalloonViewModel: ObservableObject {
 
     @Published var text: String = ""
     @Published var balloonID: Int = 0  // Current balloon style ID (0, 2, 4, etc.)
+    /// このバルーンが属するスコープ（0=さくら, 1=kero, 2以降=追加キャラ）。背景画像の種別選択に使う。
+    var scope: Int = 0
 
     /// バルーンの実効表示倍率。`balloon.syncscale,true` の場合はシェル倍率と同期する。
     /// 符号は反転表示を保持し、描画領域の計算では絶対値を使用する。
@@ -884,10 +886,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// ブロッキングモーダルではなく専用ウィンドウとして保持する。
     var teachBoxTextField: NSTextField?
     var teachBoxProgrammaticClose = false
-    /// 現在表示中のInputBox/CommunicateBoxをスクリプトから閉じるためのモーダル参照。
-    var activeInputAlert: NSAlert?
-    var activeInputDialogID: String?
-    var inputDialogCloseRequested = false
+    /// 開いている入力ボックス（モーダルにしない。\![close,inputbox] で ID ごとに閉じる）。
+    var activeInputDialogs: [ModelessInputDialog] = []
+    /// 開いている textareabox（`\![close,inputbox]` では閉じないため inputbox と分けて持つ）。
+    var activeTextAreaAlert: NSAlert?
+    var activeTextAreaID: String?
+    var textAreaCloseRequested = false
+    /// 現在表示中の CommunicateBox をスクリプトから閉じるためのモーダル参照。
     var activeCommunicateAlert: NSAlert?
     var communicateDialogCloseRequested = false
 
@@ -902,7 +907,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var balloonViewModels: [Int: BalloonViewModel] = [:]
 
     // Balloon configuration and image loader
-    var balloonConfig: BalloonConfig?
+    var balloonConfig: BalloonConfig? {
+        // 切り替え（\![change,balloon]・\![reload,descript] など）で、作成済みのバルーンの既定スタイルも新しい設定にする。
+        didSet { applyBalloonConfigDefaultsToBalloonViewModels() }
+    }
     var balloonImageLoader: BalloonImageLoader?
 
     var currentScope: Int = 0
@@ -1005,6 +1013,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var surfaceTable: SurfaceTable? = nil  // surfacetable.txt のメタデータ（サーフィステスト用グループ定義）
     /// スコープごとの最新サーフェス要求。非同期ロード完了後に古い要求が表示を復活させないために使う。
     var surfaceRequestGenerationByScope: [Int: UInt64] = [:]
+    /// バルーンが閉じてから OnSurfaceRestore を送るまでの秒数（SSP は 15 秒）。テストでは短くする。
+    var surfaceRestoreDelay: TimeInterval = 15
+    /// トークをバルーンに表示してから、まだ OnSurfaceRestore を送っていない。
+    var surfaceRestorePending = false
+    /// バルーンが閉じた後の OnSurfaceRestore 待ち。新しいトークの表示で取り消す。
+    var surfaceRestoreTimer: Timer?
     var waitingForAnimation: Int? = nil  // Animation ID we're waiting for
 
     // Window management (used by Window extension)
@@ -1053,6 +1067,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// \![execute,websocket,URL] で開いた WebSocket 接続（URL 文字列でキー）
     /// `\![execute,websocket]` の接続（キーは接続時の URL 文字列）。メインスレッドで更新する。
     var webSocketConnections: [String: WebSocketConnection] = [:]
+    /// `\![execute,filewatch]` の監視（初回の監視開始時に作る）。
+    var fileWatchRegistry: FileWatchRegistry?
+    /// 再生中のスクリプトが SSTP など外部から送られたものか（`runTranslatedScript` で更新）。
+    var currentPlaybackIsExternal = false
     /// \![execute,http-stream*,URL] で開始した HTTP ストリーミング要求（URL 文字列でキー）。\![cancel,http,URL] で中断する。
     var httpStreamingTasks: [String: URLSessionDataTask] = [:]
     /// URLSession delegate を保持するための HTTP ストリーミング実行器。
@@ -1063,6 +1081,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var httpStreamingPendingData: [String: Data] = [:]
     /// 通常の HTTP 要求も progress 通知中は delegate の寿命を保持する。
     var httpRequestRunners: [UUID: HTTPDataTaskRunner] = [:]
+    /// 進行中の `\![execute,ical-get/ical-post]`（キーは URL 文字列。同じ URL の重複取得と cancel に使う）。
+    var icalRequests: [String: UUID] = [:]
     /// URLドロップの実ダウンロードはゴースト単位で一件だけ実行し、終了まで delegate を保持する。
     var activeURLDropTransferID: UUID?
     var activeURLDropTask: URLSessionDownloadTask?
@@ -1329,12 +1349,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         guard let shellPath = loadShellPath() else { return }
         let descriptPath = shellPath.appendingPathComponent("descript.txt")
 
-        var content: String?
-        if let utf8Content = try? String(contentsOf: descriptPath, encoding: .utf8) {
-            content = utf8Content
-        } else if let shiftJISContent = try? String(contentsOf: descriptPath, encoding: .shiftJIS) {
-            content = shiftJISContent
-        }
+        let content = (try? Data(contentsOf: descriptPath)).flatMap(EncodingAdapter.decodeTextDefinition)
 
         guard let fileContent = content else {
             Log.debug("[GhostManager] Failed to load shell descript.txt")
@@ -1542,7 +1557,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // MARK: - Public API
 
     /// descript.txtのSHIORI指定から、実装言語に依存しないロード入力を作る。
-    /// YAYAの場合だけyaya.txtを解釈し、他ランタイムへYAYA辞書規則を持ち込まない。
+    /// YAYAの場合だけ設定（yaya.txt、別名の DLL なら <DLL名>.txt）を解釈し、他ランタイムへYAYA辞書規則を持ち込まない。
     func makeShioriLoadContext(moduleName: String, ghostRoot: URL) -> ShioriRuntimeLoadContext {
         let communication = ShioriCommunicationOptions(
             version: ghostConfig?.shioriVersion,
@@ -1551,7 +1566,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             escapeUnknown: ghostConfig?.shioriEscapeUnknown ?? false,
             cache: ghostConfig?.shioriCache ?? false
         )
-        guard ShioriRuntimeFactory.kind(for: moduleName) == .yaya else {
+        guard ShioriRuntimeFactory.kind(for: moduleName, ghostRoot: ghostRoot) == .yaya else {
             return ShioriRuntimeLoadContext(
                 ghostURL: ghostURL,
                 ghostRoot: ghostRoot,
@@ -1560,40 +1575,59 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             )
         }
 
+        // YAYA は DLL のあるフォルダを基準に、`<DLL名>.txt` を設定として読む
+        // （shiori/aya.dll なら shiori/aya.txt。辞書のパスも shiori/ が基準）。
         let fm = FileManager.default
         var collector = DicCollector()
-        let yayaTxtPath = ghostRoot.appendingPathComponent("yaya.txt")
+        let yayaRoot = ShioriRuntimeFactory.yayaBaseURL(for: moduleName, ghostRoot: ghostRoot)
+        let yayaTxtPath = ShioriRuntimeFactory.yayaConfigURL(for: moduleName, ghostRoot: ghostRoot)
+        let configName = yayaTxtPath.lastPathComponent
         if let yayaContent = (try? String(contentsOf: yayaTxtPath, encoding: .utf8)) ??
                              (try? String(contentsOf: yayaTxtPath, encoding: .shiftJIS)) {
-            Log.debug("[GhostManager] Found yaya.txt, parsing dictionary list with includes...")
+            Log.debug("[GhostManager] Found \(configName), parsing dictionary list with includes...")
             collectDicEntries(
                 content: yayaContent,
-                baseURL: ghostRoot,
-                sourceName: "yaya.txt",
+                baseURL: yayaRoot,
+                sourceName: configName,
                 collector: &collector,
                 visited: []
             )
         } else {
-            let contents = (try? fm.contentsOfDirectory(at: ghostRoot, includingPropertiesForKeys: nil)) ?? []
+            let contents = (try? fm.contentsOfDirectory(at: yayaRoot, includingPropertiesForKeys: nil)) ?? []
             collector.entries = contents
                 .filter { $0.pathExtension.lowercased() == "dic" }
                 .map { DicEntry(path: $0.lastPathComponent, encoding: nil, sourceConfig: "(fallback)", sourceLine: 0) }
-            Log.debug("[GhostManager] yaya.txt not found, loading all \(collector.entries.count) .dic files")
+            Log.debug("[GhostManager] \(configName) not found, loading all \(collector.entries.count) .dic files")
         }
 
+        // 設定に basepath があれば、そこが実行時の基準フォルダになる（Taromati2 は `basepath, ..`）。
+        let based = applyYayaBasePath(collector, root: yayaRoot, within: ghostURL)
         return ShioriRuntimeLoadContext(
             ghostURL: ghostURL,
-            ghostRoot: ghostRoot,
+            ghostRoot: based.root,
             moduleName: moduleName,
-            dictionaryEntries: collector.entries,
+            dictionaryEntries: based.entries,
             dictionaryEncoding: collector.globalCharset ?? "auto",
+            functionDepthLimit: collector.functionDepth,
             communication: communication
         )
     }
 
+    /// SSP はゴーストごとに ghost/master/profile を作って設定を置く。辞書にはそれがある前提で
+    /// ファイルを置くものがある（Taromati2 の PROFILE_PATH）ので、SHIORI を読む前に用意する。
+    static func prepareProfileDirectory(ghostRoot: URL) {
+        let profile = ghostRoot.appendingPathComponent("profile", isDirectory: true)
+        guard FileManager.default.fileExists(atPath: ghostRoot.path) else { return }
+        do {
+            try FileManager.default.createDirectory(at: profile, withIntermediateDirectories: true)
+        } catch {
+            Log.info("[GhostManager] Could not create profile folder: \(error.localizedDescription)")
+        }
+    }
+
     /// 共通Factoryとload(context:)を通じてSHIORIを生成・ロードする。
     func createLoadedShioriRuntime(moduleName: String, ghostRoot: URL) -> GhostShioriRuntime? {
-        guard let runtime = ShioriRuntimeFactory.makeRuntime(for: moduleName) else {
+        guard let runtime = ShioriRuntimeFactory.makeRuntime(for: moduleName, ghostRoot: ghostRoot) else {
             Log.info("[GhostManager] Failed to create SHIORI runtime for \(moduleName)")
             return nil
         }
@@ -1627,6 +1661,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         DispatchQueue.global(qos: .userInitiated).async {
             let ghostRoot = self.ghostURL.appendingPathComponent("ghost/master", isDirectory: true)
             Log.debug("[GhostManager] Ghost root: \(ghostRoot.path)")
+            Self.prepareProfileDirectory(ghostRoot: ghostRoot)
             // Load ghost configuration from descript.txt
             if let config = GhostConfiguration.load(from: ghostRoot) {
                 self.ghostConfig = config
@@ -1660,9 +1695,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 Log.info("[GhostManager] Failed to load ghost configuration from descript.txt")
             }
 
-            // Load balloon configuration from ghost/balloon/descript.txt
-            // Try to find balloon directory in ghost root first
-            let balloonPath = self.ghostURL.appendingPathComponent("balloon", isDirectory: true).path
+            // 標準のバルーン: descript.txt の指定（UKADOC）に合うインストール済みのバルーン。
+            // 指定が無い・見つからないときは、従来どおりゴーストのフォルダの balloon/。
+            var balloonPath = self.ghostURL.appendingPathComponent("balloon", isDirectory: true).path
+            if let config = self.ghostConfig, let base = try? OurinPaths.baseDirectory(),
+               let configured = Self.configuredBalloonDirectory(for: config, ghostURL: self.ghostURL, baseDirectory: base) {
+                balloonPath = configured.path
+            }
             let balloonDescriptPath = (balloonPath as NSString).appendingPathComponent("descript.txt")
             if let config = BalloonConfig.load(from: balloonDescriptPath) {
                 self.balloonConfig = config
@@ -1860,9 +1899,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     func shutdown(preserveRuntimeForCache: Bool = false) -> CachedRuntime? {
         guard !didShutdown else { return nil }
         didShutdown = true
+        // 開いたままの入力ボックスは、結果のイベントを送らずに閉じる。
+        activeInputDialogs.forEach { $0.dismiss() }
         cancelActiveURLDropDownload()
         cancelMoveWindowAsync(scope: nil)
         cancelAllWebSockets()
+        fileWatchRegistry?.cancelAll()
+        fileWatchRegistry = nil
         vanishSelectedSourceScript = nil
         vanishSelectedDisplayScript = nil
         vanishSelectedCompletion = nil
@@ -1889,6 +1932,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             timer.invalidate()
         }
         localEventTimers.removeAll()
+        cancelSurfaceRestoreTimer()
+        surfaceRestorePending = false
         hoveredAnchorKeysByScope.removeAll()
         for timer in remoteEventTimers.values {
             timer.invalidate()
@@ -2247,7 +2292,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             return
         }
         let translated = translateForDisplay(script, context: translationContext)
-        runTranslatedScript(translated)
+        runTranslatedScript(translated, isExternal: translationContext.isSSTP)
     }
 
     /// SHIORIのイベント応答はSakura Scriptであり、裸の数値は会話本文ではなく
@@ -2262,7 +2307,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// OnTranslate の異常な裸数値で、元の Sakura Script 全体を置換しない。
     /// 元の本文自体が数値だけの場合は、正当な翻訳結果として受け入れる。
     static func shouldAcceptTranslationResponse(original: String, candidate: String) -> Bool {
-        !isNumericOnlyScript(candidate) || isNumericOnlyScript(original)
+        // OnTranslate を定義しない辞書（YAYA の標準フレームワークのみ）は空値を返す。
+        // 空値は「変換なし」として扱い、再生する台本を空に置き換えない。
+        let originalIsBlank = original.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let candidateIsBlank = candidate.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        if candidateIsBlank && !originalIsBlank { return false }
+        return !isNumericOnlyScript(candidate) || isNumericOnlyScript(original)
     }
 
     private static func isNumericOnlyScript(_ value: String) -> Bool {
@@ -2273,9 +2323,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     /// 既にOnTranslate/MAKOTOを通過したスクリプトを再生する。
     /// SSTP応答と実再生で同じ翻訳結果を共有し、二重翻訳を避けるための内部境界。
-    func runTranslatedScript(_ script: String) {
+    /// - Parameter isExternal: SSTP など外部から送られたスクリプトか。外部から実行できない
+    ///   コマンド（`\![execute,filewatch]` 等）の判定に使う。
+    func runTranslatedScript(_ script: String, isExternal: Bool = false) {
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        currentPlaybackIsExternal = isExternal
         choiceSourceScript = trimmed
         recordBacklog(from: trimmed)
         beginPluginTalkNotification(script: trimmed, reasons: ["owned"])
@@ -2720,6 +2773,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             executeNslookup(params: Array(args.dropFirst(2)))
         } else if subcmd == "websocket" {
             executeWebSocket(params: Array(args.dropFirst(2)))
+        } else if subcmd == "ical-get" || subcmd == "ical-post" {
+            executeCommandAtPlaybackPosition {
+                executeICal(subcommand: subcmd, params: Array(args.dropFirst(2)))
+            }
+        } else if subcmd == "filewatch" {
+            executeFileWatch(params: Array(args.dropFirst(2)), isExternal: currentPlaybackIsExternal)
+        } else if subcmd == "schedule-add" || subcmd == "schedule-delete" || subcmd == "schedule-get" {
+            executeGhostSchedule(subcommand: subcmd, arguments: Array(args.dropFirst(2)), isExternal: currentPlaybackIsExternal)
         }
     }
 
@@ -3340,6 +3401,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             playbackQueue.append(.deferredCommand {
                                 self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
                             })
+                        case "scriptbox":
+                            // \![open,scriptbox,ID,表示時間,初期文字列,オプション...]
+                            // （SSP 拡張。イベント発火は inputbox と同一。GhostManager+Input.swift）
+                            self.openScriptBox(fromCommandArguments: Array(args.dropFirst(2)))
+                        case "textareabox":
+                            // \![open,textareabox,ID,表示時間,テキスト,オプション...]（UKADOC 2.9.10）
+                            self.openTextAreaBox(fromCommandArguments: Array(args.dropFirst(2)))
                         case "passwordinput":
                             let rawInputArguments = Array(args.dropFirst(2))
                             let parsed = parseCommandArguments(rawInputArguments)
@@ -3593,23 +3661,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         playbackQueue.append(.deferredCommand { [weak self] in
                             guard let self else { return }
                             switch closeType {
-case "scriptbox":
-                            // \![open,scriptbox,ID,...] : SSP の scriptbox 入力。
-                            // 基本 UI・OnUserInput/OnUserInputCancel の発火は inputbox と同一。
-                            let rawInputArguments = Array(args.dropFirst(2))
-                            let parsed = parseCommandArguments(rawInputArguments)
-                            let inputOptions = inputDialogOptions(from: rawInputArguments)
-                            let id = parsed.positionals.first ?? parsed.options["id"] ?? "scriptbox"
-                            let timeoutMs = parsed.options["timeout"].flatMap(Int.init)
-                                ?? (parsed.positionals.count >= 2 ? Int(parsed.positionals[1]) : nil)
-                            let initialText = parsed.options["text"]
-                                ?? (parsed.positionals.count >= 3 ? parsed.positionals[2] : "")
-                            playbackQueue.append(.deferredCommand {
-                                self.showInputBoxDialog(id: id, timeoutMs: timeoutMs, initialText: initialText, options: inputOptions)
-                            })
-                        case "inputbox":
+                            case "scriptbox":
+                                // \![close,scriptbox,ID] — \![close,inputbox] と同じく
+                                // キャンセルイベントを発生させずに閉じる。
+                                _ = self.closeInputDialog(id: params.first ?? "scriptbox")
+                            case "inputbox":
                                 let id = params.first ?? "inputbox"
                                 _ = self.closeInputDialog(id: id)
+                            case "textareabox":
+                                _ = self.closeTextAreaDialog(id: params.first ?? "textareabox")
                             case "communicatebox":
                                 self.closeCommunicateBoxDialog()
                             case "dialog":
@@ -3644,6 +3704,10 @@ case "scriptbox":
                             guard let self else { return }
                             if cancelType == "websocket" {
                                 self.cancelWebSocket(params: params)
+                            } else if cancelType == "ical" {
+                                self.cancelICal(params: params)
+                            } else if cancelType == "filewatch" {
+                                self.fileWatchRegistry?.cancel(path: params.first ?? "")
                             } else if cancelType == "http" {
                                 self.cancelHTTPStreaming(params: params)
                             }
@@ -4899,6 +4963,8 @@ case "scriptbox":
                     // \q はバルーン本文に描いてクリックで選ばせる（SSP 互換）。本文に描けない
                     // 選択肢（\__q 等）が残る時だけ従来のダイアログで提示する。
                     presentPendingChoices()
+                } else {
+                    scheduleSurfaceRestoreIfTalkEnded()
                 }
                 return
             }
@@ -5386,6 +5452,8 @@ case "scriptbox":
         }
 
         sendUserInfoNotify()
+        // OnNotifyHolidayInfo: 今日が祝日のときだけ、OnNotifyUserInfo の直後に送る。
+        sendHolidayInfoNotify()
 
         // OnNotifyOSInfo: macOS/CPU/memory/uptime を実環境から通知する。
         bridge.notify(.OnNotifyOSInfo, params: SystemNotificationData.currentOSInfo().parameters)
@@ -5660,7 +5728,11 @@ extension GhostManager {
         if let id = Int(balloonID) {
             switchBalloon(to: id, scope: currentScope)
         } else {
-            Log.info("[GhostManager] Invalid balloon ID: \(balloonID)")
+            // メニューはインストール済みのバルーンのフォルダ名を（パーセントエンコードして）渡す。
+            let name = balloonID.removingPercentEncoding ?? balloonID
+            if !switchBalloon(named: name, scope: currentScope, raiseEvent: true) {
+                Log.info("[GhostManager] Invalid balloon ID: \(balloonID)")
+            }
         }
     }
 }

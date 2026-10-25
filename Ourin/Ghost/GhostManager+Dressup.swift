@@ -71,15 +71,10 @@ extension GhostManager {
 
     /// Parse individual dressup configuration file
     private func parseDressupConfigFile(filePath: URL, category: String) -> DressupConfig? {
-        guard let content = try? String(contentsOf: filePath, encoding: .utf8) else {
-            // Try Shift-JIS fallback
-            guard let sjisContent = try? String(contentsOf: filePath, encoding: .shiftJIS) else {
-                Log.info("[GhostManager] Failed to read dressup config: \(filePath.path)")
-                return nil
-            }
-            return parseDressupContent(content: sjisContent, category: category)
+        guard let content = (try? Data(contentsOf: filePath)).flatMap(EncodingAdapter.decodeTextDefinition) else {
+            Log.info("[GhostManager] Failed to read dressup config: \(filePath.path)")
+            return nil
         }
-
         return parseDressupContent(content: content, category: category)
     }
 

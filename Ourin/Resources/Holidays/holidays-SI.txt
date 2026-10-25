@@ -1,0 +1,469 @@
+# SI の祝日（2020〜2050年、言語: sl）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,novo leto
+2020/1/2,novo leto
+2020/2/8,Prešernov dan, slovenski kulturni praznik
+2020/4/12,velikonočna nedelja
+2020/4/13,velikonočni ponedeljek
+2020/4/27,dan upora proti okupatorju
+2020/5/1,praznik dela
+2020/5/2,praznik dela
+2020/5/31,binkoštna nedelja
+2020/6/25,dan državnosti
+2020/8/15,Marijino vnebovzetje
+2020/10/31,dan reformacije
+2020/11/1,dan spomina na mrtve
+2020/12/25,božič
+2020/12/26,dan samostojnosti in enotnosti
+2021/1/1,novo leto
+2021/1/2,novo leto
+2021/2/8,Prešernov dan, slovenski kulturni praznik
+2021/4/4,velikonočna nedelja
+2021/4/5,velikonočni ponedeljek
+2021/4/27,dan upora proti okupatorju
+2021/5/1,praznik dela
+2021/5/2,praznik dela
+2021/5/23,binkoštna nedelja
+2021/6/25,dan državnosti
+2021/8/15,Marijino vnebovzetje
+2021/10/31,dan reformacije
+2021/11/1,dan spomina na mrtve
+2021/12/25,božič
+2021/12/26,dan samostojnosti in enotnosti
+2022/1/1,novo leto
+2022/1/2,novo leto
+2022/2/8,Prešernov dan, slovenski kulturni praznik
+2022/4/17,velikonočna nedelja
+2022/4/18,velikonočni ponedeljek
+2022/4/27,dan upora proti okupatorju
+2022/5/1,praznik dela
+2022/5/2,praznik dela
+2022/6/5,binkoštna nedelja
+2022/6/25,dan državnosti
+2022/8/15,Marijino vnebovzetje
+2022/10/31,dan reformacije
+2022/11/1,dan spomina na mrtve
+2022/12/25,božič
+2022/12/26,dan samostojnosti in enotnosti
+2023/1/1,novo leto
+2023/1/2,novo leto
+2023/2/8,Prešernov dan, slovenski kulturni praznik
+2023/4/9,velikonočna nedelja
+2023/4/10,velikonočni ponedeljek
+2023/4/27,dan upora proti okupatorju
+2023/5/1,praznik dela
+2023/5/2,praznik dela
+2023/5/28,binkoštna nedelja
+2023/6/25,dan državnosti
+2023/8/14,dan solidarnosti
+2023/8/15,Marijino vnebovzetje
+2023/10/31,dan reformacije
+2023/11/1,dan spomina na mrtve
+2023/12/25,božič
+2023/12/26,dan samostojnosti in enotnosti
+2024/1/1,novo leto
+2024/1/2,novo leto
+2024/2/8,Prešernov dan, slovenski kulturni praznik
+2024/3/31,velikonočna nedelja
+2024/4/1,velikonočni ponedeljek
+2024/4/27,dan upora proti okupatorju
+2024/5/1,praznik dela
+2024/5/2,praznik dela
+2024/5/19,binkoštna nedelja
+2024/6/25,dan državnosti
+2024/8/15,Marijino vnebovzetje
+2024/10/31,dan reformacije
+2024/11/1,dan spomina na mrtve
+2024/12/25,božič
+2024/12/26,dan samostojnosti in enotnosti
+2025/1/1,novo leto
+2025/1/2,novo leto
+2025/2/8,Prešernov dan, slovenski kulturni praznik
+2025/4/20,velikonočna nedelja
+2025/4/21,velikonočni ponedeljek
+2025/4/27,dan upora proti okupatorju
+2025/5/1,praznik dela
+2025/5/2,praznik dela
+2025/6/8,binkoštna nedelja
+2025/6/25,dan državnosti
+2025/8/15,Marijino vnebovzetje
+2025/10/31,dan reformacije
+2025/11/1,dan spomina na mrtve
+2025/12/25,božič
+2025/12/26,dan samostojnosti in enotnosti
+2026/1/1,novo leto
+2026/1/2,novo leto
+2026/2/8,Prešernov dan, slovenski kulturni praznik
+2026/4/5,velikonočna nedelja
+2026/4/6,velikonočni ponedeljek
+2026/4/27,dan upora proti okupatorju
+2026/5/1,praznik dela
+2026/5/2,praznik dela
+2026/5/24,binkoštna nedelja
+2026/6/25,dan državnosti
+2026/8/15,Marijino vnebovzetje
+2026/10/31,dan reformacije
+2026/11/1,dan spomina na mrtve
+2026/12/25,božič
+2026/12/26,dan samostojnosti in enotnosti
+2027/1/1,novo leto
+2027/1/2,novo leto
+2027/2/8,Prešernov dan, slovenski kulturni praznik
+2027/3/28,velikonočna nedelja
+2027/3/29,velikonočni ponedeljek
+2027/4/27,dan upora proti okupatorju
+2027/5/1,praznik dela
+2027/5/2,praznik dela
+2027/5/16,binkoštna nedelja
+2027/6/25,dan državnosti
+2027/8/15,Marijino vnebovzetje
+2027/10/31,dan reformacije
+2027/11/1,dan spomina na mrtve
+2027/12/25,božič
+2027/12/26,dan samostojnosti in enotnosti
+2028/1/1,novo leto
+2028/1/2,novo leto
+2028/2/8,Prešernov dan, slovenski kulturni praznik
+2028/4/16,velikonočna nedelja
+2028/4/17,velikonočni ponedeljek
+2028/4/27,dan upora proti okupatorju
+2028/5/1,praznik dela
+2028/5/2,praznik dela
+2028/6/4,binkoštna nedelja
+2028/6/25,dan državnosti
+2028/8/15,Marijino vnebovzetje
+2028/10/31,dan reformacije
+2028/11/1,dan spomina na mrtve
+2028/12/25,božič
+2028/12/26,dan samostojnosti in enotnosti
+2029/1/1,novo leto
+2029/1/2,novo leto
+2029/2/8,Prešernov dan, slovenski kulturni praznik
+2029/4/1,velikonočna nedelja
+2029/4/2,velikonočni ponedeljek
+2029/4/27,dan upora proti okupatorju
+2029/5/1,praznik dela
+2029/5/2,praznik dela
+2029/5/20,binkoštna nedelja
+2029/6/25,dan državnosti
+2029/8/15,Marijino vnebovzetje
+2029/10/31,dan reformacije
+2029/11/1,dan spomina na mrtve
+2029/12/25,božič
+2029/12/26,dan samostojnosti in enotnosti
+2030/1/1,novo leto
+2030/1/2,novo leto
+2030/2/8,Prešernov dan, slovenski kulturni praznik
+2030/4/21,velikonočna nedelja
+2030/4/22,velikonočni ponedeljek
+2030/4/27,dan upora proti okupatorju
+2030/5/1,praznik dela
+2030/5/2,praznik dela
+2030/6/9,binkoštna nedelja
+2030/6/25,dan državnosti
+2030/8/15,Marijino vnebovzetje
+2030/10/31,dan reformacije
+2030/11/1,dan spomina na mrtve
+2030/12/25,božič
+2030/12/26,dan samostojnosti in enotnosti
+2031/1/1,novo leto
+2031/1/2,novo leto
+2031/2/8,Prešernov dan, slovenski kulturni praznik
+2031/4/13,velikonočna nedelja
+2031/4/14,velikonočni ponedeljek
+2031/4/27,dan upora proti okupatorju
+2031/5/1,praznik dela
+2031/5/2,praznik dela
+2031/6/1,binkoštna nedelja
+2031/6/25,dan državnosti
+2031/8/15,Marijino vnebovzetje
+2031/10/31,dan reformacije
+2031/11/1,dan spomina na mrtve
+2031/12/25,božič
+2031/12/26,dan samostojnosti in enotnosti
+2032/1/1,novo leto
+2032/1/2,novo leto
+2032/2/8,Prešernov dan, slovenski kulturni praznik
+2032/3/28,velikonočna nedelja
+2032/3/29,velikonočni ponedeljek
+2032/4/27,dan upora proti okupatorju
+2032/5/1,praznik dela
+2032/5/2,praznik dela
+2032/5/16,binkoštna nedelja
+2032/6/25,dan državnosti
+2032/8/15,Marijino vnebovzetje
+2032/10/31,dan reformacije
+2032/11/1,dan spomina na mrtve
+2032/12/25,božič
+2032/12/26,dan samostojnosti in enotnosti
+2033/1/1,novo leto
+2033/1/2,novo leto
+2033/2/8,Prešernov dan, slovenski kulturni praznik
+2033/4/17,velikonočna nedelja
+2033/4/18,velikonočni ponedeljek
+2033/4/27,dan upora proti okupatorju
+2033/5/1,praznik dela
+2033/5/2,praznik dela
+2033/6/5,binkoštna nedelja
+2033/6/25,dan državnosti
+2033/8/15,Marijino vnebovzetje
+2033/10/31,dan reformacije
+2033/11/1,dan spomina na mrtve
+2033/12/25,božič
+2033/12/26,dan samostojnosti in enotnosti
+2034/1/1,novo leto
+2034/1/2,novo leto
+2034/2/8,Prešernov dan, slovenski kulturni praznik
+2034/4/9,velikonočna nedelja
+2034/4/10,velikonočni ponedeljek
+2034/4/27,dan upora proti okupatorju
+2034/5/1,praznik dela
+2034/5/2,praznik dela
+2034/5/28,binkoštna nedelja
+2034/6/25,dan državnosti
+2034/8/15,Marijino vnebovzetje
+2034/10/31,dan reformacije
+2034/11/1,dan spomina na mrtve
+2034/12/25,božič
+2034/12/26,dan samostojnosti in enotnosti
+2035/1/1,novo leto
+2035/1/2,novo leto
+2035/2/8,Prešernov dan, slovenski kulturni praznik
+2035/3/25,velikonočna nedelja
+2035/3/26,velikonočni ponedeljek
+2035/4/27,dan upora proti okupatorju
+2035/5/1,praznik dela
+2035/5/2,praznik dela
+2035/5/13,binkoštna nedelja
+2035/6/25,dan državnosti
+2035/8/15,Marijino vnebovzetje
+2035/10/31,dan reformacije
+2035/11/1,dan spomina na mrtve
+2035/12/25,božič
+2035/12/26,dan samostojnosti in enotnosti
+2036/1/1,novo leto
+2036/1/2,novo leto
+2036/2/8,Prešernov dan, slovenski kulturni praznik
+2036/4/13,velikonočna nedelja
+2036/4/14,velikonočni ponedeljek
+2036/4/27,dan upora proti okupatorju
+2036/5/1,praznik dela
+2036/5/2,praznik dela
+2036/6/1,binkoštna nedelja
+2036/6/25,dan državnosti
+2036/8/15,Marijino vnebovzetje
+2036/10/31,dan reformacije
+2036/11/1,dan spomina na mrtve
+2036/12/25,božič
+2036/12/26,dan samostojnosti in enotnosti
+2037/1/1,novo leto
+2037/1/2,novo leto
+2037/2/8,Prešernov dan, slovenski kulturni praznik
+2037/4/5,velikonočna nedelja
+2037/4/6,velikonočni ponedeljek
+2037/4/27,dan upora proti okupatorju
+2037/5/1,praznik dela
+2037/5/2,praznik dela
+2037/5/24,binkoštna nedelja
+2037/6/25,dan državnosti
+2037/8/15,Marijino vnebovzetje
+2037/10/31,dan reformacije
+2037/11/1,dan spomina na mrtve
+2037/12/25,božič
+2037/12/26,dan samostojnosti in enotnosti
+2038/1/1,novo leto
+2038/1/2,novo leto
+2038/2/8,Prešernov dan, slovenski kulturni praznik
+2038/4/25,velikonočna nedelja
+2038/4/26,velikonočni ponedeljek
+2038/4/27,dan upora proti okupatorju
+2038/5/1,praznik dela
+2038/5/2,praznik dela
+2038/6/13,binkoštna nedelja
+2038/6/25,dan državnosti
+2038/8/15,Marijino vnebovzetje
+2038/10/31,dan reformacije
+2038/11/1,dan spomina na mrtve
+2038/12/25,božič
+2038/12/26,dan samostojnosti in enotnosti
+2039/1/1,novo leto
+2039/1/2,novo leto
+2039/2/8,Prešernov dan, slovenski kulturni praznik
+2039/4/10,velikonočna nedelja
+2039/4/11,velikonočni ponedeljek
+2039/4/27,dan upora proti okupatorju
+2039/5/1,praznik dela
+2039/5/2,praznik dela
+2039/5/29,binkoštna nedelja
+2039/6/25,dan državnosti
+2039/8/15,Marijino vnebovzetje
+2039/10/31,dan reformacije
+2039/11/1,dan spomina na mrtve
+2039/12/25,božič
+2039/12/26,dan samostojnosti in enotnosti
+2040/1/1,novo leto
+2040/1/2,novo leto
+2040/2/8,Prešernov dan, slovenski kulturni praznik
+2040/4/1,velikonočna nedelja
+2040/4/2,velikonočni ponedeljek
+2040/4/27,dan upora proti okupatorju
+2040/5/1,praznik dela
+2040/5/2,praznik dela
+2040/5/20,binkoštna nedelja
+2040/6/25,dan državnosti
+2040/8/15,Marijino vnebovzetje
+2040/10/31,dan reformacije
+2040/11/1,dan spomina na mrtve
+2040/12/25,božič
+2040/12/26,dan samostojnosti in enotnosti
+2041/1/1,novo leto
+2041/1/2,novo leto
+2041/2/8,Prešernov dan, slovenski kulturni praznik
+2041/4/21,velikonočna nedelja
+2041/4/22,velikonočni ponedeljek
+2041/4/27,dan upora proti okupatorju
+2041/5/1,praznik dela
+2041/5/2,praznik dela
+2041/6/9,binkoštna nedelja
+2041/6/25,dan državnosti
+2041/8/15,Marijino vnebovzetje
+2041/10/31,dan reformacije
+2041/11/1,dan spomina na mrtve
+2041/12/25,božič
+2041/12/26,dan samostojnosti in enotnosti
+2042/1/1,novo leto
+2042/1/2,novo leto
+2042/2/8,Prešernov dan, slovenski kulturni praznik
+2042/4/6,velikonočna nedelja
+2042/4/7,velikonočni ponedeljek
+2042/4/27,dan upora proti okupatorju
+2042/5/1,praznik dela
+2042/5/2,praznik dela
+2042/5/25,binkoštna nedelja
+2042/6/25,dan državnosti
+2042/8/15,Marijino vnebovzetje
+2042/10/31,dan reformacije
+2042/11/1,dan spomina na mrtve
+2042/12/25,božič
+2042/12/26,dan samostojnosti in enotnosti
+2043/1/1,novo leto
+2043/1/2,novo leto
+2043/2/8,Prešernov dan, slovenski kulturni praznik
+2043/3/29,velikonočna nedelja
+2043/3/30,velikonočni ponedeljek
+2043/4/27,dan upora proti okupatorju
+2043/5/1,praznik dela
+2043/5/2,praznik dela
+2043/5/17,binkoštna nedelja
+2043/6/25,dan državnosti
+2043/8/15,Marijino vnebovzetje
+2043/10/31,dan reformacije
+2043/11/1,dan spomina na mrtve
+2043/12/25,božič
+2043/12/26,dan samostojnosti in enotnosti
+2044/1/1,novo leto
+2044/1/2,novo leto
+2044/2/8,Prešernov dan, slovenski kulturni praznik
+2044/4/17,velikonočna nedelja
+2044/4/18,velikonočni ponedeljek
+2044/4/27,dan upora proti okupatorju
+2044/5/1,praznik dela
+2044/5/2,praznik dela
+2044/6/5,binkoštna nedelja
+2044/6/25,dan državnosti
+2044/8/15,Marijino vnebovzetje
+2044/10/31,dan reformacije
+2044/11/1,dan spomina na mrtve
+2044/12/25,božič
+2044/12/26,dan samostojnosti in enotnosti
+2045/1/1,novo leto
+2045/1/2,novo leto
+2045/2/8,Prešernov dan, slovenski kulturni praznik
+2045/4/9,velikonočna nedelja
+2045/4/10,velikonočni ponedeljek
+2045/4/27,dan upora proti okupatorju
+2045/5/1,praznik dela
+2045/5/2,praznik dela
+2045/5/28,binkoštna nedelja
+2045/6/25,dan državnosti
+2045/8/15,Marijino vnebovzetje
+2045/10/31,dan reformacije
+2045/11/1,dan spomina na mrtve
+2045/12/25,božič
+2045/12/26,dan samostojnosti in enotnosti
+2046/1/1,novo leto
+2046/1/2,novo leto
+2046/2/8,Prešernov dan, slovenski kulturni praznik
+2046/3/25,velikonočna nedelja
+2046/3/26,velikonočni ponedeljek
+2046/4/27,dan upora proti okupatorju
+2046/5/1,praznik dela
+2046/5/2,praznik dela
+2046/5/13,binkoštna nedelja
+2046/6/25,dan državnosti
+2046/8/15,Marijino vnebovzetje
+2046/10/31,dan reformacije
+2046/11/1,dan spomina na mrtve
+2046/12/25,božič
+2046/12/26,dan samostojnosti in enotnosti
+2047/1/1,novo leto
+2047/1/2,novo leto
+2047/2/8,Prešernov dan, slovenski kulturni praznik
+2047/4/14,velikonočna nedelja
+2047/4/15,velikonočni ponedeljek
+2047/4/27,dan upora proti okupatorju
+2047/5/1,praznik dela
+2047/5/2,praznik dela
+2047/6/2,binkoštna nedelja
+2047/6/25,dan državnosti
+2047/8/15,Marijino vnebovzetje
+2047/10/31,dan reformacije
+2047/11/1,dan spomina na mrtve
+2047/12/25,božič
+2047/12/26,dan samostojnosti in enotnosti
+2048/1/1,novo leto
+2048/1/2,novo leto
+2048/2/8,Prešernov dan, slovenski kulturni praznik
+2048/4/5,velikonočna nedelja
+2048/4/6,velikonočni ponedeljek
+2048/4/27,dan upora proti okupatorju
+2048/5/1,praznik dela
+2048/5/2,praznik dela
+2048/5/24,binkoštna nedelja
+2048/6/25,dan državnosti
+2048/8/15,Marijino vnebovzetje
+2048/10/31,dan reformacije
+2048/11/1,dan spomina na mrtve
+2048/12/25,božič
+2048/12/26,dan samostojnosti in enotnosti
+2049/1/1,novo leto
+2049/1/2,novo leto
+2049/2/8,Prešernov dan, slovenski kulturni praznik
+2049/4/18,velikonočna nedelja
+2049/4/19,velikonočni ponedeljek
+2049/4/27,dan upora proti okupatorju
+2049/5/1,praznik dela
+2049/5/2,praznik dela
+2049/6/6,binkoštna nedelja
+2049/6/25,dan državnosti
+2049/8/15,Marijino vnebovzetje
+2049/10/31,dan reformacije
+2049/11/1,dan spomina na mrtve
+2049/12/25,božič
+2049/12/26,dan samostojnosti in enotnosti
+2050/1/1,novo leto
+2050/1/2,novo leto
+2050/2/8,Prešernov dan, slovenski kulturni praznik
+2050/4/10,velikonočna nedelja
+2050/4/11,velikonočni ponedeljek
+2050/4/27,dan upora proti okupatorju
+2050/5/1,praznik dela
+2050/5/2,praznik dela
+2050/5/29,binkoštna nedelja
+2050/6/25,dan državnosti
+2050/8/15,Marijino vnebovzetje
+2050/10/31,dan reformacije
+2050/11/1,dan spomina na mrtve
+2050/12/25,božič
+2050/12/26,dan samostojnosti in enotnosti

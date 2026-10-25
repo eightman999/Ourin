@@ -146,17 +146,36 @@
             <a href="index.html">← 目次に戻る</a>
         </div>
         <h1 id="ourin-audit-items-todo">Ourin 監査項目 — 未完 / Audit Items — TODO</h1>
-<p><strong>最終更新 / Last Updated</strong>: 2026-08-15（一新 / renewed）
+<p><strong>最終更新 / Last Updated</strong>: 2026-10-25（実装・GitHub issue照合 / implementation and GitHub issue reconciliation）
 <strong>集約元 / Consolidated from</strong>: AUDIT_GLM / AUDIT_CODEX / AUDIT_CODEX_2026-06-27 / AUDIT_CLAUDE / AUDIT_AGY ＋ ドキュメント整合性監査 2026-08-15
-<strong>検証方法 / Verification</strong>: 全項目を現状ソースコードと照合して未完判定。完了済み項目は <code>AUDITS_COMPLETED.md</code> 参照。</p>
+<strong>確認対象 / Scope</strong>: <code>codex/ourin-pr-integration</code> @ <code>77500e31655a3b920c036e56fe7653050f3c0265</code> ＋未コミット統合変更。Claude PR 33件と今回の委譲成果を含む。 / The dedicated integration worktree includes 33 Claude PRs and subsequent delegated changes.
+<strong>検証方法 / Verification</strong>: 実装・GitHub issueを照合し、ビルド・アプリ単体テスト・実エンジン/XPC・複製した実ゴーストを検証。最新の件数と制約は<a href="PR_TAKEOVER_2026-10-25_unknown.html">引継ぎ記録</a>と<a href="REAL_GHOST_VERIFICATION_2026-10-25_unknown.html">実ゴースト記録</a>を参照。過去のPASSは当時の結果。 / Source and live issues were reconciled; builds, unit tests, native engines/XPC and copied real ghosts were exercised. See the linked reports for current results and limitations.
+<strong>一覧 / Index</strong>: <a href="TODO_ISSUE_STATUS_unknown.html">GitHub open 60件の全件照合</a> / <a href="AUDITS_COMPLETED_unknown.html">完了記録</a>。</p>
 <blockquote>
 <p><strong>一新について (2026-08-15)</strong>: 本ファイルに「完了」注記付きで蓄積していた項目は <code>AUDITS_COMPLETED.md</code>（「移管記録」セクション）へ移管し、本ファイルは<strong>真に未完の項目のみ</strong>とした。旧記載・経緯は git 履歴（2026-08-15 以前）に保存されている。
 Renewal note: items previously kept here with "completed" annotations were migrated to <code>AUDITS_COMPLETED.md</code> ("migrated items" section); this file now lists only genuinely pending work. Prior wording is preserved in git history.</p>
 </blockquote>
 <hr />
 <h2 id="_1">日本語</h2>
+<h3 id="0-2026-10-251024">0. 今回の整理（2026-10-25追記、10/24監査）</h3>
+<ul>
+<li>
+<p><strong>更新</strong>: Claude PR 33件をローカル統合済み。#131〜#194の対象項目は<a href="TODO_ISSUE_STATUS_unknown.html">全件表</a>へ反映。公開・master反映とは区別する。下記12/45/3件は10/24の元ブランチ監査時点の集計。</p>
+</li>
+<li>
+<p>GitHub open 60件のうち <strong>12件は現ブランチで実装・回帰テスト定義あり</strong>。#106 / #107 / #108 / #110 / #112 / #115 / #116 / #117 / #119 / #120 / #123 / #132 を実装TODOから除外し、完了記録へ移した。issue自体はopenのままで、close/mergeは行っていない。</p>
+</li>
+<li><strong>45件は残件・追跡、3件（#114 / #122 / #124）は対象外・保留</strong>。<a href="TODO_ISSUE_STATUS_unknown.html">全件表</a>に各番号・現在のコード・残件を記載。</li>
+<li>旧 <code>AUDIT-TEST-BASELINE-001</code> は10月の修正と全体PASS記録に基づき完了記録へ移管。PR #125に残る単発heap corruptionは別件として下記5節へ残した。</li>
+<li>「全コマンド実装済み」を現行UKADOCとの完全互換とは解釈しない。#131〜#154のイベント/内蔵SAORI、#163以降の多言語・Taromati2互換など、ローカル統合後にも残る互換性差は全件表で追跡する。</li>
+<li>
+<h1 id="118openclose109wirereferencefinesspghost-fallback121ssg">118のopen/close誤配線と#109のwire/Reference割当はローカル修正済み。FINEのSSP優先ghost fallbackは未対応。#121は手動.ssg入出力のみ完了で自動同期が残る。</h1>
+</li>
+<li>10/25の追加実装・優先順・担当モデルは<a href="DELEGATION_2026-10-25_unknown.html">委譲記録</a>。#95/#96/#97/#99/#104の文書・設定整備と、実機/remote CI/正式配布の未検証を区別する。</li>
+</ul>
 <h3 id="1">1. 実ゴースト・実機検証待ち（コード実装・単体テストは完了済み）</h3>
-<p>いずれも実装とテストは存在し、残作業は<strong>実ゴースト／実シェル／実機での動作・目視確認</strong>。確認して問題があれば個別のバグとして切り出す。</p>
+<p>以下の既存監査範囲には実装とテストが存在するが、<strong>実ゴースト／実シェル／実機での動作・目視確認</strong>は未完。下表の2026-08-15の記録は履歴であり、今回の検証結果ではない。新規に報告された欠落や不具合は<a href="TODO_ISSUE_STATUS_unknown.html">issue全件表</a>で別途追跡する。</p>
+<p>後続改善として、SERIKO上下鏡映修正 <code>823c2bf</code>、選択肢のバルーン内表示 <code>7e82b7c</code>、位置・重なり修正 <code>00bebfe</code> / <code>bca164e</code>、OnIdle Reference <code>0a2a37d</code> は現ブランチに存在する。これらは全項目の目視完了を意味しない。</p>
 <table>
 <thead>
 <tr>
@@ -221,12 +240,17 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>—</td>
 <td>SSP プラグインの Win32 DLL バイナリ互換</td>
-<td>macOS では直接ロード不可。文書化済み。対応 <code>.plugin</code>/<code>.bundle</code> への移植が必要になった時点で個別対応。</td>
+<td>PE形式のWindows DLLは直接ロード不可。<code>3bcf86b</code>でDLL名からmacOS native <code>.dylib</code> / <code>.plugin</code> / <code>.bundle</code>等への解決と共通ABIを追加済み（<code>UkagakaModuleABI</code>、<code>DLLCompatibilityTests</code>）。Windowsバイナリ実行とは区別する。</td>
 </tr>
 <tr>
 <td>—</td>
 <td>Windows HWND 直接互換</td>
 <td>プラットフォーム差異として文書化済み。外部ツールは <code>EXECUTE GetFMO</code> または POSIX 共有メモリを使用。</td>
+</tr>
+<tr>
+<td>—</td>
+<td>#114 / #122 / #124</td>
+<td>mcp.exeは伺か互換の対象外。IP Messenger/MsgSender連携とWindows FineFMOは保留。通常POSIX FMOの実装済み状態とは別。</td>
 </tr>
 </tbody>
 </table>
@@ -243,7 +267,7 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>P2（基盤完了）</td>
 <td>イベント Reference 仕様の表駆動化</td>
-<td><code>EventReferenceTable</code> 新設・<code>notifyReturnIgnored</code> 単一ソース化済み。<code>OnLanguageChange</code> は <strong>AUDIT-REF-LOCALE-001</strong>、<code>OnDisplayChange</code> / <code>OnDisplayChangeEx</code> は <strong>AUDIT-REF-DISPLAY-001</strong> として表駆動移行済み。<strong>残る発火箇所の表駆動移行</strong>は漸次対応。</td>
+<td>基盤・入力/ポインタ/選択・locale/displayは完了（<code>AUDITS_COMPLETED.md</code> S〜V節）。<code>OSUpdateObserver</code> と <code>SystemNotificationData</code> 等には手動Reference生成が残るため漸次移行を続ける。</td>
 </tr>
 </tbody>
 </table>
@@ -260,12 +284,12 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>P3</td>
 <td><code>docs/</code> の翻訳待ちプレースホルダー解消</td>
-<td><code>TRANSLATION_MANIFEST.md</code> 基準で20ペア未訳（<code>YAYA_CORE_ARCHITECTURE</code>／<code>EXECUTIVE_SUMMARY</code>／<code>TECHNICAL_SPEC</code> 等）。bilingual-doc ワークフローで消化する。</td>
+<td>2026-10-24に実ファイルのTranslation Pending/翻訳待ちを再確認し、英訳16＋和訳4＝20ペアが残存。#87はclosedだが翻訳完了の根拠にはしない。<code>TRANSLATION_MANIFEST.md</code>に従って消化する。</td>
 </tr>
 </tbody>
 </table>
 <p>※ 2026-08-15 のドキュメント整合性監査で検出した他の項目（アーカイブ移動・README同期・ブロッカー矛盾解消・memories修正・時点注記・行番号注記）は同日中に対応済み → <code>AUDITS_COMPLETED.md</code> 移管記録参照。</p>
-<h3 id="5-issue-audit-added-issues-2026-08-15">5. 監査で追加したissue / Audit-added issues (2026-08-15)</h3>
+<h3 id="5-2026-10-24">5. 安定性の残件（2026-10-24）</h3>
 <table>
 <thead>
 <tr>
@@ -277,15 +301,36 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tbody>
 <tr>
 <td>P2</td>
-<td><strong>AUDIT-TEST-BASELINE-001</strong>: <code>OurinTests</code> 全体実行で並列時に失敗</td>
-<td><strong>未解決</strong>。実在Emily4辞書を使う <code>YayaEmily4RegressionTests</code>、<code>EventBridge.shared</code> を使う <code>DressupBindTests</code>、埋め込みXPC fixtureを使う <code>ShioriLoaderTests</code> を <code>.serialized</code> 化し、<code>SurfaceOverlayOrderingTests</code> のTimer待機をMain RunLoop駆動へ変更した。さらに <code>GhostUtilityCommandTests</code> は標準NOTIFYの正当な他ゴースト配送を除外して、raise/notify自身の誤配送だけを検証するよう修正した。Xcodeプロジェクトの <code>OurinTests</code> / <code>OurinUITests</code> の依存target参照（<code>remoteInfo</code> / <code>TEST_TARGET_NAME</code>）も現行target名 <code>Ourin</code> に修正し、<code>-showBuildSettings</code> で解決を確認した。修正後の隔離DerivedDataによる直列全体実行は <strong>OurinTests 1087 passed / 0 failed（99 suites）＋UI tests 6 passed / 0 failed</strong>。一方、同環境の全体並列はsuite列挙後にテストworkerが終了してOurinプロセスだけが残る状態を再現し、2分超で対象PIDを停止したため集計不能。最後に集計できた修正前の並列全体実行は <strong>1093 passed / 5 failed / 0 skipped / 1098 total</strong>、<code>GhostUtilityCommandTests</code>＋<code>SoundPlayerTests</code> の並列subsetは <strong>74 passed / 0 failed</strong>。並列実行の完走は未確定のまま扱う。</td>
+<td><strong>AUDIT-TEST-HEAP-001</strong>: テストホストの単発heap corruption</td>
+<td><a href="https://github.com/eightman999/Ourin/pull/125">PR #125</a> に一度の <code>malloc: Heap corruption detected</code> abortを記録。10/25に<code>66749e3</code>の競合修正と関連root変更が統合済みと確認。元統合1465 PASS記録あり。今回の最終統合は1509ケースPASS、heap破損の再発なし。再発時に原因調査を再開する。旧BASELINEの並列未完走記載は完了記録へ移管した。</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>現ブランチ/作業ツリーのリリース検証</td>
+<td>過去PRのPASSを現在の <code>3bcf86b</code>＋未コミット変更の結果とは扱わない。#96/#102に沿って現版の全体テスト・実機E2Eを確認する。今回の統合実装は全体テストを再実行。実機E2E・正式配布判定は別途残る。</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h2 id="english">English</h2>
+<h3 id="0-reconciliation-on-2026-10-24-updated-october-25">0. Reconciliation on 2026-10-24, updated October 25</h3>
+<ul>
+<li>
+<p><strong>Update:</strong> 33 Claude PRs have been integrated locally; the issue matrix is updated. The 12/45/3 counts below are the original October 24 branch snapshot, not the integration totals.</p>
+</li>
+<li>
+<p>Of 60 open GitHub issues, <strong>12 have implementation and regression test definitions in this branch</strong>: #106 / #107 / #108 / #110 / #112 / #115 / #116 / #117 / #119 / #120 / #123 / #132. They were moved out of implementation TODOs into the completed record. Their GitHub state remains open; no close or merge was performed.</p>
+</li>
+<li><strong>45 remain pending or tracking, and 3 (#114 / #122 / #124) are deferred or out of scope</strong>. See the <a href="TODO_ISSUE_STATUS_unknown.html">complete issue mapping</a>.</li>
+<li>Historical <code>AUDIT-TEST-BASELINE-001</code> was moved to the completed record based on October fixes and full-suite PASS reports. The intermittent heap corruption mentioned in PR #125 remains a separate item in section 5.</li>
+<li>Historical command coverage does not establish full compatibility with the current UKADOC. New event/internal-SAORI issues #131–#154 and multilingual/Taromati2 issues from #163 onward remain tracked in the issue mapping.</li>
+<li>
+<h1 id="118-scriptbox-is-incorrectly-routed-from-the-close-branch-to-opening-an-input-window-109-fine-needs-wirereference-verification-121-has-manual-ssg-importexport-with-automatic-cloud-sync-still-pending">118 <code>scriptbox</code> is incorrectly routed from the close branch to opening an input window. #109 FINE needs wire/Reference verification. #121 has manual .ssg import/export, with automatic cloud sync still pending.</h1>
+</li>
+</ul>
 <h3 id="1-awaiting-real-ghost-real-device-verification-code-unit-tests-done">1. Awaiting real-ghost / real-device verification (code + unit tests done)</h3>
-<p>Implementation and tests exist for all of these; the remaining work is <strong>verification on real ghosts / shells / hardware</strong>. File individual bugs if verification fails.</p>
+<p>Implementation and tests exist for the historical audit scope below; <strong>real-ghost / shell / hardware verification</strong> remains pending. The August records below are historical, not new results. Newly reported gaps are tracked separately in the <a href="TODO_ISSUE_STATUS_unknown.html">issue mapping</a>.</p>
+<p>Subsequent improvements present in this branch include SERIKO orientation <code>823c2bf</code>, in-balloon choices <code>7e82b7c</code>, placement/overlap <code>00bebfe</code> / <code>bca164e</code>, and OnIdle references <code>0a2a37d</code>. These do not establish complete visual verification.</p>
 <table>
 <thead>
 <tr>
@@ -350,12 +395,17 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>—</td>
 <td>SSP plugin Win32 DLL binary compatibility</td>
-<td>Cannot load Win32 DLLs on macOS; documented. Port to <code>.plugin</code>/<code>.bundle</code> case-by-case when needed.</td>
+<td>PE binaries cannot load directly. <code>3bcf86b</code> adds DLL-name resolution to native <code>.dylib</code> / <code>.plugin</code> / <code>.bundle</code> etc. and a common ABI (<code>UkagakaModuleABI</code>, <code>DLLCompatibilityTests</code>). This does not execute Windows binaries.</td>
 </tr>
 <tr>
 <td>—</td>
 <td>Windows HWND direct compatibility</td>
 <td>Documented platform difference. External tools use <code>EXECUTE GetFMO</code> or POSIX shared memory.</td>
+</tr>
+<tr>
+<td>—</td>
+<td>#114 / #122 / #124</td>
+<td>mcp.exe is outside Ukagaka compatibility. IP Messenger/MsgSender and Windows FineFMO remain deferred, distinct from implemented POSIX FMO.</td>
 </tr>
 </tbody>
 </table>
@@ -372,7 +422,7 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>P2 (foundation done)</td>
 <td>Table-driven event Reference specs</td>
-<td><code>EventReferenceTable</code> and single-sourced <code>notifyReturnIgnored</code> are in place. <code>OnLanguageChange</code> was migrated under <strong>AUDIT-REF-LOCALE-001</strong>; <code>OnDisplayChange</code> / <code>OnDisplayChangeEx</code> under <strong>AUDIT-REF-DISPLAY-001</strong>. <strong>Remaining emission sites</strong> proceed incrementally.</td>
+<td>Foundation, input/pointer/selection, locale and display migrations are complete (completed record sections S–V). Manual Reference construction remains in <code>OSUpdateObserver</code>, <code>SystemNotificationData</code> and other sites.</td>
 </tr>
 </tbody>
 </table>
@@ -389,12 +439,12 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tr>
 <td>P3</td>
 <td>Resolve translation placeholders in <code>docs/</code></td>
-<td>20 untranslated pairs per <code>TRANSLATION_MANIFEST.md</code> (<code>YAYA_CORE_ARCHITECTURE</code> / <code>EXECUTIVE_SUMMARY</code> / <code>TECHNICAL_SPEC</code> etc.). Process via the bilingual-doc workflow.</td>
+<td>Actual placeholder markers rechecked on 2026-10-24: 16 EN + 4 JA = 20 pairs remain. Closed issue #87 is not evidence of translation completion. Follow <code>TRANSLATION_MANIFEST.md</code>.</td>
 </tr>
 </tbody>
 </table>
 <p>All other findings of the 2026-08-15 documentation consistency audit (archive moves, README sync, blocker-contradiction fixes, memories fixes, snapshot notes, line-number caveat) were addressed the same day → see the migrated-items section in <code>AUDITS_COMPLETED.md</code>.</p>
-<h3 id="5-audit-added-issues-2026-08-15">5. Audit-added issues (2026-08-15)</h3>
+<h3 id="5-remaining-stability-work-2026-10-24">5. Remaining stability work (2026-10-24)</h3>
 <table>
 <thead>
 <tr>
@@ -406,8 +456,13 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <tbody>
 <tr>
 <td>P2</td>
-<td><strong>AUDIT-TEST-BASELINE-001</strong>: parallel <code>OurinTests</code> execution still has failures</td>
-<td><strong>Unresolved</strong>. The real-Emily4-dictionary <code>YayaEmily4RegressionTests</code>, <code>EventBridge.shared</code>-using <code>DressupBindTests</code>, and embedded-XPC-fixture <code>ShioriLoaderTests</code> suites are now <code>.serialized</code>; <code>SurfaceOverlayOrderingTests</code> drives the main RunLoop while waiting for Timer frames. <code>GhostUtilityCommandTests</code> now ignores legitimate broadcast NOTIFYs from other ghosts and checks only for misrouted raise/notify IDs. The Xcode project’s <code>OurinTests</code> / <code>OurinUITests</code> dependency references (<code>remoteInfo</code> / <code>TEST_TARGET_NAME</code>) were also corrected to the current <code>Ourin</code> target, confirmed by <code>-showBuildSettings</code>. After the fix, an isolated DerivedData serial run passed <strong>1087 <code>OurinTests</code> cases / 0 failures (99 suites) plus 6 UI tests / 0 failures</strong>. The same isolated full-parallel run still reproduced the worker-exit/parentless-Ourin condition after suite enumeration and was stopped after more than two minutes, so it produced no aggregate. The last aggregatable parallel full run before this project-reference fix was <strong>1093 passed / 5 failed / 0 skipped / 1098 total</strong> (the overlay Timer race is resolved); the parallel <code>GhostUtilityCommandTests</code> + <code>SoundPlayerTests</code> subset passed <strong>74/74</strong>. Parallel completion remains unconfirmed.</td>
+<td><strong>AUDIT-TEST-HEAP-001</strong>: intermittent test-host heap corruption</td>
+<td><a href="https://github.com/eightman999/Ourin/pull/125">PR #125</a> records one <code>malloc: Heap corruption detected</code> abort. Fix <code>66749e3</code> and the related working-tree changes are included in the October 25 integration. The earlier integration recorded 1465 passing tests. The final integration passed 1509 executions without recurrence. Reopen investigation if it recurs. Historical BASELINE completion is recorded separately.</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>Current branch/working-tree release validation</td>
+<td>Historical PR PASS reports do not validate <code>3bcf86b</code> plus current uncommitted edits. Run full-suite and real-device E2E checks under #96/#102 before release. This update only reconciles documentation.</td>
 </tr>
 </tbody>
 </table>
@@ -422,8 +477,12 @@ Renewal note: items previously kept here with "completed" annotations were migra
 </thead>
 <tbody>
 <tr>
+<td><strong>先行 / First</strong></td>
+<td><a href="TODO_ISSUE_STATUS_unknown.html">issue全件表</a>の導入・会話blocker、#181増分build、#118誤配線、#109 wire互換を解消 / resolve installation/conversation, build and routing gaps</td>
+</tr>
+<tr>
 <td><strong>P2</strong></td>
-<td>実ゴースト検証パス一式（SakuraScript 実行差分 → SERIKO/バルーン目視 → 動画・イベント実機）</td>
+<td>実ゴースト検証パス一式（SakuraScript → SERIKO/バルーン → 動画・イベント）と統合安定性検証 / real-ghost checks and integration stability</td>
 </tr>
 <tr>
 <td><strong>P2 (基盤完了)</strong></td>
@@ -439,7 +498,7 @@ Renewal note: items previously kept here with "completed" annotations were migra
 <p><em>本ファイルは監査レポート（GLM/CODEX/CLAUDE/AGY）の未完項目を集約したものです。完了済み項目は <code>AUDITS_COMPLETED.md</code> を参照してください。</em></p>
 <p><em>This file consolidates pending items from audit reports (GLM/CODEX/CLAUDE/AGY). For completed items, see <code>AUDITS_COMPLETED.md</code>.</em></p>
         <div class="footer">
-            <p>Generated: 2026-08-15 | <a href="../AUDITS_TODO.md">Source (MD)</a></p>
+            <p>Generated: 2026-10-25 | <a href="../AUDITS_TODO.md">Source (MD)</a></p>
         </div>
     </div>
 </body>

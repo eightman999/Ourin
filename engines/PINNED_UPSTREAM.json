@@ -1,0 +1,21 @@
+{
+  "kawari": {
+    "repository": "https://github.com/ukatech/kawari",
+    "revision": "8098dfb8f264a60d2d917c1b128ac87222bb65ec",
+    "license": "LICENSE",
+    "submodules": ["build/src/uka_regexp"],
+    "darwin_artifact": "build/engines/kawari/libkawari_shiori.dylib",
+    "ourin_shiori_abi": "ukagaka-long"
+  },
+  "kagari_shiori": {
+    "repository": "https://github.com/Tatakinov/kagari_shiori",
+    "revision": "ba87ccbd850c787aeeea7d31bed293d64bc09f01",
+    "license": "LICENSE",
+    "dependencies": {
+      "lua": "5.4.4",
+      "sol2": "3.2.2"
+    },
+    "darwin_artifact": "libkagari.dylib",
+    "ourin_shiori_abi": "kagari"
+  }
+}

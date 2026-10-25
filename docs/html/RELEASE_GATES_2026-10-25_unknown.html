@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ourin リリースゲート / Release Gates (2026-10-25)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="ourin-release-gates-2026-10-25">Ourin リリースゲート / Release Gates (2026-10-25)</h1>
+<p>Public Beta / v0.1.0 に向けた P0 リリースブロッカー (#96, #97, #98, #99) と
+E2E リリース試験 (#102) の決定事項・手順・残作業をまとめた文書。</p>
+<hr />
+<h2 id="1-macos-130-ventura-97">1. 最低対応 macOS: <strong>13.0 (Ventura)</strong> (#97)</h2>
+<h3 id="_1">決定</h3>
+<p>サポートする最小 macOS は <strong>macOS 13.0</strong> で統一する。</p>
+<h3 id="api-availability">根拠 (API availability からの導出)</h3>
+<ul>
+<li>ユーザー向け正本である <code>README.md</code> が当初から <strong>macOS 13.0 (Ventura) 以上</strong>
+  を明記している (#97 の既定方針「README を正本とする」に一致)。</li>
+<li>コード上 macOS 13 API はフォールバック付きだが<strong>主要 UX がそれに依存</strong>:</li>
+<li><code>MenuBarExtra</code> (macOS 13+) — メニューバー常駐・右クリックメニューの中核
+    (<code>Ourin/OurinApp.swift</code>)。macOS 11/12 では <code>if #available</code> でスキップされ、
+    メニュー自体が<strong>無言で消える</strong>。</li>
+<li><code>NavigationSplitView</code> (macOS 13+) — DevTools の本体 UI
+    (<code>Ourin/DevTools/DevToolsView.swift</code>)。旧 OS では <code>navigationViewCompat</code>
+    へ縮退するが、検証されていない縮退経路をリリース品質とはみなせない。</li>
+<li>macOS 11/12 用の <code>#available</code> 分岐はコンパイル互換のための保険であり、
+  「対応 OS」ではない。11.0 を公称すると未検証の縮退機能をユーザーに
+  約束することになる。</li>
+<li>README 上の開発要件 Xcode 16.4 も macOS 13 SDK 以降を前提とする。</li>
+</ul>
+<h3 id="130">揃えた箇所 (すべて 13.0)</h3>
+<table>
+<thead>
+<tr>
+<th>箇所</th>
+<th>変更前</th>
+<th>変更後</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ourin/Resources/Info.plist</code> <code>LSMinimumSystemVersion</code></td>
+<td>11.0</td>
+<td><strong>13.0</strong></td>
+</tr>
+<tr>
+<td>pbxproj <code>MACOSX_DEPLOYMENT_TARGET</code> — Ourin (Debug/Release)</td>
+<td>11.0</td>
+<td><strong>13.0</strong></td>
+</tr>
+<tr>
+<td>同上 — OurinShioriXPCService (Debug/Release)</td>
+<td>11.0</td>
+<td><strong>13.0</strong></td>
+</tr>
+<tr>
+<td>同上 — OurinTests / OurinUITests (Debug/Release)</td>
+<td>15.5</td>
+<td><strong>13.0</strong></td>
+</tr>
+</tbody>
+</table>
+<p>テストバンドルも 13.0 に揃えたのは「最低 OS 上でテストを回せる」ためであり、
+ユーザーへの影響はない (テストバンドルは配布物に含まれない)。</p>
+<h3 id="_2">範囲外・要親判断</h3>
+<ul>
+<li><code>satori_core/CMakeLists.txt</code> / <code>satori_core/build.sh</code>:
+  <code>CMAKE_OSX_DEPLOYMENT_TARGET=11.0</code>。<strong>helper がアプリより低い最低 OS を
+  持つこと自体は問題ない</strong> (13.0 上で動く) が、表記揃えとして 13.0 への
+  引き上げを推奨 (本workerの所有範囲外)。</li>
+<li><code>yaya_core/CMakeLists.txt</code>: deployment target 未指定 (= ビルドした SDK
+  デフォルト)。同様に <code>13.0</code> 明示を推奨。</li>
+<li><code>Installer/Package.swift</code>: <code>platforms: [.macOS(.v12)]</code>。インストーラーは
+  旧環境からの移行ツールでもあり、<strong>12 のまま維持が妥当な可能性</strong>がある。
+  製品判断として親へ委ねる (案: 移行用途を意図するなら v12 維持 + README
+  に「移行ツールは 12+」と明記)。</li>
+<li>実機 macOS 13 での起動確認: 未実施。#102 の E2E シナリオに組み込むこと。</li>
+<li>README 文言は変更不要 (既に 13.0+)。リリースノート/ダウンロードページは
+  公開時に 13.0+ と記載すること。</li>
+</ul>
+<hr />
+<h2 id="2-99">2. バージョン / リリースメタデータ方針 (#99)</h2>
+<h3 id="_3">バージョニング規則</h3>
+<ul>
+<li><strong>現在</strong>: <code>CFBundleShortVersionString = 0.0.1.21</code>, <code>CFBundleVersion = 21</code>
+  (開発期の旧式 4 成分 <code>X.Y.Z.B</code>。末尾成分 = ビルド番号)。
+  ※ 本タスクでは 1.0 への引き上げは行わない。</li>
+<li><strong>今後のリリース</strong>: <code>CFBundleShortVersionString</code> は <code>1.0.0</code> などの
+  ピリオド区切りの3整数とする。これは
+  <a href="https://developer.apple.com/documentation/bundleresources/information-property-list/cfbundleshortversionstring">Appleの公開仕様</a>
+  に合わせた規則であり、Beta/RC の接尾辞や <code>+metadata</code> は含めない。
+  現在の旧4成分は通常の開発検査だけで許容し、<code>--release</code> では不合格にする。</li>
+<li><strong><code>CFBundleVersion</code></strong>: 全リリースを通じて単調増加する整数。
+  現状 21。リリースごとに +1 (または CI run number を使う運用も可)。</li>
+<li><strong>Git tag</strong>: <code>v1.0.0-beta.1</code>、<code>v1.0.0-rc.1</code>、<code>v1.0.0</code> などの SemVer。
+  配布チャネルはタグで表し、バンドル版数には含めない。
+  現在の開発期はタグを切らない。</li>
+<li><strong><code>AppReleaseDate</code></strong>: リリースを切った日 (YYYY-MM-DD)。About 画面に
+  表示される (<code>Ourin/About/AboutView.swift</code>)。リリース作業時に更新必須。</li>
+<li><strong>XPC バンドルのバージョン</strong>: <code>MARKETING_VERSION</code> /
+  <code>CURRENT_PROJECT_VERSION</code> から生成されるため、pbxproj 側も
+  Info.plist と同じ値に揃える (本変更で 0.0.1.21 / 21 に統一済み)。</li>
+</ul>
+<h3 id="scriptscheck_release_metadatapy">更新漏れ防止: <code>scripts/check_release_metadata.py</code></h3>
+<p>CI (<code>metadata</code> ジョブ) とローカルで同じ検査を回す。</p>
+<pre class="codehilite"><code class="language-bash"># 普段の整合チェック (CI と同一)
+python3 scripts/check_release_metadata.py
+
+# リリース時 (バージョン確定の検証)
+python3 scripts/check_release_metadata.py --release \
+    --expect-version 1.0.0 --expect-build 22 --release-date 2026-XX-XX
+</code></pre>
+
+<p>検査内容 (失敗 = exit 1):</p>
+<ul>
+<li><code>CFBundleShortVersionString</code> が3整数、または通常検査のみ <code>X.Y.Z.B</code> dev 形式</li>
+<li>dev 形式では末尾成分 == <code>CFBundleVersion</code> (0.0.1.21 ↔ 21)</li>
+<li><code>CFBundleVersion</code> が正の整数 (<code>--min-build N</code> で単調増加も検証可)</li>
+<li><code>LSMinimumSystemVersion</code> == <code>--min-os</code> (既定 13.0)</li>
+<li>pbxproj の全 <code>MACOSX_DEPLOYMENT_TARGET</code> == <code>--min-os</code></li>
+<li>pbxproj の全 <code>MARKETING_VERSION</code> == 同上バージョン、
+  全 <code>CURRENT_PROJECT_VERSION</code> == 同上ビルド。各バンドルターゲットの
+  Debug/Release 設定でキーが欠けた場合も不合格</li>
+<li>XPC の版数が上記 build setting を参照しているか、本体と同じ固定値である</li>
+<li><code>AppReleaseDate</code> が YYYY-MM-DD・未来日でない (180 日超で警告)</li>
+<li><code>--release</code>: 3整数のバンドル版数 + <code>AppReleaseDate</code> が当日/指定日と一致</li>
+<li>README 記載の macOS 要件 == <code>--min-os</code> (ドリフト検出)</li>
+</ul>
+<h3 id="_4">リリース時の版数更新手順</h3>
+<ol>
+<li><code>Ourin/Resources/Info.plist</code> の <code>CFBundleShortVersionString</code> /
+   <code>CFBundleVersion</code> / <code>AppReleaseDate</code> を更新</li>
+<li><code>Ourin.xcodeproj/project.pbxproj</code> の <code>MARKETING_VERSION</code> /
+   <code>CURRENT_PROJECT_VERSION</code> を同値に更新</li>
+<li><code>python3 scripts/check_release_metadata.py --release ...</code> で検証</li>
+<li>リリース物作成後、配布チャネルを含むタグ (例: <code>v1.0.0-beta.1</code>) を付ける</li>
+</ol>
+<hr />
+<h2 id="3-macos-ci-96">3. macOS CI リリースゲート (#96)</h2>
+<p><code>.github/workflows/macOS.yml</code> をゲート化。PR 作成時と master push 時に実行。</p>
+<h3 id="_5">ジョブ構成</h3>
+<table>
+<thead>
+<tr>
+<th>ジョブ</th>
+<th>必須</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata</code></td>
+<td>✅</td>
+<td><code>check_release_metadata.py</code> (ubuntu、高速)</td>
+</tr>
+<tr>
+<td><code>test</code></td>
+<td>✅</td>
+<td>macos-15 / arm64、Debug <code>xcodebuild test</code> (OurinTests + OurinUITests)、Installer <code>swift test</code>、カバレッジ付き</td>
+</tr>
+<tr>
+<td><code>helper-cores</code></td>
+<td>✅</td>
+<td><code>yaya_core</code> / <code>satori_core</code> を build.sh で単独ビルド、<code>lipo</code> で arm64+x86_64 を機械検証</td>
+</tr>
+<tr>
+<td><code>release-gate</code></td>
+<td>✅</td>
+<td>Release universal ビルド (<code>generic/platform=macOS</code>) + バンドル機械検証 + 未署名 .app artifact 保存</td>
+</tr>
+<tr>
+<td><code>test-x86_64 (advisory)</code></td>
+<td>⚠️ 参考</td>
+<td>Rosetta 下 x86_64 test。<code>continue-on-error: true</code> で非ブロッキング</td>
+</tr>
+</tbody>
+</table>
+<p><code>release-gate</code> の機械検証:</p>
+<ul>
+<li><code>Contents/MacOS/Ourin</code>・<code>yaya_core</code>・<code>satori_core</code> の存在</li>
+<li><code>Contents/XPCServices/OurinShioriXPCService.xpc</code> (+ 実行ファイル) の存在</li>
+<li><code>Contents/Resources/sakura.nar</code> (同梱既定ゴースト) の存在</li>
+<li>全実行バイナリが <code>lipo -info</code> で arm64+x86_64 universal</li>
+<li><code>LSMinimumSystemVersion == 13.0</code> 等の Info.plist 値</li>
+<li>ビルド後の XPC と本体の <code>CFBundleShortVersionString</code> / <code>CFBundleVersion</code> が一致</li>
+</ul>
+<h3 id="intelapple-silicon-matrix">Intel/Apple Silicon matrix の設計判断</h3>
+<ul>
+<li><code>macos-13</code> ランナー (Intel) は <strong>Xcode 15 系まで</strong>しか積めず、本プロジェクト
+  (<code>objectVersion = 77</code>, 要件 Xcode 16.4, Swift Testing 使用) をビルドできない
+  ため採用不可。</li>
+<li><code>macos-15-intel</code> は
+  <a href="https://docs.github.com/en/actions/reference/runners/github-hosted-runners#standard-github-hosted-runners-for-public-repositories">GitHub公式の標準Intelランナー</a>
+  に含まれる。larger runner 専用ではなく、Intel 上の試験を追加する候補となる。</li>
+<li>現時点の workflow は <strong>universal ビルド + lipo 検証</strong>を hard gate、
+  <strong>Rosetta x86_64 test</strong> を advisory leg としている。ネイティブ Intel job は
+  未追加であり、Intel 実機での最終確認は #102 の残件とする。</li>
+</ul>
+<p>この workflow の GitHub 上での実行成功と最低対応 macOS 13 上の動作は未確認。
+上記は検査設定であり、CI 実測済み・実機対応確認済みを意味しない。</p>
+<h3 id="readmecontributing">ローカル再現手順 (README/CONTRIBUTING への追記案)</h3>
+<pre class="codehilite"><code class="language-bash"># metadata ゲート
+python3 scripts/check_release_metadata.py
+
+# test ゲート (Debug)
+xcodebuild -project Ourin.xcodeproj -scheme Ourin \
+  -destination 'platform=macOS,arch=arm64' \
+  CODE_SIGNING_ALLOWED=NO test
+swift test --package-path Installer
+
+# helper-cores ゲート
+./yaya_core/build.sh &amp;&amp; ./satori_core/build.sh
+lipo -info yaya_core/build/yaya_core satori_core/build/satori_core
+
+# release-gate (Release universal + 検証)
+xcodebuild -project Ourin.xcodeproj -scheme Ourin -configuration Release \
+  -destination 'generic/platform=macOS' -derivedDataPath DerivedData \
+  CODE_SIGNING_ALLOWED=NO build
+APP=DerivedData/Build/Products/Release/Ourin.app
+ls &quot;$APP/Contents/XPCServices&quot; &quot;$APP/Contents/MacOS&quot;
+lipo -info &quot;$APP/Contents/MacOS/&quot;{Ourin,yaya_core,satori_core}
+</code></pre>
+
+<h3 id="_6">補足: 共有スキーム</h3>
+<p><code>Ourin.xcodeproj/xcshareddata/xcschemes/Ourin.xcscheme</code> を新設した。
+従来リポジトリには共有スキームがコミットされておらず、クリーン checkout
+では <code>xcodebuild -scheme Ourin</code> がスキーム未解決で失敗する。CI ゲートの
+前提条件として追加した (Testables = OurinTests + OurinUITests)。</p>
+<h3 id="worker">⚠️ 承認依存の残作業 (本workerでは実行不可)</h3>
+<ul>
+<li><strong>branch protection</strong>: master に required status checks
+  <code>metadata</code> / <code>test</code> / <code>release-gate</code> / <code>helper-cores</code> を設定する。
+  リポジトリ管理者が Settings → Branches → master のルールで設定、または
+  <code>gh api repos/&lt;owner&gt;/&lt;repo&gt;/branches/master/protection</code> で設定。
+  未設定の間は CI は走るが「必須」ではない点に注意。</li>
+<li>署名 credential を CI へ置く設計は別途 (#98)。現行 PR CI は
+  <code>CODE_SIGNING_ALLOWED=NO</code> で credential 不要。</li>
+</ul>
+<hr />
+<h2 id="4-developer-id-98">4. Developer ID 署名・公証・配布 (#98 ローカル準備)</h2>
+<blockquote>
+<p>本workerは署名実行・credential 参照を行わない。以下は確立済み手順の整備状況。</p>
+</blockquote>
+<h3 id="_7">既存資産</h3>
+<ul>
+<li><code>scripts/release.sh</code>: Developer ID 署名 → 公証 → staple → ZIP + SHA-256</li>
+<li>Installer.app 連携まで一括。nested signing は「全 Mach-O → XPC → app」
+  の内→外順で実施済み。</li>
+<li><code>scripts/notarize.sh</code>: notarytool 提出・待機再試行・staple・<code>spctl</code> 確認。</li>
+<li><code>scripts/build-installer.sh</code>: Installer.app 組み立て。</li>
+</ul>
+<h3 id="_8">実行手順 (リリース担当者向け)</h3>
+<pre class="codehilite"><code class="language-bash"># 前提: Developer ID Application 証明書が login keychain にあり、
+# notarytool の keychain profile を作成済み
+#   xcrun notarytool store-credentials &quot;ourin-notary&quot; --apple-id &lt;id&gt; \
+#     --team-id &lt;TEAM&gt; --password &lt;app-specific-password&gt;
+
+scripts/release.sh            # 署名+公証+staple+ZIP+sha256+Installer
+# 確認だけしたい場合
+SKIP_NOTARIZE=1 scripts/release.sh
+</code></pre>
+
+<p>出力: <code>build/release/Ourin-&lt;version&gt;.zip</code> + <code>.sha256</code> (+ Installer.app)</p>
+<h3 id="ac">手順上の確認ポイント (AC 対応表)</h3>
+<table>
+<thead>
+<tr>
+<th>AC</th>
+<th>状態</th>
+<th>確認方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Developer ID 署名</td>
+<td>手順済</td>
+<td>release.sh が codesign を内→外で実行</td>
+</tr>
+<tr>
+<td><code>codesign --verify --deep --strict</code></td>
+<td>手順済</td>
+<td>release.sh 内で実施</td>
+</tr>
+<tr>
+<td>XPC/helper 署名状態</td>
+<td>手順済・<strong>注意点あり</strong></td>
+<td>下記「署名の注意点」</td>
+</tr>
+<tr>
+<td>公証 + staple</td>
+<td>手順済</td>
+<td>notarize.sh (wait 再試行×3 あり)</td>
+</tr>
+<tr>
+<td>配布形式</td>
+<td><strong>ZIP</strong> (確立)</td>
+<td>DMG 化は任意・将来検討</td>
+</tr>
+<tr>
+<td>Gatekeeper 確認</td>
+<td>手順済 (<code>spctl -a -t exec -vv</code>)</td>
+<td>quarantine 環境での実機確認は #102</td>
+</tr>
+<tr>
+<td>SHA-256 公開</td>
+<td>手順済</td>
+<td><code>.sha256</code> 同梱</td>
+</tr>
+<tr>
+<td>credential 非保管</td>
+<td>OK</td>
+<td>keychain profile + env var のみ</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">署名の注意点 (実機実行時に要確認)</h3>
+<ul>
+<li><code>Contents/Resources/yaya_core</code> に <strong>unsigned copy が二重に存在</strong>する
+  (Resources には CodeSignOnCopy なしで複製される)。release.sh は全
+  Mach-O を走査して署名するためカバーされるが、<strong>Resources への無署名
+  複製は公証で引っかかる既知パターン</strong>。恒久対応としては Resources
+  からの複製を除去するか CodeSignOnCopy 相当の対応を検討すべき
+  (pbxproj 構造上の要検討事項として記録)。</li>
+<li>未署名 app を Xcode が <code>CODE_SIGNING_ALLOWED=NO</code> で作ると ad-hoc 相当の
+  未署名 Mach-O が残る。配布は必ず release.sh 経由の署名済み物を使う。</li>
+</ul>
+<h3 id="_10">⚠️ 承認依存の残作業</h3>
+<ul>
+<li>Developer ID 証明書・notarytool credential の保有確認 (ユーザー/管理者作業)</li>
+<li>quarantine 付きクリーン Mac での Gatekeeper 起動実測 (#102 と共通化)</li>
+<li>必要なら DMG / 公証済み pkg の形式選定 (現状 ZIP のみ)</li>
+</ul>
+<hr />
+<h2 id="5-e2e-102">5. E2E リリース試験チェックリスト (#102 検証手順)</h2>
+<p>Public Beta 前に最低 1 回、RC ごとに実施。配布物は release.sh 産物
+(または CI artifact の unsigned app を ad-hoc 起動確認用途に限定して使用)。</p>
+<h3 id="_11">環境</h3>
+<ul>
+<li>Apple Silicon Mac。<strong>クリーン条件</strong>: 以下が存在しないこと</li>
+<li><code>/Applications/Ourin.app</code></li>
+<li><code>~/Library/Containers/furin-lab.Ourin/</code></li>
+<li><code>~/Library/Application Support/Ourin/</code> (非コンテナ配置があれば)</li>
+<li>FMO 共有メモリ <code>/dev/shm</code> 相当の残存 (再起動でクリア)</li>
+<li>Intel 対応を公称する場合は Intel Mac または信頼できる同等検証</li>
+<li>配布 ZIP をブラウザ経由でダウンロードし quarantine 属性を付けた状態で試す
+  (Gatekeeper 検証になるよう <code>curl -LO</code> ではなくブラウザ DL 推奨)</li>
+</ul>
+<h3 id="issue-102-11">シナリオ (issue #102 の 11 項目を手順化)</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>手順</th>
+<th>期待結果</th>
+<th>確認コマンド等</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>ZIP を DL し /Applications へ展開・初回起動</td>
+<td>Gatekeeper で阻止されず起動 (署名済の場合)。未署名なら「開発元を確認」で起動可</td>
+<td><code>spctl -a -t exec -vv /Applications/Ourin.app</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>既定ゴースト (sakura) 起動</td>
+<td>サーフェス表示・SHIORI 応答</td>
+<td>—</td>
+</tr>
+<tr>
+<td>3</td>
+<td>helper 確認</td>
+<td><code>Contents/MacOS/yaya_core</code> / <code>satori_core</code> が存在し XPC 接続</td>
+<td>Activity Monitor で XPC サービス名確認</td>
+</tr>
+<tr>
+<td>4</td>
+<td>.nar ダブルクリック</td>
+<td>インストーラが起動しゴースト追加</td>
+<td>Finder で <code>sakura.nar</code> 等を開く</td>
+</tr>
+<tr>
+<td>5</td>
+<td>.nar をアプリへ D&amp;D</td>
+<td>同上でインストール</td>
+<td>—</td>
+</tr>
+<tr>
+<td>6</td>
+<td>ゴースト切替</td>
+<td>メニューから別ゴーストへ切替・スクリプト応答</td>
+<td>—</td>
+</tr>
+<tr>
+<td>7</td>
+<td>会話/クリック/メニュー</td>
+<td>応答・バルーン表示・右クリックメニュー全項目</td>
+<td>—</td>
+</tr>
+<tr>
+<td>8</td>
+<td>savedata 生成</td>
+<td>会話/設定後に保存先へ書き込み</td>
+<td><code>~/Library/Containers/furin-lab.Ourin/Data/Library/Application Support/Ourin/</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td>終了</td>
+<td>正常終了 (クラッシュなし)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>10</td>
+<td>再起動後起動</td>
+<td>ゴースト選択・savedata が維持</td>
+<td>8 の保存先の更新日時・内容確認</td>
+</tr>
+<tr>
+<td>11</td>
+<td>失敗系</td>
+<td>破損 .nar / 権限なし dir で<strong>アプリ全体がクラッシュしない</strong></td>
+<td>ゼロバイト .nar、先頭数バイト破壊 zip、非 zip 拡張子偽装</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_12">追加確認</h3>
+<ul>
+<li>非対応 OS (12.x 実機があれば) で「このアプリケーションは macOS 13.0 以降
+  が必要です」系の起動拒否が出ること (<code>LSMinimumSystemVersion</code> 機能)。</li>
+<li>アンインストール手順: app 削除 + 上記保存先削除をユーザー向けドキュメントへ
+  記載 (README/ヘルプ整備は親タスク)。</li>
+</ul>
+<h3 id="_13">記録フォーマット</h3>
+<p>実施ごとに下記を <code>docs/</code> か Issue コメントへ残す: 実施日 / OS・機種 /
+配布物 SHA-256 / 各シナリオ合否 / 発見不具合 (Issue 分割)。</p>
+<h3 id="_14">⚠️ 承認依存の残作業</h3>
+<ul>
+<li>実機 (macOS 13 実機・Intel 実機) の手配は環境依存</li>
+<li>不具合発見時の Issue 起票は親/ユーザーが実施</li>
+</ul>
+<hr />
+<h2 id="6">6. 未完了・承認依存タスク一覧</h2>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>必要な権限/資産</th>
+<th>関連 Issue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>branch protection に必須チェック登録</td>
+<td>repo admin</td>
+<td>#96</td>
+</tr>
+<tr>
+<td>Developer ID 証明書 + notarytool credential 実物</td>
+<td>Apple ID / keychain</td>
+<td>#98</td>
+</tr>
+<tr>
+<td>クリーン Mac (AS/Intel) での E2E 実施</td>
+<td>実機</td>
+<td>#98, #102</td>
+</tr>
+<tr>
+<td><code>satori_core</code>/<code>yaya_core</code> の deployment target を 13.0 へ</td>
+<td>file owner (本worker範囲外)</td>
+<td>#97</td>
+</tr>
+<tr>
+<td><code>Installer/Package.swift</code> min OS の方針決定 (v12 維持か v13 か)</td>
+<td>製品判断</td>
+<td>#97</td>
+</tr>
+<tr>
+<td><code>Contents/Resources/yaya_core</code> 二重同梱の恒久対応</td>
+<td>pbxproj 設計判断</td>
+<td>#98</td>
+</tr>
+<tr>
+<td>README/CONTRIBUTING への CI 再現手順追記 (§3 の案)</td>
+<td>file owner</td>
+<td>#96</td>
+</tr>
+<tr>
+<td>Git tag <code>v…</code> 運用開始</td>
+<td>リリース時</td>
+<td>#99</td>
+</tr>
+</tbody>
+</table>
+<p>配布前に<a href="KNOWN_ISSUES_ja-jp.html">既知の問題</a>と<a href="BUG_REPORT_GUIDE_ja-jp.html">報告手順</a>を当該リリースノートへ添付する。GitHub上の既存release本文は今回変更していない。</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../RELEASE_GATES_2026-10-25.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude PR引継ぎ・統合記録 / Claude PR Takeover</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+
+        </div>
+        <div class="back-link">
+            <a href="index.html">← 目次に戻る</a>
+        </div>
+        <h1 id="claude-pr-claude-pr-takeover">Claude PR引継ぎ・統合記録 / Claude PR Takeover</h1>
+<p><strong>確認日 / Checked:</strong> 2026-10-25 JST</p>
+<p>ユーザー依頼により公開中の33 PRを引き継いだ。元の作業ツリーとClaudeのworktreeを保全し、専用worktreeへローカル統合した。GitHubのmerge/close、commit/pushは行っていない。 / Took over 33 open PRs in a dedicated worktree; original checkouts preserved. No remote merge/close, commit or push.</p>
+<ul>
+<li>作業コピー / Worktree: <code>/Users/eightman/.codex/worktrees/ourin-pr-integration/Ourin</code></li>
+<li>基点 / Baseline: <code>77500e31655a3b920c036e56fe7653050f3c0265</code> (<code>test/all-verify</code>)。ローカル作業ブランチ: <code>codex/ourin-pr-integration</code>。32 PRのheadを祖先として確認。</li>
+<li>追加 / Added: PR #195 (<code>0459da1</code>) の差分と現行ブランチ <code>3bcf86b</code> のDLL互換修正。</li>
+<li>競合解消 / Resolution: <code>SaoriManager</code> は内蔵/互換SAORIとネイティブモジュールのVersion handshakeを両方維持。</li>
+<li>作業ツリーの既存 <code>Plugins/ScriptBridge</code> とそのテストもコピーし、統合側での回帰対象に含めた（元ファイルは変更なし）。</li>
+<li>除外 / Excluded: <code>b5db96f</code> のローカル専用 <code>VerifySnapshotter</code> と呼び出しを逆適用。</li>
+<li>既存heap修正 / Existing heap fix: <code>66749e3</code> とroot作業ツリーの関連修正を包含。元統合の1465 PASS記録は今回の検証を代替しない。</li>
+</ul>
+<h2 id="pr-pull-requests">PR一覧 / Pull requests</h2>
+<table>
+<thead>
+<tr>
+<th>PR</th>
+<th>内容 / Change</th>
+<th>Head</th>
+<th>関連issue / Issues</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/142">#142</a></td>
+<td>fix(websocket): WebSocket の SHIORI イベントを UKADOC 2.8.05 に合わせる</td>
+<td><code>236252ea</code></td>
+<td>#131</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/143">#143</a></td>
+<td>feat(filewatch): ![execute,filewatch] と OnExecuteFileWatchChange/Failure を実装する</td>
+<td><code>0df877fa</code></td>
+<td>#133</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/144">#144</a></td>
+<td>feat(events): OS の壁紙変更を OnDesktopWallpaperChange で通知する</td>
+<td><code>c9d195bd</code></td>
+<td>#134</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/145">#145</a></td>
+<td>feat(input): 複数行入力ボックス textareabox と OnTextAreaInput/Cancel を実装する</td>
+<td><code>9fb01a50</code></td>
+<td>#135</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/146">#146</a></td>
+<td>feat(ghost): 標準ゴーストを さくら・りんね・ベル に刷新し、Emily の同梱をやめる</td>
+<td><code>6cf6a589</code></td>
+<td>#132</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/147">#147</a></td>
+<td>feat(calendar): ゴースト用予定表 schedule-add/delete/get と OnScheduleTodayNotify を実装する</td>
+<td><code>27cdc118</code></td>
+<td>#136</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/148">#148</a></td>
+<td>feat(calendar): ![execute,ical-get/ical-post] と OnExecuteICal* を実装する</td>
+<td><code>a34767a1</code></td>
+<td>#137</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/149">#149</a></td>
+<td>feat(events): 起動時に今日の祝日名を OnNotifyHolidayInfo で通知する</td>
+<td><code>96e42fb4</code></td>
+<td>#140</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/150">#150</a></td>
+<td>feat(sound): --spectrum 指定のサウンドで OnSoundSpectrum を通知する</td>
+<td><code>3bf3db8d</code></td>
+<td>#138</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/155">#155</a></td>
+<td>feat(saori): SAORI over DirectSSTP の基盤と内蔵モジュール（system/random/time/text/data）を実装する</td>
+<td><code>07f7988d</code></td>
+<td>#139</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/156">#156</a></td>
+<td>feat(saori): internal_crypto 第1段（ハッシュ・HMAC・暗号化・鍵導出・TOTP・署名）</td>
+<td><code>b4471f0d</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/157">#157</a></td>
+<td>feat(saori): internal_jwt（JWT の作成と検証）</td>
+<td><code>11d541c5</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/158">#158</a></td>
+<td>feat(saori): internal_file の MediaInfo</td>
+<td><code>0a809ccc</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/159">#159</a></td>
+<td>feat(saori): RSA（rs256・ps256・鍵生成）と JWT の RS256/PS256</td>
+<td><code>17947227</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/160">#160</a></td>
+<td>feat(saori): internal_crypto の残り（sha3・blake2・scrypt・argon2id・bip340・KeyAgreement・crypt 系・Protect）</td>
+<td><code>7731703d</code></td>
+<td>#152</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/162">#162</a></td>
+<td>feat(saori): SSP の互換モジュール 10 種を内蔵して DLL を差し替える</td>
+<td><code>7fa70d5d</code></td>
+<td>#154</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/166">#166</a></td>
+<td>feat(i18n): 日本語以外の文字コードに対応（Big5・GBK・EUC-KR・Windows-125x など）</td>
+<td><code>f68ba0a9</code></td>
+<td>#163</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/167">#167</a></td>
+<td>feat(calendar): 外国の祝日表と言語ごとの祝日名</td>
+<td><code>ff597727</code></td>
+<td>#165</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/168">#168</a></td>
+<td>feat(i18n): UI を英語・日本語・簡体字・繁体字・韓国語に対応</td>
+<td><code>89964c3f</code></td>
+<td>#164</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/172">#172</a></td>
+<td>fix(nar): LZMA 圧縮の NAR を bsdtar で展開できるようにする</td>
+<td><code>ba422f23</code></td>
+<td>#169</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/173">#173</a></td>
+<td>feat(shiori): 別名の DLL（aya.dll など）で同梱された YAYA を YAYA として起動する</td>
+<td><code>f87e9d1b</code></td>
+<td>#170</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/174">#174</a></td>
+<td>feat(yaya): yaya_core で Big5・GBK・EUC-KR の辞書を読む</td>
+<td><code>1355b3a8</code></td>
+<td>#171</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/177">#177</a></td>
+<td>fix(yaya): 関数の呼び出しの深さに上限を設け、再帰で yaya_core が落ちないようにする</td>
+<td><code>f39552f7</code></td>
+<td>#176</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/178">#178</a></td>
+<td>fix(yaya): Taromati2 の辞書の YAYA 構文を yaya_core で解析できるようにする</td>
+<td><code>d47027cf</code></td>
+<td>#175</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/180">#180</a></td>
+<td>fix(yaya): ファイル関数を YAYA に合わせ、ゴーストの profile フォルダを用意する</td>
+<td><code>b413ec51</code></td>
+<td>#179</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/182">#182</a></td>
+<td>fix(build): ソースの変更で yaya_core・satori_core を作り直す</td>
+<td><code>9b9104e3</code></td>
+<td>#181</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/186">#186</a></td>
+<td>fix(nar): フォルダごと圧縮した NAR を、その中をルートとしてインストールする</td>
+<td><code>f8da7229</code></td>
+<td>#183</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/187">#187</a></td>
+<td>fix(balloon): ゴーストの descript.txt の標準バルーンを、インストール済みのバルーンから選ぶ</td>
+<td><code>c0709463</code></td>
+<td>#184</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/188">#188</a></td>
+<td>fix(input): 入力ボックスをモーダルにせず、閉じるまでアプリ全体を止めない</td>
+<td><code>625b991e</code></td>
+<td>#185</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/190">#190</a></td>
+<td>fix(yaya_core): %(…) を SSP の環境変数と同じ名前でも YAYA の式として評価する</td>
+<td><code>bb550fb6</code></td>
+<td>#189</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/191">#191</a></td>
+<td>fix(yaya): 配列要素の ++/-- と文字列への添字を解析し、簡易配列の要素を YAYA と同じく読み書きする</td>
+<td><code>beb19bbb</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/193">#193</a></td>
+<td>fix(balloon): descript.txt の font.color・font.height を表示の最初から本文に使う</td>
+<td><code>e085dec6</code></td>
+<td>#192</td>
+</tr>
+<tr>
+<td><a href="https://github.com/eightman999/Ourin/pull/195">#195</a></td>
+<td>fix(surface): OnSurfaceRestore をバルーンが閉じてから 15 秒後に一度だけ送る</td>
+<td><code>0459da1c</code></td>
+<td>#194</td>
+</tr>
+</tbody>
+</table>
+<h2 id="pr-validation-before-subsequent-delegated-changes">PR統合時点の検証 / Validation before subsequent delegated changes</h2>
+<ul>
+<li>YAYA <code>./build.sh</code>: PASS（arm64/x86_64）。</li>
+<li><code>build-for-testing</code>: TEST BUILD SUCCEEDED。</li>
+<li>実アプリ: 一時データディレクトリでsakura.nar導入→標準ゴースト表示→ダブルクリックからOnMouseDoubleClick応答→設定を開閉→通常終了(exit 0)を確認。ユーザーのghostデータは使用していない。 / Verified the real app with isolated temporary data.</li>
+<li>追加委譲前の統合OurinTests: <strong>PASS、1,509実行ケース・失敗0件</strong>（パラメータ展開前1,498テスト）。<code>/tmp/ourin-integration-final-20261025.xcresult</code>、macOS 26.6.2 / arm64、exit 0。 / Integration before subsequent changes: 1,509 executions passed, zero failures (1,498 tests before parameter expansion).</li>
+<li>統合時の修正: XPC起動handshakeの固定2秒を設定済みload期限へ統一。SHIOLINK失敗系テストは子process生成直後のPIDを使って回収確認。iCal非同期テストはMainActor高負荷時の通知確認を修正。 / Fixed XPC startup deadline handling and race-prone process/notification test assertions.</li>
+<li>SHIOLINKの実アプリ起動: 合成fixtureを一時ghostディレクトリから起動し、<code>kind=shiolink</code>、OnBoot成功、本文トークン出力をログで確認。Macがロックされていたため画面確認は未実施。 / Real app loaded the synthetic SHIOLINK fixture and processed its OnBoot script; visual confirmation was blocked by the locked Mac.</li>
+<li>OurinUITests、実Emily4（<code>OURIN_EMILY4_DIR</code>未指定）、実音声デバイスによる網羅検証は未実施。環境依存テストの早期returnがあるため、集計のskip 0件を実環境網羅とは扱わない。 / UI tests, real Emily4 and complete audio-device coverage were not run; some environment-dependent tests return early.</li>
+</ul>
+<h2 id="remaining">残件 / Remaining</h2>
+<ul>
+<li>実ゴーストの網羅、音声デバイス・壁紙・外部SSTPなど実環境の検証。</li>
+<li>PR #191記載のTaromati2 OnMinuteChange停止、配列delimiter／foreach／SAVEVARの問題は追加修正・複製上の再検証済み。上流保存形式importや広い実ゴースト網羅は残る。<a href="REAL_GHOST_VERIFICATION_2026-10-25_unknown.html">現在の実ゴースト結果</a>を参照。</li>
+<li>華和梨/KAGARIの実エンジンをUniversal 2で同梱し、in-process/XPCを検証済み。「もす」のmacOS native依存とその他の辞書言語は残件。実装なしの栞を対応済みとしない。</li>
+</ul>
+<h2 id="shiori-expansion">栞拡張 / SHIORI expansion</h2>
+<ul>
+<li><a href="NATIVE_SHIORI_ABI_ja-jp.html">Native ABI</a>: app/XPC共通の明示ABI、32/64bit長、load辞書dir、load失敗とプロセス隔離の回帰を追加。</li>
+<li><a href="SHIOLINK_ja-jp.html">SHIOLINK</a>: 本番factoryへ接続、実子processでload/GET/NOTIFY/unload、期限・同期・上限・子回収を検証。MiyoJS実ゴーストは未検証。</li>
+<li><a href="KAWARI_KAGARI_ENGINES_ja-jp.html">華和梨/KAGARIの実装記録</a>: 固定版、ライセンス通知、Universal 2 build、専用ABI、最小辞書のload/request/unloadを検証。華和梨LOBOは保存→再ロード成功。KAGARI「もす」は依存不足で未完。</li>
+<li>美坂・灯・ese-shiori・偽栞・忍・翡翠・結奈・里珠は未対応。原版・参考実装の対応範囲を区別し、暗号化辞書やSAORI等の制限も個別記録する。</li>
+</ul>
+<p>Native ABI and SHIOLINK are wired into the development build, with process-level fixtures. Real MiyoJS compatibility is unverified. KAWARI and KAGARI are now bundled and tested through in-process/XPC paths; KAWARI LOBO passed lifecycle checks, while KAGARI Mosu still lacks a macOS native dependency. Other listed engines remain unsupported. A support label requires a pinned implementation, license review, macOS build and real dictionary lifecycle evidence, not only a loader or sample parser.</p>
+<h2 id="validation-after-delegated-changes">追加委譲後の検証 / Validation after delegated changes</h2>
+<p>作業先: <code>/Users/eightman/.codex/worktrees/ourin-pr-integration/Ourin</code>。root作業ツリーのアプリコードは上書きせず、TODO・検証資料を同期した。commit/pushは実施していない。</p>
+<p>The implementation remains in the dedicated worktree. Root application edits were preserved; only task documentation and templates were synchronized. No commit or push was made.</p>
+<ul>
+<li>同梱KAWARI/KAGARI・Native ABI・FINE/scriptboxの先行対象検証: <strong>42実行 / 35固有テスト、失敗0/skip0</strong>。<code>/tmp/ourin-engines-targeted-20261025.xcresult</code>。</li>
+<li>YAYA実helperのファイル・永続化回帰: <strong>9件PASS</strong>。実ゴースト結果は<a href="REAL_GHOST_VERIFICATION_2026-10-25_unknown.html">専用記録</a>。</li>
+<li>全体r3で旧handle/文字コード変換APIを前提とするテスト2件が失敗。標準filename、FWRITE改行、FREADENCODE/FWRITEDECODEのbase64契約へfixtureを修正。多言語辞書のencoding検証を維持し、関連3件がPASS。<code>/tmp/ourin-yaya-charset-targeted-r2-20261025.xcresult</code>。</li>
+<li>今回の試験準備中にtestmanagerdの接続停止を確認し、停止した試行は成功件数に含めていない。r3は実行完了後に上記2件の失敗を集計した。</li>
+<li>現在の全体実行結果: <strong>PASS、1,541実行ケース / 1,520集計テスト、失敗0・報告skip0</strong>。<code>/tmp/ourin-delegated-unit-final-r4-20261025.xcresult</code>、macOS 26.6.2 / arm64、exit 0。<code>xcresulttool get test-results summary</code>のdevice別実行数1541と総テスト数1520を区別。 / Final full unit run passed: 1,541 parameter-expanded executions, 1,520 aggregate tests, zero failures or reported skips.</li>
+<li>最終OurinUITestsは未実施。Macロック中のため、今回のLOBO実appはXPC/OnBootログまで確認し、画面操作を確認済みとはしない。環境変数未指定で早期returnするテストがあり、集計のskip0を実環境網羅とは扱わない。</li>
+</ul>
+<p>Targeted engine tests and real-helper regressions passed. The first completed full run exposed two obsolete test fixtures; those were corrected and three related tests passed. Interrupted test-manager sessions are excluded from success counts. UI, physical Intel/minimum-macOS and clean-Mac validation remain separate. Some tests return early without optional environment fixtures, so zero reported skips does not establish complete real-world coverage.</p>
+<h2 id="publication-branch">公開用ブランチ / Publication branch</h2>
+<p>上記の「未コミット・未push」は検証完了時点の記録。続くユーザーのcommit/push指示を受け、<code>codex/ourin-pr-integration-publish</code> に最終状態をまとめる。元のローカル統合履歴を保持し、検証専用snapshotコミットを公開履歴へ含めない。コードの最終treeは検証済み統合版と一致させる。GitHub PRのmerge・issueのcloseは別途未実施。</p>
+<p>The preceding uncommitted/unpushed statements describe the validation checkpoint. Following the user’s commit/push instruction, the final tree is consolidated on <code>codex/ourin-pr-integration-publish</code>, preserving the original local history while excluding its local-only snapshot commit from public ancestry. No GitHub PR merge or issue closure is performed.</p>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../PR_TAKEOVER_2026-10-25.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

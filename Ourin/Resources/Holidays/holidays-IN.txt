@@ -1,0 +1,447 @@
+# IN の祝日（2020〜2050年、言語: en_IN）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/26,Republic Day
+2020/3/10,Holi
+2020/4/2,Ram Navami
+2020/4/6,Mahavir Jayanti
+2020/4/10,Good Friday
+2020/4/14,Dr. B. R. Ambedkar's Jayanti
+2020/5/7,Buddha Purnima
+2020/5/25,Id-ul-Fitr
+2020/8/1,Id-ul-Zuha (Bakrid)
+2020/8/12,Janmashtami (Vaishnava)
+2020/8/15,Independence Day
+2020/8/30,Muharram
+2020/10/2,Mahatma Gandhi's Jayanti
+2020/10/25,Dussehra
+2020/10/30,Milad-un-Nabi
+2020/11/14,Diwali (Deepavali)
+2020/11/30,Guru Nanak's Jayanti
+2020/12/25,Christmas
+2021/1/26,Republic Day
+2021/3/29,Holi
+2021/4/2,Good Friday
+2021/4/14,Dr. B. R. Ambedkar's Jayanti
+2021/4/21,Ram Navami
+2021/4/25,Mahavir Jayanti
+2021/5/14,Id-ul-Fitr
+2021/5/26,Buddha Purnima
+2021/7/21,Id-ul-Zuha (Bakrid)
+2021/8/15,Independence Day
+2021/8/19,Muharram
+2021/8/30,Janmashtami (Vaishnava)
+2021/10/2,Mahatma Gandhi's Jayanti
+2021/10/15,Dussehra
+2021/10/19,Milad-un-Nabi
+2021/11/4,Diwali (Deepavali)
+2021/11/19,Guru Nanak's Jayanti
+2021/12/25,Christmas
+2022/1/26,Republic Day
+2022/3/1,Maha Shivaratri
+2022/3/18,Holi
+2022/4/14,Dr. B. R. Ambedkar's Jayanti; Mahavir Jayanti
+2022/4/15,Good Friday
+2022/5/3,Id-ul-Fitr
+2022/5/16,Buddha Purnima
+2022/7/10,Id-ul-Zuha (Bakrid)
+2022/8/9,Muharram
+2022/8/15,Independence Day
+2022/8/19,Janmashtami (Vaishnava)
+2022/10/2,Mahatma Gandhi's Jayanti
+2022/10/5,Dussehra
+2022/10/9,Milad-un-Nabi
+2022/10/24,Diwali (Deepavali)
+2022/11/8,Guru Nanak's Jayanti
+2022/12/25,Christmas
+2023/1/26,Republic Day
+2023/3/8,Holi
+2023/3/30,Ram Navami
+2023/4/4,Mahavir Jayanti
+2023/4/7,Good Friday
+2023/4/14,Dr. B. R. Ambedkar's Jayanti
+2023/4/22,Id-ul-Fitr
+2023/5/5,Buddha Purnima
+2023/6/29,Id-ul-Zuha (Bakrid)
+2023/7/29,Muharram
+2023/8/15,Independence Day
+2023/9/7,Janmashtami (Vaishnava)
+2023/9/28,Milad-un-Nabi
+2023/10/2,Mahatma Gandhi's Jayanti
+2023/10/24,Dussehra
+2023/11/12,Diwali (Deepavali)
+2023/11/27,Guru Nanak's Jayanti
+2023/12/25,Christmas
+2024/1/26,Republic Day
+2024/3/25,Holi
+2024/3/29,Good Friday
+2024/4/11,Id-ul-Fitr
+2024/4/14,Dr. B. R. Ambedkar's Jayanti
+2024/4/17,Ram Navami
+2024/4/21,Mahavir Jayanti
+2024/5/23,Buddha Purnima
+2024/6/17,Id-ul-Zuha (Bakrid)
+2024/7/17,Muharram
+2024/8/15,Independence Day
+2024/8/26,Janmashtami (Vaishnava)
+2024/9/16,Milad-un-Nabi
+2024/10/2,Mahatma Gandhi's Jayanti
+2024/10/12,Dussehra
+2024/10/31,Diwali (Deepavali)
+2024/11/15,Guru Nanak's Jayanti
+2024/12/25,Christmas
+2025/1/26,Republic Day
+2025/2/26,Maha Shivaratri
+2025/3/14,Holi
+2025/3/31,Id-ul-Fitr
+2025/4/10,Mahavir Jayanti
+2025/4/14,Dr. B. R. Ambedkar's Jayanti
+2025/4/18,Good Friday
+2025/5/12,Buddha Purnima
+2025/6/7,Id-ul-Zuha (Bakrid)
+2025/7/6,Muharram
+2025/8/15,Independence Day
+2025/8/16,Janmashtami (Vaishnava)
+2025/9/5,Milad-un-Nabi
+2025/10/2,Dussehra; Mahatma Gandhi's Jayanti
+2025/10/20,Diwali (Deepavali)
+2025/11/5,Guru Nanak's Jayanti
+2025/12/25,Christmas
+2026/1/26,Republic Day
+2026/3/4,Holi
+2026/3/21,Id-ul-Fitr
+2026/3/26,Ram Navami
+2026/3/31,Mahavir Jayanti
+2026/4/3,Good Friday
+2026/4/14,Dr. B. R. Ambedkar's Jayanti
+2026/5/1,Buddha Purnima
+2026/5/27,Id-ul-Zuha (Bakrid)
+2026/6/26,Muharram
+2026/8/15,Independence Day
+2026/8/26,Milad-un-Nabi
+2026/9/4,Janmashtami (Vaishnava)
+2026/10/2,Mahatma Gandhi's Jayanti
+2026/10/20,Dussehra
+2026/11/8,Diwali (Deepavali)
+2026/11/24,Guru Nanak's Jayanti
+2026/12/25,Christmas
+2027/1/26,Republic Day
+2027/3/6,Maha Shivaratri
+2027/3/10,Id-ul-Fitr (estimated)
+2027/3/22,Holi
+2027/3/26,Good Friday
+2027/4/14,Dr. B. R. Ambedkar's Jayanti
+2027/4/15,Ram Navami
+2027/4/18,Mahavir Jayanti
+2027/5/17,Id-ul-Zuha (Bakrid) (estimated)
+2027/5/20,Buddha Purnima
+2027/6/16,Muharram (estimated)
+2027/8/15,Independence Day; Milad-un-Nabi (estimated)
+2027/8/25,Janmashtami (Vaishnava)
+2027/10/2,Mahatma Gandhi's Jayanti
+2027/10/9,Dussehra
+2027/10/29,Diwali (Deepavali)
+2027/11/14,Guru Nanak's Jayanti
+2027/12/25,Christmas
+2028/1/26,Republic Day
+2028/2/23,Maha Shivaratri
+2028/2/27,Id-ul-Fitr (estimated)
+2028/3/11,Holi
+2028/4/3,Ram Navami
+2028/4/7,Mahavir Jayanti
+2028/4/14,Dr. B. R. Ambedkar's Jayanti; Good Friday
+2028/5/6,Id-ul-Zuha (Bakrid) (estimated)
+2028/5/8,Buddha Purnima
+2028/6/4,Muharram (estimated)
+2028/8/4,Milad-un-Nabi (estimated)
+2028/8/13,Janmashtami (Vaishnava)
+2028/8/15,Independence Day
+2028/9/27,Dussehra
+2028/10/2,Mahatma Gandhi's Jayanti
+2028/10/17,Diwali (Deepavali)
+2028/11/2,Guru Nanak's Jayanti
+2028/12/25,Christmas
+2029/1/26,Republic Day
+2029/2/11,Maha Shivaratri
+2029/2/15,Id-ul-Fitr (estimated)
+2029/3/1,Holi
+2029/3/30,Good Friday
+2029/4/14,Dr. B. R. Ambedkar's Jayanti
+2029/4/25,Id-ul-Zuha (Bakrid) (estimated)
+2029/4/26,Mahavir Jayanti
+2029/5/24,Muharram (estimated)
+2029/5/27,Buddha Purnima
+2029/7/25,Milad-un-Nabi (estimated)
+2029/8/15,Independence Day
+2029/9/1,Janmashtami (Vaishnava)
+2029/10/2,Mahatma Gandhi's Jayanti
+2029/10/16,Dussehra
+2029/11/5,Diwali (Deepavali)
+2029/11/21,Guru Nanak's Jayanti
+2029/12/25,Christmas
+2030/1/26,Republic Day
+2030/2/5,Id-ul-Fitr (estimated)
+2030/3/2,Maha Shivaratri
+2030/3/20,Holi
+2030/4/12,Ram Navami
+2030/4/14,Dr. B. R. Ambedkar's Jayanti; Id-ul-Zuha (Bakrid) (estimated)
+2030/4/16,Mahavir Jayanti
+2030/4/19,Good Friday
+2030/5/13,Muharram (estimated)
+2030/5/17,Buddha Purnima
+2030/7/14,Milad-un-Nabi (estimated)
+2030/8/15,Independence Day
+2030/8/21,Janmashtami (Vaishnava)
+2030/10/2,Mahatma Gandhi's Jayanti
+2030/10/6,Dussehra
+2030/10/26,Diwali (Deepavali)
+2030/11/10,Guru Nanak's Jayanti
+2030/12/25,Christmas
+2031/1/25,Id-ul-Fitr (estimated)
+2031/1/26,Republic Day
+2031/2/20,Maha Shivaratri
+2031/3/9,Holi
+2031/4/1,Ram Navami
+2031/4/3,Id-ul-Zuha (Bakrid) (estimated)
+2031/4/5,Mahavir Jayanti
+2031/4/11,Good Friday
+2031/4/14,Dr. B. R. Ambedkar's Jayanti
+2031/5/3,Muharram (estimated)
+2031/5/7,Buddha Purnima
+2031/7/3,Milad-un-Nabi (estimated)
+2031/8/10,Janmashtami (Vaishnava)
+2031/8/15,Independence Day
+2031/10/2,Mahatma Gandhi's Jayanti
+2031/10/25,Dussehra
+2031/11/14,Diwali (Deepavali)
+2031/11/28,Guru Nanak's Jayanti
+2031/12/25,Christmas
+2032/1/15,Id-ul-Fitr (estimated)
+2032/1/26,Republic Day
+2032/3/10,Maha Shivaratri
+2032/3/23,Id-ul-Zuha (Bakrid) (estimated)
+2032/3/26,Good Friday
+2032/3/27,Holi
+2032/4/14,Dr. B. R. Ambedkar's Jayanti
+2032/4/19,Ram Navami
+2032/4/21,Muharram (estimated)
+2032/4/23,Mahavir Jayanti
+2032/5/25,Buddha Purnima
+2032/6/21,Milad-un-Nabi (estimated)
+2032/8/15,Independence Day
+2032/8/28,Janmashtami (Vaishnava)
+2032/10/2,Mahatma Gandhi's Jayanti
+2032/10/14,Dussehra
+2032/11/2,Diwali (Deepavali)
+2032/11/17,Guru Nanak's Jayanti
+2032/12/25,Christmas
+2033/1/3,Id-ul-Fitr (estimated)
+2033/1/26,Republic Day
+2033/2/27,Maha Shivaratri
+2033/3/12,Id-ul-Zuha (Bakrid) (estimated)
+2033/3/16,Holi
+2033/4/7,Ram Navami
+2033/4/11,Muharram (estimated)
+2033/4/12,Mahavir Jayanti
+2033/4/14,Dr. B. R. Ambedkar's Jayanti
+2033/4/15,Good Friday
+2033/5/14,Buddha Purnima
+2033/6/10,Milad-un-Nabi (estimated)
+2033/8/15,Independence Day
+2033/8/17,Janmashtami (Vaishnava)
+2033/10/2,Mahatma Gandhi's Jayanti
+2033/10/3,Dussehra
+2033/10/22,Diwali (Deepavali)
+2033/11/6,Guru Nanak's Jayanti
+2033/12/24,Id-ul-Fitr (estimated)
+2033/12/25,Christmas
+2034/1/26,Republic Day
+2034/2/17,Maha Shivaratri
+2034/3/2,Id-ul-Zuha (Bakrid) (estimated)
+2034/3/5,Holi
+2034/3/28,Ram Navami
+2034/3/31,Muharram (estimated)
+2034/4/1,Mahavir Jayanti
+2034/4/7,Good Friday
+2034/4/14,Dr. B. R. Ambedkar's Jayanti
+2034/5/3,Buddha Purnima
+2034/5/31,Milad-un-Nabi (estimated)
+2034/8/15,Independence Day
+2034/9/6,Janmashtami (Vaishnava)
+2034/10/2,Mahatma Gandhi's Jayanti
+2034/10/22,Dussehra
+2034/11/10,Diwali (Deepavali)
+2034/11/25,Guru Nanak's Jayanti
+2034/12/13,Id-ul-Fitr (estimated)
+2034/12/25,Christmas
+2035/1/26,Republic Day
+2035/2/19,Id-ul-Zuha (Bakrid) (estimated)
+2035/3/8,Maha Shivaratri
+2035/3/21,Muharram (estimated)
+2035/3/23,Good Friday
+2035/3/24,Holi
+2035/4/14,Dr. B. R. Ambedkar's Jayanti
+2035/4/16,Ram Navami
+2035/4/20,Mahavir Jayanti
+2035/5/21,Milad-un-Nabi (estimated)
+2035/5/22,Buddha Purnima
+2035/8/15,Independence Day
+2035/8/26,Janmashtami (Vaishnava)
+2035/10/2,Mahatma Gandhi's Jayanti
+2035/10/11,Dussehra
+2035/10/30,Diwali (Deepavali)
+2035/11/15,Guru Nanak's Jayanti
+2035/12/2,Id-ul-Fitr (estimated)
+2035/12/25,Christmas
+2036/1/26,Republic Day
+2036/2/8,Id-ul-Zuha (Bakrid) (estimated)
+2036/3/9,Muharram (estimated)
+2036/4/11,Good Friday
+2036/4/14,Dr. B. R. Ambedkar's Jayanti
+2036/5/9,Milad-un-Nabi (estimated)
+2036/8/15,Independence Day
+2036/10/2,Mahatma Gandhi's Jayanti
+2036/11/20,Id-ul-Fitr (estimated)
+2036/12/25,Christmas
+2037/1/26,Republic Day
+2037/1/27,Id-ul-Zuha (Bakrid) (estimated)
+2037/2/26,Muharram (estimated)
+2037/4/3,Good Friday
+2037/4/14,Dr. B. R. Ambedkar's Jayanti
+2037/4/29,Milad-un-Nabi (estimated)
+2037/8/15,Independence Day
+2037/10/2,Mahatma Gandhi's Jayanti
+2037/11/9,Id-ul-Fitr (estimated)
+2037/12/25,Christmas
+2038/1/17,Id-ul-Zuha (Bakrid) (estimated)
+2038/1/26,Republic Day
+2038/2/15,Muharram (estimated)
+2038/4/14,Dr. B. R. Ambedkar's Jayanti
+2038/4/18,Milad-un-Nabi (estimated)
+2038/4/23,Good Friday
+2038/8/15,Independence Day
+2038/10/2,Mahatma Gandhi's Jayanti
+2038/10/30,Id-ul-Fitr (estimated)
+2038/12/25,Christmas
+2039/1/6,Id-ul-Zuha (Bakrid) (estimated)
+2039/1/26,Republic Day
+2039/2/5,Muharram (estimated)
+2039/4/7,Milad-un-Nabi (estimated)
+2039/4/8,Good Friday
+2039/4/14,Dr. B. R. Ambedkar's Jayanti
+2039/8/15,Independence Day
+2039/10/2,Mahatma Gandhi's Jayanti
+2039/10/20,Id-ul-Fitr (estimated)
+2039/12/25,Christmas
+2039/12/27,Id-ul-Zuha (Bakrid) (estimated)
+2040/1/25,Muharram (estimated)
+2040/1/26,Republic Day
+2040/3/26,Milad-un-Nabi (estimated)
+2040/3/30,Good Friday
+2040/4/14,Dr. B. R. Ambedkar's Jayanti
+2040/8/15,Independence Day
+2040/10/2,Mahatma Gandhi's Jayanti
+2040/10/8,Id-ul-Fitr (estimated)
+2040/12/15,Id-ul-Zuha (Bakrid) (estimated)
+2040/12/25,Christmas
+2041/1/14,Muharram (estimated)
+2041/1/26,Republic Day
+2041/3/16,Milad-un-Nabi (estimated)
+2041/4/14,Dr. B. R. Ambedkar's Jayanti
+2041/4/19,Good Friday
+2041/8/15,Independence Day
+2041/9/27,Id-ul-Fitr (estimated)
+2041/10/2,Mahatma Gandhi's Jayanti
+2041/12/5,Id-ul-Zuha (Bakrid) (estimated)
+2041/12/25,Christmas
+2042/1/3,Muharram (estimated)
+2042/1/26,Republic Day
+2042/3/5,Milad-un-Nabi (estimated)
+2042/4/4,Good Friday
+2042/4/14,Dr. B. R. Ambedkar's Jayanti
+2042/8/15,Independence Day
+2042/9/16,Id-ul-Fitr (estimated)
+2042/10/2,Mahatma Gandhi's Jayanti
+2042/11/24,Id-ul-Zuha (Bakrid) (estimated)
+2042/12/24,Muharram (estimated)
+2042/12/25,Christmas
+2043/1/26,Republic Day
+2043/2/23,Milad-un-Nabi (estimated)
+2043/3/27,Good Friday
+2043/4/14,Dr. B. R. Ambedkar's Jayanti
+2043/8/15,Independence Day
+2043/9/5,Id-ul-Fitr (estimated)
+2043/10/2,Mahatma Gandhi's Jayanti
+2043/11/13,Id-ul-Zuha (Bakrid) (estimated)
+2043/12/13,Muharram (estimated)
+2043/12/25,Christmas
+2044/1/26,Republic Day
+2044/2/12,Milad-un-Nabi (estimated)
+2044/4/14,Dr. B. R. Ambedkar's Jayanti
+2044/4/15,Good Friday
+2044/8/15,Independence Day
+2044/8/25,Id-ul-Fitr (estimated)
+2044/10/2,Mahatma Gandhi's Jayanti
+2044/11/1,Id-ul-Zuha (Bakrid) (estimated)
+2044/12/1,Muharram (estimated)
+2044/12/25,Christmas
+2045/1/26,Republic Day
+2045/1/31,Milad-un-Nabi (estimated)
+2045/4/7,Good Friday
+2045/4/14,Dr. B. R. Ambedkar's Jayanti
+2045/8/15,Id-ul-Fitr (estimated); Independence Day
+2045/10/2,Mahatma Gandhi's Jayanti
+2045/10/22,Id-ul-Zuha (Bakrid) (estimated)
+2045/11/20,Muharram (estimated)
+2045/12/25,Christmas
+2046/1/20,Milad-un-Nabi (estimated)
+2046/1/26,Republic Day
+2046/3/23,Good Friday
+2046/4/14,Dr. B. R. Ambedkar's Jayanti
+2046/8/4,Id-ul-Fitr (estimated)
+2046/8/15,Independence Day
+2046/10/2,Mahatma Gandhi's Jayanti
+2046/10/11,Id-ul-Zuha (Bakrid) (estimated)
+2046/11/10,Muharram (estimated)
+2046/12/25,Christmas
+2047/1/9,Milad-un-Nabi (estimated)
+2047/1/26,Republic Day
+2047/4/12,Good Friday
+2047/4/14,Dr. B. R. Ambedkar's Jayanti
+2047/7/25,Id-ul-Fitr (estimated)
+2047/8/15,Independence Day
+2047/10/1,Id-ul-Zuha (Bakrid) (estimated)
+2047/10/2,Mahatma Gandhi's Jayanti
+2047/10/30,Muharram (estimated)
+2047/12/25,Christmas
+2047/12/30,Milad-un-Nabi (estimated)
+2048/1/26,Republic Day
+2048/4/3,Good Friday
+2048/4/14,Dr. B. R. Ambedkar's Jayanti
+2048/7/13,Id-ul-Fitr (estimated)
+2048/8/15,Independence Day
+2048/9/20,Id-ul-Zuha (Bakrid) (estimated)
+2048/10/2,Mahatma Gandhi's Jayanti
+2048/10/19,Muharram (estimated)
+2048/12/19,Milad-un-Nabi (estimated)
+2048/12/25,Christmas
+2049/1/26,Republic Day
+2049/4/14,Dr. B. R. Ambedkar's Jayanti
+2049/4/16,Good Friday
+2049/7/2,Id-ul-Fitr (estimated)
+2049/8/15,Independence Day
+2049/9/9,Id-ul-Zuha (Bakrid) (estimated)
+2049/10/2,Mahatma Gandhi's Jayanti
+2049/10/8,Muharram (estimated)
+2049/12/8,Milad-un-Nabi (estimated)
+2049/12/25,Christmas
+2050/1/26,Republic Day
+2050/4/8,Good Friday
+2050/4/14,Dr. B. R. Ambedkar's Jayanti
+2050/6/21,Id-ul-Fitr (estimated)
+2050/8/15,Independence Day
+2050/8/29,Id-ul-Zuha (Bakrid) (estimated)
+2050/9/27,Muharram (estimated)
+2050/10/2,Mahatma Gandhi's Jayanti
+2050/11/27,Milad-un-Nabi (estimated)
+2050/12/25,Christmas

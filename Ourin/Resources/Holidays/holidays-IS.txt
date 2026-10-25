@@ -1,0 +1,436 @@
+# IS の祝日（2020〜2050年、言語: is）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Nýársdagur
+2020/4/9,Skírdagur
+2020/4/10,Föstudagurinn langi
+2020/4/12,Páskadagur
+2020/4/13,Annar í páskum
+2020/4/23,Sumardagurinn fyrsti
+2020/5/1,Verkalýðsdagurinn
+2020/5/21,Uppstigningardagur
+2020/5/31,Hvítasunnudagur
+2020/6/1,Annar í hvítasunnu
+2020/6/17,Þjóðhátíðardagurinn
+2020/8/3,Frídagur verslunarmanna
+2020/12/25,Jóladagur
+2020/12/26,Annar í jólum
+2021/1/1,Nýársdagur
+2021/4/1,Skírdagur
+2021/4/2,Föstudagurinn langi
+2021/4/4,Páskadagur
+2021/4/5,Annar í páskum
+2021/4/22,Sumardagurinn fyrsti
+2021/5/1,Verkalýðsdagurinn
+2021/5/13,Uppstigningardagur
+2021/5/23,Hvítasunnudagur
+2021/5/24,Annar í hvítasunnu
+2021/6/17,Þjóðhátíðardagurinn
+2021/8/2,Frídagur verslunarmanna
+2021/12/25,Jóladagur
+2021/12/26,Annar í jólum
+2022/1/1,Nýársdagur
+2022/4/14,Skírdagur
+2022/4/15,Föstudagurinn langi
+2022/4/17,Páskadagur
+2022/4/18,Annar í páskum
+2022/4/21,Sumardagurinn fyrsti
+2022/5/1,Verkalýðsdagurinn
+2022/5/26,Uppstigningardagur
+2022/6/5,Hvítasunnudagur
+2022/6/6,Annar í hvítasunnu
+2022/6/17,Þjóðhátíðardagurinn
+2022/8/1,Frídagur verslunarmanna
+2022/12/25,Jóladagur
+2022/12/26,Annar í jólum
+2023/1/1,Nýársdagur
+2023/4/6,Skírdagur
+2023/4/7,Föstudagurinn langi
+2023/4/9,Páskadagur
+2023/4/10,Annar í páskum
+2023/4/20,Sumardagurinn fyrsti
+2023/5/1,Verkalýðsdagurinn
+2023/5/18,Uppstigningardagur
+2023/5/28,Hvítasunnudagur
+2023/5/29,Annar í hvítasunnu
+2023/6/17,Þjóðhátíðardagurinn
+2023/8/7,Frídagur verslunarmanna
+2023/12/25,Jóladagur
+2023/12/26,Annar í jólum
+2024/1/1,Nýársdagur
+2024/3/28,Skírdagur
+2024/3/29,Föstudagurinn langi
+2024/3/31,Páskadagur
+2024/4/1,Annar í páskum
+2024/4/25,Sumardagurinn fyrsti
+2024/5/1,Verkalýðsdagurinn
+2024/5/9,Uppstigningardagur
+2024/5/19,Hvítasunnudagur
+2024/5/20,Annar í hvítasunnu
+2024/6/17,Þjóðhátíðardagurinn
+2024/8/5,Frídagur verslunarmanna
+2024/12/25,Jóladagur
+2024/12/26,Annar í jólum
+2025/1/1,Nýársdagur
+2025/4/17,Skírdagur
+2025/4/18,Föstudagurinn langi
+2025/4/20,Páskadagur
+2025/4/21,Annar í páskum
+2025/4/24,Sumardagurinn fyrsti
+2025/5/1,Verkalýðsdagurinn
+2025/5/29,Uppstigningardagur
+2025/6/8,Hvítasunnudagur
+2025/6/9,Annar í hvítasunnu
+2025/6/17,Þjóðhátíðardagurinn
+2025/8/4,Frídagur verslunarmanna
+2025/12/25,Jóladagur
+2025/12/26,Annar í jólum
+2026/1/1,Nýársdagur
+2026/4/2,Skírdagur
+2026/4/3,Föstudagurinn langi
+2026/4/5,Páskadagur
+2026/4/6,Annar í páskum
+2026/4/23,Sumardagurinn fyrsti
+2026/5/1,Verkalýðsdagurinn
+2026/5/14,Uppstigningardagur
+2026/5/24,Hvítasunnudagur
+2026/5/25,Annar í hvítasunnu
+2026/6/17,Þjóðhátíðardagurinn
+2026/8/3,Frídagur verslunarmanna
+2026/12/25,Jóladagur
+2026/12/26,Annar í jólum
+2027/1/1,Nýársdagur
+2027/3/25,Skírdagur
+2027/3/26,Föstudagurinn langi
+2027/3/28,Páskadagur
+2027/3/29,Annar í páskum
+2027/4/22,Sumardagurinn fyrsti
+2027/5/1,Verkalýðsdagurinn
+2027/5/6,Uppstigningardagur
+2027/5/16,Hvítasunnudagur
+2027/5/17,Annar í hvítasunnu
+2027/6/17,Þjóðhátíðardagurinn
+2027/8/2,Frídagur verslunarmanna
+2027/12/25,Jóladagur
+2027/12/26,Annar í jólum
+2028/1/1,Nýársdagur
+2028/4/13,Skírdagur
+2028/4/14,Föstudagurinn langi
+2028/4/16,Páskadagur
+2028/4/17,Annar í páskum
+2028/4/20,Sumardagurinn fyrsti
+2028/5/1,Verkalýðsdagurinn
+2028/5/25,Uppstigningardagur
+2028/6/4,Hvítasunnudagur
+2028/6/5,Annar í hvítasunnu
+2028/6/17,Þjóðhátíðardagurinn
+2028/8/7,Frídagur verslunarmanna
+2028/12/25,Jóladagur
+2028/12/26,Annar í jólum
+2029/1/1,Nýársdagur
+2029/3/29,Skírdagur
+2029/3/30,Föstudagurinn langi
+2029/4/1,Páskadagur
+2029/4/2,Annar í páskum
+2029/4/19,Sumardagurinn fyrsti
+2029/5/1,Verkalýðsdagurinn
+2029/5/10,Uppstigningardagur
+2029/5/20,Hvítasunnudagur
+2029/5/21,Annar í hvítasunnu
+2029/6/17,Þjóðhátíðardagurinn
+2029/8/6,Frídagur verslunarmanna
+2029/12/25,Jóladagur
+2029/12/26,Annar í jólum
+2030/1/1,Nýársdagur
+2030/4/18,Skírdagur
+2030/4/19,Föstudagurinn langi
+2030/4/21,Páskadagur
+2030/4/22,Annar í páskum
+2030/4/25,Sumardagurinn fyrsti
+2030/5/1,Verkalýðsdagurinn
+2030/5/30,Uppstigningardagur
+2030/6/9,Hvítasunnudagur
+2030/6/10,Annar í hvítasunnu
+2030/6/17,Þjóðhátíðardagurinn
+2030/8/5,Frídagur verslunarmanna
+2030/12/25,Jóladagur
+2030/12/26,Annar í jólum
+2031/1/1,Nýársdagur
+2031/4/10,Skírdagur
+2031/4/11,Föstudagurinn langi
+2031/4/13,Páskadagur
+2031/4/14,Annar í páskum
+2031/4/24,Sumardagurinn fyrsti
+2031/5/1,Verkalýðsdagurinn
+2031/5/22,Uppstigningardagur
+2031/6/1,Hvítasunnudagur
+2031/6/2,Annar í hvítasunnu
+2031/6/17,Þjóðhátíðardagurinn
+2031/8/4,Frídagur verslunarmanna
+2031/12/25,Jóladagur
+2031/12/26,Annar í jólum
+2032/1/1,Nýársdagur
+2032/3/25,Skírdagur
+2032/3/26,Föstudagurinn langi
+2032/3/28,Páskadagur
+2032/3/29,Annar í páskum
+2032/4/22,Sumardagurinn fyrsti
+2032/5/1,Verkalýðsdagurinn
+2032/5/6,Uppstigningardagur
+2032/5/16,Hvítasunnudagur
+2032/5/17,Annar í hvítasunnu
+2032/6/17,Þjóðhátíðardagurinn
+2032/8/2,Frídagur verslunarmanna
+2032/12/25,Jóladagur
+2032/12/26,Annar í jólum
+2033/1/1,Nýársdagur
+2033/4/14,Skírdagur
+2033/4/15,Föstudagurinn langi
+2033/4/17,Páskadagur
+2033/4/18,Annar í páskum
+2033/4/21,Sumardagurinn fyrsti
+2033/5/1,Verkalýðsdagurinn
+2033/5/26,Uppstigningardagur
+2033/6/5,Hvítasunnudagur
+2033/6/6,Annar í hvítasunnu
+2033/6/17,Þjóðhátíðardagurinn
+2033/8/1,Frídagur verslunarmanna
+2033/12/25,Jóladagur
+2033/12/26,Annar í jólum
+2034/1/1,Nýársdagur
+2034/4/6,Skírdagur
+2034/4/7,Föstudagurinn langi
+2034/4/9,Páskadagur
+2034/4/10,Annar í páskum
+2034/4/20,Sumardagurinn fyrsti
+2034/5/1,Verkalýðsdagurinn
+2034/5/18,Uppstigningardagur
+2034/5/28,Hvítasunnudagur
+2034/5/29,Annar í hvítasunnu
+2034/6/17,Þjóðhátíðardagurinn
+2034/8/7,Frídagur verslunarmanna
+2034/12/25,Jóladagur
+2034/12/26,Annar í jólum
+2035/1/1,Nýársdagur
+2035/3/22,Skírdagur
+2035/3/23,Föstudagurinn langi
+2035/3/25,Páskadagur
+2035/3/26,Annar í páskum
+2035/4/19,Sumardagurinn fyrsti
+2035/5/1,Verkalýðsdagurinn
+2035/5/3,Uppstigningardagur
+2035/5/13,Hvítasunnudagur
+2035/5/14,Annar í hvítasunnu
+2035/6/17,Þjóðhátíðardagurinn
+2035/8/6,Frídagur verslunarmanna
+2035/12/25,Jóladagur
+2035/12/26,Annar í jólum
+2036/1/1,Nýársdagur
+2036/4/10,Skírdagur
+2036/4/11,Föstudagurinn langi
+2036/4/13,Páskadagur
+2036/4/14,Annar í páskum
+2036/4/24,Sumardagurinn fyrsti
+2036/5/1,Verkalýðsdagurinn
+2036/5/22,Uppstigningardagur
+2036/6/1,Hvítasunnudagur
+2036/6/2,Annar í hvítasunnu
+2036/6/17,Þjóðhátíðardagurinn
+2036/8/4,Frídagur verslunarmanna
+2036/12/25,Jóladagur
+2036/12/26,Annar í jólum
+2037/1/1,Nýársdagur
+2037/4/2,Skírdagur
+2037/4/3,Föstudagurinn langi
+2037/4/5,Páskadagur
+2037/4/6,Annar í páskum
+2037/4/23,Sumardagurinn fyrsti
+2037/5/1,Verkalýðsdagurinn
+2037/5/14,Uppstigningardagur
+2037/5/24,Hvítasunnudagur
+2037/5/25,Annar í hvítasunnu
+2037/6/17,Þjóðhátíðardagurinn
+2037/8/3,Frídagur verslunarmanna
+2037/12/25,Jóladagur
+2037/12/26,Annar í jólum
+2038/1/1,Nýársdagur
+2038/4/22,Skírdagur; Sumardagurinn fyrsti
+2038/4/23,Föstudagurinn langi
+2038/4/25,Páskadagur
+2038/4/26,Annar í páskum
+2038/5/1,Verkalýðsdagurinn
+2038/6/3,Uppstigningardagur
+2038/6/13,Hvítasunnudagur
+2038/6/14,Annar í hvítasunnu
+2038/6/17,Þjóðhátíðardagurinn
+2038/8/2,Frídagur verslunarmanna
+2038/12/25,Jóladagur
+2038/12/26,Annar í jólum
+2039/1/1,Nýársdagur
+2039/4/7,Skírdagur
+2039/4/8,Föstudagurinn langi
+2039/4/10,Páskadagur
+2039/4/11,Annar í páskum
+2039/4/21,Sumardagurinn fyrsti
+2039/5/1,Verkalýðsdagurinn
+2039/5/19,Uppstigningardagur
+2039/5/29,Hvítasunnudagur
+2039/5/30,Annar í hvítasunnu
+2039/6/17,Þjóðhátíðardagurinn
+2039/8/1,Frídagur verslunarmanna
+2039/12/25,Jóladagur
+2039/12/26,Annar í jólum
+2040/1/1,Nýársdagur
+2040/3/29,Skírdagur
+2040/3/30,Föstudagurinn langi
+2040/4/1,Páskadagur
+2040/4/2,Annar í páskum
+2040/4/19,Sumardagurinn fyrsti
+2040/5/1,Verkalýðsdagurinn
+2040/5/10,Uppstigningardagur
+2040/5/20,Hvítasunnudagur
+2040/5/21,Annar í hvítasunnu
+2040/6/17,Þjóðhátíðardagurinn
+2040/8/6,Frídagur verslunarmanna
+2040/12/25,Jóladagur
+2040/12/26,Annar í jólum
+2041/1/1,Nýársdagur
+2041/4/18,Skírdagur
+2041/4/19,Föstudagurinn langi
+2041/4/21,Páskadagur
+2041/4/22,Annar í páskum
+2041/4/25,Sumardagurinn fyrsti
+2041/5/1,Verkalýðsdagurinn
+2041/5/30,Uppstigningardagur
+2041/6/9,Hvítasunnudagur
+2041/6/10,Annar í hvítasunnu
+2041/6/17,Þjóðhátíðardagurinn
+2041/8/5,Frídagur verslunarmanna
+2041/12/25,Jóladagur
+2041/12/26,Annar í jólum
+2042/1/1,Nýársdagur
+2042/4/3,Skírdagur
+2042/4/4,Föstudagurinn langi
+2042/4/6,Páskadagur
+2042/4/7,Annar í páskum
+2042/4/24,Sumardagurinn fyrsti
+2042/5/1,Verkalýðsdagurinn
+2042/5/15,Uppstigningardagur
+2042/5/25,Hvítasunnudagur
+2042/5/26,Annar í hvítasunnu
+2042/6/17,Þjóðhátíðardagurinn
+2042/8/4,Frídagur verslunarmanna
+2042/12/25,Jóladagur
+2042/12/26,Annar í jólum
+2043/1/1,Nýársdagur
+2043/3/26,Skírdagur
+2043/3/27,Föstudagurinn langi
+2043/3/29,Páskadagur
+2043/3/30,Annar í páskum
+2043/4/23,Sumardagurinn fyrsti
+2043/5/1,Verkalýðsdagurinn
+2043/5/7,Uppstigningardagur
+2043/5/17,Hvítasunnudagur
+2043/5/18,Annar í hvítasunnu
+2043/6/17,Þjóðhátíðardagurinn
+2043/8/3,Frídagur verslunarmanna
+2043/12/25,Jóladagur
+2043/12/26,Annar í jólum
+2044/1/1,Nýársdagur
+2044/4/14,Skírdagur
+2044/4/15,Föstudagurinn langi
+2044/4/17,Páskadagur
+2044/4/18,Annar í páskum
+2044/4/21,Sumardagurinn fyrsti
+2044/5/1,Verkalýðsdagurinn
+2044/5/26,Uppstigningardagur
+2044/6/5,Hvítasunnudagur
+2044/6/6,Annar í hvítasunnu
+2044/6/17,Þjóðhátíðardagurinn
+2044/8/1,Frídagur verslunarmanna
+2044/12/25,Jóladagur
+2044/12/26,Annar í jólum
+2045/1/1,Nýársdagur
+2045/4/6,Skírdagur
+2045/4/7,Föstudagurinn langi
+2045/4/9,Páskadagur
+2045/4/10,Annar í páskum
+2045/4/20,Sumardagurinn fyrsti
+2045/5/1,Verkalýðsdagurinn
+2045/5/18,Uppstigningardagur
+2045/5/28,Hvítasunnudagur
+2045/5/29,Annar í hvítasunnu
+2045/6/17,Þjóðhátíðardagurinn
+2045/8/7,Frídagur verslunarmanna
+2045/12/25,Jóladagur
+2045/12/26,Annar í jólum
+2046/1/1,Nýársdagur
+2046/3/22,Skírdagur
+2046/3/23,Föstudagurinn langi
+2046/3/25,Páskadagur
+2046/3/26,Annar í páskum
+2046/4/19,Sumardagurinn fyrsti
+2046/5/1,Verkalýðsdagurinn
+2046/5/3,Uppstigningardagur
+2046/5/13,Hvítasunnudagur
+2046/5/14,Annar í hvítasunnu
+2046/6/17,Þjóðhátíðardagurinn
+2046/8/6,Frídagur verslunarmanna
+2046/12/25,Jóladagur
+2046/12/26,Annar í jólum
+2047/1/1,Nýársdagur
+2047/4/11,Skírdagur
+2047/4/12,Föstudagurinn langi
+2047/4/14,Páskadagur
+2047/4/15,Annar í páskum
+2047/4/25,Sumardagurinn fyrsti
+2047/5/1,Verkalýðsdagurinn
+2047/5/23,Uppstigningardagur
+2047/6/2,Hvítasunnudagur
+2047/6/3,Annar í hvítasunnu
+2047/6/17,Þjóðhátíðardagurinn
+2047/8/5,Frídagur verslunarmanna
+2047/12/25,Jóladagur
+2047/12/26,Annar í jólum
+2048/1/1,Nýársdagur
+2048/4/2,Skírdagur
+2048/4/3,Föstudagurinn langi
+2048/4/5,Páskadagur
+2048/4/6,Annar í páskum
+2048/4/23,Sumardagurinn fyrsti
+2048/5/1,Verkalýðsdagurinn
+2048/5/14,Uppstigningardagur
+2048/5/24,Hvítasunnudagur
+2048/5/25,Annar í hvítasunnu
+2048/6/17,Þjóðhátíðardagurinn
+2048/8/3,Frídagur verslunarmanna
+2048/12/25,Jóladagur
+2048/12/26,Annar í jólum
+2049/1/1,Nýársdagur
+2049/4/15,Skírdagur
+2049/4/16,Föstudagurinn langi
+2049/4/18,Páskadagur
+2049/4/19,Annar í páskum
+2049/4/22,Sumardagurinn fyrsti
+2049/5/1,Verkalýðsdagurinn
+2049/5/27,Uppstigningardagur
+2049/6/6,Hvítasunnudagur
+2049/6/7,Annar í hvítasunnu
+2049/6/17,Þjóðhátíðardagurinn
+2049/8/2,Frídagur verslunarmanna
+2049/12/25,Jóladagur
+2049/12/26,Annar í jólum
+2050/1/1,Nýársdagur
+2050/4/7,Skírdagur
+2050/4/8,Föstudagurinn langi
+2050/4/10,Páskadagur
+2050/4/11,Annar í páskum
+2050/4/21,Sumardagurinn fyrsti
+2050/5/1,Verkalýðsdagurinn
+2050/5/19,Uppstigningardagur
+2050/5/29,Hvítasunnudagur
+2050/5/30,Annar í hvítasunnu
+2050/6/17,Þjóðhátíðardagurinn
+2050/8/1,Frídagur verslunarmanna
+2050/12/25,Jóladagur
+2050/12/26,Annar í jólum

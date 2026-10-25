@@ -1,0 +1,491 @@
+# BI holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/2/5,Unity Day
+2020/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2020/5/1,International Labor Day
+2020/5/21,Ascension Day
+2020/5/24,Eid al-Fitr
+2020/5/25,Eid al-Fitr (observed)
+2020/7/1,Independence Day
+2020/7/31,Eid al-Adha
+2020/8/15,Assumption Day
+2020/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2020/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2020/11/1,All Saints' Day
+2020/11/2,All Saints' Day (observed)
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/2/5,Unity Day
+2021/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2021/5/1,International Labor Day
+2021/5/13,Ascension Day; Eid al-Fitr
+2021/7/1,Independence Day
+2021/7/20,Eid al-Adha
+2021/8/15,Assumption Day
+2021/8/16,Assumption Day (observed)
+2021/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2021/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2021/11/1,All Saints' Day
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/2/5,Unity Day
+2022/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2022/5/1,International Labor Day
+2022/5/2,Eid al-Fitr; International Labor Day (observed)
+2022/5/26,Ascension Day
+2022/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2022/7/1,Independence Day
+2022/7/9,Eid al-Adha
+2022/8/15,Assumption Day
+2022/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2022/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2022/11/1,All Saints' Day
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/2/5,Unity Day
+2023/2/6,Unity Day (observed)
+2023/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2023/4/21,Eid al-Fitr
+2023/5/1,International Labor Day
+2023/5/18,Ascension Day
+2023/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2023/6/28,Eid al-Adha
+2023/7/1,Independence Day
+2023/8/15,Assumption Day
+2023/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2023/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2023/11/1,All Saints' Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/2/5,Unity Day
+2024/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2024/4/10,Eid al-Fitr
+2024/5/1,International Labor Day
+2024/5/9,Ascension Day
+2024/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2024/6/16,Eid al-Adha
+2024/6/17,Eid al-Adha (observed)
+2024/7/1,Independence Day
+2024/8/15,Assumption Day
+2024/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2024/10/14,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore (observed)
+2024/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2024/11/1,All Saints' Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/2/5,Unity Day
+2025/3/30,Eid al-Fitr
+2025/3/31,Eid al-Fitr (observed)
+2025/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2025/4/7,Commemoration of the Assassination of President Cyprien Ntaryamira (observed)
+2025/5/1,International Labor Day
+2025/5/29,Ascension Day
+2025/6/6,Eid al-Adha
+2025/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2025/6/9,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza (observed)
+2025/7/1,Independence Day
+2025/8/15,Assumption Day
+2025/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2025/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2025/11/1,All Saints' Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/2/5,Unity Day
+2026/3/20,Eid al-Fitr (estimated)
+2026/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2026/5/1,International Labor Day
+2026/5/14,Ascension Day
+2026/5/27,Eid al-Adha (estimated)
+2026/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2026/7/1,Independence Day
+2026/8/15,Assumption Day
+2026/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2026/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2026/11/1,All Saints' Day
+2026/11/2,All Saints' Day (observed)
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/2/5,Unity Day
+2027/3/9,Eid al-Fitr (estimated)
+2027/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2027/5/1,International Labor Day
+2027/5/6,Ascension Day
+2027/5/16,Eid al-Adha (estimated)
+2027/5/17,Eid al-Adha (observed, estimated)
+2027/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2027/7/1,Independence Day
+2027/8/15,Assumption Day
+2027/8/16,Assumption Day (observed)
+2027/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2027/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2027/11/1,All Saints' Day
+2027/12/25,Christmas Day
+2028/1/1,New Year's Day
+2028/2/5,Unity Day
+2028/2/26,Eid al-Fitr (estimated)
+2028/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2028/5/1,International Labor Day
+2028/5/5,Eid al-Adha (estimated)
+2028/5/25,Ascension Day
+2028/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2028/7/1,Independence Day
+2028/8/15,Assumption Day
+2028/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2028/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2028/11/1,All Saints' Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/2/5,Unity Day
+2029/2/14,Eid al-Fitr (estimated)
+2029/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2029/4/24,Eid al-Adha (estimated)
+2029/5/1,International Labor Day
+2029/5/10,Ascension Day
+2029/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2029/7/1,Independence Day
+2029/7/2,Independence Day (observed)
+2029/8/15,Assumption Day
+2029/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2029/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2029/10/22,Commemoration of the Assassination of President Melchior Ndadaye (observed)
+2029/11/1,All Saints' Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/2/4,Eid al-Fitr (estimated)
+2030/2/5,Unity Day
+2030/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2030/4/13,Eid al-Adha (estimated)
+2030/5/1,International Labor Day
+2030/5/30,Ascension Day
+2030/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2030/7/1,Independence Day
+2030/8/15,Assumption Day
+2030/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2030/10/14,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore (observed)
+2030/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2030/11/1,All Saints' Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/1/24,Eid al-Fitr (estimated)
+2031/2/5,Unity Day
+2031/4/2,Eid al-Adha (estimated)
+2031/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2031/4/7,Commemoration of the Assassination of President Cyprien Ntaryamira (observed)
+2031/5/1,International Labor Day
+2031/5/22,Ascension Day
+2031/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2031/6/9,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza (observed)
+2031/7/1,Independence Day
+2031/8/15,Assumption Day
+2031/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2031/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2031/11/1,All Saints' Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/1/14,Eid al-Fitr (estimated)
+2032/2/5,Unity Day
+2032/3/22,Eid al-Adha (estimated)
+2032/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2032/5/1,International Labor Day
+2032/5/6,Ascension Day
+2032/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2032/7/1,Independence Day
+2032/8/15,Assumption Day
+2032/8/16,Assumption Day (observed)
+2032/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2032/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2032/11/1,All Saints' Day
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/1/2,Eid al-Fitr (estimated)
+2033/1/3,Eid al-Fitr (observed, estimated)
+2033/2/5,Unity Day
+2033/3/11,Eid al-Adha (estimated)
+2033/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2033/5/1,International Labor Day
+2033/5/2,International Labor Day (observed)
+2033/5/26,Ascension Day
+2033/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2033/7/1,Independence Day
+2033/8/15,Assumption Day
+2033/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2033/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2033/11/1,All Saints' Day
+2033/12/23,Eid al-Fitr (estimated)
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/2/5,Unity Day
+2034/2/6,Unity Day (observed)
+2034/3/1,Eid al-Adha (estimated)
+2034/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2034/5/1,International Labor Day
+2034/5/18,Ascension Day
+2034/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2034/7/1,Independence Day
+2034/8/15,Assumption Day
+2034/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2034/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2034/11/1,All Saints' Day
+2034/12/12,Eid al-Fitr (estimated)
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/2/5,Unity Day
+2035/2/18,Eid al-Adha (estimated)
+2035/2/19,Eid al-Adha (observed, estimated)
+2035/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2035/5/1,International Labor Day
+2035/5/3,Ascension Day
+2035/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2035/7/1,Independence Day
+2035/7/2,Independence Day (observed)
+2035/8/15,Assumption Day
+2035/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2035/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2035/10/22,Commemoration of the Assassination of President Melchior Ndadaye (observed)
+2035/11/1,All Saints' Day
+2035/12/1,Eid al-Fitr (estimated)
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/2/5,Unity Day
+2036/2/7,Eid al-Adha (estimated)
+2036/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2036/4/7,Commemoration of the Assassination of President Cyprien Ntaryamira (observed)
+2036/5/1,International Labor Day
+2036/5/22,Ascension Day
+2036/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2036/6/9,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza (observed)
+2036/7/1,Independence Day
+2036/8/15,Assumption Day
+2036/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2036/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2036/11/1,All Saints' Day
+2036/11/19,Eid al-Fitr (estimated)
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/1/26,Eid al-Adha (estimated)
+2037/2/5,Unity Day
+2037/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2037/5/1,International Labor Day
+2037/5/14,Ascension Day
+2037/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2037/7/1,Independence Day
+2037/8/15,Assumption Day
+2037/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2037/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2037/11/1,All Saints' Day
+2037/11/2,All Saints' Day (observed)
+2037/11/8,Eid al-Fitr (estimated)
+2037/11/9,Eid al-Fitr (observed, estimated)
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/1/16,Eid al-Adha (estimated)
+2038/2/5,Unity Day
+2038/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2038/5/1,International Labor Day
+2038/6/3,Ascension Day
+2038/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2038/7/1,Independence Day
+2038/8/15,Assumption Day
+2038/8/16,Assumption Day (observed)
+2038/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2038/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2038/10/29,Eid al-Fitr (estimated)
+2038/11/1,All Saints' Day
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/1/5,Eid al-Adha (estimated)
+2039/2/5,Unity Day
+2039/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2039/5/1,International Labor Day
+2039/5/2,International Labor Day (observed)
+2039/5/19,Ascension Day
+2039/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2039/7/1,Independence Day
+2039/8/15,Assumption Day
+2039/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2039/10/19,Eid al-Fitr (estimated)
+2039/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2039/11/1,All Saints' Day
+2039/12/25,Christmas Day
+2039/12/26,Christmas Day (observed); Eid al-Adha (estimated)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/2/5,Unity Day
+2040/2/6,Unity Day (observed)
+2040/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2040/5/1,International Labor Day
+2040/5/10,Ascension Day
+2040/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2040/7/1,Independence Day
+2040/7/2,Independence Day (observed)
+2040/8/15,Assumption Day
+2040/10/7,Eid al-Fitr (estimated)
+2040/10/8,Eid al-Fitr (observed, estimated)
+2040/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2040/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2040/10/22,Commemoration of the Assassination of President Melchior Ndadaye (observed)
+2040/11/1,All Saints' Day
+2040/12/14,Eid al-Adha (estimated)
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/2/5,Unity Day
+2041/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2041/5/1,International Labor Day
+2041/5/30,Ascension Day
+2041/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2041/7/1,Independence Day
+2041/8/15,Assumption Day
+2041/9/26,Eid al-Fitr (estimated)
+2041/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2041/10/14,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore (observed)
+2041/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2041/11/1,All Saints' Day
+2041/12/4,Eid al-Adha (estimated)
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/2/5,Unity Day
+2042/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2042/4/7,Commemoration of the Assassination of President Cyprien Ntaryamira (observed)
+2042/5/1,International Labor Day
+2042/5/15,Ascension Day
+2042/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2042/6/9,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza (observed)
+2042/7/1,Independence Day
+2042/8/15,Assumption Day
+2042/9/15,Eid al-Fitr (estimated)
+2042/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2042/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2042/11/1,All Saints' Day
+2042/11/23,Eid al-Adha (estimated)
+2042/11/24,Eid al-Adha (observed, estimated)
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/2/5,Unity Day
+2043/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2043/5/1,International Labor Day
+2043/5/7,Ascension Day
+2043/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2043/7/1,Independence Day
+2043/8/15,Assumption Day
+2043/9/4,Eid al-Fitr (estimated)
+2043/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2043/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2043/11/1,All Saints' Day
+2043/11/2,All Saints' Day (observed)
+2043/11/12,Eid al-Adha (estimated)
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/2/5,Unity Day
+2044/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2044/5/1,International Labor Day
+2044/5/2,International Labor Day (observed)
+2044/5/26,Ascension Day
+2044/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2044/7/1,Independence Day
+2044/8/15,Assumption Day
+2044/8/24,Eid al-Fitr (estimated)
+2044/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2044/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2044/10/31,Eid al-Adha (estimated)
+2044/11/1,All Saints' Day
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/2/5,Unity Day
+2045/2/6,Unity Day (observed)
+2045/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2045/5/1,International Labor Day
+2045/5/18,Ascension Day
+2045/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2045/7/1,Independence Day
+2045/8/14,Eid al-Fitr (estimated)
+2045/8/15,Assumption Day
+2045/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2045/10/21,Commemoration of the Assassination of President Melchior Ndadaye; Eid al-Adha (estimated)
+2045/11/1,All Saints' Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/2/5,Unity Day
+2046/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2046/5/1,International Labor Day
+2046/5/3,Ascension Day
+2046/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2046/7/1,Independence Day
+2046/7/2,Independence Day (observed)
+2046/8/3,Eid al-Fitr (estimated)
+2046/8/15,Assumption Day
+2046/10/10,Eid al-Adha (estimated)
+2046/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2046/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2046/10/22,Commemoration of the Assassination of President Melchior Ndadaye (observed)
+2046/11/1,All Saints' Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/2/5,Unity Day
+2047/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2047/5/1,International Labor Day
+2047/5/23,Ascension Day
+2047/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2047/7/1,Independence Day
+2047/7/24,Eid al-Fitr (estimated)
+2047/8/15,Assumption Day
+2047/9/30,Eid al-Adha (estimated)
+2047/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2047/10/14,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore (observed)
+2047/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2047/11/1,All Saints' Day
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/2/5,Unity Day
+2048/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2048/5/1,International Labor Day
+2048/5/14,Ascension Day
+2048/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2048/7/1,Independence Day
+2048/7/12,Eid al-Fitr (estimated)
+2048/7/13,Eid al-Fitr (observed, estimated)
+2048/8/15,Assumption Day
+2048/9/19,Eid al-Adha (estimated)
+2048/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2048/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2048/11/1,All Saints' Day
+2048/11/2,All Saints' Day (observed)
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/2/5,Unity Day
+2049/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2049/5/1,International Labor Day
+2049/5/27,Ascension Day
+2049/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2049/7/1,Eid al-Fitr (estimated); Independence Day
+2049/8/15,Assumption Day
+2049/8/16,Assumption Day (observed)
+2049/9/8,Eid al-Adha (estimated)
+2049/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2049/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2049/11/1,All Saints' Day
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/2/5,Unity Day
+2050/4/6,Commemoration of the Assassination of President Cyprien Ntaryamira
+2050/5/1,International Labor Day
+2050/5/2,International Labor Day (observed)
+2050/5/19,Ascension Day
+2050/6/8,National Day of Patriotism and Commemoration of the Death of President Pierre Nkurunziza
+2050/6/20,Eid al-Fitr (estimated)
+2050/7/1,Independence Day
+2050/8/15,Assumption Day
+2050/8/28,Eid al-Adha (estimated)
+2050/8/29,Eid al-Adha (observed, estimated)
+2050/10/13,Commemoration of the Assassination of National Hero, Prince Louis Rwagasore
+2050/10/21,Commemoration of the Assassination of President Melchior Ndadaye
+2050/11/1,All Saints' Day
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed)

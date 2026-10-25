@@ -1,0 +1,437 @@
+# AD の祝日（2020〜2050年、言語: ca）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Cap d'Any
+2020/1/6,Reis
+2020/2/24,Carnaval
+2020/3/14,Dia de la Constitució
+2020/4/10,Divendres Sant
+2020/4/13,Dilluns de Pasqua
+2020/5/1,Festa del treball
+2020/6/1,Dilluns de Pentecosta
+2020/8/15,Assumpció
+2020/9/8,Nostra Senyora de Meritxell
+2020/11/1,Tots Sants
+2020/12/8,Immaculada Concepció
+2020/12/25,Nadal
+2020/12/26,Sant Esteve
+2021/1/1,Cap d'Any
+2021/1/6,Reis
+2021/2/15,Carnaval
+2021/3/14,Dia de la Constitució
+2021/4/2,Divendres Sant
+2021/4/5,Dilluns de Pasqua
+2021/5/1,Festa del treball
+2021/5/24,Dilluns de Pentecosta
+2021/8/15,Assumpció
+2021/9/8,Nostra Senyora de Meritxell
+2021/11/1,Tots Sants
+2021/12/8,Immaculada Concepció
+2021/12/25,Nadal
+2021/12/26,Sant Esteve
+2022/1/1,Cap d'Any
+2022/1/6,Reis
+2022/2/28,Carnaval
+2022/3/14,Dia de la Constitució
+2022/4/15,Divendres Sant
+2022/4/18,Dilluns de Pasqua
+2022/5/1,Festa del treball
+2022/6/6,Dilluns de Pentecosta
+2022/8/15,Assumpció
+2022/9/8,Nostra Senyora de Meritxell
+2022/11/1,Tots Sants
+2022/12/8,Immaculada Concepció
+2022/12/25,Nadal
+2022/12/26,Sant Esteve
+2023/1/1,Cap d'Any
+2023/1/6,Reis
+2023/2/20,Carnaval
+2023/3/14,Dia de la Constitució
+2023/4/7,Divendres Sant
+2023/4/10,Dilluns de Pasqua
+2023/5/1,Festa del treball
+2023/5/29,Dilluns de Pentecosta
+2023/8/15,Assumpció
+2023/9/8,Nostra Senyora de Meritxell
+2023/11/1,Tots Sants
+2023/12/8,Immaculada Concepció
+2023/12/25,Nadal
+2023/12/26,Sant Esteve
+2024/1/1,Cap d'Any
+2024/1/6,Reis
+2024/2/12,Carnaval
+2024/3/14,Dia de la Constitució
+2024/3/29,Divendres Sant
+2024/4/1,Dilluns de Pasqua
+2024/5/1,Festa del treball
+2024/5/20,Dilluns de Pentecosta
+2024/8/15,Assumpció
+2024/9/8,Nostra Senyora de Meritxell
+2024/11/1,Tots Sants
+2024/12/8,Immaculada Concepció
+2024/12/25,Nadal
+2024/12/26,Sant Esteve
+2025/1/1,Cap d'Any
+2025/1/6,Reis
+2025/3/3,Carnaval
+2025/3/14,Dia de la Constitució
+2025/4/18,Divendres Sant
+2025/4/21,Dilluns de Pasqua
+2025/5/1,Festa del treball
+2025/6/9,Dilluns de Pentecosta
+2025/8/15,Assumpció
+2025/9/8,Nostra Senyora de Meritxell
+2025/11/1,Tots Sants
+2025/12/8,Immaculada Concepció
+2025/12/25,Nadal
+2025/12/26,Sant Esteve
+2026/1/1,Cap d'Any
+2026/1/6,Reis
+2026/2/16,Carnaval
+2026/3/14,Dia de la Constitució
+2026/4/3,Divendres Sant
+2026/4/6,Dilluns de Pasqua
+2026/5/1,Festa del treball
+2026/5/25,Dilluns de Pentecosta
+2026/8/15,Assumpció
+2026/9/8,Nostra Senyora de Meritxell
+2026/11/1,Tots Sants
+2026/12/8,Immaculada Concepció
+2026/12/25,Nadal
+2026/12/26,Sant Esteve
+2027/1/1,Cap d'Any
+2027/1/6,Reis
+2027/2/8,Carnaval
+2027/3/14,Dia de la Constitució
+2027/3/26,Divendres Sant
+2027/3/29,Dilluns de Pasqua
+2027/5/1,Festa del treball
+2027/5/17,Dilluns de Pentecosta
+2027/8/15,Assumpció
+2027/9/8,Nostra Senyora de Meritxell
+2027/11/1,Tots Sants
+2027/12/8,Immaculada Concepció
+2027/12/25,Nadal
+2027/12/26,Sant Esteve
+2028/1/1,Cap d'Any
+2028/1/6,Reis
+2028/2/28,Carnaval
+2028/3/14,Dia de la Constitució
+2028/4/14,Divendres Sant
+2028/4/17,Dilluns de Pasqua
+2028/5/1,Festa del treball
+2028/6/5,Dilluns de Pentecosta
+2028/8/15,Assumpció
+2028/9/8,Nostra Senyora de Meritxell
+2028/11/1,Tots Sants
+2028/12/8,Immaculada Concepció
+2028/12/25,Nadal
+2028/12/26,Sant Esteve
+2029/1/1,Cap d'Any
+2029/1/6,Reis
+2029/2/12,Carnaval
+2029/3/14,Dia de la Constitució
+2029/3/30,Divendres Sant
+2029/4/2,Dilluns de Pasqua
+2029/5/1,Festa del treball
+2029/5/21,Dilluns de Pentecosta
+2029/8/15,Assumpció
+2029/9/8,Nostra Senyora de Meritxell
+2029/11/1,Tots Sants
+2029/12/8,Immaculada Concepció
+2029/12/25,Nadal
+2029/12/26,Sant Esteve
+2030/1/1,Cap d'Any
+2030/1/6,Reis
+2030/3/4,Carnaval
+2030/3/14,Dia de la Constitució
+2030/4/19,Divendres Sant
+2030/4/22,Dilluns de Pasqua
+2030/5/1,Festa del treball
+2030/6/10,Dilluns de Pentecosta
+2030/8/15,Assumpció
+2030/9/8,Nostra Senyora de Meritxell
+2030/11/1,Tots Sants
+2030/12/8,Immaculada Concepció
+2030/12/25,Nadal
+2030/12/26,Sant Esteve
+2031/1/1,Cap d'Any
+2031/1/6,Reis
+2031/2/24,Carnaval
+2031/3/14,Dia de la Constitució
+2031/4/11,Divendres Sant
+2031/4/14,Dilluns de Pasqua
+2031/5/1,Festa del treball
+2031/6/2,Dilluns de Pentecosta
+2031/8/15,Assumpció
+2031/9/8,Nostra Senyora de Meritxell
+2031/11/1,Tots Sants
+2031/12/8,Immaculada Concepció
+2031/12/25,Nadal
+2031/12/26,Sant Esteve
+2032/1/1,Cap d'Any
+2032/1/6,Reis
+2032/2/9,Carnaval
+2032/3/14,Dia de la Constitució
+2032/3/26,Divendres Sant
+2032/3/29,Dilluns de Pasqua
+2032/5/1,Festa del treball
+2032/5/17,Dilluns de Pentecosta
+2032/8/15,Assumpció
+2032/9/8,Nostra Senyora de Meritxell
+2032/11/1,Tots Sants
+2032/12/8,Immaculada Concepció
+2032/12/25,Nadal
+2032/12/26,Sant Esteve
+2033/1/1,Cap d'Any
+2033/1/6,Reis
+2033/2/28,Carnaval
+2033/3/14,Dia de la Constitució
+2033/4/15,Divendres Sant
+2033/4/18,Dilluns de Pasqua
+2033/5/1,Festa del treball
+2033/6/6,Dilluns de Pentecosta
+2033/8/15,Assumpció
+2033/9/8,Nostra Senyora de Meritxell
+2033/11/1,Tots Sants
+2033/12/8,Immaculada Concepció
+2033/12/25,Nadal
+2033/12/26,Sant Esteve
+2034/1/1,Cap d'Any
+2034/1/6,Reis
+2034/2/20,Carnaval
+2034/3/14,Dia de la Constitució
+2034/4/7,Divendres Sant
+2034/4/10,Dilluns de Pasqua
+2034/5/1,Festa del treball
+2034/5/29,Dilluns de Pentecosta
+2034/8/15,Assumpció
+2034/9/8,Nostra Senyora de Meritxell
+2034/11/1,Tots Sants
+2034/12/8,Immaculada Concepció
+2034/12/25,Nadal
+2034/12/26,Sant Esteve
+2035/1/1,Cap d'Any
+2035/1/6,Reis
+2035/2/5,Carnaval
+2035/3/14,Dia de la Constitució
+2035/3/23,Divendres Sant
+2035/3/26,Dilluns de Pasqua
+2035/5/1,Festa del treball
+2035/5/14,Dilluns de Pentecosta
+2035/8/15,Assumpció
+2035/9/8,Nostra Senyora de Meritxell
+2035/11/1,Tots Sants
+2035/12/8,Immaculada Concepció
+2035/12/25,Nadal
+2035/12/26,Sant Esteve
+2036/1/1,Cap d'Any
+2036/1/6,Reis
+2036/2/25,Carnaval
+2036/3/14,Dia de la Constitució
+2036/4/11,Divendres Sant
+2036/4/14,Dilluns de Pasqua
+2036/5/1,Festa del treball
+2036/6/2,Dilluns de Pentecosta
+2036/8/15,Assumpció
+2036/9/8,Nostra Senyora de Meritxell
+2036/11/1,Tots Sants
+2036/12/8,Immaculada Concepció
+2036/12/25,Nadal
+2036/12/26,Sant Esteve
+2037/1/1,Cap d'Any
+2037/1/6,Reis
+2037/2/16,Carnaval
+2037/3/14,Dia de la Constitució
+2037/4/3,Divendres Sant
+2037/4/6,Dilluns de Pasqua
+2037/5/1,Festa del treball
+2037/5/25,Dilluns de Pentecosta
+2037/8/15,Assumpció
+2037/9/8,Nostra Senyora de Meritxell
+2037/11/1,Tots Sants
+2037/12/8,Immaculada Concepció
+2037/12/25,Nadal
+2037/12/26,Sant Esteve
+2038/1/1,Cap d'Any
+2038/1/6,Reis
+2038/3/8,Carnaval
+2038/3/14,Dia de la Constitució
+2038/4/23,Divendres Sant
+2038/4/26,Dilluns de Pasqua
+2038/5/1,Festa del treball
+2038/6/14,Dilluns de Pentecosta
+2038/8/15,Assumpció
+2038/9/8,Nostra Senyora de Meritxell
+2038/11/1,Tots Sants
+2038/12/8,Immaculada Concepció
+2038/12/25,Nadal
+2038/12/26,Sant Esteve
+2039/1/1,Cap d'Any
+2039/1/6,Reis
+2039/2/21,Carnaval
+2039/3/14,Dia de la Constitució
+2039/4/8,Divendres Sant
+2039/4/11,Dilluns de Pasqua
+2039/5/1,Festa del treball
+2039/5/30,Dilluns de Pentecosta
+2039/8/15,Assumpció
+2039/9/8,Nostra Senyora de Meritxell
+2039/11/1,Tots Sants
+2039/12/8,Immaculada Concepció
+2039/12/25,Nadal
+2039/12/26,Sant Esteve
+2040/1/1,Cap d'Any
+2040/1/6,Reis
+2040/2/13,Carnaval
+2040/3/14,Dia de la Constitució
+2040/3/30,Divendres Sant
+2040/4/2,Dilluns de Pasqua
+2040/5/1,Festa del treball
+2040/5/21,Dilluns de Pentecosta
+2040/8/15,Assumpció
+2040/9/8,Nostra Senyora de Meritxell
+2040/11/1,Tots Sants
+2040/12/8,Immaculada Concepció
+2040/12/25,Nadal
+2040/12/26,Sant Esteve
+2041/1/1,Cap d'Any
+2041/1/6,Reis
+2041/3/4,Carnaval
+2041/3/14,Dia de la Constitució
+2041/4/19,Divendres Sant
+2041/4/22,Dilluns de Pasqua
+2041/5/1,Festa del treball
+2041/6/10,Dilluns de Pentecosta
+2041/8/15,Assumpció
+2041/9/8,Nostra Senyora de Meritxell
+2041/11/1,Tots Sants
+2041/12/8,Immaculada Concepció
+2041/12/25,Nadal
+2041/12/26,Sant Esteve
+2042/1/1,Cap d'Any
+2042/1/6,Reis
+2042/2/17,Carnaval
+2042/3/14,Dia de la Constitució
+2042/4/4,Divendres Sant
+2042/4/7,Dilluns de Pasqua
+2042/5/1,Festa del treball
+2042/5/26,Dilluns de Pentecosta
+2042/8/15,Assumpció
+2042/9/8,Nostra Senyora de Meritxell
+2042/11/1,Tots Sants
+2042/12/8,Immaculada Concepció
+2042/12/25,Nadal
+2042/12/26,Sant Esteve
+2043/1/1,Cap d'Any
+2043/1/6,Reis
+2043/2/9,Carnaval
+2043/3/14,Dia de la Constitució
+2043/3/27,Divendres Sant
+2043/3/30,Dilluns de Pasqua
+2043/5/1,Festa del treball
+2043/5/18,Dilluns de Pentecosta
+2043/8/15,Assumpció
+2043/9/8,Nostra Senyora de Meritxell
+2043/11/1,Tots Sants
+2043/12/8,Immaculada Concepció
+2043/12/25,Nadal
+2043/12/26,Sant Esteve
+2044/1/1,Cap d'Any
+2044/1/6,Reis
+2044/2/29,Carnaval
+2044/3/14,Dia de la Constitució
+2044/4/15,Divendres Sant
+2044/4/18,Dilluns de Pasqua
+2044/5/1,Festa del treball
+2044/6/6,Dilluns de Pentecosta
+2044/8/15,Assumpció
+2044/9/8,Nostra Senyora de Meritxell
+2044/11/1,Tots Sants
+2044/12/8,Immaculada Concepció
+2044/12/25,Nadal
+2044/12/26,Sant Esteve
+2045/1/1,Cap d'Any
+2045/1/6,Reis
+2045/2/20,Carnaval
+2045/3/14,Dia de la Constitució
+2045/4/7,Divendres Sant
+2045/4/10,Dilluns de Pasqua
+2045/5/1,Festa del treball
+2045/5/29,Dilluns de Pentecosta
+2045/8/15,Assumpció
+2045/9/8,Nostra Senyora de Meritxell
+2045/11/1,Tots Sants
+2045/12/8,Immaculada Concepció
+2045/12/25,Nadal
+2045/12/26,Sant Esteve
+2046/1/1,Cap d'Any
+2046/1/6,Reis
+2046/2/5,Carnaval
+2046/3/14,Dia de la Constitució
+2046/3/23,Divendres Sant
+2046/3/26,Dilluns de Pasqua
+2046/5/1,Festa del treball
+2046/5/14,Dilluns de Pentecosta
+2046/8/15,Assumpció
+2046/9/8,Nostra Senyora de Meritxell
+2046/11/1,Tots Sants
+2046/12/8,Immaculada Concepció
+2046/12/25,Nadal
+2046/12/26,Sant Esteve
+2047/1/1,Cap d'Any
+2047/1/6,Reis
+2047/2/25,Carnaval
+2047/3/14,Dia de la Constitució
+2047/4/12,Divendres Sant
+2047/4/15,Dilluns de Pasqua
+2047/5/1,Festa del treball
+2047/6/3,Dilluns de Pentecosta
+2047/8/15,Assumpció
+2047/9/8,Nostra Senyora de Meritxell
+2047/11/1,Tots Sants
+2047/12/8,Immaculada Concepció
+2047/12/25,Nadal
+2047/12/26,Sant Esteve
+2048/1/1,Cap d'Any
+2048/1/6,Reis
+2048/2/17,Carnaval
+2048/3/14,Dia de la Constitució
+2048/4/3,Divendres Sant
+2048/4/6,Dilluns de Pasqua
+2048/5/1,Festa del treball
+2048/5/25,Dilluns de Pentecosta
+2048/8/15,Assumpció
+2048/9/8,Nostra Senyora de Meritxell
+2048/11/1,Tots Sants
+2048/12/8,Immaculada Concepció
+2048/12/25,Nadal
+2048/12/26,Sant Esteve
+2049/1/1,Cap d'Any
+2049/1/6,Reis
+2049/3/1,Carnaval
+2049/3/14,Dia de la Constitució
+2049/4/16,Divendres Sant
+2049/4/19,Dilluns de Pasqua
+2049/5/1,Festa del treball
+2049/6/7,Dilluns de Pentecosta
+2049/8/15,Assumpció
+2049/9/8,Nostra Senyora de Meritxell
+2049/11/1,Tots Sants
+2049/12/8,Immaculada Concepció
+2049/12/25,Nadal
+2049/12/26,Sant Esteve
+2050/1/1,Cap d'Any
+2050/1/6,Reis
+2050/2/21,Carnaval
+2050/3/14,Dia de la Constitució
+2050/4/8,Divendres Sant
+2050/4/11,Dilluns de Pasqua
+2050/5/1,Festa del treball
+2050/5/30,Dilluns de Pentecosta
+2050/8/15,Assumpció
+2050/9/8,Nostra Senyora de Meritxell
+2050/11/1,Tots Sants
+2050/12/8,Immaculada Concepció
+2050/12/25,Nadal
+2050/12/26,Sant Esteve

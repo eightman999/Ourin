@@ -1,0 +1,1 @@
+\0旧仕様タグのサンプルです。選択肢を出します。\n\q[OnScriptBridgeYes][はい]\q[OnScriptBridgeNo][いいえ]\z

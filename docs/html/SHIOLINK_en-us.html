@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHIOLINK external process transport</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "游ゴシック", YuGothic, "メイリオ", Meiryo, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            text-align: right;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .lang-switcher a {
+            margin: 0 5px;
+            padding: 5px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+        .lang-switcher a:hover {
+            background-color: #e0e0e0;
+        }
+        .lang-switcher a.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        h1 {
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #666;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #444;
+        }
+        h3 {
+            margin-top: 25px;
+            color: #555;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #333;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 20px;
+            margin-left: 0;
+            color: #666;
+            font-style: italic;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="lang-switcher">
+            <a href="SHIOLINK_ja-jp.html" class="">日本語</a> | <a href="SHIOLINK_en-us.html" class="active">English</a>
+        </div>
+        <div class="back-link">
+            <a href="index.html">← Back to Index</a>
+        </div>
+        <h1 id="shiolink-external-process-transport">SHIOLINK external process transport</h1>
+<p><a href="SHIOLINK_ja-jp.html">日本語</a> · Updated: 2026-10-25</p>
+<p>The Ourin development build routes <code>shiori,SHIOLINK.dll</code> to an external SHIOLINK process. It does not load a Windows DLL. Supply a macOS runtime such as Node.js or Ruby and a SHIOLINK-speaking engine separately. This does not guarantee compatibility with every MiyoJS dictionary.</p>
+<h2 id="configuration">Configuration</h2>
+<p>Ourin first reads <code>SHIOLINK.ourin.ini</code> beside the declared DLL (normally <code>ghost/master</code>), then <code>SHIOLINK.INI</code> only if the first file is absent. Filenames and keys are case-insensitive. Configuration is limited to 64 KiB, encoded as UTF-8 or Shift_JIS. An invalid preferred file does not trigger fallback.</p>
+<p>The Ourin format separates the executable from its arguments:</p>
+<pre class="codehilite"><code class="language-ini">[SHIOLINK]
+executable=/opt/homebrew/bin/node
+arguments=[&quot;./node_modules/miyojs/bin/miyo-shiolink.js&quot;, &quot;./dic&quot;]
+charmode=UTF-8
+</code></pre>
+
+<p><code>arguments</code> is a JSON string array. Adjust the Node path, script and dictionary directory to your installation. Ourin does not install runtimes or npm packages automatically.</p>
+<p>The shared <code>commandline</code> format also accepts quoted arguments:</p>
+<pre class="codehilite"><code class="language-ini">[SHIOLINK]
+commandline=/opt/homebrew/bin/node &quot;./engine/main.js&quot;
+charmode=UTF-8
+</code></pre>
+
+<p>Execution uses <code>Process.executableURL</code> and <code>arguments</code>, without an implicit shell. Nested/escaped quotes, variable expansion, pipes and redirection are unsupported. Use the JSON format for complex arguments. Windows executable names (<code>.exe</code>, <code>.cmd</code>, etc.) are rejected. Relative paths and the working directory are based on the DLL directory. Bare executable names are searched there, then in <code>/opt/homebrew/bin</code>, <code>/usr/local/bin</code>, <code>/usr/bin</code> and <code>/bin</code>.</p>
+<p>The child inherits Ourin's execution privileges. This transport adds no separate sandbox or automatic SAORI forwarding.</p>
+<h2 id="communication-and-failure-handling">Communication and failure handling</h2>
+<ul>
+<li>Ourin sends <code>*L:directory</code>, followed by a <code>version</code> request and waits for its response. SHIOLINK has no dedicated load acknowledgment; this verifies communication, not the validity of every dictionary.</li>
+<li>Each request checks a unique <code>*S:identifier</code> echo before sending the SHIORI message. GET and NOTIFY use the same transport.</li>
+<li>After <code>*U:</code>, Ourin waits briefly for clean exit, then sends TERM and KILL if necessary and reaps its direct child.</li>
+<li>Initialization defaults to five seconds. Requests use the caller's timeout, capped at 60 seconds. A single deadline covers writes, synchronization and reads. Invalid echo, EOF, malformed response, timeout, or a request/response over 1 MiB closes the session. There is no automatic restart; reloading the ghost reconnects.</li>
+<li><code>charmode</code> supports UTF-8 (default) and Shift_JIS. UTF-16/32 cannot use the byte-oriented line framing and are rejected. Unencodable outgoing characters fail the operation. stderr is discarded rather than accumulated.</li>
+</ul>
+<p>SHIORIPROXY, Rishu's dedicated proxy protocol and Windows DLL execution are outside this feature. Engines remain responsible for descendant processes they launch.</p>
+<h2 id="validation">Validation</h2>
+<p><code>ShiolinkTests</code> launches a real C fixture to check Unicode round trips, GET/NOTIFY, the load directory, unload, synchronization errors, hangs, excessive output, EOF, child cleanup and configuration precedence. Compatibility testing with real MiyoJS ghosts remains separate.</p>
+<h2 id="primary-references">Primary references</h2>
+<ul>
+<li><a href="https://github.com/Narazaka/shiolinkjs/blob/master/lib/shiolink.ts">ShiolinkJS transport</a></li>
+<li><a href="https://github.com/Narazaka/shiolinkjs/blob/master/Readme.md">ShiolinkJS usage</a></li>
+<li><a href="https://github.com/Narazaka/sana/blob/master/README.md">Sana SHIOLINK.INI example</a></li>
+</ul>
+        <div class="footer">
+            <p>Generated: 2026-10-25 | <a href="../SHIOLINK_en-us.md">Source (MD)</a></p>
+        </div>
+    </div>
+</body>
+</html>

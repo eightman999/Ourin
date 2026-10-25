@@ -1,0 +1,489 @@
+# AO の祝日（2020〜2050年、言語: pt_AO）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Dia do Ano Novo
+2020/2/3,Dia do Início da Luta Armada de Libertação Nacional (ponte)
+2020/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2020/2/24,Dia do Carnaval (ponte)
+2020/2/25,Dia do Carnaval
+2020/3/8,Dia Internacional da Mulher
+2020/3/23,Dia da Libertação da África Austral
+2020/4/4,Dia da Paz e Reconciliação Nacional
+2020/4/10,Sexta-Feira Santa
+2020/5/1,Dia Internacional do Trabalhador
+2020/9/17,Dia do Fundador da Nação e do Herói Nacional
+2020/9/18,Dia do Fundador da Nação e do Herói Nacional (ponte)
+2020/11/2,Dia dos Finados
+2020/11/11,Dia da Independência Nacional
+2020/12/25,Dia de Natal e da Família
+2021/1/1,Dia do Ano Novo
+2021/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2021/2/5,Dia do Início da Luta Armada de Libertação Nacional (ponte)
+2021/2/15,Dia do Carnaval (ponte)
+2021/2/16,Dia do Carnaval
+2021/3/8,Dia Internacional da Mulher
+2021/3/22,Dia da Libertação da África Austral (ponte)
+2021/3/23,Dia da Libertação da África Austral
+2021/4/2,Sexta-Feira Santa
+2021/4/4,Dia da Paz e Reconciliação Nacional
+2021/5/1,Dia Internacional do Trabalhador
+2021/9/17,Dia do Fundador da Nação e do Herói Nacional
+2021/11/1,Dia dos Finados (ponte)
+2021/11/2,Dia dos Finados
+2021/11/11,Dia da Independência Nacional
+2021/11/12,Dia da Independência Nacional (ponte)
+2021/12/25,Dia de Natal e da Família
+2022/1/1,Dia do Ano Novo
+2022/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2022/2/28,Dia do Carnaval (ponte)
+2022/3/1,Dia do Carnaval
+2022/3/7,Dia Internacional da Mulher (ponte)
+2022/3/8,Dia Internacional da Mulher
+2022/3/23,Dia da Libertação da África Austral
+2022/4/4,Dia da Paz e Reconciliação Nacional
+2022/4/15,Sexta-Feira Santa
+2022/5/1,Dia Internacional do Trabalhador
+2022/9/17,Dia do Fundador da Nação e do Herói Nacional
+2022/11/2,Dia dos Finados
+2022/11/11,Dia da Independência Nacional
+2022/12/25,Dia de Natal e da Família
+2023/1/1,Dia do Ano Novo
+2023/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2023/2/20,Dia do Carnaval (ponte)
+2023/2/21,Dia do Carnaval
+2023/3/8,Dia Internacional da Mulher
+2023/3/23,Dia da Libertação da África Austral
+2023/3/24,Dia da Libertação da África Austral (ponte)
+2023/4/3,Dia da Paz e Reconciliação Nacional (ponte)
+2023/4/4,Dia da Paz e Reconciliação Nacional
+2023/4/7,Sexta-Feira Santa
+2023/5/1,Dia Internacional do Trabalhador
+2023/9/17,Dia do Fundador da Nação e do Herói Nacional
+2023/11/2,Dia dos Finados
+2023/11/3,Dia dos Finados (ponte)
+2023/11/11,Dia da Independência Nacional
+2023/12/25,Dia de Natal e da Família
+2024/1/1,Dia do Ano Novo
+2024/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2024/2/12,Dia do Carnaval (ponte)
+2024/2/13,Dia do Carnaval
+2024/3/8,Dia Internacional da Mulher
+2024/3/23,Dia da Libertação da África Austral
+2024/3/29,Sexta-Feira Santa
+2024/4/4,Dia da Paz e Reconciliação Nacional
+2024/4/5,Dia da Paz e Reconciliação Nacional (ponte)
+2024/5/1,Dia Internacional do Trabalhador
+2024/9/16,Dia do Fundador da Nação e do Herói Nacional (ponte)
+2024/9/17,Dia do Fundador da Nação e do Herói Nacional
+2024/11/2,Dia dos Finados
+2024/11/11,Dia da Independência Nacional
+2024/12/25,Dia de Natal e da Família
+2025/1/1,Dia do Ano Novo
+2025/2/3,Dia do Início da Luta Armada de Libertação Nacional (ponte)
+2025/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2025/3/3,Dia do Carnaval (ponte)
+2025/3/4,Dia do Carnaval
+2025/3/8,Dia Internacional da Mulher
+2025/3/23,Dia da Libertação da África Austral
+2025/4/4,Dia da Paz e Reconciliação Nacional
+2025/4/18,Sexta-Feira Santa
+2025/5/1,Dia Internacional do Trabalhador
+2025/5/2,Dia Internacional do Trabalhador (ponte)
+2025/9/17,Dia do Fundador da Nação e do Herói Nacional
+2025/11/2,Dia dos Finados
+2025/11/10,Dia da Independência Nacional (ponte)
+2025/11/11,Dia da Independência Nacional
+2025/12/25,Dia de Natal e da Família
+2025/12/26,Dia de Natal e da Família (ponte)
+2026/1/1,Dia do Ano Novo
+2026/1/2,Dia do Ano Novo (ponte)
+2026/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2026/2/16,Dia do Carnaval (ponte)
+2026/2/17,Dia do Carnaval
+2026/3/8,Dia Internacional da Mulher
+2026/3/23,Dia da Libertação da África Austral
+2026/4/3,Sexta-Feira Santa
+2026/4/4,Dia da Paz e Reconciliação Nacional
+2026/5/1,Dia Internacional do Trabalhador
+2026/9/17,Dia do Fundador da Nação e do Herói Nacional
+2026/9/18,Dia do Fundador da Nação e do Herói Nacional (ponte)
+2026/11/2,Dia dos Finados
+2026/11/11,Dia da Independência Nacional
+2026/12/25,Dia de Natal e da Família
+2027/1/1,Dia do Ano Novo
+2027/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2027/2/5,Dia do Início da Luta Armada de Libertação Nacional (ponte)
+2027/2/8,Dia do Carnaval (ponte)
+2027/2/9,Dia do Carnaval
+2027/3/8,Dia Internacional da Mulher
+2027/3/22,Dia da Libertação da África Austral (ponte)
+2027/3/23,Dia da Libertação da África Austral
+2027/3/26,Sexta-Feira Santa
+2027/4/4,Dia da Paz e Reconciliação Nacional
+2027/5/1,Dia Internacional do Trabalhador
+2027/9/17,Dia do Fundador da Nação e do Herói Nacional
+2027/11/1,Dia dos Finados (ponte)
+2027/11/2,Dia dos Finados
+2027/11/11,Dia da Independência Nacional
+2027/11/12,Dia da Independência Nacional (ponte)
+2027/12/25,Dia de Natal e da Família
+2028/1/1,Dia do Ano Novo
+2028/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2028/2/28,Dia do Carnaval (ponte)
+2028/2/29,Dia do Carnaval
+2028/3/8,Dia Internacional da Mulher
+2028/3/23,Dia da Libertação da África Austral
+2028/3/24,Dia da Libertação da África Austral (ponte)
+2028/4/3,Dia da Paz e Reconciliação Nacional (ponte)
+2028/4/4,Dia da Paz e Reconciliação Nacional
+2028/4/14,Sexta-Feira Santa
+2028/5/1,Dia Internacional do Trabalhador
+2028/9/17,Dia do Fundador da Nação e do Herói Nacional
+2028/11/2,Dia dos Finados
+2028/11/3,Dia dos Finados (ponte)
+2028/11/11,Dia da Independência Nacional
+2028/12/25,Dia de Natal e da Família
+2029/1/1,Dia do Ano Novo
+2029/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2029/2/12,Dia do Carnaval (ponte)
+2029/2/13,Dia do Carnaval
+2029/3/8,Dia Internacional da Mulher
+2029/3/9,Dia Internacional da Mulher (ponte)
+2029/3/23,Dia da Libertação da África Austral
+2029/3/30,Sexta-Feira Santa
+2029/4/4,Dia da Paz e Reconciliação Nacional
+2029/4/30,Dia Internacional do Trabalhador (ponte)
+2029/5/1,Dia Internacional do Trabalhador
+2029/9/17,Dia do Fundador da Nação e do Herói Nacional
+2029/11/2,Dia dos Finados
+2029/11/11,Dia da Independência Nacional
+2029/12/24,Dia de Natal e da Família (ponte)
+2029/12/25,Dia de Natal e da Família
+2029/12/31,Dia do Ano Novo (ponte)
+2030/1/1,Dia do Ano Novo
+2030/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2030/3/4,Dia do Carnaval (ponte)
+2030/3/5,Dia do Carnaval
+2030/3/8,Dia Internacional da Mulher
+2030/3/23,Dia da Libertação da África Austral
+2030/4/4,Dia da Paz e Reconciliação Nacional
+2030/4/5,Dia da Paz e Reconciliação Nacional (ponte)
+2030/4/19,Sexta-Feira Santa
+2030/5/1,Dia Internacional do Trabalhador
+2030/9/16,Dia do Fundador da Nação e do Herói Nacional (ponte)
+2030/9/17,Dia do Fundador da Nação e do Herói Nacional
+2030/11/2,Dia dos Finados
+2030/11/11,Dia da Independência Nacional
+2030/12/25,Dia de Natal e da Família
+2031/1/1,Dia do Ano Novo
+2031/2/3,Dia do Início da Luta Armada de Libertação Nacional (ponte)
+2031/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2031/2/24,Dia do Carnaval (ponte)
+2031/2/25,Dia do Carnaval
+2031/3/8,Dia Internacional da Mulher
+2031/3/23,Dia da Libertação da África Austral
+2031/4/4,Dia da Paz e Reconciliação Nacional
+2031/4/11,Sexta-Feira Santa
+2031/5/1,Dia Internacional do Trabalhador
+2031/5/2,Dia Internacional do Trabalhador (ponte)
+2031/9/17,Dia do Fundador da Nação e do Herói Nacional
+2031/11/2,Dia dos Finados
+2031/11/10,Dia da Independência Nacional (ponte)
+2031/11/11,Dia da Independência Nacional
+2031/12/25,Dia de Natal e da Família
+2031/12/26,Dia de Natal e da Família (ponte)
+2032/1/1,Dia do Ano Novo
+2032/1/2,Dia do Ano Novo (ponte)
+2032/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2032/2/9,Dia do Carnaval (ponte)
+2032/2/10,Dia do Carnaval
+2032/3/8,Dia Internacional da Mulher
+2032/3/22,Dia da Libertação da África Austral (ponte)
+2032/3/23,Dia da Libertação da África Austral
+2032/3/26,Sexta-Feira Santa
+2032/4/4,Dia da Paz e Reconciliação Nacional
+2032/5/1,Dia Internacional do Trabalhador
+2032/9/17,Dia do Fundador da Nação e do Herói Nacional
+2032/11/1,Dia dos Finados (ponte)
+2032/11/2,Dia dos Finados
+2032/11/11,Dia da Independência Nacional
+2032/11/12,Dia da Independência Nacional (ponte)
+2032/12/25,Dia de Natal e da Família
+2033/1/1,Dia do Ano Novo
+2033/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2033/2/28,Dia do Carnaval (ponte)
+2033/3/1,Dia do Carnaval
+2033/3/7,Dia Internacional da Mulher (ponte)
+2033/3/8,Dia Internacional da Mulher
+2033/3/23,Dia da Libertação da África Austral
+2033/4/4,Dia da Paz e Reconciliação Nacional
+2033/4/15,Sexta-Feira Santa
+2033/5/1,Dia Internacional do Trabalhador
+2033/9/17,Dia do Fundador da Nação e do Herói Nacional
+2033/11/2,Dia dos Finados
+2033/11/11,Dia da Independência Nacional
+2033/12/25,Dia de Natal e da Família
+2034/1/1,Dia do Ano Novo
+2034/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2034/2/20,Dia do Carnaval (ponte)
+2034/2/21,Dia do Carnaval
+2034/3/8,Dia Internacional da Mulher
+2034/3/23,Dia da Libertação da África Austral
+2034/3/24,Dia da Libertação da África Austral (ponte)
+2034/4/3,Dia da Paz e Reconciliação Nacional (ponte)
+2034/4/4,Dia da Paz e Reconciliação Nacional
+2034/4/7,Sexta-Feira Santa
+2034/5/1,Dia Internacional do Trabalhador
+2034/9/17,Dia do Fundador da Nação e do Herói Nacional
+2034/11/2,Dia dos Finados
+2034/11/3,Dia dos Finados (ponte)
+2034/11/11,Dia da Independência Nacional
+2034/12/25,Dia de Natal e da Família
+2035/1/1,Dia do Ano Novo
+2035/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2035/2/5,Dia do Carnaval (ponte)
+2035/2/6,Dia do Carnaval
+2035/3/8,Dia Internacional da Mulher
+2035/3/9,Dia Internacional da Mulher (ponte)
+2035/3/23,Dia da Libertação da África Austral; Sexta-Feira Santa
+2035/4/4,Dia da Paz e Reconciliação Nacional
+2035/4/30,Dia Internacional do Trabalhador (ponte)
+2035/5/1,Dia Internacional do Trabalhador
+2035/9/17,Dia do Fundador da Nação e do Herói Nacional
+2035/11/2,Dia dos Finados
+2035/11/11,Dia da Independência Nacional
+2035/12/24,Dia de Natal e da Família (ponte)
+2035/12/25,Dia de Natal e da Família
+2035/12/31,Dia do Ano Novo (ponte)
+2036/1/1,Dia do Ano Novo
+2036/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2036/2/25,Dia do Carnaval (ponte)
+2036/2/26,Dia do Carnaval
+2036/3/8,Dia Internacional da Mulher
+2036/3/23,Dia da Libertação da África Austral
+2036/4/4,Dia da Paz e Reconciliação Nacional
+2036/4/11,Sexta-Feira Santa
+2036/5/1,Dia Internacional do Trabalhador
+2036/5/2,Dia Internacional do Trabalhador (ponte)
+2036/9/17,Dia do Fundador da Nação e do Herói Nacional
+2036/11/2,Dia dos Finados
+2036/11/10,Dia da Independência Nacional (ponte)
+2036/11/11,Dia da Independência Nacional
+2036/12/25,Dia de Natal e da Família
+2036/12/26,Dia de Natal e da Família (ponte)
+2037/1/1,Dia do Ano Novo
+2037/1/2,Dia do Ano Novo (ponte)
+2037/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2037/2/16,Dia do Carnaval (ponte)
+2037/2/17,Dia do Carnaval
+2037/3/8,Dia Internacional da Mulher
+2037/3/23,Dia da Libertação da África Austral
+2037/4/3,Sexta-Feira Santa
+2037/4/4,Dia da Paz e Reconciliação Nacional
+2037/5/1,Dia Internacional do Trabalhador
+2037/9/17,Dia do Fundador da Nação e do Herói Nacional
+2037/9/18,Dia do Fundador da Nação e do Herói Nacional (ponte)
+2037/11/2,Dia dos Finados
+2037/11/11,Dia da Independência Nacional
+2037/12/25,Dia de Natal e da Família
+2038/1/1,Dia do Ano Novo
+2038/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2038/2/5,Dia do Início da Luta Armada de Libertação Nacional (ponte)
+2038/3/8,Dia Internacional da Mulher; Dia do Carnaval (ponte)
+2038/3/9,Dia do Carnaval
+2038/3/22,Dia da Libertação da África Austral (ponte)
+2038/3/23,Dia da Libertação da África Austral
+2038/4/4,Dia da Paz e Reconciliação Nacional
+2038/4/23,Sexta-Feira Santa
+2038/5/1,Dia Internacional do Trabalhador
+2038/9/17,Dia do Fundador da Nação e do Herói Nacional
+2038/11/1,Dia dos Finados (ponte)
+2038/11/2,Dia dos Finados
+2038/11/11,Dia da Independência Nacional
+2038/11/12,Dia da Independência Nacional (ponte)
+2038/12/25,Dia de Natal e da Família
+2039/1/1,Dia do Ano Novo
+2039/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2039/2/21,Dia do Carnaval (ponte)
+2039/2/22,Dia do Carnaval
+2039/3/7,Dia Internacional da Mulher (ponte)
+2039/3/8,Dia Internacional da Mulher
+2039/3/23,Dia da Libertação da África Austral
+2039/4/4,Dia da Paz e Reconciliação Nacional
+2039/4/8,Sexta-Feira Santa
+2039/5/1,Dia Internacional do Trabalhador
+2039/9/17,Dia do Fundador da Nação e do Herói Nacional
+2039/11/2,Dia dos Finados
+2039/11/11,Dia da Independência Nacional
+2039/12/25,Dia de Natal e da Família
+2040/1/1,Dia do Ano Novo
+2040/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2040/2/13,Dia do Carnaval (ponte)
+2040/2/14,Dia do Carnaval
+2040/3/8,Dia Internacional da Mulher
+2040/3/9,Dia Internacional da Mulher (ponte)
+2040/3/23,Dia da Libertação da África Austral
+2040/3/30,Sexta-Feira Santa
+2040/4/4,Dia da Paz e Reconciliação Nacional
+2040/4/30,Dia Internacional do Trabalhador (ponte)
+2040/5/1,Dia Internacional do Trabalhador
+2040/9/17,Dia do Fundador da Nação e do Herói Nacional
+2040/11/2,Dia dos Finados
+2040/11/11,Dia da Independência Nacional
+2040/12/24,Dia de Natal e da Família (ponte)
+2040/12/25,Dia de Natal e da Família
+2040/12/31,Dia do Ano Novo (ponte)
+2041/1/1,Dia do Ano Novo
+2041/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2041/3/4,Dia do Carnaval (ponte)
+2041/3/5,Dia do Carnaval
+2041/3/8,Dia Internacional da Mulher
+2041/3/23,Dia da Libertação da África Austral
+2041/4/4,Dia da Paz e Reconciliação Nacional
+2041/4/5,Dia da Paz e Reconciliação Nacional (ponte)
+2041/4/19,Sexta-Feira Santa
+2041/5/1,Dia Internacional do Trabalhador
+2041/9/16,Dia do Fundador da Nação e do Herói Nacional (ponte)
+2041/9/17,Dia do Fundador da Nação e do Herói Nacional
+2041/11/2,Dia dos Finados
+2041/11/11,Dia da Independência Nacional
+2041/12/25,Dia de Natal e da Família
+2042/1/1,Dia do Ano Novo
+2042/2/3,Dia do Início da Luta Armada de Libertação Nacional (ponte)
+2042/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2042/2/17,Dia do Carnaval (ponte)
+2042/2/18,Dia do Carnaval
+2042/3/8,Dia Internacional da Mulher
+2042/3/23,Dia da Libertação da África Austral
+2042/4/4,Dia da Paz e Reconciliação Nacional; Sexta-Feira Santa
+2042/5/1,Dia Internacional do Trabalhador
+2042/5/2,Dia Internacional do Trabalhador (ponte)
+2042/9/17,Dia do Fundador da Nação e do Herói Nacional
+2042/11/2,Dia dos Finados
+2042/11/10,Dia da Independência Nacional (ponte)
+2042/11/11,Dia da Independência Nacional
+2042/12/25,Dia de Natal e da Família
+2042/12/26,Dia de Natal e da Família (ponte)
+2043/1/1,Dia do Ano Novo
+2043/1/2,Dia do Ano Novo (ponte)
+2043/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2043/2/9,Dia do Carnaval (ponte)
+2043/2/10,Dia do Carnaval
+2043/3/8,Dia Internacional da Mulher
+2043/3/23,Dia da Libertação da África Austral
+2043/3/27,Sexta-Feira Santa
+2043/4/4,Dia da Paz e Reconciliação Nacional
+2043/5/1,Dia Internacional do Trabalhador
+2043/9/17,Dia do Fundador da Nação e do Herói Nacional
+2043/9/18,Dia do Fundador da Nação e do Herói Nacional (ponte)
+2043/11/2,Dia dos Finados
+2043/11/11,Dia da Independência Nacional
+2043/12/25,Dia de Natal e da Família
+2044/1/1,Dia do Ano Novo
+2044/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2044/2/5,Dia do Início da Luta Armada de Libertação Nacional (ponte)
+2044/2/29,Dia do Carnaval (ponte)
+2044/3/1,Dia do Carnaval
+2044/3/7,Dia Internacional da Mulher (ponte)
+2044/3/8,Dia Internacional da Mulher
+2044/3/23,Dia da Libertação da África Austral
+2044/4/4,Dia da Paz e Reconciliação Nacional
+2044/4/15,Sexta-Feira Santa
+2044/5/1,Dia Internacional do Trabalhador
+2044/9/17,Dia do Fundador da Nação e do Herói Nacional
+2044/11/2,Dia dos Finados
+2044/11/11,Dia da Independência Nacional
+2044/12/25,Dia de Natal e da Família
+2045/1/1,Dia do Ano Novo
+2045/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2045/2/20,Dia do Carnaval (ponte)
+2045/2/21,Dia do Carnaval
+2045/3/8,Dia Internacional da Mulher
+2045/3/23,Dia da Libertação da África Austral
+2045/3/24,Dia da Libertação da África Austral (ponte)
+2045/4/3,Dia da Paz e Reconciliação Nacional (ponte)
+2045/4/4,Dia da Paz e Reconciliação Nacional
+2045/4/7,Sexta-Feira Santa
+2045/5/1,Dia Internacional do Trabalhador
+2045/9/17,Dia do Fundador da Nação e do Herói Nacional
+2045/11/2,Dia dos Finados
+2045/11/3,Dia dos Finados (ponte)
+2045/11/11,Dia da Independência Nacional
+2045/12/25,Dia de Natal e da Família
+2046/1/1,Dia do Ano Novo
+2046/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2046/2/5,Dia do Carnaval (ponte)
+2046/2/6,Dia do Carnaval
+2046/3/8,Dia Internacional da Mulher
+2046/3/9,Dia Internacional da Mulher (ponte)
+2046/3/23,Dia da Libertação da África Austral; Sexta-Feira Santa
+2046/4/4,Dia da Paz e Reconciliação Nacional
+2046/4/30,Dia Internacional do Trabalhador (ponte)
+2046/5/1,Dia Internacional do Trabalhador
+2046/9/17,Dia do Fundador da Nação e do Herói Nacional
+2046/11/2,Dia dos Finados
+2046/11/11,Dia da Independência Nacional
+2046/12/24,Dia de Natal e da Família (ponte)
+2046/12/25,Dia de Natal e da Família
+2046/12/31,Dia do Ano Novo (ponte)
+2047/1/1,Dia do Ano Novo
+2047/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2047/2/25,Dia do Carnaval (ponte)
+2047/2/26,Dia do Carnaval
+2047/3/8,Dia Internacional da Mulher
+2047/3/23,Dia da Libertação da África Austral
+2047/4/4,Dia da Paz e Reconciliação Nacional
+2047/4/5,Dia da Paz e Reconciliação Nacional (ponte)
+2047/4/12,Sexta-Feira Santa
+2047/5/1,Dia Internacional do Trabalhador
+2047/9/16,Dia do Fundador da Nação e do Herói Nacional (ponte)
+2047/9/17,Dia do Fundador da Nação e do Herói Nacional
+2047/11/2,Dia dos Finados
+2047/11/11,Dia da Independência Nacional
+2047/12/25,Dia de Natal e da Família
+2048/1/1,Dia do Ano Novo
+2048/2/3,Dia do Início da Luta Armada de Libertação Nacional (ponte)
+2048/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2048/2/17,Dia do Carnaval (ponte)
+2048/2/18,Dia do Carnaval
+2048/3/8,Dia Internacional da Mulher
+2048/3/23,Dia da Libertação da África Austral
+2048/4/3,Sexta-Feira Santa
+2048/4/4,Dia da Paz e Reconciliação Nacional
+2048/5/1,Dia Internacional do Trabalhador
+2048/9/17,Dia do Fundador da Nação e do Herói Nacional
+2048/9/18,Dia do Fundador da Nação e do Herói Nacional (ponte)
+2048/11/2,Dia dos Finados
+2048/11/11,Dia da Independência Nacional
+2048/12/25,Dia de Natal e da Família
+2049/1/1,Dia do Ano Novo
+2049/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2049/2/5,Dia do Início da Luta Armada de Libertação Nacional (ponte)
+2049/3/1,Dia do Carnaval (ponte)
+2049/3/2,Dia do Carnaval
+2049/3/8,Dia Internacional da Mulher
+2049/3/22,Dia da Libertação da África Austral (ponte)
+2049/3/23,Dia da Libertação da África Austral
+2049/4/4,Dia da Paz e Reconciliação Nacional
+2049/4/16,Sexta-Feira Santa
+2049/5/1,Dia Internacional do Trabalhador
+2049/9/17,Dia do Fundador da Nação e do Herói Nacional
+2049/11/1,Dia dos Finados (ponte)
+2049/11/2,Dia dos Finados
+2049/11/11,Dia da Independência Nacional
+2049/11/12,Dia da Independência Nacional (ponte)
+2049/12/25,Dia de Natal e da Família
+2050/1/1,Dia do Ano Novo
+2050/2/4,Dia do Início da Luta Armada de Libertação Nacional
+2050/2/21,Dia do Carnaval (ponte)
+2050/2/22,Dia do Carnaval
+2050/3/7,Dia Internacional da Mulher (ponte)
+2050/3/8,Dia Internacional da Mulher
+2050/3/23,Dia da Libertação da África Austral
+2050/4/4,Dia da Paz e Reconciliação Nacional
+2050/4/8,Sexta-Feira Santa
+2050/5/1,Dia Internacional do Trabalhador
+2050/9/17,Dia do Fundador da Nação e do Herói Nacional
+2050/11/2,Dia dos Finados
+2050/11/11,Dia da Independência Nacional
+2050/12/25,Dia de Natal e da Família

@@ -1,0 +1,413 @@
+# SK の祝日（2020〜2050年、言語: sk）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Deň vzniku Slovenskej republiky
+2020/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2020/4/10,Veľký piatok
+2020/4/13,Veľkonočný pondelok
+2020/5/1,Sviatok práce
+2020/5/8,Deň víťazstva nad fašizmom
+2020/7/5,Sviatok svätého Cyrila a svätého Metoda
+2020/8/29,Výročie Slovenského národného povstania
+2020/9/1,Deň Ústavy Slovenskej republiky
+2020/9/15,Sedembolestná Panna Mária
+2020/11/1,Sviatok Všetkých svätých
+2020/11/17,Deň boja za slobodu a demokraciu
+2020/12/24,Štedrý deň
+2020/12/25,Prvý sviatok vianočný
+2020/12/26,Druhý sviatok vianočný
+2021/1/1,Deň vzniku Slovenskej republiky
+2021/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2021/4/2,Veľký piatok
+2021/4/5,Veľkonočný pondelok
+2021/5/1,Sviatok práce
+2021/5/8,Deň víťazstva nad fašizmom
+2021/7/5,Sviatok svätého Cyrila a svätého Metoda
+2021/8/29,Výročie Slovenského národného povstania
+2021/9/1,Deň Ústavy Slovenskej republiky
+2021/9/15,Sedembolestná Panna Mária
+2021/11/1,Sviatok Všetkých svätých
+2021/11/17,Deň boja za slobodu a demokraciu
+2021/12/24,Štedrý deň
+2021/12/25,Prvý sviatok vianočný
+2021/12/26,Druhý sviatok vianočný
+2022/1/1,Deň vzniku Slovenskej republiky
+2022/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2022/4/15,Veľký piatok
+2022/4/18,Veľkonočný pondelok
+2022/5/1,Sviatok práce
+2022/5/8,Deň víťazstva nad fašizmom
+2022/7/5,Sviatok svätého Cyrila a svätého Metoda
+2022/8/29,Výročie Slovenského národného povstania
+2022/9/1,Deň Ústavy Slovenskej republiky
+2022/9/15,Sedembolestná Panna Mária
+2022/11/1,Sviatok Všetkých svätých
+2022/11/17,Deň boja za slobodu a demokraciu
+2022/12/24,Štedrý deň
+2022/12/25,Prvý sviatok vianočný
+2022/12/26,Druhý sviatok vianočný
+2023/1/1,Deň vzniku Slovenskej republiky
+2023/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2023/4/7,Veľký piatok
+2023/4/10,Veľkonočný pondelok
+2023/5/1,Sviatok práce
+2023/5/8,Deň víťazstva nad fašizmom
+2023/7/5,Sviatok svätého Cyrila a svätého Metoda
+2023/8/29,Výročie Slovenského národného povstania
+2023/9/1,Deň Ústavy Slovenskej republiky
+2023/9/15,Sedembolestná Panna Mária
+2023/11/1,Sviatok Všetkých svätých
+2023/11/17,Deň boja za slobodu a demokraciu
+2023/12/24,Štedrý deň
+2023/12/25,Prvý sviatok vianočný
+2023/12/26,Druhý sviatok vianočný
+2024/1/1,Deň vzniku Slovenskej republiky
+2024/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2024/3/29,Veľký piatok
+2024/4/1,Veľkonočný pondelok
+2024/5/1,Sviatok práce
+2024/5/8,Deň víťazstva nad fašizmom
+2024/7/5,Sviatok svätého Cyrila a svätého Metoda
+2024/8/29,Výročie Slovenského národného povstania
+2024/9/15,Sedembolestná Panna Mária
+2024/11/1,Sviatok Všetkých svätých
+2024/11/17,Deň boja za slobodu a demokraciu
+2024/12/24,Štedrý deň
+2024/12/25,Prvý sviatok vianočný
+2024/12/26,Druhý sviatok vianočný
+2025/1/1,Deň vzniku Slovenskej republiky
+2025/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2025/4/18,Veľký piatok
+2025/4/21,Veľkonočný pondelok
+2025/5/1,Sviatok práce
+2025/5/8,Deň víťazstva nad fašizmom
+2025/7/5,Sviatok svätého Cyrila a svätého Metoda
+2025/8/29,Výročie Slovenského národného povstania
+2025/9/15,Sedembolestná Panna Mária
+2025/11/1,Sviatok Všetkých svätých
+2025/12/24,Štedrý deň
+2025/12/25,Prvý sviatok vianočný
+2025/12/26,Druhý sviatok vianočný
+2026/1/1,Deň vzniku Slovenskej republiky
+2026/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2026/4/3,Veľký piatok
+2026/4/6,Veľkonočný pondelok
+2026/5/1,Sviatok práce
+2026/7/5,Sviatok svätého Cyrila a svätého Metoda
+2026/8/29,Výročie Slovenského národného povstania
+2026/11/1,Sviatok Všetkých svätých
+2026/12/24,Štedrý deň
+2026/12/25,Prvý sviatok vianočný
+2026/12/26,Druhý sviatok vianočný
+2027/1/1,Deň vzniku Slovenskej republiky
+2027/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2027/3/26,Veľký piatok
+2027/3/29,Veľkonočný pondelok
+2027/5/1,Sviatok práce
+2027/5/8,Deň víťazstva nad fašizmom
+2027/7/5,Sviatok svätého Cyrila a svätého Metoda
+2027/8/29,Výročie Slovenského národného povstania
+2027/9/15,Sedembolestná Panna Mária
+2027/11/1,Sviatok Všetkých svätých
+2027/12/24,Štedrý deň
+2027/12/25,Prvý sviatok vianočný
+2027/12/26,Druhý sviatok vianočný
+2028/1/1,Deň vzniku Slovenskej republiky
+2028/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2028/4/14,Veľký piatok
+2028/4/17,Veľkonočný pondelok
+2028/5/1,Sviatok práce
+2028/5/8,Deň víťazstva nad fašizmom
+2028/7/5,Sviatok svätého Cyrila a svätého Metoda
+2028/8/29,Výročie Slovenského národného povstania
+2028/9/15,Sedembolestná Panna Mária
+2028/11/1,Sviatok Všetkých svätých
+2028/12/24,Štedrý deň
+2028/12/25,Prvý sviatok vianočný
+2028/12/26,Druhý sviatok vianočný
+2029/1/1,Deň vzniku Slovenskej republiky
+2029/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2029/3/30,Veľký piatok
+2029/4/2,Veľkonočný pondelok
+2029/5/1,Sviatok práce
+2029/5/8,Deň víťazstva nad fašizmom
+2029/7/5,Sviatok svätého Cyrila a svätého Metoda
+2029/8/29,Výročie Slovenského národného povstania
+2029/9/15,Sedembolestná Panna Mária
+2029/11/1,Sviatok Všetkých svätých
+2029/12/24,Štedrý deň
+2029/12/25,Prvý sviatok vianočný
+2029/12/26,Druhý sviatok vianočný
+2030/1/1,Deň vzniku Slovenskej republiky
+2030/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2030/4/19,Veľký piatok
+2030/4/22,Veľkonočný pondelok
+2030/5/1,Sviatok práce
+2030/5/8,Deň víťazstva nad fašizmom
+2030/7/5,Sviatok svätého Cyrila a svätého Metoda
+2030/8/29,Výročie Slovenského národného povstania
+2030/9/15,Sedembolestná Panna Mária
+2030/11/1,Sviatok Všetkých svätých
+2030/12/24,Štedrý deň
+2030/12/25,Prvý sviatok vianočný
+2030/12/26,Druhý sviatok vianočný
+2031/1/1,Deň vzniku Slovenskej republiky
+2031/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2031/4/11,Veľký piatok
+2031/4/14,Veľkonočný pondelok
+2031/5/1,Sviatok práce
+2031/5/8,Deň víťazstva nad fašizmom
+2031/7/5,Sviatok svätého Cyrila a svätého Metoda
+2031/8/29,Výročie Slovenského národného povstania
+2031/9/15,Sedembolestná Panna Mária
+2031/11/1,Sviatok Všetkých svätých
+2031/12/24,Štedrý deň
+2031/12/25,Prvý sviatok vianočný
+2031/12/26,Druhý sviatok vianočný
+2032/1/1,Deň vzniku Slovenskej republiky
+2032/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2032/3/26,Veľký piatok
+2032/3/29,Veľkonočný pondelok
+2032/5/1,Sviatok práce
+2032/5/8,Deň víťazstva nad fašizmom
+2032/7/5,Sviatok svätého Cyrila a svätého Metoda
+2032/8/29,Výročie Slovenského národného povstania
+2032/9/15,Sedembolestná Panna Mária
+2032/11/1,Sviatok Všetkých svätých
+2032/12/24,Štedrý deň
+2032/12/25,Prvý sviatok vianočný
+2032/12/26,Druhý sviatok vianočný
+2033/1/1,Deň vzniku Slovenskej republiky
+2033/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2033/4/15,Veľký piatok
+2033/4/18,Veľkonočný pondelok
+2033/5/1,Sviatok práce
+2033/5/8,Deň víťazstva nad fašizmom
+2033/7/5,Sviatok svätého Cyrila a svätého Metoda
+2033/8/29,Výročie Slovenského národného povstania
+2033/9/15,Sedembolestná Panna Mária
+2033/11/1,Sviatok Všetkých svätých
+2033/12/24,Štedrý deň
+2033/12/25,Prvý sviatok vianočný
+2033/12/26,Druhý sviatok vianočný
+2034/1/1,Deň vzniku Slovenskej republiky
+2034/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2034/4/7,Veľký piatok
+2034/4/10,Veľkonočný pondelok
+2034/5/1,Sviatok práce
+2034/5/8,Deň víťazstva nad fašizmom
+2034/7/5,Sviatok svätého Cyrila a svätého Metoda
+2034/8/29,Výročie Slovenského národného povstania
+2034/9/15,Sedembolestná Panna Mária
+2034/11/1,Sviatok Všetkých svätých
+2034/12/24,Štedrý deň
+2034/12/25,Prvý sviatok vianočný
+2034/12/26,Druhý sviatok vianočný
+2035/1/1,Deň vzniku Slovenskej republiky
+2035/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2035/3/23,Veľký piatok
+2035/3/26,Veľkonočný pondelok
+2035/5/1,Sviatok práce
+2035/5/8,Deň víťazstva nad fašizmom
+2035/7/5,Sviatok svätého Cyrila a svätého Metoda
+2035/8/29,Výročie Slovenského národného povstania
+2035/9/15,Sedembolestná Panna Mária
+2035/11/1,Sviatok Všetkých svätých
+2035/12/24,Štedrý deň
+2035/12/25,Prvý sviatok vianočný
+2035/12/26,Druhý sviatok vianočný
+2036/1/1,Deň vzniku Slovenskej republiky
+2036/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2036/4/11,Veľký piatok
+2036/4/14,Veľkonočný pondelok
+2036/5/1,Sviatok práce
+2036/5/8,Deň víťazstva nad fašizmom
+2036/7/5,Sviatok svätého Cyrila a svätého Metoda
+2036/8/29,Výročie Slovenského národného povstania
+2036/9/15,Sedembolestná Panna Mária
+2036/11/1,Sviatok Všetkých svätých
+2036/12/24,Štedrý deň
+2036/12/25,Prvý sviatok vianočný
+2036/12/26,Druhý sviatok vianočný
+2037/1/1,Deň vzniku Slovenskej republiky
+2037/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2037/4/3,Veľký piatok
+2037/4/6,Veľkonočný pondelok
+2037/5/1,Sviatok práce
+2037/5/8,Deň víťazstva nad fašizmom
+2037/7/5,Sviatok svätého Cyrila a svätého Metoda
+2037/8/29,Výročie Slovenského národného povstania
+2037/9/15,Sedembolestná Panna Mária
+2037/11/1,Sviatok Všetkých svätých
+2037/12/24,Štedrý deň
+2037/12/25,Prvý sviatok vianočný
+2037/12/26,Druhý sviatok vianočný
+2038/1/1,Deň vzniku Slovenskej republiky
+2038/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2038/4/23,Veľký piatok
+2038/4/26,Veľkonočný pondelok
+2038/5/1,Sviatok práce
+2038/5/8,Deň víťazstva nad fašizmom
+2038/7/5,Sviatok svätého Cyrila a svätého Metoda
+2038/8/29,Výročie Slovenského národného povstania
+2038/9/15,Sedembolestná Panna Mária
+2038/11/1,Sviatok Všetkých svätých
+2038/12/24,Štedrý deň
+2038/12/25,Prvý sviatok vianočný
+2038/12/26,Druhý sviatok vianočný
+2039/1/1,Deň vzniku Slovenskej republiky
+2039/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2039/4/8,Veľký piatok
+2039/4/11,Veľkonočný pondelok
+2039/5/1,Sviatok práce
+2039/5/8,Deň víťazstva nad fašizmom
+2039/7/5,Sviatok svätého Cyrila a svätého Metoda
+2039/8/29,Výročie Slovenského národného povstania
+2039/9/15,Sedembolestná Panna Mária
+2039/11/1,Sviatok Všetkých svätých
+2039/12/24,Štedrý deň
+2039/12/25,Prvý sviatok vianočný
+2039/12/26,Druhý sviatok vianočný
+2040/1/1,Deň vzniku Slovenskej republiky
+2040/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2040/3/30,Veľký piatok
+2040/4/2,Veľkonočný pondelok
+2040/5/1,Sviatok práce
+2040/5/8,Deň víťazstva nad fašizmom
+2040/7/5,Sviatok svätého Cyrila a svätého Metoda
+2040/8/29,Výročie Slovenského národného povstania
+2040/9/15,Sedembolestná Panna Mária
+2040/11/1,Sviatok Všetkých svätých
+2040/12/24,Štedrý deň
+2040/12/25,Prvý sviatok vianočný
+2040/12/26,Druhý sviatok vianočný
+2041/1/1,Deň vzniku Slovenskej republiky
+2041/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2041/4/19,Veľký piatok
+2041/4/22,Veľkonočný pondelok
+2041/5/1,Sviatok práce
+2041/5/8,Deň víťazstva nad fašizmom
+2041/7/5,Sviatok svätého Cyrila a svätého Metoda
+2041/8/29,Výročie Slovenského národného povstania
+2041/9/15,Sedembolestná Panna Mária
+2041/11/1,Sviatok Všetkých svätých
+2041/12/24,Štedrý deň
+2041/12/25,Prvý sviatok vianočný
+2041/12/26,Druhý sviatok vianočný
+2042/1/1,Deň vzniku Slovenskej republiky
+2042/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2042/4/4,Veľký piatok
+2042/4/7,Veľkonočný pondelok
+2042/5/1,Sviatok práce
+2042/5/8,Deň víťazstva nad fašizmom
+2042/7/5,Sviatok svätého Cyrila a svätého Metoda
+2042/8/29,Výročie Slovenského národného povstania
+2042/9/15,Sedembolestná Panna Mária
+2042/11/1,Sviatok Všetkých svätých
+2042/12/24,Štedrý deň
+2042/12/25,Prvý sviatok vianočný
+2042/12/26,Druhý sviatok vianočný
+2043/1/1,Deň vzniku Slovenskej republiky
+2043/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2043/3/27,Veľký piatok
+2043/3/30,Veľkonočný pondelok
+2043/5/1,Sviatok práce
+2043/5/8,Deň víťazstva nad fašizmom
+2043/7/5,Sviatok svätého Cyrila a svätého Metoda
+2043/8/29,Výročie Slovenského národného povstania
+2043/9/15,Sedembolestná Panna Mária
+2043/11/1,Sviatok Všetkých svätých
+2043/12/24,Štedrý deň
+2043/12/25,Prvý sviatok vianočný
+2043/12/26,Druhý sviatok vianočný
+2044/1/1,Deň vzniku Slovenskej republiky
+2044/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2044/4/15,Veľký piatok
+2044/4/18,Veľkonočný pondelok
+2044/5/1,Sviatok práce
+2044/5/8,Deň víťazstva nad fašizmom
+2044/7/5,Sviatok svätého Cyrila a svätého Metoda
+2044/8/29,Výročie Slovenského národného povstania
+2044/9/15,Sedembolestná Panna Mária
+2044/11/1,Sviatok Všetkých svätých
+2044/12/24,Štedrý deň
+2044/12/25,Prvý sviatok vianočný
+2044/12/26,Druhý sviatok vianočný
+2045/1/1,Deň vzniku Slovenskej republiky
+2045/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2045/4/7,Veľký piatok
+2045/4/10,Veľkonočný pondelok
+2045/5/1,Sviatok práce
+2045/5/8,Deň víťazstva nad fašizmom
+2045/7/5,Sviatok svätého Cyrila a svätého Metoda
+2045/8/29,Výročie Slovenského národného povstania
+2045/9/15,Sedembolestná Panna Mária
+2045/11/1,Sviatok Všetkých svätých
+2045/12/24,Štedrý deň
+2045/12/25,Prvý sviatok vianočný
+2045/12/26,Druhý sviatok vianočný
+2046/1/1,Deň vzniku Slovenskej republiky
+2046/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2046/3/23,Veľký piatok
+2046/3/26,Veľkonočný pondelok
+2046/5/1,Sviatok práce
+2046/5/8,Deň víťazstva nad fašizmom
+2046/7/5,Sviatok svätého Cyrila a svätého Metoda
+2046/8/29,Výročie Slovenského národného povstania
+2046/9/15,Sedembolestná Panna Mária
+2046/11/1,Sviatok Všetkých svätých
+2046/12/24,Štedrý deň
+2046/12/25,Prvý sviatok vianočný
+2046/12/26,Druhý sviatok vianočný
+2047/1/1,Deň vzniku Slovenskej republiky
+2047/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2047/4/12,Veľký piatok
+2047/4/15,Veľkonočný pondelok
+2047/5/1,Sviatok práce
+2047/5/8,Deň víťazstva nad fašizmom
+2047/7/5,Sviatok svätého Cyrila a svätého Metoda
+2047/8/29,Výročie Slovenského národného povstania
+2047/9/15,Sedembolestná Panna Mária
+2047/11/1,Sviatok Všetkých svätých
+2047/12/24,Štedrý deň
+2047/12/25,Prvý sviatok vianočný
+2047/12/26,Druhý sviatok vianočný
+2048/1/1,Deň vzniku Slovenskej republiky
+2048/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2048/4/3,Veľký piatok
+2048/4/6,Veľkonočný pondelok
+2048/5/1,Sviatok práce
+2048/5/8,Deň víťazstva nad fašizmom
+2048/7/5,Sviatok svätého Cyrila a svätého Metoda
+2048/8/29,Výročie Slovenského národného povstania
+2048/9/15,Sedembolestná Panna Mária
+2048/11/1,Sviatok Všetkých svätých
+2048/12/24,Štedrý deň
+2048/12/25,Prvý sviatok vianočný
+2048/12/26,Druhý sviatok vianočný
+2049/1/1,Deň vzniku Slovenskej republiky
+2049/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2049/4/16,Veľký piatok
+2049/4/19,Veľkonočný pondelok
+2049/5/1,Sviatok práce
+2049/5/8,Deň víťazstva nad fašizmom
+2049/7/5,Sviatok svätého Cyrila a svätého Metoda
+2049/8/29,Výročie Slovenského národného povstania
+2049/9/15,Sedembolestná Panna Mária
+2049/11/1,Sviatok Všetkých svätých
+2049/12/24,Štedrý deň
+2049/12/25,Prvý sviatok vianočný
+2049/12/26,Druhý sviatok vianočný
+2050/1/1,Deň vzniku Slovenskej republiky
+2050/1/6,Zjavenie Pána (Traja králi a vianočný sviatok pravoslávnych kresťanov)
+2050/4/8,Veľký piatok
+2050/4/11,Veľkonočný pondelok
+2050/5/1,Sviatok práce
+2050/5/8,Deň víťazstva nad fašizmom
+2050/7/5,Sviatok svätého Cyrila a svätého Metoda
+2050/8/29,Výročie Slovenského národného povstania
+2050/9/15,Sedembolestná Panna Mária
+2050/11/1,Sviatok Všetkých svätých
+2050/12/24,Štedrý deň
+2050/12/25,Prvý sviatok vianočný
+2050/12/26,Druhý sviatok vianočný
