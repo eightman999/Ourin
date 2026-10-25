@@ -19,9 +19,28 @@ public struct Plugin: Hashable {
     let request: PluginRequestFn?
     let ukagakaRequest: UkagakaModuleABI.RequestFn?
     let loadEntry: UkagakaModuleABI.LoadFn?
-    let unload: PluginUnloadFn?
+    let unloadEntry: PluginUnloadFn?
+    /// DLL 変換で作った `.plugin`（`OurinPluginEngine` 指定）を内蔵エンジンで処理するホスト。
+    let engine: PluginEngineHost?
 
     public init(url: URL) throws {
+        if let kind = DLLPluginConverter.engineKind(ofBundleAt: url) {
+            let info = Bundle(url: url)?.infoDictionary
+            let moduleName = info?[DLLPluginConverter.originalModuleKey] as? String ?? url.lastPathComponent
+            self.url = url
+            self.bundle = Bundle(url: url)
+            self.convention = .ourin
+            self.request = nil
+            self.ukagakaRequest = nil
+            self.loadEntry = nil
+            self.unloadEntry = nil
+            self.engine = PluginEngineHost(
+                kind: kind,
+                moduleDirectory: url.deletingLastPathComponent(),
+                moduleFileName: URL(fileURLWithPath: moduleName.replacingOccurrences(of: "\\", with: "/")).lastPathComponent
+            )
+            return
+        }
         guard let executableURL = UkagakaModuleABI.executableURL(forModuleAt: url) else {
             throw NSError(domain: "Plugin", code: -1, userInfo: [NSLocalizedDescriptionKey: "invalid bundle"])
         }
@@ -57,13 +76,24 @@ public struct Plugin: Hashable {
         }
         // ukagaka DLL 規約: `loadu` は UTF-8 パス版 load。存在すれば優先（macOS のパスは UTF-8）。
         self.loadEntry = sym("loadu", "load", "plugin_loadu", "plugin_load")
-        self.unload = sym("unloadu", "unload", "plugin_unloadu", "plugin_unload")
+        self.unloadEntry = sym("unloadu", "unload", "plugin_unloadu", "plugin_unload")
+        self.engine = nil
+    }
+
+    /// `unload` を呼ぶ（内蔵エンジンならエンジンを停止する）。
+    public func unload() {
+        if let engine {
+            engine.unload()
+            return
+        }
+        unloadEntry?()
     }
 
     /// `load` / `loadu` を呼ぶ。引数はモジュールのディレクトリ（末尾区切り付き、malloc 確保で所有権はモジュールへ）。
     /// 旧来の `int load(const char*)` にも同じポインタで互換。エントリが無い場合は成功扱い。
     @discardableResult
     public func load(directoryURL: URL) -> Bool {
+        if let engine { return engine.load() }
         guard let loadEntry else { return true }
         return UkagakaModuleABI.callLoad(loadEntry, directoryURL: directoryURL)
     }
@@ -77,6 +107,9 @@ public struct Plugin: Hashable {
 
     /// Send raw wire bytes to plugin and return raw response bytes.
     public func send(_ data: Data) -> Data? {
+        if let engine {
+            return engine.request(data)
+        }
         if let ukagakaRequest {
             return UkagakaModuleABI.callRequest(ukagakaRequest, data: data)
         }

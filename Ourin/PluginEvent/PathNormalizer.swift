@@ -24,4 +24,12 @@ enum PathNormalizer {
         // Windows 形式のドライブレターを含む場合などは URL 経由で解決
         return URL(fileURLWithPath: path).path
     }
+
+    /// フォルダのフルパスを SSP と同じく末尾区切り付きで返す（`load` へ渡すディレクトリと同じ規約）。
+    static func directory(_ path: String) -> String {
+        guard !path.isEmpty else { return path }
+        let normalized = posix(path)
+        guard !normalized.isEmpty, !normalized.hasPrefix("file://") else { return normalized }
+        return normalized.hasSuffix("/") ? normalized : normalized + "/"
+    }
 }

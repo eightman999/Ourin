@@ -31,7 +31,8 @@ final class PluginEventDispatcher {
     /// プラグインへワイヤテキストを送信する。XPC 分離が有効なら別プロセスのワーカーへ、
     /// それ以外は従来通りインプロセス（CFBundle ロード）で実行する。
     private func transportSend(_ req: String, to plugin: Plugin, charset: String) -> String {
-        if let xpc = xpcClient {
+        // 内蔵エンジン型は既に別プロセス（yaya_core）か Ourin 同梱モジュールなので XPC を経由しない。
+        if let xpc = xpcClient, plugin.engine == nil {
             if let resp = xpc.send(req, charset: charset, bundlePath: plugin.url.path) {
                 return resp
             }
@@ -41,10 +42,27 @@ final class PluginEventDispatcher {
         return plugin.send(req, charset: charset)
     }
 
-    /// プラグインに適用する送信文字コードを取得（既定 UTF-8）
+    /// プラグインに適用する送信文字コードを取得する。
+    /// version 応答前は descript.txt の charset、未指定なら SSP の省略時文字コードと同じ Shift_JIS。
     private func charset(for plugin: Plugin) -> String {
         charsetLock.lock(); defer { charsetLock.unlock() }
-        return pluginCharsets[plugin] ?? "UTF-8"
+        return pluginCharsets[plugin] ?? Self.declaredCharset(registry.metas[plugin])
+    }
+
+    static func declaredCharset(_ meta: PluginMeta?) -> String {
+        guard let raw = meta?.charset?.trimmingCharacters(in: .whitespaces), !raw.isEmpty else {
+            return "Shift_JIS"
+        }
+        return raw
+    }
+
+    /// version 応答から以後の文字コードを決める。Charset ヘッダが無ければ Shift_JIS（ukadoc plugin-event: version）。
+    static func negotiatedCharset(fromVersionResponse resp: String) -> String? {
+        guard let parsed = try? PluginProtocolParser.parseResponse(resp) else { return nil }
+        let hasCharsetHeader = resp.components(separatedBy: "\r\n").dropFirst().contains { line in
+            line.lowercased().hasPrefix("charset:")
+        }
+        return hasCharsetHeader ? parsed.charset : "Shift_JIS"
     }
 
     /// version 応答で得た文字コードを保存する
@@ -75,7 +93,9 @@ final class PluginEventDispatcher {
     /// `secondchangeinterval` に従い DispatchSourceTimer を生成
     private func setupTimer() {
         for plugin in registry.plugins {
-            guard let interval = registry.metas[plugin]?.secondChangeInterval, interval > 0 else { continue }
+            // ukadoc descript/plugin: secondchangeinterval の既定は 1 秒、0 で通知しない。
+            let interval = registry.metas[plugin]?.secondChangeInterval ?? 1
+            guard interval > 0 else { continue }
             let timer = DispatchSource.makeTimerSource()
             timer.schedule(deadline: .now() + .seconds(interval), repeating: .seconds(interval))
             timer.setEventHandler { [weak self, plugin] in
@@ -109,6 +129,7 @@ final class PluginEventDispatcher {
         securityLevel: PluginSecurityLevel = .local,
         to plugin: Plugin,
         callerGhost: GhostManager? = nil,
+        sender: String? = nil,
         reportsFailure: Bool = false
     ) {
         let pluginName = displayName(for: plugin)
@@ -125,11 +146,21 @@ final class PluginEventDispatcher {
             }
             return
         }
-        let charset = charset(for: plugin)
-        let req = PluginFrame(id: id, references: refs, charset: charset, notify: notify, securityLevel: securityLevel).build()
-        q.async { [weak self, logger, id, req, plugin, notify, charset, pluginName, refs, reportsFailure, weak callerGhost] in
+        let sender = sender ?? PluginFrame.hostSender
+        q.async { [weak self, logger, id, plugin, notify, pluginName, refs, reportsFailure, weak callerGhost] in
+            guard let self else { return }
+            // version 応答で決まる文字コードを反映するため、送信直前（同じ直列キュー上）で組み立てる。
+            let charset = self.charset(for: plugin)
+            let req = PluginFrame(
+                id: id,
+                references: refs,
+                charset: charset,
+                notify: notify,
+                securityLevel: securityLevel,
+                sender: sender
+            ).build()
             let start = Date()
-            let resp = self?.transportSend(req, to: plugin, charset: charset) ?? ""
+            let resp = self.transportSend(req, to: plugin, charset: charset)
             let elapsed = Date().timeIntervalSince(start)
             logger.debug("ID \(id) to \(plugin.url.lastPathComponent) (\(elapsed)s)")
             if elapsed > 3 {
@@ -137,7 +168,7 @@ final class PluginEventDispatcher {
             }
             if reportsFailure {
                 guard !resp.isEmpty else {
-                    self?.reportFailure(
+                    self.reportFailure(
                         callerGhost: callerGhost,
                         notifyOnly: notify,
                         reason: "error",
@@ -148,7 +179,7 @@ final class PluginEventDispatcher {
                     return
                 }
                 guard let parsed = try? PluginProtocolParser.parseResponse(resp) else {
-                    self?.reportFailure(
+                    self.reportFailure(
                         callerGhost: callerGhost,
                         notifyOnly: notify,
                         reason: "error",
@@ -159,7 +190,7 @@ final class PluginEventDispatcher {
                     return
                 }
                 guard parsed.statusCode == 200 else {
-                    self?.reportFailure(
+                    self.reportFailure(
                         callerGhost: callerGhost,
                         notifyOnly: notify,
                         reason: String(parsed.statusCode),
@@ -171,7 +202,7 @@ final class PluginEventDispatcher {
                 }
             }
             if !notify {
-                self?.handleResponse(resp, from: plugin, callerGhost: callerGhost)
+                self.handleResponse(resp, from: plugin, callerGhost: callerGhost)
             }
         }
     }
@@ -201,7 +232,8 @@ final class PluginEventDispatcher {
         guard !resp.isEmpty,
               let parsed = try? PluginProtocolParser.parseResponse(resp),
               parsed.statusCode == 200 else { return }
-        guard let action = OurinPluginEventBridge.transportAction(from: parsed, notifyOnly: false) else { return }
+        guard var action = OurinPluginEventBridge.transportAction(from: parsed, notifyOnly: false) else { return }
+        action.originPluginID = displayName(for: plugin)
         guard EventBridge.shared.canResolvePluginTarget(action.target, caller: callerGhost) else {
             logger.debug("ignored target: \(action.target ?? "nil") from \(plugin.url.lastPathComponent)")
             return
@@ -223,7 +255,8 @@ final class PluginEventDispatcher {
                     notifyOnly: notifyOnly,
                     target: action.target,
                     caller: callerGhost,
-                    scriptOptions: action.scriptOptions
+                    scriptOptions: action.scriptOptions,
+                    originPluginID: action.originPluginID
                 )
                 if handled {
                     return true
@@ -236,14 +269,15 @@ final class PluginEventDispatcher {
     /// version イベントを全プラグインへ送信し応答を受け取る
     private func sendVersion() {
         for plugin in registry.plugins {
-            let req = PluginFrame(id: "version").build()
+            let initialCharset = Self.declaredCharset(registry.metas[plugin])
+            let req = PluginFrame(id: "version", charset: initialCharset).build()
             queues[plugin]?.async { [weak self, logger, req, plugin] in
-                let resp = self?.transportSend(req, to: plugin, charset: "UTF-8") ?? ""
+                let resp = self?.transportSend(req, to: plugin, charset: initialCharset) ?? ""
                 let name = plugin.url.lastPathComponent
-                // 応答の Charset ヘッダを以降の通信へ適用する(PLUGIN_EVENT/2.0M §4.1)
-                if let parsed = try? PluginProtocolParser.parseResponse(resp) {
-                    self?.setCharset(parsed.charset, for: plugin)
-                    logger.debug("version <- \(name): \(parsed.value ?? "") charset=\(parsed.charset)")
+                // 応答の Charset ヘッダを以降の通信へ適用する（無ければ Shift_JIS。PLUGIN_EVENT/2.0M §4.1）
+                if let negotiated = Self.negotiatedCharset(fromVersionResponse: resp) {
+                    self?.setCharset(negotiated, for: plugin)
+                    logger.debug("version <- \(name): charset=\(negotiated)")
                 } else {
                     logger.debug("version request -> \(name)")
                 }
@@ -252,15 +286,19 @@ final class PluginEventDispatcher {
     }
 
     // MARK: - Catalog events
-    /// インストール済みプラグイン一覧を通知
+    /// インストール済みプラグイン一覧を通知する。
+    /// ukadoc: Reference* はプラグインごとに「プラグイン名 0x01 プラグインID」。
     func notifyInstalledPlugin() {
-        let list = registry.allMetas.map { "\($0.name),\($0.id)" }
-        sendFrame(id: "installedplugin", refs: [ListDelimiter.join(list)], notify: true)
+        sendFrame(id: "installedplugin", refs: Self.installedPluginReferences(registry.allMetas), notify: true)
     }
 
-    /// 任意のパスリストを通知するユーティリティ
+    static func installedPluginReferences(_ metas: [PluginMeta]) -> [String] {
+        metas.map { ListDelimiter.join([$0.name, $0.id]) }
+    }
+
+    /// 読み込み中フォルダのパスリストを通知するユーティリティ（各 Reference に 1 フォルダ、末尾区切り付き）
     private func notifyPathList(id: String, paths: [String]) {
-        let normalized = paths.map { PathNormalizer.posix($0) }
+        let normalized = paths.map { PathNormalizer.directory($0) }
         sendFrame(id: id, refs: normalized, notify: true)
     }
 
@@ -286,14 +324,14 @@ final class PluginEventDispatcher {
     /// ゴースト起動時イベント
     func onGhostBoot(windows: [NSWindow], ghostName: String, shellName: String, ghostID: String, path: String) {
         let ref0 = WindowIDMapper.ids(for: windows)
-        let pathPosix = PathNormalizer.posix(path)
+        let pathPosix = PathNormalizer.directory(path)
         sendFrame(id: "OnGhostBoot", refs: [ref0, ghostName, shellName, ghostID, pathPosix])
     }
 
     /// メニュー実行時イベント
     func onMenuExec(windows: [NSWindow], ghostName: String, shellName: String, ghostID: String, path: String) {
         let ref0 = WindowIDMapper.ids(for: windows)
-        let pathPosix = PathNormalizer.posix(path)
+        let pathPosix = PathNormalizer.directory(path)
         sendFrame(id: "OnMenuExec", refs: [ref0, ghostName, shellName, ghostID, pathPosix])
     }
 
@@ -310,7 +348,7 @@ final class PluginEventDispatcher {
             ghostName,
             shellName,
             ghostID,
-            PathNormalizer.posix(path),
+            PathNormalizer.directory(path),
             menuItemID
         ]
     }
@@ -340,14 +378,16 @@ final class PluginEventDispatcher {
             ghostID: ghostID,
             path: path
         )
-        sendFrame(id: "OnMenuExec", refs: refs, to: plugin, callerGhost: callerGhost)
+        // メニューを開いたゴーストから呼ばれる扱いなので Sender はゴースト名（daumaker 等が ghostlist(Sender) を引く）。
+        sendFrame(id: "OnMenuExec", refs: refs, to: plugin, callerGhost: callerGhost,
+                  sender: Self.senderName(for: callerGhost) ?? ghostName)
     }
 
     /// インストール完了イベント（単一値）
     /// 後方互換のため維持。複数インストールを一度に通知する場合は
     /// `onInstallComplete(types:names:paths:)` を使用すること。
     func onInstallComplete(type: String, name: String, path: String) {
-        let pathPosix = PathNormalizer.posix(path)
+        let pathPosix = PathNormalizer.directory(path)
         sendFrame(id: "OnInstallComplete", refs: [type, name, pathPosix])
     }
 
@@ -375,14 +415,14 @@ final class PluginEventDispatcher {
     /// ゴースト終了通知（NOTIFY）
     func onGhostExit(windows: [NSWindow], ghostName: String, shellName: String, ghostID: String, path: String) {
         let ref0 = WindowIDMapper.ids(for: windows)
-        let pathPosix = PathNormalizer.posix(path)
+        let pathPosix = PathNormalizer.directory(path)
         sendFrame(id: "OnGhostExit", refs: [ref0, ghostName, shellName, ghostID, pathPosix], notify: true)
     }
 
     /// ゴースト情報更新通知（NOTIFY）
     func onGhostInfoUpdate(windows: [NSWindow], ghostName: String, shellName: String, ghostID: String, path: String) {
         let ref0 = WindowIDMapper.ids(for: windows)
-        let pathPosix = PathNormalizer.posix(path)
+        let pathPosix = PathNormalizer.directory(path)
         sendFrame(id: "OnGhostInfoUpdate", refs: [ref0, ghostName, shellName, ghostID, pathPosix], notify: true)
     }
 
@@ -420,10 +460,26 @@ final class PluginEventDispatcher {
         }
     }
 
+    /// 他ゴーストのサーフェス変更を、descript.txt で `othersurfacechange` を有効にしたプラグインへ送る。
+    /// Reference は SHIORI の OnOtherSurfaceChange と同じ並び。
+    func onOtherSurfaceChange(refs: [String]) {
+        for plugin in registry.plugins where registry.metas[plugin]?.otherSurfaceChange == true {
+            sendFrame(id: "OnOtherSurfaceChange", refs: refs, to: plugin)
+        }
+    }
+
     /// 選択/アンカー選択等の横流しイベント
     /// SSTP 経由など外部由来で中継する場合は `securityLevel: .external` を指定する。
     func onArbitraryEvent(id: String, refs: [String], notify: Bool = false, securityLevel: PluginSecurityLevel = .local) {
         sendFrame(id: id, refs: refs, notify: notify, securityLevel: securityLevel)
+    }
+
+    /// 選択肢・アンカー選択を、そのスクリプトを送ったプラグインだけへ横流しする。該当が無ければ false。
+    @discardableResult
+    func forwardSelection(id: String, refs: [String], notify: Bool, toPluginID pluginID: String, sender: String? = nil) -> Bool {
+        guard let plugin = resolveLoadedPlugin(id: pluginID, name: pluginID, path: "") else { return false }
+        sendFrame(id: id, refs: refs, notify: notify, to: plugin, sender: sender)
+        return true
     }
 
     func dispatch(pluginSpec: String, event: String, references: [String], notifyOnly: Bool, callerGhost: GhostManager? = nil) {
@@ -447,6 +503,7 @@ final class PluginEventDispatcher {
                 notify: notifyOnly,
                 to: plugin,
                 callerGhost: callerGhost,
+                sender: Self.senderName(for: callerGhost),
                 reportsFailure: true
             )
         }
@@ -476,6 +533,7 @@ final class PluginEventDispatcher {
                 notify: true,
                 to: plugin,
                 callerGhost: callerGhost,
+                sender: Self.senderName(for: callerGhost),
                 reportsFailure: true
             )
         }
@@ -499,6 +557,13 @@ final class PluginEventDispatcher {
         let resp = transportSend(req, to: plugin, charset: charset)
         guard let parsed = try? PluginProtocolParser.parseResponse(resp) else { return false }
         return parsed.statusCode == 200 || parsed.statusCode == 204
+    }
+
+    /// PLUGIN/2.0 仕様: ゴーストから呼ばれた場合の Sender はゴースト名（descript.txt の name）。
+    static func senderName(for ghost: GhostManager?) -> String? {
+        guard let ghost else { return nil }
+        let name = ghost.ghostConfig?.name ?? ghost.ghostURL.lastPathComponent
+        return name.isEmpty ? nil : name
     }
 
     private func resolveLoadedPlugin(id: String, name: String, path: String) -> Plugin? {

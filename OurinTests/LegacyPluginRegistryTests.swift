@@ -145,10 +145,10 @@ struct LegacyPluginRegistryTests {
             ghostID: "ghost-id",
             path: "/Users/t/Ghosts/Sakura"
         )
-        #expect(refs == ["", "さくら", "default.shell", "ghost-id", "/Users/t/Ghosts/Sakura", "open_settings"])
+        #expect(refs == ["", "さくら", "default.shell", "ghost-id", "/Users/t/Ghosts/Sakura/", "open_settings"])
 
         let wire = PluginFrame(id: "OnMenuExec", references: refs).build()
-        #expect(wire.hasPrefix("GET PLUGIN/2.0M"))
+        #expect(wire.hasPrefix("GET PLUGIN/2.0\r\n"))
         #expect(wire.contains("Reference0: \r\n"))
         #expect(wire.contains("Reference4: /Users/t/Ghosts/Sakura"))
         #expect(wire.contains("Reference5: open_settings"))

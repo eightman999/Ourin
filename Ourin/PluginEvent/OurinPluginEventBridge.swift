@@ -7,6 +7,8 @@ struct PluginTransportAction {
     let eventName: String?
     let eventOptions: Set<String>
     let references: [String: String]
+    /// 応答を返したプラグインの ID。選択肢・アンカー選択の横流し先を応答元だけに絞るために使う。
+    var originPluginID: String? = nil
 
     var sendsEventAsNotify: Bool {
         eventOptions.contains("notify")
@@ -79,9 +81,10 @@ final class OurinPluginEventBridge {
                     onFailure?(String(response.statusCode), pluginName)
                     continue
                 }
-                guard let action = Self.transportAction(from: response, notifyOnly: false) else {
+                guard var action = Self.transportAction(from: response, notifyOnly: false) else {
                     continue
                 }
+                action.originPluginID = pluginName
                 guard EventBridge.shared.canResolvePluginTarget(action.target) else {
                     Log.debug("[PluginEventBridge] ignored target: \(action.target ?? "nil")")
                     continue

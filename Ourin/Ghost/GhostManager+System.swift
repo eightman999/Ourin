@@ -1145,7 +1145,7 @@ extension GhostManager: NSWindowDelegate {
             runScript: { [weak self] action in
                 guard let script = action.script else { return }
                 DispatchQueue.main.async {
-                    self?.runPluginScript(script, options: action.scriptOptions.union(["plugin-script"]))
+                    self?.runPluginScript(script, options: action.scriptOptions.union(["plugin-script"]), originPluginID: action.originPluginID)
                 }
             },
             emitEvent: { action in
@@ -1607,6 +1607,11 @@ extension GhostManager: NSWindowDelegate {
     /// EventBridge への notifyCustom と並行して PluginEventDispatcher.onArbitraryEvent を呼ぶ。
     func forwardEventToPlugins(id: String, references: [String], notify: Bool = false) {
         guard let dispatcher = AppDelegate.resolve()?.pluginDispatcher else { return }
+        // ukadoc plugin-event: 横流しはスクリプトを送ったプラグインに対してだけ行う。
+        if let origin = pluginScriptOriginID,
+           dispatcher.forwardSelection(id: id, refs: references, notify: notify, toPluginID: origin) {
+            return
+        }
         dispatcher.onArbitraryEvent(id: id, refs: references, notify: notify)
     }
 
@@ -2012,7 +2017,7 @@ extension GhostManager: NSWindowDelegate {
     }
     
     /// Set tray balloon (notification)
-    func setTrayBalloon(options: [String]) {
+    func setTrayBalloon(options: [String], pluginOrigin: String? = nil) {
         // Parse options like title=..., message=..., icon=...
         var title = "Ourin"
         var message = ""
@@ -2049,11 +2054,16 @@ extension GhostManager: NSWindowDelegate {
             if sound {
                 content.sound = .default
             }
-            content.userInfo = [
+            var userInfo: [String: String] = [
                 "ourinTrayBalloon": "1",
                 "title": title,
                 "message": message
             ]
+            if let pluginOrigin {
+                userInfo["ourinPluginOrigin"] = pluginOrigin
+                userInfo["ourinGhostName"] = PluginEventDispatcher.senderName(for: self) ?? ""
+            }
+            content.userInfo = userInfo
 
             let identifier = "ourin.tray.\(UUID().uuidString)"
             let request = UNNotificationRequest(identifier: identifier, content: content, trigger: nil)
@@ -2067,6 +2077,13 @@ extension GhostManager: NSWindowDelegate {
 
             if timeoutSeconds > 0 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + timeoutSeconds) {
+                    if let pluginOrigin,
+                       AppDelegate.resolve()?.pluginDispatcher?.forwardSelection(
+                           id: "OnTrayBalloonTimeout", refs: [identifier, title], notify: false,
+                           toPluginID: pluginOrigin, sender: PluginEventDispatcher.senderName(for: self)
+                       ) == true {
+                        return
+                    }
                     EventBridge.shared.notify(.OnTrayBalloonTimeout, refs: [
                         "identifier": identifier,
                         "title": title

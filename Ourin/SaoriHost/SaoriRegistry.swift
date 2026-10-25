@@ -86,6 +86,9 @@ public final class SaoriRegistry {
     }
 
     public func loadModule(named name: String) throws -> SaoriLoader {
+        if resolveModuleURL(named: name) == nil, let builtin = builtinLoader(named: name) {
+            return builtin
+        }
         guard let url = resolveModuleURL(named: name) else {
             throw NSError(
                 domain: "SaoriRegistry",
@@ -98,6 +101,36 @@ public final class SaoriRegistry {
             return cached
         }
         let loader = try SaoriLoader(url: url)
+        cache[key] = loader
+        return loader
+    }
+
+    /// macOS 版が無い汎用 SAORI（proxy_ex 等）を内蔵実装で用意する。
+    /// 本家と同じく、Windows 版 DLL が置かれたフォルダをモジュールのフォルダとして扱う。
+    private func builtinLoader(named name: String) -> SaoriLoader? {
+        guard let kind = BuiltinSaori.kind(forModuleName: name) else { return nil }
+        let normalized = name.replacingOccurrences(of: "\\", with: "/")
+        var moduleURL: URL?
+        if normalized.hasPrefix("/") {
+            moduleURL = URL(fileURLWithPath: normalized)
+        } else {
+            let basename = (normalized as NSString).lastPathComponent
+            outer: for variant in [normalized, basename] {
+                for path in searchPaths {
+                    if let found = UkagakaModuleABI.resolveCaseInsensitive(variant, in: path, fileManager: fm) {
+                        moduleURL = found
+                        break outer
+                    }
+                }
+            }
+        }
+        guard let moduleURL else { return nil }
+        let key = cacheKey(for: moduleURL)
+        if let cached = cache[key] { return cached }
+        guard let handler = BuiltinSaori.makeHandler(kind: kind, moduleDirectory: moduleURL.deletingLastPathComponent()) else {
+            return nil
+        }
+        let loader = SaoriLoader(builtinModuleURL: moduleURL, handler: handler)
         cache[key] = loader
         return loader
     }

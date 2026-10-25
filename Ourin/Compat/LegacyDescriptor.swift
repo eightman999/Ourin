@@ -48,4 +48,16 @@ enum LegacyDescriptor {
         }
         return dict
     }
+
+    /// ukadoc descript.txt 共通規則: 先頭が `\` / `%` の値はさくらスクリプト・環境変数タグとみなして破棄し、
+    /// 先頭の `\\` / `\%` は文字としての `\` / `%` へ戻す。
+    static func literalValue(_ raw: String) -> String? {
+        if raw.hasPrefix("\\\\") || raw.hasPrefix("\\%") {
+            return String(raw.dropFirst())
+        }
+        if raw.hasPrefix("\\") || raw.hasPrefix("%") {
+            return nil
+        }
+        return raw
+    }
 }

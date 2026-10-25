@@ -70,6 +70,8 @@ public struct PluginMeta {
     public let executablePath: String
     /// install.txt 付き package directory のパス（無い場合は nil）。
     public let packagePath: String?
+    /// descript.txt `othersurfacechange`（SSP 本体のキー）。他ゴーストのサーフェス変更を OnOtherSurfaceChange で受け取る。
+    public var otherSurfaceChange: Bool = false
 
     /// 従来の `path`。`compatibilityPath` の alias。
     public var path: String { compatibilityPath }
@@ -265,7 +267,7 @@ public final class PluginRegistry {
 
     /// Unload all loaded plugins
     public func unloadAll() {
-        for p in plugins { p.unload?() }
+        for p in plugins { p.unload() }
         plugins.removeAll()
         metas.removeAll()
         legacyMetas.removeAll()
@@ -427,6 +429,7 @@ public final class PluginRegistry {
             // package directory (install.txt 付き)
             if let installManifest = PluginRegistry.readInstallManifest(from: item),
                installManifest.type.lowercased() == "plugin" {
+                PluginRegistry.convertWindowsModule(in: item)
                 let bundles = PluginRegistry.nativePluginModules(in: item)
                 if !bundles.isEmpty {
                     for bundleURL in bundles {
@@ -453,6 +456,7 @@ public final class PluginRegistry {
             // install.txt 無しの設置済みディレクトリ（SSP の plugin/<name>/ と同形）。
             // descript.txt の filename に対応する macOS ネイティブ実体があれば実行対象にする。
             if let id = PluginRegistry.peekID(at: item) {
+                PluginRegistry.convertWindowsModule(in: item)
                 let modules = PluginRegistry.nativePluginModules(in: item)
                 if !modules.isEmpty {
                     for moduleURL in modules {
@@ -491,6 +495,26 @@ public final class PluginRegistry {
 
         if !id.isEmpty {
             loadedIDs.insert(id)
+        }
+    }
+
+    /// 変換結果（UI・診断用）。キーはプラグインフォルダのパス。
+    private(set) static var conversionReports: [String: DLLPluginConverter.Report] = [:]
+    private static let conversionLock = NSLock()
+
+    /// Windows DLL のプラグインを、内蔵エンジンで動く `.plugin` へ変換する（変換できない DLL は記録だけ残す）。
+    private static func convertWindowsModule(in directoryURL: URL) {
+        guard let report = DLLPluginConverter.convert(pluginDirectory: directoryURL) else { return }
+        conversionLock.lock()
+        conversionReports[directoryURL.standardizedFileURL.path] = report
+        conversionLock.unlock()
+        switch report.outcome {
+        case .converted(let bundleURL, let engine):
+            NSLog("Plugin DLL converted: \(report.moduleName) -> \(bundleURL.lastPathComponent) (engine=\(engine.rawValue))")
+        case .nativeModuleExists:
+            break
+        case .unsupported(let reason):
+            NSLog("Plugin DLL not convertible: \(directoryURL.lastPathComponent): \(reason)")
         }
     }
 
@@ -545,7 +569,7 @@ public final class PluginRegistry {
         NSLog("Legacy Windows plugin registered as metadata only: \(legacy.meta.name) (\(legacy.meta.filename))")
     }
 
-    private static func searchPaths() -> [URL] {
+    static func searchPaths() -> [URL] {
         var urls: [URL] = []
         if let builtIn = Bundle.main.builtInPlugInsURL {
             urls.append(builtIn)
@@ -604,7 +628,8 @@ public final class PluginRegistry {
                                            localizedMessages: [String: [String: String]]?,
                                            executableURL: URL? = nil,
                                            packageURL: URL? = nil) -> PluginMeta? {
-        guard let dict else { return nil }
+        guard let rawDict = dict else { return nil }
+        let dict = rawDict.compactMapValues(LegacyDescriptor.literalValue)
         let name = dict["name"] ?? ""
         let id = dict["id"] ?? ""
         let filename = dict["filename"] ?? dict["dllname"] ?? ""
@@ -612,12 +637,12 @@ public final class PluginRegistry {
         let moduleURL = directoryURL.appendingPathComponent(filename)
         let otherGhostTalk = parseOtherGhostTalk(dict["otherghosttalk"])
         let messages = localizedMessages ?? [:]
-        return PluginMeta(
+        var meta = PluginMeta(
             name: name,
             id: id,
             filename: filename,
             charset: dict["charset"],
-            secondChangeInterval: dict["secondchangeinterval"].flatMap(Int.init),
+            secondChangeInterval: dict["secondchangeinterval"].flatMap { Int($0.trimmingCharacters(in: .whitespaces)) },
             otherGhostTalk: otherGhostTalk.enabled,
             otherGhostTalkTiming: otherGhostTalk.timing,
             craftman: dict["craftman"] ?? dict["craftmanw"],
@@ -631,6 +656,8 @@ public final class PluginRegistry {
             executablePath: (executableURL ?? moduleURL).path,
             packagePath: packageURL?.path
         )
+        meta.otherSurfaceChange = parseOtherGhostTalk(dict["othersurfacechange"]).enabled ?? false
+        return meta
     }
 
     private static func parseOtherGhostTalk(_ raw: String?) -> (enabled: Bool?, timing: PluginOtherGhostTalkTiming?) {

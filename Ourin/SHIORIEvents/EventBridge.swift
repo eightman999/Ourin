@@ -372,6 +372,8 @@ final class EventBridge {
                     "newSurfaceSize": "0,0,\(width),\(height)"
                 ]
             )
+            let pluginRefs = (0..<params.count).compactMap { params["Reference\($0)"] }
+            AppDelegate.resolve()?.pluginDispatcher?.onOtherSurfaceChange(refs: pluginRefs)
 
             for session in self.sessions.values {
                 guard let target = session.ghostManager,
@@ -867,6 +869,7 @@ final class EventBridge {
         target: String? = nil,
         caller: GhostManager? = nil,
         scriptOptions: Set<String> = [],
+        originPluginID: String? = nil,
         security: ShioriSecurityContext = .local
     ) -> Bool {
         let resolved = resolvePluginTarget(target, caller: caller)
@@ -896,7 +899,7 @@ final class EventBridge {
                     producedScript = true
                     let gm = session.ghostManager
                     DispatchQueue.main.async {
-                        gm?.runPluginScript(trimmed, options: scriptOptions.union(["plugin-event"]))
+                        gm?.runPluginScript(trimmed, options: scriptOptions.union(["plugin-event"]), originPluginID: originPluginID)
                     }
                 }
             }
@@ -918,7 +921,11 @@ final class EventBridge {
             guard !targetSessions.isEmpty else { return false }
             DispatchQueue.main.async {
                 for session in targetSessions {
-                    session.ghostManager?.runPluginScript(script, options: action.scriptOptions.union(["plugin-script"]))
+                    session.ghostManager?.runPluginScript(
+                        script,
+                        options: action.scriptOptions.union(["plugin-script"]),
+                        originPluginID: action.originPluginID
+                    )
                 }
             }
             return true
