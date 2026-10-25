@@ -1,12 +1,12 @@
 # 残件の優先順位と委譲記録 / Priorities and delegation
 
-確認日: 2026-10-25。作業先は `codex/ourin-pr-integration`。ローカル変更であり、GitHubのmerge/close、commit/push、正式リリースは未実施。
+確認日: 2026-10-25。以下は委譲時の記録。成果はPR #214/#215経由でmaster `88b8172`へcommit/push/merge済み。正式リリースは未実施。
 
 ## 優先順 / Priority order
 
 | 順位 | 対象 | 実行先 | 現状と完了条件 |
 |---|---|---|---|
-| P0-1 | #96 #97 #99、#98の準備 | Devin CLI / SWE-2 High | CI・最低OS・版数検査を実装。統合側でレビュー修正、metadata正常・変異17ケースPASS。GitHub CI実行、最低OS実機、正式署名・公証、branch protectionは残る。 |
+| P0-1 | #96 #97 #99、#98の準備 | Devin CLI / SWE-2 High | CI・最低OS・版数検査を実装。統合側でレビュー修正、metadata正常・変異17ケースPASS。masterのGitHub CI全5ジョブ成功。最低OS実機、正式署名・公証、branch protectionは残る。 |
 | P0-2 | #100 #103 | OpenCode / HAI DeepSeek v4.1 Flash | 初回は25分timeout。取得済み証拠を絞ったHAI再実行で信頼モデル・ライセンス監査2文書を作成。権限・認証設定の変更は範囲外。監査指摘の解消と実配布物照合を完了条件にする。 |
 | P1-1 | #101、華和梨・KAGARI | Cursor CLI / Composer 2.5 | 固定上流の実エンジン・ABI・buildを実装。統合側でUniversal 2同梱とXPCテストを追加。華和梨LOBOの実エンジン検証は成功。KAGARI最小辞書PASS、もすはsaori_universal.native不足を記録。 |
 | P1-2 | #191等の実ゴースト互換性 | Devin CLI / SWE-2 High → 統合側引継ぎ | 調査中に確認必須toolが拒否され、実編集前に停止。終了コード0を成功扱いせず引継ぎ。統合側でFOPEN/FREAD・foreach・変数永続化・GETVARLISTを修正。実helper9件PASS、Taromati2定期イベント停止を解消。 |

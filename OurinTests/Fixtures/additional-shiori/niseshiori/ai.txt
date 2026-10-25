@@ -1,0 +1,6 @@
+#Charset: UTF-8
+\ev,OnBoot,boot:niseshiori
+\ev,OnNSRandomTalk,talk:niseshiori
+\ev,OnRemember,\set[count=37]remember
+\ev,OnRecall,%get[count]
+\ev,OnClose,close:niseshiori

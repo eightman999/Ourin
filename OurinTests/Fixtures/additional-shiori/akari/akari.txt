@@ -1,0 +1,6 @@
+＊OnBoot
+・boot:akari
+＊OnAITalk
+・talk:akari
+＊OnClose
+・close:akari

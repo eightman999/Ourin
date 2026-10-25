@@ -29,16 +29,20 @@
 |---|---|---|---|
 | 華和梨 | 固定上流をUniversal 2 dylibとして同梱、macOSモジュールの無いKAWARI辞書を解決 | 実エンジンのin-process/XPC、LOBOの起動・会話・終了・保存・別process再load | Ourin GUI上の実ゴースト操作と広い辞書網羅 |
 | KAGARI | 固定上流＋Lua 5.4.4、instance-ID ABI、Universal 2同梱 | 実エンジンのin-process/XPC、最小Lua lifecycle・load失敗 | もすはmacOS版saori_universal.native不足。実ゴーストの保存・再起動は未完 |
-| SHIOLINK | 外部processアダプターを通常factoryへ接続 | 実子process fixture、実アプリのOnBootログ | MiyoJS等の実配布ゴースト、画面操作 |
+| SHIOLINK / MiyoJS | 外部processアダプターを通常factoryへ接続、Node.jsは別途必要 | 実子process fixture、MiyoJS 2.0.3実エンジン＋最小辞書の起動・日本語/絵文字・終了 | MiyoPreview NARは配布元timeoutで未入手。実配布ゴースト・追加フィルタ・画面操作は未確認 |
+| 灯 / ese-shiori / 偽栞 / 忍 / 翡翠 / 結奈 / 美坂 | MITの独立したmacOS互換実装を固定ソースからUniversal 2同梱、結奈は実験的 | 7製品のarm64/x86_64・最低OS13.0を確認。実同梱dylibのin-process/XPC/通常factory・保存再load成功。6種は別process再loadを両CPUで確認 | 全配布ゴースト・全構文・Windows保存形式の移行は未検証。同一栞の複数同時起動に制限 |
+| 里珠 (Rishu/Proxy) | `rishu_proxy.dll` から隣接する `rishu_remote.pl` をPerlで起動し、loopback TCPで接続 | 公式1.1.32未改変サンプル＋実adapterでLOAD/GET/NOTIFY/UNLOAD/EXIT・日本語・子process回収 | Perlと依存モジュールは別途必要。人格ゴースト・画面操作は未確認 |
 
 KAGARIのLuaSocket／luautf8／luachild／lua-iconvは検証用にmacOSビルドしたが、配布ゴースト固有の追加依存まで同梱したものではない。Windows DLLやLinux ELFはmacOSで直接実行しない。
+
+資料: [追加対応の検証結果](SHIORI_EXPANSION_VERIFICATION_2026-10-25.md)、[追加栞7種](ADDITIONAL_SHIORI_ja-jp.md)、[里珠](RISHU_ja-jp.md)、[SHIOLINK/MiyoJS](SHIOLINK_ja-jp.md)、[macOSモジュール指定](NATIVE_SHIORI_ABI_ja-jp.md)。
 
 証拠: [実ゴースト検証](REAL_GHOST_VERIFICATION_2026-10-25.md)、[もすの検証](delegation/kagari-mosu-report.md)、[エンジン導入](KAWARI_KAGARI_ENGINES_ja-jp.md)。[既知の問題](KNOWN_ISSUES_ja-jp.md)と[報告手順](BUG_REPORT_GUIDE_ja-jp.md)も参照。
 
 ## P0受け入れ条件
 
 - [x] `GhostShioriRuntime`に`load/request/unload`とロード状態がある
-- [x] 通常起動と`execute load shiori`が同じ`descript.txt`の`shiori`値を使用する
+- [x] 通常起動と`execute load shiori`が同じ`descript.txt`の`shiori.macos`優先・`shiori`fallback規則を使用する
 - [x] load成功後だけGhostManagerとEventBridgeへruntimeを公開する
 - [x] unload/reload時にEventBridgeが旧runtimeを保持しない
 - [x] Native SHIORIが共通ワイヤCodec経由で構造化応答を返す

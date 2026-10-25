@@ -25,6 +25,7 @@ final class ShioriRuntimeCache {
             context.ghostURL.standardizedFileURL.path,
             context.ghostRoot.standardizedFileURL.path,
             context.moduleName.lowercased(),
+            context.nativeModuleOverride ? "native-override" : "automatic",
             c.version ?? "",
             c.encoding ?? "",
             c.forceEncoding ?? "",

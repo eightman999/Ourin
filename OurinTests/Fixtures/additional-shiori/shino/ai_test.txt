@@ -1,0 +1,5 @@
+\ev[OnBoot],boot:shino
+\ev[OnAITalk],talk:shino
+\ev[OnRemember],{$count=37}remember
+\ev[OnRecall],$count
+\ev[OnClose],close:shino

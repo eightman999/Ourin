@@ -2,9 +2,14 @@
 
 This directory contains all specifications and documentation for Ourin.
 
+[User guide](https://furinlab.com/ourin/guide/) · [Published documentation](https://furinlab.com/ourin/docs/) · [Support and compatibility](https://furinlab.com/ourin/compatibility/)
+
+Development builds implement Akari, ese-shiori, Nise-shiori, Shino, Hisui, Yuhna, Misaka, and Rishu Proxy. These additions are not included in the published release as of 2026-10-25; full compatibility with every feature or ghost is not guaranteed. See [additional engines](ADDITIONAL_SHIORI_en-us.md), [SHIOLINK / MiyoJS](SHIOLINK_en-us.md), and [Rishu Proxy](RISHU_en-us.md) for verified scope and external runtime requirements. MiyoJS was verified with its actual engine and a minimal dictionary, and Rishu with its official echo sample. Full distributed-ghost verification remains outstanding.
+
 ## 📖 How to View
 
-- **Markdown Version**: View `.md` files directly in this directory
+- **Published site**: [Read guides and documentation](https://furinlab.com/ourin/docs/)
+- **Markdown sources**: View `.md` files directly in this directory
 - **HTML Version**: View HTML files in the `html/` directory (select from the [index page](html/index.html))
 
 ## 🎯 Getting Started
@@ -18,8 +23,8 @@ These specifications include current implementation status.
 
 ### SHIORI System
 - [SHIORI/3.0M Specification](SHIORI_3.0M_SPEC_en-us.md) 🟡 **Partial** - macOS native implementation of SHIORI protocol
-  - Implemented with YAYA backend
-  - C ABI Bundle/Plugin loading not yet implemented
+  - Shared request path for YAYA, Satori, SHIOLINK, Rishu Proxy, and native runtimes
+  - See [Native SHIORI ABI](NATIVE_SHIORI_ABI_en-us.md) for development-build C ABI/XPC support and limitations
 
 ### SSTP Protocol
 - [SSTP/1.xM Specification](SSTP_1.xM_SPEC_en-us.md) 🟡 **Partial Compatibility** - macOS version of SSTP protocol

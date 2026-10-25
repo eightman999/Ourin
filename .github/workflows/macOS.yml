@@ -214,6 +214,23 @@ jobs:
               || { echo "XPC $key differs from app"; exit 1; }
           done
 
+      - name: Verify bundled additional SHIORI engines
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="DerivedData/Build/Products/Release/Ourin.app"
+          for engine in akari ese-shiori niseshiori shino hisui yuhna misaka; do
+            library="$APP/Contents/Frameworks/lib$engine.dylib"
+            lipo "$library" -verify_arch arm64 x86_64
+            [ "$(/usr/libexec/PlistBuddy -c 'Print :OurinShioriABI' "$APP/Contents/Resources/EngineMetadata/lib$engine.dylib.plist")" = ukagaka-int32 ]
+            for architecture in arm64 x86_64; do
+              xcrun vtool -arch "$architecture" -show-build "$library" | grep -Eq 'minos +13\.0'
+            done
+          done
+          cmp build/engines/additional/LICENSE-utatane-modules.txt "$APP/Contents/Resources/EngineLicenses/LICENSE-utatane-modules.txt"
+          cmp build/engines/additional/LICENSE-utatane-modules-NOTICE.txt "$APP/Contents/Resources/EngineLicenses/LICENSE-utatane-modules-NOTICE.txt"
+          cmp engines/PINNED_UPSTREAM.json "$APP/Contents/Resources/EngineLicenses/PINNED_UPSTREAM.json"
+
       - name: Upload unsigned Release app (QA/E2E use only)
         if: success()
         run: |

@@ -1566,11 +1566,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             escapeUnknown: ghostConfig?.shioriEscapeUnknown ?? false,
             cache: ghostConfig?.shioriCache ?? false
         )
-        guard ShioriRuntimeFactory.kind(for: moduleName, ghostRoot: ghostRoot) == .yaya else {
+        guard ShioriRuntimeFactory.kind(for: moduleName, ghostRoot: ghostRoot, configuration: ghostConfig) == .yaya else {
             return ShioriRuntimeLoadContext(
                 ghostURL: ghostURL,
                 ghostRoot: ghostRoot,
                 moduleName: moduleName,
+                nativeModuleOverride: ShioriRuntimeFactory.usesNativeOverride(moduleName: moduleName, configuration: ghostConfig),
                 communication: communication
             )
         }
@@ -1627,7 +1628,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     /// 共通Factoryとload(context:)を通じてSHIORIを生成・ロードする。
     func createLoadedShioriRuntime(moduleName: String, ghostRoot: URL) -> GhostShioriRuntime? {
-        guard let runtime = ShioriRuntimeFactory.makeRuntime(for: moduleName, ghostRoot: ghostRoot) else {
+        guard let runtime = ShioriRuntimeFactory.makeRuntime(for: moduleName, ghostRoot: ghostRoot, configuration: ghostConfig) else {
             Log.info("[GhostManager] Failed to create SHIORI runtime for \(moduleName)")
             return nil
         }

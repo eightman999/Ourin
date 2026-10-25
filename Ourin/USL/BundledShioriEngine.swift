@@ -1,9 +1,16 @@
 import Foundation
 
-/// macOS 同梱の KAWARI / KAGARI 実エンジンへ、Windows の `*.dll` 名から解決する。
+/// Windows の `*.dll` 名を、明示的に対応する macOS 同梱エンジンへ解決する。
 enum BundledShioriEngine: String, CaseIterable {
     case kawari
     case kagari
+    case akari
+    case eseShiori
+    case niseShiori
+    case shino
+    case hisui
+    case yuhna
+    case misaka
 
     /// 上流ビルド成果物の候補名（Frameworks または検証用 override から探す）。
     var artifactNames: [String] {
@@ -12,6 +19,13 @@ enum BundledShioriEngine: String, CaseIterable {
             return ["libkawari_shiori.dylib", "libshiori.dylib", "shiori.dylib", "kawari.dylib"]
         case .kagari:
             return ["libkagari.dylib", "kagari.dylib", "libkagari.so"]
+        case .akari: return ["libakari.dylib"]
+        case .eseShiori: return ["libese-shiori.dylib"]
+        case .niseShiori: return ["libniseshiori.dylib"]
+        case .shino: return ["libshino.dylib"]
+        case .hisui: return ["libhisui.dylib"]
+        case .yuhna: return ["libyuhna.dylib"]
+        case .misaka: return ["libmisaka.dylib"]
         }
     }
 
@@ -20,6 +34,7 @@ enum BundledShioriEngine: String, CaseIterable {
         switch self {
         case .kawari: return "ukagaka-long"
         case .kagari: return "kagari"
+        case .akari, .eseShiori, .niseShiori, .shino, .hisui, .yuhna, .misaka: return "ukagaka-int32"
         }
     }
 
@@ -27,6 +42,13 @@ enum BundledShioriEngine: String, CaseIterable {
         switch self {
         case .kawari: return "OURIN_KAWARI_ENGINE"
         case .kagari: return "OURIN_KAGARI_ENGINE"
+        case .akari: return "OURIN_AKARI_ENGINE"
+        case .eseShiori: return "OURIN_ESE_SHIORI_ENGINE"
+        case .niseShiori: return "OURIN_NISE_SHIORI_ENGINE"
+        case .shino: return "OURIN_SHINO_ENGINE"
+        case .hisui: return "OURIN_HISUI_ENGINE"
+        case .yuhna: return "OURIN_YUHNA_ENGINE"
+        case .misaka: return "OURIN_MISAKA_ENGINE"
         }
     }
 
@@ -47,6 +69,13 @@ enum BundledShioriEngine: String, CaseIterable {
             return .kawari
         case "kagari":
             return .kagari
+        case "akari": return .akari
+        case "ese-shiori": return .eseShiori
+        case "niseshiori", "nise-shiori": return .niseShiori
+        case "shino": return .shino
+        case "hisui": return .hisui
+        case "yuhna": return .yuhna
+        case "misaka": return .misaka
         case "shiori":
             return isKawariDictionaryRoot(dictionaryDirectory(moduleName: moduleName, ghostRoot: ghostRoot)) ? .kawari : nil
         default:
