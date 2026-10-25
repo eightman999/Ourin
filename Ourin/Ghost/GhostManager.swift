@@ -1051,7 +1051,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// 新しい指定が来たときは、古い補間を中断して最新の目標値へ切り替える。
     var visualEffectAnimationTimers: [String: Timer] = [:]
     /// \![execute,websocket,URL] で開いた WebSocket 接続（URL 文字列でキー）
-    var webSocketTasks: [String: URLSessionWebSocketTask] = [:]
+    /// `\![execute,websocket]` の接続（キーは接続時の URL 文字列）。メインスレッドで更新する。
+    var webSocketConnections: [String: WebSocketConnection] = [:]
     /// \![execute,http-stream*,URL] で開始した HTTP ストリーミング要求（URL 文字列でキー）。\![cancel,http,URL] で中断する。
     var httpStreamingTasks: [String: URLSessionDataTask] = [:]
     /// URLSession delegate を保持するための HTTP ストリーミング実行器。
@@ -1861,6 +1862,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         didShutdown = true
         cancelActiveURLDropDownload()
         cancelMoveWindowAsync(scope: nil)
+        cancelAllWebSockets()
         vanishSelectedSourceScript = nil
         vanishSelectedDisplayScript = nil
         vanishSelectedCompletion = nil
