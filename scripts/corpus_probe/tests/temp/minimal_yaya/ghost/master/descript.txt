@@ -1,0 +1,4 @@
+type,ghost
+charset,UTF-8
+name,CorpusProbeFixture
+shiori,yaya.dll

@@ -1,0 +1,19 @@
+OnBoot
+{
+    "\0\s[0]probe-ok\e"
+}
+
+OnMouseDoubleClick
+{
+    "\0\s[0]click\e"
+}
+
+OnAITalk
+{
+    "\0\s[0]talk\e"
+}
+
+OnClose
+{
+    "\0\s[0]bye\e"
+}

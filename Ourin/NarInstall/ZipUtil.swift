@@ -79,45 +79,76 @@ enum ZipUtil {
         }
     }
 
-    /// Windows形式のパス（バックスラッシュ区切り）を含むファイルを、正しいディレクトリ構造に変換
-    private static func normalizeWindowsPaths(at root: URL) throws {
+    /// Windows区切りと通常のディレクトリを統合する。既存ツリーを削除しない。
+    /// 同じ正規化先に複数のファイルがある曖昧なアーカイブは上書きせず拒否する。
+    static func normalizeWindowsPaths(at root: URL) throws {
         let fm = FileManager.default
-        guard let enumerator = fm.enumerator(at: root, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsSubdirectoryDescendants]) else { return }
+        // Resolve the nearest existing ancestor first. Foundation can return
+        // /var for an existing URL but /private/var for a not-yet-created child.
+        func resolvedPath(_ url: URL) -> String {
+            var ancestor = url.standardizedFileURL
+            var suffix: [String] = []
+            while (try? fm.attributesOfItem(atPath: ancestor.path)) == nil && ancestor.path != "/" {
+                suffix.append(ancestor.lastPathComponent)
+                ancestor.deleteLastPathComponent()
+            }
+            var resolved = ancestor.resolvingSymlinksInPath()
+            for component in suffix.reversed() { resolved.appendPathComponent(component) }
+            return resolved.path
+        }
+        let canonicalRoot = root.resolvingSymlinksInPath()
+        let boundary = resolvedPath(canonicalRoot)
+        let keys: Set<URLResourceKey> = [.isDirectoryKey, .isSymbolicLinkKey]
 
-        var filesToMove: [(from: URL, to: URL)] = []
-
-        // 最初のレベルのみをスキャンして、バックスラッシュを含むファイル/ディレクトリを検出
-        for case let fileURL as URL in enumerator {
-            let filename = fileURL.lastPathComponent
-            if filename.contains("\\") {
-                // バックスラッシュをスラッシュに置き換えてパスを正規化
-                let normalizedPath = filename.replacingOccurrences(of: "\\", with: "/")
-                let targetURL = root.appendingPathComponent(normalizedPath)
-                filesToMove.append((from: fileURL, to: targetURL))
+        func merge(_ source: URL, into target: URL) throws {
+            guard isWithinRoot(resolvedPath(source), root: boundary),
+                  isWithinRoot(resolvedPath(target), root: boundary) else {
+                throw NarInstaller.Error.zipSlipDetected(target.path)
+            }
+            let sourceValues = try source.resourceValues(forKeys: keys)
+            guard sourceValues.isSymbolicLink != true else {
+                throw NarInstaller.Error.zipSlipDetected(source.path)
+            }
+            if let targetValues = try? target.resourceValues(forKeys: keys) {
+                guard targetValues.isSymbolicLink != true else {
+                    throw NarInstaller.Error.zipSlipDetected(target.path)
+                }
+                guard sourceValues.isDirectory == true, targetValues.isDirectory == true else {
+                    throw NarInstaller.Error.unzipFailed("Conflicting normalized ZIP path: \(target.lastPathComponent)")
+                }
+                for child in try fm.contentsOfDirectory(at: source, includingPropertiesForKeys: Array(keys)) {
+                    try merge(child, into: target.appendingPathComponent(child.lastPathComponent))
+                }
+                try fm.removeItem(at: source) // The merged source directory is now empty.
+            } else {
+                try fm.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
+                try fm.moveItem(at: source, to: target)
             }
         }
 
-        // バックスラッシュを含むファイルを移動
-        for (fromURL, toURL) in filesToMove {
-            // ターゲットのディレクトリを作成
-            let targetDir = toURL.deletingLastPathComponent()
-            try fm.createDirectory(at: targetDir, withIntermediateDirectories: true)
-
-            // ファイル/ディレクトリを移動
-            if fm.fileExists(atPath: toURL.path) {
-                try fm.removeItem(at: toURL)
+        func normalize(_ directory: URL) throws {
+            let entries = try fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: Array(keys))
+                .sorted { $0.lastPathComponent < $1.lastPathComponent }
+            for entry in entries where entry.lastPathComponent.contains("\\") {
+                let normalized = entry.lastPathComponent.replacingOccurrences(of: "\\", with: "/")
+                // Windows writers may prefix relative paths with .\ or repeat
+                // separators. These still refer to the same in-root directory.
+                let pathParts = normalized.split(separator: "/").filter { $0 != "." }
+                guard !normalized.hasPrefix("/"), !pathParts.isEmpty,
+                      pathParts.allSatisfy({ $0 != ".." && !$0.contains(":") }) else {
+                    throw NarInstaller.Error.zipSlipDetected(entry.path)
+                }
+                try merge(entry, into: directory.appendingPathComponent(pathParts.joined(separator: "/")))
             }
-            try fm.moveItem(at: fromURL, to: toURL)
-        }
-
-        // 再帰的に全サブディレクトリを処理
-        guard let fullEnumerator = fm.enumerator(at: root, includingPropertiesForKeys: [.isDirectoryKey], options: []) else { return }
-        for case let dirURL as URL in fullEnumerator {
-            let vals = try dirURL.resourceValues(forKeys: [.isDirectoryKey])
-            if vals.isDirectory == true {
-                try normalizeWindowsPaths(at: dirURL)
+            // Re-enumerate after moves, visiting each real directory once.
+            for child in try fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: Array(keys)) {
+                let values = try child.resourceValues(forKeys: keys)
+                if values.isDirectory == true && values.isSymbolicLink != true {
+                    try normalize(child)
+                }
             }
         }
+        try normalize(canonicalRoot)
     }
 
     /// 展開した NAR の中身のルート。直下に install.txt が無く、隠しファイル（`.nar_icon` など）と

@@ -40,6 +40,52 @@ private final class UpdateDownloadURLProtocol: URLProtocol {
 
 @Suite(.serialized)
 struct NarInstallTests {
+    @Test(arguments: ["shell\\master", ".\\shell\\master", "shell\\\\master"])
+    func normalizeMixedWindowsDirectoriesPreservesBothTrees(mixedPath: String) throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? fm.removeItem(at: root) }
+        try fm.createDirectory(at: root.appendingPathComponent("shell/master"), withIntermediateDirectories: true)
+        try fm.createDirectory(at: root.appendingPathComponent(mixedPath), withIntermediateDirectories: true)
+        try "original".write(to: root.appendingPathComponent("shell/master/keep.txt"), atomically: true, encoding: .utf8)
+        try "added".write(to: root.appendingPathComponent(mixedPath + "/added.txt"), atomically: true, encoding: .utf8)
+        try "nested".write(to: root.appendingPathComponent(mixedPath + "/sub\\nested.txt"), atomically: true, encoding: .utf8)
+
+        try ZipUtil.normalizeWindowsPaths(at: root)
+
+        #expect(try String(contentsOf: root.appendingPathComponent("shell/master/keep.txt"), encoding: .utf8) == "original")
+        #expect(try String(contentsOf: root.appendingPathComponent("shell/master/added.txt"), encoding: .utf8) == "added")
+        #expect(try String(contentsOf: root.appendingPathComponent("shell/master/sub/nested.txt"), encoding: .utf8) == "nested")
+        #expect(!fm.fileExists(atPath: root.appendingPathComponent(mixedPath).path))
+    }
+
+    @Test
+    func normalizeAmbiguousFileDoesNotOverwrite() throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? fm.removeItem(at: root) }
+        try fm.createDirectory(at: root.appendingPathComponent("ghost/master"), withIntermediateDirectories: true)
+        let original = root.appendingPathComponent("ghost/master/descript.txt")
+        try "original".write(to: original, atomically: true, encoding: .utf8)
+        try "conflict".write(to: root.appendingPathComponent("ghost\\master\\descript.txt"), atomically: true, encoding: .utf8)
+        #expect(throws: NarInstaller.Error.self) { try ZipUtil.normalizeWindowsPaths(at: root) }
+        #expect(try String(contentsOf: original, encoding: .utf8) == "original")
+    }
+
+    @Test
+    func normalizeWindowsTraversalCannotWriteOutsideRoot() throws {
+        let fm = FileManager.default
+        let work = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let root = work.appendingPathComponent("extracted")
+        defer { try? fm.removeItem(at: work) }
+        try fm.createDirectory(at: root, withIntermediateDirectories: true)
+        let outside = work.appendingPathComponent("keep.txt")
+        try "original".write(to: outside, atomically: true, encoding: .utf8)
+        try "conflict".write(to: root.appendingPathComponent("..\\keep.txt"), atomically: true, encoding: .utf8)
+        #expect(throws: NarInstaller.Error.self) { try ZipUtil.normalizeWindowsPaths(at: root) }
+        #expect(try String(contentsOf: outside, encoding: .utf8) == "original")
+    }
+
     @Test
     func parseInstallTxt() throws {
         let raw = "type,ghost\ndirectory,foo"

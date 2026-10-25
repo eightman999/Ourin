@@ -7,7 +7,23 @@
 
 namespace {
 
-std::string convertEncoding(const std::string& input, const char* from, const char* to) {
+size_t validUTF8ScalarLength(const char* source, size_t available) {
+    if (available == 0) return 0;
+    const auto* bytes = reinterpret_cast<const unsigned char*>(source);
+    const unsigned char first = bytes[0];
+    const size_t length = first < 0x80 ? 1 : first >= 0xC2 && first <= 0xDF ? 2
+        : first >= 0xE0 && first <= 0xEF ? 3 : first >= 0xF0 && first <= 0xF4 ? 4 : 0;
+    if (length == 0 || available < length) return 0;
+    for (size_t i = 1; i < length; ++i) {
+        if ((bytes[i] & 0xC0) != 0x80) return 0;
+    }
+    if (length == 3 && ((first == 0xE0 && bytes[1] < 0xA0) || (first == 0xED && bytes[1] >= 0xA0))) return 0;
+    if (length == 4 && ((first == 0xF0 && bytes[1] < 0x90) || (first == 0xF4 && bytes[1] >= 0x90))) return 0;
+    return length;
+}
+
+std::string convertEncoding(const std::string& input, const char* from, const char* to,
+                            bool substituteUnrepresentableUTF8 = false) {
     if (input.empty()) {
         return {};
     }
@@ -36,6 +52,19 @@ std::string convertEncoding(const std::string& input, const char* from, const ch
         if (result != static_cast<size_t>(-1)) {
             continue;
         }
+        // Upstream CUnicodeF::utf16be_to_sjis replaces an unrepresentable
+        // character with a space. Match that behavior only for valid Unicode;
+        // malformed UTF-8 and invalid CP932 still fail instead of losing bytes.
+        if (errno == EILSEQ && substituteUnrepresentableUTF8 && destinationRemaining > 0) {
+            const size_t length = validUTF8ScalarLength(source, sourceRemaining);
+            if (length > 0) {
+                *destination++ = ' ';
+                --destinationRemaining;
+                source += length;
+                sourceRemaining -= length;
+                continue;
+            }
+        }
         if (errno != E2BIG) {
             iconv_close(converter);
             throw std::runtime_error("iconv conversion failed");
@@ -60,7 +89,10 @@ std::string SJIStoUTF8(const std::string& source) {
 }
 
 std::string UTF8toSJIS(const std::string& source) {
-    return convertEncoding(source, "UTF-8", "CP932");
+    // Match upstream charset.cpp: a leading UTF-8 signature is metadata, not
+    // a CP932 character. Embedded U+FEFF follows normal conversion semantics.
+    const size_t offset = source.compare(0, 3, "\xEF\xBB\xBF") == 0 ? 3 : 0;
+    return convertEncoding(source.substr(offset), "UTF-8", "CP932", true);
 }
 
 std::string UTF8toSJISEscapingUnknown(const std::string& source) {

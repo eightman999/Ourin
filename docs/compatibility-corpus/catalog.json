@@ -1,0 +1,673 @@
+{
+  "schema": 1,
+  "items": [
+    {
+      "id": "unyu-lunchbox",
+      "name": "うにゅうのお弁当箱",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/unyu_lunchbox/releases/tag/1.0.1",
+      "download_url": "https://github.com/lost-nd-xxx/unyu_lunchbox/releases/download/1.0.1/lnx_unyu_lunchbox.nar",
+      "engine_hint": "YAYA"
+    },
+    {
+      "id": "ukaclock",
+      "name": "うかくろっく",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/ukaclock/releases/tag/1.0.2",
+      "download_url": "https://github.com/lost-nd-xxx/ukaclock/releases/download/1.0.2/lnx_ukaclock.nar",
+      "engine_hint": "YAYA"
+    },
+    {
+      "id": "luminousmodulation-radio",
+      "name": "LuminousModulation_Radio",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/LuminousModulation_Radio/releases/tag/1.0.2",
+      "download_url": "https://github.com/lost-nd-xxx/LuminousModulation_Radio/releases/download/1.0.2/LuminousModulation_Radio.nar"
+    },
+    {
+      "id": "jong-rinrin",
+      "name": "雀-リンリン",
+      "kind": "ghost",
+      "source_url": "https://github.com/nikolat/jong-rinrin/releases/tag/v1.1.0",
+      "download_url": "https://github.com/nikolat/jong-rinrin/releases/download/v1.1.0/jong-rinrin.nar",
+      "engine_hint": "YAYA"
+    },
+    {
+      "id": "jong-whanwhan",
+      "name": "雀-ホワンホワン",
+      "kind": "ghost",
+      "source_url": "https://github.com/nikolat/jong-whanwhan/releases/tag/v1.1.0",
+      "download_url": "https://github.com/nikolat/jong-whanwhan/releases/download/v1.1.0/jong-whanwhan.nar",
+      "engine_hint": "里々"
+    },
+    {
+      "id": "jong-chunchun",
+      "name": "雀-チュンチュン",
+      "kind": "ghost",
+      "source_url": "https://github.com/nikolat/jong-chunchun/releases/tag/v1.1.0",
+      "download_url": "https://github.com/nikolat/jong-chunchun/releases/download/v1.1.0/jong-chunchun.nar",
+      "engine_hint": "華和梨"
+    },
+    {
+      "id": "post-and-komainu-v2",
+      "name": "ポストと狛犬",
+      "kind": "ghost",
+      "source_url": "https://github.com/ukatech/POST_and_KOMAINU_V2/releases/tag/38349596905",
+      "download_url": "https://github.com/ukatech/POST_and_KOMAINU_V2/releases/download/38349596905/POST_and_KOMAINU_V2.nar",
+      "engine_hint": "里々"
+    },
+    {
+      "id": "ayalilith",
+      "name": "紺野りりす",
+      "kind": "ghost",
+      "source_url": "https://github.com/YAYA-shiori/ayalilith/releases/tag/38346446309",
+      "download_url": "https://github.com/YAYA-shiori/ayalilith/releases/download/38346446309/ayalilith.nar"
+    },
+    {
+      "id": "konnoyayame",
+      "name": "紺野ややめ",
+      "kind": "ghost",
+      "source_url": "https://github.com/YAYA-shiori/konnoyayame/releases/tag/38346316034",
+      "download_url": "https://github.com/YAYA-shiori/konnoyayame/releases/download/38346316034/konnoyayame.nar",
+      "engine_hint": "YAYA"
+    },
+    {
+      "id": "taidanasanosan",
+      "name": "taidanaSanoSan",
+      "kind": "ghost",
+      "source_url": "https://github.com/tukinami/taidanaSanoSan/releases/tag/v1.23.0",
+      "download_url": "https://github.com/tukinami/taidanaSanoSan/releases/tag/v1.23.0",
+      "engine_hint": "YAYA",
+      "github_release_asset": "taidanaSanoSan.nar",
+      "download_link_policy": "source_page_only"
+    },
+    {
+      "id": "something-like-balloon",
+      "name": "something_like_balloon",
+      "kind": "balloon",
+      "source_url": "https://github.com/lost-nd-xxx/something_like_balloon/releases/tag/1.0.0",
+      "download_url": "https://github.com/lost-nd-xxx/something_like_balloon/releases/download/1.0.0/something_like_berry_tart.nar"
+    },
+    {
+      "id": "claudia",
+      "name": "claudia",
+      "kind": "ghost",
+      "source_url": "https://github.com/ponapalt/claudia/releases/tag/37863574936",
+      "download_url": "https://github.com/ponapalt/claudia/releases/download/37863574936/claudia.nar",
+      "engine_hint": "YAYA"
+    },
+    {
+      "id": "ukagakaghostmessenger",
+      "name": "UkagakaGhostMessenger",
+      "kind": "plugin",
+      "source_url": "https://github.com/lost-nd-xxx/UkagakaGhostMessenger/releases/tag/2.0.1",
+      "download_url": "https://github.com/lost-nd-xxx/UkagakaGhostMessenger/releases/download/2.0.1/UkagakaGhostMessenger.nar"
+    },
+    {
+      "id": "ponyaduma",
+      "name": "ぽにゃづま",
+      "kind": "ghost",
+      "source_url": "https://github.com/ponapalt/ponyaduma/releases/tag/v20260928161809-2354c2b",
+      "download_url": "https://github.com/ponapalt/ponyaduma/releases/download/v20260928161809-2354c2b/ponyaduma.nar"
+    },
+    {
+      "id": "knowledgeable-kernel",
+      "name": "knowledgeable_kernel",
+      "kind": "ghost",
+      "source_url": "https://github.com/Tatakinov/knowledgeable_kernel/releases/tag/v2.0.0",
+      "download_url": "https://github.com/Tatakinov/knowledgeable_kernel/releases/download/v2.0.0/knowledgeable_kernel.nar"
+    },
+    {
+      "id": "tmidi-msg",
+      "name": "tmidi_msg",
+      "kind": "plugin",
+      "source_url": "https://github.com/JiayuYangX/tmidi_msg/releases/tag/v1.1.0",
+      "download_url": "https://github.com/JiayuYangX/tmidi_msg/releases/download/v1.1.0/tmidi_msg.nar"
+    },
+    {
+      "id": "ghost-in-a-nutshell",
+      "name": "ghost_in_a_nutshell",
+      "kind": "ghost",
+      "source_url": "https://github.com/syobocat/ghost_in_a_nutshell/releases/tag/v0.1.1",
+      "download_url": "https://github.com/syobocat/ghost_in_a_nutshell/releases/download/v0.1.1/ghost_in_a_nutshell.nar"
+    },
+    {
+      "id": "my-own-translator",
+      "name": "my_own_translator",
+      "kind": "ghost",
+      "source_url": "https://github.com/Tatakinov/my_own_translator/releases/tag/v2.1.0",
+      "download_url": "https://github.com/Tatakinov/my_own_translator/releases/download/v2.1.0/my_own_translator.nar"
+    },
+    {
+      "id": "doll-at-the-bay-window",
+      "name": "doll_at_the_bay_window",
+      "kind": "ghost",
+      "source_url": "https://github.com/tukinami/doll_at_the_bay_window/releases/tag/v1.0.0",
+      "download_url": "https://github.com/tukinami/doll_at_the_bay_window/releases/tag/v1.0.0",
+      "github_release_asset": "doll_at_the_bay_window.nar",
+      "download_link_policy": "source_page_only"
+    },
+    {
+      "id": "stampcollection",
+      "name": "stampcollection",
+      "kind": "plugin",
+      "source_url": "https://github.com/YAYA-shiori/stampcollection/releases/tag/v20260330102740-79221c6",
+      "download_url": "https://github.com/YAYA-shiori/stampcollection/releases/download/v20260330102740-79221c6/stampcollection.nar"
+    },
+    {
+      "id": "wallet-of-unyu",
+      "name": "Wallet of Unyu",
+      "kind": "plugin",
+      "source_url": "https://github.com/nikolat/wallet_of_unyu/releases/tag/v1.2.0",
+      "download_url": "https://github.com/nikolat/wallet_of_unyu/releases/download/v1.2.0/wallet_of_unyu.nar"
+    },
+    {
+      "id": "hamirlore",
+      "name": "HamirLore",
+      "kind": "ghost",
+      "source_url": "https://github.com/Shimofumi/HamirLore/releases/tag/v2.0.0",
+      "download_url": "https://github.com/Shimofumi/HamirLore/releases/download/v2.0.0/HamirLore.nar"
+    },
+    {
+      "id": "talismanic-beast-pattern",
+      "name": "魔除けの獣面紋",
+      "kind": "balloon",
+      "source_url": "https://github.com/tukinami/talismanic_beast_pattern/releases/tag/v1.1.0",
+      "download_url": "https://github.com/tukinami/talismanic_beast_pattern/releases/download/v1.1.0/talismanic_beast_pattern.nar"
+    },
+    {
+      "id": "banjou-no-sumikko-de",
+      "name": "banjou_no_sumikko_de",
+      "kind": "ghost",
+      "source_url": "https://github.com/Tatakinov/banjou_no_sumikko_de/releases/tag/1.0.0",
+      "download_url": "https://github.com/Tatakinov/banjou_no_sumikko_de/releases/download/1.0.0/banjou_no_sumikko_de.nar"
+    },
+    {
+      "id": "jong-bari",
+      "name": "雀々BARIBARI",
+      "kind": "ghost",
+      "source_url": "https://github.com/nikolat/jong-bari/releases/tag/v1.0.6",
+      "download_url": "https://github.com/nikolat/jong-bari/releases/download/v1.0.6/jong-bari.nar",
+      "engine_hint": "灯"
+    },
+    {
+      "id": "wind-memory-petit",
+      "name": "wind_memory_petit",
+      "kind": "ghost",
+      "source_url": "https://github.com/Tatakinov/wind_memory_petit/releases/tag/v1.0.0",
+      "download_url": "https://github.com/Tatakinov/wind_memory_petit/releases/download/v1.0.0/wind_memory_petit.nar"
+    },
+    {
+      "id": "yomibito-minarai",
+      "name": "yomibito_minarai",
+      "kind": "ghost",
+      "source_url": "https://github.com/Tatakinov/yomibito_minarai/releases/tag/v1.1.0",
+      "download_url": "https://github.com/Tatakinov/yomibito_minarai/releases/download/v1.1.0/yomibito_minarai.nar"
+    },
+    {
+      "id": "bouyomi",
+      "name": "Bouyomi",
+      "kind": "plugin",
+      "source_url": "https://github.com/apxxxxxxe/Bouyomi/releases/tag/v1.5.1",
+      "download_url": "https://github.com/apxxxxxxe/Bouyomi/releases/download/v1.5.1/Bouyomi.nar"
+    },
+    {
+      "id": "ukaten",
+      "name": "うかてん",
+      "kind": "plugin",
+      "source_url": "https://github.com/nikolat/ukaten/releases/tag/v1.0",
+      "download_url": "https://github.com/nikolat/ukaten/releases/download/v1.0/ukaten.nar"
+    },
+    {
+      "id": "ukadonyu",
+      "name": "うかどんゅう",
+      "kind": "plugin",
+      "source_url": "https://github.com/nikolat/ukadonyu/releases/tag/v2.2",
+      "download_url": "https://github.com/nikolat/ukadonyu/releases/download/v2.2/ukadonyu.nar"
+    },
+    {
+      "id": "ukagakaplugin-cevio-talker",
+      "name": "ukagakaPlugin_CeVIO-Talker",
+      "kind": "plugin",
+      "source_url": "https://github.com/ambergon/ukagakaPlugin_CeVIO-Talker/releases/tag/version1.0.7",
+      "download_url": "https://github.com/ambergon/ukagakaPlugin_CeVIO-Talker/releases/download/version1.0.7/ukagakaPlugin_CeVIO-Talker.nar"
+    },
+    {
+      "id": "ssp-aivoice",
+      "name": "SSP-AIVOICE",
+      "kind": "plugin",
+      "source_url": "https://github.com/opera7133/SSP-AIVOICE/releases/tag/v1.0.2",
+      "download_url": "https://github.com/opera7133/SSP-AIVOICE/releases/download/v1.0.2/AIVOICE.nar"
+    },
+    {
+      "id": "ukagakaplugin-getwindowtitle",
+      "name": "ukagakaPlugin_getWindowTitle",
+      "kind": "plugin",
+      "source_url": "https://github.com/ambergon/ukagakaPlugin_getWindowTitle/releases/tag/1.0.0",
+      "download_url": "https://github.com/ambergon/ukagakaPlugin_getWindowTitle/releases/download/1.0.0/ukagakaPlugin_getWindowTitle.nar"
+    },
+    {
+      "id": "ukagakaplugin-dbdiary",
+      "name": "UkagakaPlugin_DBdiary",
+      "kind": "plugin",
+      "source_url": "https://github.com/ambergon/UkagakaPlugin_DBdiary/releases/tag/1.0.1",
+      "download_url": "https://github.com/ambergon/UkagakaPlugin_DBdiary/releases/download/1.0.1/UkagakaPlugin_DBdiary.nar"
+    },
+    {
+      "id": "jb-standard-balloon",
+      "name": "雀卓用透明バルーン",
+      "kind": "balloon",
+      "source_url": "https://github.com/nikolat/jb-standard-balloon/releases/tag/v1.0.0",
+      "download_url": "https://github.com/nikolat/jb-standard-balloon/releases/download/v1.0.0/jb-standard-balloon.nar"
+    },
+    {
+      "id": "charamelnetwork",
+      "name": "CharameLNetwork",
+      "kind": "plugin",
+      "source_url": "https://github.com/nikolat/CharameLNetwork/releases/tag/v0.5",
+      "download_url": "https://github.com/nikolat/CharameLNetwork/releases/download/v0.5/CharameLNetwork.nar"
+    },
+    {
+      "id": "balloonselector",
+      "name": "balloonselector",
+      "kind": "plugin",
+      "source_url": "https://github.com/nikolat/balloonselector/releases/tag/v2.4.0",
+      "download_url": "https://github.com/nikolat/balloonselector/releases/download/v2.4.0/balloonselector.nar"
+    },
+    {
+      "id": "futatsugi-balloon-0",
+      "name": "フタツギノフウセン・青",
+      "kind": "balloon",
+      "source_url": "https://tukimibito.official.jp/ghost/ghost_balloon.html",
+      "download_url": "http://tukimibito.official.jp/ghost/B0_puppets.zip"
+    },
+    {
+      "id": "futatsugi-balloon-1",
+      "name": "フタツギノフウセン・白",
+      "kind": "balloon",
+      "source_url": "https://tukimibito.official.jp/ghost/ghost_balloon.html",
+      "download_url": "http://tukimibito.official.jp/ghost/B1_puppets.zip"
+    },
+    {
+      "id": "futatsugi-balloon-2",
+      "name": "フタツギノフウセン・黒",
+      "kind": "balloon",
+      "source_url": "https://tukimibito.official.jp/ghost/ghost_balloon.html",
+      "download_url": "http://tukimibito.official.jp/ghost/B2_puppets.zip"
+    },
+    {
+      "id": "futatsugi-balloon-3",
+      "name": "フタツギノフウセン・紅",
+      "kind": "balloon",
+      "source_url": "https://tukimibito.official.jp/ghost/ghost_balloon.html",
+      "download_url": "http://tukimibito.official.jp/ghost/B3_puppets.zip"
+    },
+    {
+      "id": "futatsugi-balloon-4",
+      "name": "フタツギノフウセン・晶",
+      "kind": "balloon",
+      "source_url": "https://tukimibito.official.jp/ghost/ghost_balloon.html",
+      "download_url": "http://tukimibito.official.jp/ghost/B4_puppets.zip"
+    },
+    {
+      "id": "cafe-adapt",
+      "name": "Adaptation",
+      "kind": "ghost",
+      "source_url": "https://prayfortiny.net/ukagaka.html",
+      "download_url": "https://prayfortiny.net/ukagaka/nar/cafe_adapt.nar"
+    },
+    {
+      "id": "for-the-tiny",
+      "name": "小さなきみと歌ううた",
+      "kind": "ghost",
+      "source_url": "https://prayfortiny.net/ukagaka.html",
+      "download_url": "https://prayfortiny.net/ukagaka/nar/for_the_tiny.nar"
+    },
+    {
+      "id": "miku-glitched-girl",
+      "name": "未紅はグリッチガール",
+      "kind": "ghost",
+      "source_url": "https://prayfortiny.net/ukagaka.html",
+      "download_url": "https://prayfortiny.net/ukagaka/nar/miku_glitched_girl.nar"
+    },
+    {
+      "id": "lilies",
+      "name": "Lilies",
+      "kind": "balloon",
+      "source_url": "https://prayfortiny.net/ukagaka.html",
+      "download_url": "https://prayfortiny.net/ukagaka/nar/lilies.nar"
+    },
+    {
+      "id": "emily4",
+      "name": "Emily/Phase4.5",
+      "kind": "ghost",
+      "source_url": "https://ssp.shillest.net/ghost.html",
+      "download_url": "https://ssp.shillest.net/ghost/emily4.nar"
+    },
+    {
+      "id": "emily4-balloon",
+      "name": "Emily/Phase4.5 専用バルーン",
+      "kind": "balloon",
+      "source_url": "https://ssp.shillest.net/ghost.html",
+      "download_url": "https://ssp.shillest.net/ghost/emily4-balloon.nar"
+    },
+    {
+      "id": "mobilemaster",
+      "name": "the MobileMaster",
+      "kind": "ghost",
+      "source_url": "https://ssp.shillest.net/ghost.html",
+      "download_url": "https://ssp.shillest.net/ghost/mobilemaster.nar"
+    },
+    {
+      "id": "k3r",
+      "name": "このみ3rd/Reloaded",
+      "kind": "ghost",
+      "source_url": "https://ssp.shillest.net/ghost.html",
+      "download_url": "https://ssp.shillest.net/ghost/K3R.nar"
+    },
+    {
+      "id": "syoko",
+      "name": "レジ打ちファイター翔子",
+      "kind": "ghost",
+      "source_url": "https://ssp.shillest.net/ghost.html",
+      "download_url": "https://ssp.shillest.net/ghost/syoko.nar"
+    },
+    {
+      "id": "nightwork-bouyomi-plugin",
+      "name": "棒読みちゃん連携プラグイン",
+      "kind": "plugin",
+      "source_url": "https://nightwork.sakura.ne.jp/ukagaka/tools/BouyomiChan_PLUGIN/BouyomiChan_PLUGIN.html",
+      "download_url": "https://nightwork.sakura.ne.jp/ukagaka/tools/BouyomiChan_PLUGIN/BouyomiChan_PLUGIN(20241208).nar"
+    },
+    {
+      "id": "sakura-restore",
+      "name": "sakura-restore",
+      "kind": "ghost",
+      "source_url": "https://github.com/JiayuYangX/sakura-restore/releases/tag/261005",
+      "download_url": "https://github.com/JiayuYangX/sakura-restore/releases/download/261005/first.nar",
+      "engine_hint": "first.dll"
+    },
+    {
+      "id": "lilynovelplayer",
+      "name": "LilyNovelPlayer",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/LilyNovelPlayer/releases/tag/v1.0.5",
+      "download_url": "https://github.com/lost-nd-xxx/LilyNovelPlayer/releases/download/v1.0.5/LilyNovelPlayer.nar"
+    },
+    {
+      "id": "walk-with-unyu",
+      "name": "walk_with_unyu",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/walk_with_unyu/releases/tag/v1.0.1",
+      "download_url": "https://github.com/lost-nd-xxx/walk_with_unyu/releases/download/v1.0.1/lnx_walk_with_unyu.nar"
+    },
+    {
+      "id": "ugmnavigator-umechan",
+      "name": "UGMNavigator_Umechan",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/UGMNavigator_Umechan/releases/tag/1.0.4",
+      "download_url": "https://github.com/lost-nd-xxx/UGMNavigator_Umechan/releases/download/1.0.4/UGMNavigator_Umechan.nar"
+    },
+    {
+      "id": "weathertimecapsule",
+      "name": "WeatherTimeCapsule",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/WeatherTimeCapsule/releases/tag/1.0.2",
+      "download_url": "https://github.com/lost-nd-xxx/WeatherTimeCapsule/releases/download/1.0.2/WeatherTimeCapsule.nar",
+      "engine_hint": "YAYA"
+    },
+    {
+      "id": "mancala-player-amethyst",
+      "name": "mancala-player-amethyst",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/mancala-player-amethyst/releases/tag/v1.0.0",
+      "download_url": "https://github.com/lost-nd-xxx/mancala-player-amethyst/releases/download/v1.0.0/mancala-player-amethyst.nar"
+    },
+    {
+      "id": "mancala-player-amber",
+      "name": "mancala-player-amber",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/mancala-player-amber/releases/tag/v1.0.0",
+      "download_url": "https://github.com/lost-nd-xxx/mancala-player-amber/releases/download/v1.0.0/mancala-player-amber.nar"
+    },
+    {
+      "id": "mancala-board-ghost",
+      "name": "mancala-board-ghost",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/mancala-board-ghost/releases/tag/v1.0.1",
+      "download_url": "https://github.com/lost-nd-xxx/mancala-board-ghost/releases/download/v1.0.1/mancala-board-ghost.nar"
+    },
+    {
+      "id": "hopefullyeverafter-yume",
+      "name": "HopefullyEverAfter_Yume",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/HopefullyEverAfter_Yume/releases/tag/1.0.1",
+      "download_url": "https://github.com/lost-nd-xxx/HopefullyEverAfter_Yume/releases/download/1.0.1/HopefullyEverAfter_Yume.nar"
+    },
+    {
+      "id": "flele-aya",
+      "name": "flele_aya",
+      "kind": "ghost",
+      "source_url": "https://github.com/YAYA-shiori/flele_aya/releases/tag/v20260425170548-16c3df0",
+      "download_url": "https://github.com/YAYA-shiori/flele_aya/releases/download/v20260425170548-16c3df0/flele_aya.nar"
+    },
+    {
+      "id": "fortuneteller-finiteseaslugtheorem",
+      "name": "FortuneTeller_FiniteSeaslugTheorem",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/FortuneTeller_FiniteSeaslugTheorem/releases/tag/1.0.0",
+      "download_url": "https://github.com/lost-nd-xxx/FortuneTeller_FiniteSeaslugTheorem/releases/download/1.0.0/FortuneTeller_FiniteSeaslugTheorem.nar"
+    },
+    {
+      "id": "yousaveme-iloveyou",
+      "name": "YouSaveMe_ILoveYou",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/YouSaveMe_ILoveYou/releases/tag/1.0.0",
+      "download_url": "https://github.com/lost-nd-xxx/YouSaveMe_ILoveYou/releases/download/1.0.0/YouSaveMe_ILoveYou.nar"
+    },
+    {
+      "id": "perpetual-whisper",
+      "name": "perpetual_whisper",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/perpetual_whisper/releases/tag/1.0.0",
+      "download_url": "https://github.com/lost-nd-xxx/perpetual_whisper/releases/download/1.0.0/perpetual_whisper.nar"
+    },
+    {
+      "id": "the-hand",
+      "name": "_the_hand_",
+      "kind": "ghost",
+      "source_url": "https://github.com/YAYA-shiori/_the_hand_/releases/tag/v20260223112405-124d41a",
+      "download_url": "https://github.com/YAYA-shiori/_the_hand_/releases/download/v20260223112405-124d41a/_the_hand_.nar"
+    },
+    {
+      "id": "ukagaka-simultaneous-interpreter",
+      "name": "ukagaka-simultaneous-interpreter",
+      "kind": "ghost",
+      "source_url": "https://github.com/nikolat/ukagaka-simultaneous-interpreter/releases/tag/v1.0.1",
+      "download_url": "https://github.com/nikolat/ukagaka-simultaneous-interpreter/releases/download/v1.0.1/simultaneous-interpreter.nar"
+    },
+    {
+      "id": "countdown-to-the-end",
+      "name": "countdown_to_the_end",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/countdown_to_the_end/releases/tag/1.0.0",
+      "download_url": "https://github.com/lost-nd-xxx/countdown_to_the_end/releases/download/1.0.0/countdown_to_the_end.nar"
+    },
+    {
+      "id": "youto",
+      "name": "Youto",
+      "kind": "ghost",
+      "source_url": "https://github.com/apxxxxxxe/Youto/releases/tag/v1.0.5",
+      "download_url": "https://github.com/apxxxxxxe/Youto/releases/download/v1.0.5/omoideno.nar"
+    },
+    {
+      "id": "nostalk",
+      "name": "nostalk",
+      "kind": "ghost",
+      "source_url": "https://github.com/nikolat/nostalk/releases/tag/v0.6.0",
+      "download_url": "https://github.com/nikolat/nostalk/releases/download/v0.6.0/nostalk.nar",
+      "engine_hint": "YAYA"
+    },
+    {
+      "id": "who-is-cursing-him",
+      "name": "who_is_cursing_him",
+      "kind": "ghost",
+      "source_url": "https://github.com/tukinami/who_is_cursing_him/releases/tag/v1.0.0",
+      "download_url": "https://github.com/tukinami/who_is_cursing_him/releases/tag/v1.0.0",
+      "github_release_asset": "who_is_cursing_him.nar",
+      "download_link_policy": "source_page_only"
+    },
+    {
+      "id": "yada-yada-yada",
+      "name": "Yada-Yada-Yada",
+      "kind": "ghost",
+      "source_url": "https://github.com/tukinami/Yada-Yada-Yada/releases/tag/v1.0.0",
+      "download_url": "https://github.com/tukinami/Yada-Yada-Yada/releases/tag/v1.0.0",
+      "github_release_asset": "Yada-Yada-Yada.nar",
+      "download_link_policy": "source_page_only"
+    },
+    {
+      "id": "incubation-of-animas",
+      "name": "incubation_of_animas",
+      "kind": "ghost",
+      "source_url": "https://github.com/tukinami/incubation_of_animas/releases/tag/v1.0.0",
+      "download_url": "https://github.com/tukinami/incubation_of_animas/releases/download/v1.0.0/incubation_of_animas.nar"
+    },
+    {
+      "id": "yakutai-nashi",
+      "name": "yakutai_nashi",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/yakutai_nashi/releases/tag/1.0.1",
+      "download_url": "https://github.com/lost-nd-xxx/yakutai_nashi/releases/download/1.0.1/i_was_useless.nar"
+    },
+    {
+      "id": "sakanaiusowohitotsudake",
+      "name": "SakanaiUsoWoHitotsuDake",
+      "kind": "ghost",
+      "source_url": "https://github.com/lost-nd-xxx/SakanaiUsoWoHitotsuDake/releases/tag/1.0.0",
+      "download_url": "https://github.com/lost-nd-xxx/SakanaiUsoWoHitotsuDake/releases/download/1.0.0/SakanaiUsoWoHitotsuDake.nar"
+    },
+    {
+      "id": "ghostbook",
+      "name": "ごーすとじてん",
+      "kind": "ghost",
+      "source_url": "https://github.com/nikolat/ghostbook/releases/tag/v1.0.0",
+      "download_url": "https://github.com/nikolat/ghostbook/releases/download/v1.0.0/ghostbook.nar"
+    },
+    {
+      "id": "bee",
+      "name": "びーふれんず",
+      "kind": "ghost",
+      "source_url": "https://github.com/nikolat/bee/releases/tag/v1.0.0",
+      "download_url": "https://github.com/nikolat/bee/releases/download/v1.0.0/bee.nar"
+    },
+    {
+      "id": "shennong-kanadome",
+      "name": "Shennong_kanadome",
+      "kind": "ghost",
+      "source_url": "https://github.com/Shimofumi/Shennong_kanadome/releases/tag/v1.0.0",
+      "download_url": "https://github.com/Shimofumi/Shennong_kanadome/releases/download/v1.0.0/Shennong_kanadome.nar"
+    },
+    {
+      "id": "taromati2",
+      "name": "Taromati2",
+      "kind": "ghost",
+      "source_url": "https://github.com/Taromati2/package-factory/releases/tag/37566752565",
+      "download_url": "https://github.com/Taromati2/package-factory/releases/download/37566752565/Taromati2.nar"
+    },
+    {
+      "id": "oyatsu-ha-macaroni",
+      "name": "Oyatsu_ha_Macaroni",
+      "kind": "ghost",
+      "source_url": "https://github.com/Shimofumi/Oyatsu_ha_Macaroni/releases/tag/v1.0.0",
+      "download_url": "https://github.com/Shimofumi/Oyatsu_ha_Macaroni/releases/download/v1.0.0/Oyatsu_ha_Macaroni.nar"
+    },
+    {
+      "id": "ukagaka-hakoirimusume",
+      "name": "箱入り娘",
+      "kind": "ghost",
+      "source_url": "https://github.com/nikolat/ukagaka-hakoirimusume/releases/tag/v1.0.0",
+      "download_url": "https://github.com/nikolat/ukagaka-hakoirimusume/releases/download/v1.0.0/hakoirimusume.nar"
+    },
+    {
+      "id": "shellbook",
+      "name": "しぇるずかん",
+      "kind": "ghost",
+      "source_url": "https://github.com/nikolat/shellbook/releases/tag/v1.0.3",
+      "download_url": "https://github.com/nikolat/shellbook/releases/download/v1.0.3/shellbook.nar"
+    },
+    {
+      "id": "reshibainu",
+      "name": "れしばいぬ",
+      "kind": "ghost",
+      "source_url": "https://github.com/nikolat/reshibainu/releases/tag/v1.0.0",
+      "download_url": "https://github.com/nikolat/reshibainu/releases/download/v1.0.0/reshibainu.nar"
+    },
+    {
+      "id": "crawler-uploader",
+      "name": "クローラ＆ロダ",
+      "kind": "ghost",
+      "source_url": "https://github.com/nikolat/crawler_uploader/releases/tag/v1.0.0",
+      "download_url": "https://github.com/nikolat/crawler_uploader/releases/download/v1.0.0/crawler_uploader.nar"
+    },
+    {
+      "id": "desktop-tempter",
+      "name": "desktop_tempter",
+      "kind": "ghost",
+      "source_url": "https://github.com/Tatakinov/desktop_tempter/releases/tag/1.0.0",
+      "download_url": "https://github.com/Tatakinov/desktop_tempter/releases/download/1.0.0/desktop_tempter.nar"
+    },
+    {
+      "id": "ukagaka-party-parrot",
+      "name": "Party Parrot",
+      "kind": "ghost",
+      "source_url": "https://github.com/nikolat/ukagaka-party-parrot/releases/tag/v1.6.0",
+      "download_url": "https://github.com/nikolat/ukagaka-party-parrot/releases/download/v1.6.0/party-parrot.nar",
+      "engine_hint": "灯"
+    },
+    {
+      "id": "sudohaikuyu",
+      "name": "すどはいくゅう",
+      "kind": "plugin",
+      "source_url": "https://github.com/nikolat/sudohaikuyu/releases/tag/v0.4",
+      "download_url": "https://github.com/nikolat/sudohaikuyu/releases/download/v0.4/sudohaikuyu.nar"
+    },
+    {
+      "id": "desktop-tempter-casino-chip-blue",
+      "name": "desktop_tempter_casino_chip_blue",
+      "kind": "ghost",
+      "source_url": "https://github.com/Tatakinov/desktop_tempter_casino_chip_blue/releases/tag/1.0.0",
+      "download_url": "https://github.com/Tatakinov/desktop_tempter_casino_chip_blue/releases/download/1.0.0/desktop_tempter_casino_chip_blue.nar"
+    },
+    {
+      "id": "desktop-tempter-casino-chip-green",
+      "name": "desktop_tempter_casino_chip_green",
+      "kind": "ghost",
+      "source_url": "https://github.com/Tatakinov/desktop_tempter_casino_chip_green/releases/tag/1.0.0",
+      "download_url": "https://github.com/Tatakinov/desktop_tempter_casino_chip_green/releases/download/1.0.0/desktop_tempter_casino_chip_green.nar"
+    },
+    {
+      "id": "desktop-tempter-casino-chip-red",
+      "name": "desktop_tempter_casino_chip_red",
+      "kind": "ghost",
+      "source_url": "https://github.com/Tatakinov/desktop_tempter_casino_chip_red/releases/tag/1.0.0",
+      "download_url": "https://github.com/Tatakinov/desktop_tempter_casino_chip_red/releases/download/1.0.0/desktop_tempter_casino_chip_red.nar"
+    },
+    {
+      "id": "kayu",
+      "name": "佳由 period 8",
+      "kind": "ghost",
+      "source_url": "https://efasus.sakura.ne.jp/ukagaka_works.html",
+      "download_url": "https://efasus.sakura.ne.jp/persona/kayu0008.nar",
+      "engine_hint": "真絵"
+    },
+    {
+      "id": "mika",
+      "name": "深果 period 9",
+      "kind": "ghost",
+      "source_url": "https://efasus.sakura.ne.jp/ukagaka_works.html",
+      "download_url": "https://efasus.sakura.ne.jp/persona/mika0209.nar",
+      "engine_hint": "真絵"
+    }
+  ]
+}

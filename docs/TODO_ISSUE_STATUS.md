@@ -1,7 +1,7 @@
 # TODO・GitHub issue照合 / TODO and GitHub Issue Reconciliation
 
 **確認日 / Checked:** 2026-10-25 (JST)<br>
-**対象 / Scope:** `master` @ `88b8172a28d54bdbc323e7f86f011aa43f0d1a4e` と追加栞対応の開発ブランチ。
+**対象 / Scope:** 栞拡張PR #216までマージ済みの `master c3809b90f7fbee895a8076f402c61fd9676a3b5c`。
 
 Claude PR 33件、統合PR #214、CI修正PR #215はmasterへマージ済み。元のPR headもmasterの祖先として確認した。GitHub issueの状態と実装・検証の状態は区別し、下表を2026-10-25の全issue一覧と照合した。[PR引継ぎ記録](PR_TAKEOVER_2026-10-25.md)を参照。
 
@@ -13,7 +13,7 @@ All 33 original PRs and integration/CI PRs #214/#215 are merged into master. The
 
 優先順と実行モデル・認証待ちは[委譲記録](DELEGATION_2026-10-25.md)、実ゴーストの判定は[検証結果](REAL_GHOST_VERIFICATION_2026-10-25.md)を参照。
 
-**最新ローカル検証:** 追加栞対応後のOurinTests 1,589実行 / 1,535集計テスト、失敗0（2026-10-25、arm64・直列）。関連6 suiteは59テスト/99実行PASS。実辞書の追加回帰15件（Emily4 11件＋標準ゴースト4件）もPASS。[栞拡張検証](SHIORI_EXPANSION_VERIFICATION_2026-10-25.md)を参照。master `88b8172` のCI全5ジョブも成功（[実行記録](https://github.com/eightman999/Ourin/actions/runs/40149056400)）。追加栞のremote CI、GUIの網羅、クリーンMac・最低OS/Intel実機はこの結果と区別する。 / Latest development unit run: 1,589 executions / 1,535 aggregate tests, zero failures; remote CI and broader device/release gates are separate.
+**最新ローカル検証:** 追加栞対応後のOurinTests 1,589実行 / 1,535集計テスト、失敗0（2026-10-25、arm64・直列）。関連6 suiteは59テスト/99実行PASS。実辞書の追加回帰15件（Emily4 11件＋標準ゴースト4件）もPASS。[栞拡張検証](SHIORI_EXPANSION_VERIFICATION_2026-10-25.md)を参照。master `88b8172` のCI全5ジョブも成功（[実行記録](https://github.com/eightman999/Ourin/actions/runs/40149056400)）。追加栞PR #216の最終head `a567943` も[remote CI全5項目成功](https://github.com/eightman999/Ourin/actions/runs/40164170664)、masterへマージ済み。GUIの網羅、クリーンMac・最低OS/Intel実機はこの結果と区別する。 / Latest development unit run: 1,589 executions / 1,535 aggregate tests, zero failures; PR #216 remote CI passed all five checks and is merged. Broader device/release gates remain separate.
 
 ## Issue全件の照合 / Issue reconciliation
 
@@ -104,6 +104,10 @@ All 33 original PRs and integration/CI PRs #214/#215 are merged into master. The
 GitHub closed一覧: #73 / #75 / #77 / #79 / #83 / #85 / #87 / #111 / #113 / #131 / #132 / #133 / #134 / #135 / #136 / #137 / #138 / #139 / #140 / #152 / #154 / #163 / #164 / #165 / #169 / #170 / #171 / #175 / #176 / #179 / #181 / #183 / #184 / #185 / #189 / #192 / #194。古い包括issueのcloseを、最新の全互換性・全翻訳完了とは扱わない。特に #87 はclosedでも翻訳プレースホルダー20件が残る。#111はwire確認、#113はEXECUTEネイティブコマンドと回帰（`210fd5d`、`OurinTests/SSTPDispatcherTests.swift`）を完了記録へ整理する。
 
 Closed historical umbrella issues do not prove current complete compatibility or translation coverage. In particular, #87 is closed while 20 translation placeholders remain. #111 concerns native wire verification; #113 has native EXECUTE regression coverage (`210fd5d`).
+
+## 実配布物の検証ループ（2026-10-25）
+
+公開配布物92件を対象とする取得・実行・削除のコーパスを追加。配布元・取得URL・SHA-256・確認層を[対応一覧](compatibility-corpus/results.md)とWebで併記する。里々のBOM/文字変換・IPCと混在Windowsパスの取り込みを修正。最終件数・回帰・未対応依存は[検証記録](compatibility-corpus/validation.md)を参照。これは開発用CLIの検証基盤であり、#196–#213の診断UI・ユーザー同意・自動修復を完成扱いにはしない。
 
 ## 次の着手順 / Next work
 

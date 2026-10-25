@@ -135,6 +135,14 @@ jobs:
             grep -q "x86_64"  /tmp/lipo.txt || { echo "$core lacks x86_64 slice";  exit 1; }
           done
 
+      - name: Verify compatibility corpus lifecycle and content probes
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: |
+          python3 scripts/test_compatibility_corpus.py -v
+          python3 -m unittest discover -s scripts/corpus_probe/tests -p 'test_*.py' -v
+          python3 satori_core/tests/test_encoding.py -v
+
   # ---- #96/#97: Release (universal) build + mechanical bundle verification
   release-gate:
     name: release-gate
