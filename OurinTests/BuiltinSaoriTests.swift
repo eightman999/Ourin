@@ -48,10 +48,10 @@ struct BuiltinSaoriTests {
         let dir = try makeModuleDirectory()
         defer { try? FileManager.default.removeItem(at: dir) }
         try MinimalPE.build(exports: ["load", "request", "unload"], imports: ["USER32.dll"])
-            .write(to: dir.appendingPathComponent("textcopy.dll"))
+            .write(to: dir.appendingPathComponent("windows_only_probe.dll"))
         let manager = SaoriManager(registry: SaoriRegistry(searchPaths: [dir]))
         #expect(throws: (any Error).self) {
-            _ = try manager.execute(moduleName: "textcopy.dll", arguments: ["x"])
+            _ = try manager.execute(moduleName: "windows_only_probe.dll", arguments: ["x"])
         }
     }
 }
