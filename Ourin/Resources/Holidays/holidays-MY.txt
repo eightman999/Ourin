@@ -1,0 +1,467 @@
+# MY の祝日（2020〜2050年、言語: ms_MY）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/25,Tahun Baharu Cina
+2020/1/26,Tahun Baharu Cina (Hari Kedua)
+2020/1/27,Cuti Tahun Baharu Cina (Hari Kedua)
+2020/5/1,Hari Pekerja
+2020/5/7,Hari Wesak
+2020/5/24,Hari Raya Puasa
+2020/5/25,Hari Raya Puasa (Hari Kedua)
+2020/5/26,Cuti Hari Raya Puasa
+2020/6/8,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2020/7/31,Hari Raya Qurban
+2020/8/20,Awal Muharam
+2020/8/31,Hari Kebangsaan
+2020/9/16,Hari Malaysia
+2020/10/29,Hari Keputeraan Nabi Muhammad S.A.W.
+2020/12/25,Hari Krismas
+2021/2/12,Tahun Baharu Cina
+2021/2/13,Tahun Baharu Cina (Hari Kedua)
+2021/5/1,Hari Pekerja
+2021/5/13,Hari Raya Puasa
+2021/5/14,Hari Raya Puasa (Hari Kedua)
+2021/5/26,Hari Wesak
+2021/6/7,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2021/7/20,Hari Raya Qurban
+2021/8/10,Awal Muharam
+2021/8/31,Hari Kebangsaan
+2021/9/16,Hari Malaysia
+2021/10/19,Hari Keputeraan Nabi Muhammad S.A.W.
+2021/12/25,Hari Krismas
+2022/2/1,Tahun Baharu Cina
+2022/2/2,Tahun Baharu Cina (Hari Kedua)
+2022/5/1,Hari Pekerja
+2022/5/2,Hari Raya Puasa
+2022/5/3,Hari Raya Puasa (Hari Kedua)
+2022/5/4,Cuti Hari Pekerja
+2022/5/15,Hari Wesak
+2022/5/16,Cuti Hari Wesak
+2022/6/6,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2022/7/10,Hari Raya Qurban
+2022/7/11,Cuti Hari Raya Qurban
+2022/7/30,Awal Muharam
+2022/8/31,Hari Kebangsaan
+2022/9/16,Hari Malaysia
+2022/10/10,Hari Keputeraan Nabi Muhammad S.A.W.
+2022/11/18,Cuti Peristiwa (pilihan raya umum)
+2022/11/19,Cuti Peristiwa (pilihan raya umum)
+2022/11/28,Cuti Peristiwa
+2022/12/25,Hari Krismas
+2022/12/26,Cuti Hari Krismas
+2023/1/22,Tahun Baharu Cina
+2023/1/23,Tahun Baharu Cina (Hari Kedua)
+2023/1/24,Cuti Tahun Baharu Cina
+2023/4/21,Hari Raya Puasa (pergantian hari)
+2023/4/22,Hari Raya Puasa
+2023/4/23,Hari Raya Puasa (Hari Kedua)
+2023/4/24,Cuti Hari Raya Puasa (Hari Kedua)
+2023/5/1,Hari Pekerja
+2023/5/4,Hari Wesak
+2023/6/5,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2023/6/29,Hari Raya Qurban
+2023/7/19,Awal Muharam
+2023/8/31,Hari Kebangsaan
+2023/9/16,Hari Malaysia
+2023/9/28,Hari Keputeraan Nabi Muhammad S.A.W.
+2023/12/25,Hari Krismas
+2024/2/10,Tahun Baharu Cina
+2024/2/11,Tahun Baharu Cina (Hari Kedua)
+2024/2/12,Cuti Tahun Baharu Cina (Hari Kedua)
+2024/4/10,Hari Raya Puasa
+2024/4/11,Hari Raya Puasa (Hari Kedua)
+2024/5/1,Hari Pekerja
+2024/5/22,Hari Wesak
+2024/6/3,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2024/6/17,Hari Raya Qurban
+2024/7/7,Awal Muharam
+2024/8/31,Hari Kebangsaan
+2024/9/16,Hari Keputeraan Nabi Muhammad S.A.W.; Hari Malaysia
+2024/12/25,Hari Krismas
+2025/1/29,Tahun Baharu Cina
+2025/1/30,Tahun Baharu Cina (Hari Kedua)
+2025/3/31,Hari Raya Puasa
+2025/4/1,Hari Raya Puasa (Hari Kedua)
+2025/5/1,Hari Pekerja
+2025/5/12,Hari Wesak
+2025/6/2,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2025/6/7,Hari Raya Qurban
+2025/6/27,Awal Muharam
+2025/8/31,Hari Kebangsaan
+2025/9/1,Cuti Hari Kebangsaan
+2025/9/5,Hari Keputeraan Nabi Muhammad S.A.W.
+2025/9/15,Cuti Peristiwa
+2025/9/16,Hari Malaysia
+2025/12/25,Hari Krismas
+2026/2/17,Tahun Baharu Cina
+2026/2/18,Tahun Baharu Cina (Hari Kedua)
+2026/3/20,Hari Raya Puasa (pergantian hari)
+2026/3/21,Hari Raya Puasa
+2026/3/22,Hari Raya Puasa (Hari Kedua)
+2026/3/23,Cuti Hari Raya Puasa (Hari Kedua)
+2026/5/1,Hari Pekerja
+2026/5/27,Hari Raya Qurban
+2026/5/31,Hari Wesak
+2026/6/1,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2026/6/2,Cuti Hari Wesak
+2026/6/17,Awal Muharam
+2026/8/25,Hari Keputeraan Nabi Muhammad S.A.W.
+2026/8/31,Hari Kebangsaan
+2026/9/16,Hari Malaysia
+2026/12/25,Hari Krismas
+2027/2/6,Tahun Baharu Cina
+2027/2/7,Tahun Baharu Cina (Hari Kedua)
+2027/2/8,Cuti Tahun Baharu Cina (Hari Kedua)
+2027/3/10,Hari Raya Puasa
+2027/3/11,Hari Raya Puasa (Hari Kedua)
+2027/5/1,Hari Pekerja
+2027/5/17,Hari Raya Qurban
+2027/5/20,Hari Wesak
+2027/6/6,Awal Muharam
+2027/6/7,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2027/8/15,Hari Keputeraan Nabi Muhammad S.A.W.
+2027/8/16,Cuti Hari Keputeraan Nabi Muhammad S.A.W.
+2027/8/31,Hari Kebangsaan
+2027/9/16,Hari Malaysia
+2027/12/25,Hari Krismas
+2028/1/26,Tahun Baharu Cina (anggaran)
+2028/1/27,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2028/2/27,Hari Raya Puasa (anggaran)
+2028/2/28,Hari Raya Puasa (Hari Kedua) (anggaran)
+2028/2/29,Cuti Hari Raya Puasa (anggaran)
+2028/5/1,Hari Pekerja
+2028/5/5,Hari Raya Qurban (anggaran)
+2028/5/9,Hari Wesak (anggaran)
+2028/5/26,Awal Muharam (anggaran)
+2028/6/5,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2028/8/4,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2028/8/31,Hari Kebangsaan
+2028/9/16,Hari Malaysia
+2028/12/25,Hari Krismas
+2029/2/13,Tahun Baharu Cina (anggaran)
+2029/2/14,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2029/2/15,Hari Raya Puasa (anggaran)
+2029/2/16,Hari Raya Puasa (Hari Kedua) (anggaran)
+2029/4/25,Hari Raya Qurban (anggaran)
+2029/5/1,Hari Pekerja
+2029/5/15,Awal Muharam (anggaran)
+2029/5/27,Hari Wesak (anggaran)
+2029/5/28,Cuti Hari Wesak (anggaran)
+2029/6/4,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2029/7/24,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2029/8/31,Hari Kebangsaan
+2029/9/16,Hari Malaysia
+2029/9/17,Cuti Hari Malaysia
+2029/12/25,Hari Krismas
+2030/2/3,Tahun Baharu Cina (anggaran)
+2030/2/4,Hari Raya Puasa (anggaran); Tahun Baharu Cina (Hari Kedua) (anggaran)
+2030/2/5,Hari Raya Puasa (Hari Kedua) (anggaran)
+2030/2/6,Cuti Tahun Baharu Cina (anggaran)
+2030/4/14,Hari Raya Qurban (anggaran)
+2030/4/15,Cuti Hari Raya Qurban (anggaran)
+2030/5/1,Hari Pekerja
+2030/5/4,Awal Muharam (anggaran)
+2030/5/16,Hari Wesak (anggaran)
+2030/6/3,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2030/7/13,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2030/8/31,Hari Kebangsaan
+2030/9/16,Hari Malaysia
+2030/12/25,Hari Krismas
+2031/1/23,Tahun Baharu Cina (anggaran)
+2031/1/24,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2031/1/25,Hari Raya Puasa (anggaran)
+2031/1/26,Hari Raya Puasa (Hari Kedua) (anggaran)
+2031/1/27,Cuti Hari Raya Puasa (Hari Kedua) (anggaran)
+2031/4/3,Hari Raya Qurban (anggaran)
+2031/4/23,Awal Muharam (anggaran)
+2031/5/1,Hari Pekerja
+2031/5/6,Hari Wesak (anggaran)
+2031/6/2,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2031/7/2,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2031/8/31,Hari Kebangsaan
+2031/9/1,Cuti Hari Kebangsaan
+2031/9/16,Hari Malaysia
+2031/12/25,Hari Krismas
+2032/1/14,Hari Raya Puasa (anggaran)
+2032/1/15,Hari Raya Puasa (Hari Kedua) (anggaran)
+2032/2/11,Tahun Baharu Cina (anggaran)
+2032/2/12,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2032/3/22,Hari Raya Qurban (anggaran)
+2032/4/12,Awal Muharam (anggaran)
+2032/5/1,Hari Pekerja
+2032/5/23,Hari Wesak (anggaran)
+2032/5/24,Cuti Hari Wesak (anggaran)
+2032/6/7,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2032/6/21,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2032/8/31,Hari Kebangsaan
+2032/9/16,Hari Malaysia
+2032/12/25,Hari Krismas
+2033/1/3,Hari Raya Puasa (anggaran)
+2033/1/4,Hari Raya Puasa (Hari Kedua) (anggaran)
+2033/1/31,Tahun Baharu Cina (anggaran)
+2033/2/1,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2033/3/12,Hari Raya Qurban (anggaran)
+2033/4/1,Awal Muharam (anggaran)
+2033/5/1,Hari Pekerja
+2033/5/2,Cuti Hari Pekerja
+2033/5/13,Hari Wesak (anggaran)
+2033/6/6,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2033/6/10,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2033/8/31,Hari Kebangsaan
+2033/9/16,Hari Malaysia
+2033/12/23,Hari Raya Puasa (anggaran)
+2033/12/24,Hari Raya Puasa (Hari Kedua) (anggaran)
+2033/12/25,Hari Krismas
+2033/12/26,Cuti Hari Krismas
+2034/2/19,Tahun Baharu Cina (anggaran)
+2034/2/20,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2034/2/21,Cuti Tahun Baharu Cina (anggaran)
+2034/3/1,Hari Raya Qurban (anggaran)
+2034/3/22,Awal Muharam (anggaran)
+2034/5/1,Hari Pekerja
+2034/5/3,Hari Wesak (anggaran)
+2034/5/30,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2034/6/5,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2034/8/31,Hari Kebangsaan
+2034/9/16,Hari Malaysia
+2034/12/12,Hari Raya Puasa (anggaran)
+2034/12/13,Hari Raya Puasa (Hari Kedua) (anggaran)
+2034/12/25,Hari Krismas
+2035/2/8,Tahun Baharu Cina (anggaran)
+2035/2/9,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2035/2/19,Hari Raya Qurban (anggaran)
+2035/3/11,Awal Muharam (anggaran)
+2035/5/1,Hari Pekerja
+2035/5/20,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2035/5/21,Cuti Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2035/5/22,Hari Wesak (anggaran)
+2035/6/4,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2035/8/31,Hari Kebangsaan
+2035/9/16,Hari Malaysia
+2035/9/17,Cuti Hari Malaysia
+2035/12/1,Hari Raya Puasa (anggaran)
+2035/12/2,Hari Raya Puasa (Hari Kedua) (anggaran)
+2035/12/3,Cuti Hari Raya Puasa (Hari Kedua) (anggaran)
+2035/12/25,Hari Krismas
+2036/1/28,Tahun Baharu Cina (anggaran)
+2036/1/29,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2036/2/8,Hari Raya Qurban (anggaran)
+2036/2/29,Awal Muharam (anggaran)
+2036/5/1,Hari Pekerja
+2036/5/9,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2036/5/10,Hari Wesak (anggaran)
+2036/6/2,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2036/8/31,Hari Kebangsaan
+2036/9/1,Cuti Hari Kebangsaan
+2036/9/16,Hari Malaysia
+2036/11/19,Hari Raya Puasa (anggaran)
+2036/11/20,Hari Raya Puasa (Hari Kedua) (anggaran)
+2036/12/25,Hari Krismas
+2037/1/27,Hari Raya Qurban (anggaran)
+2037/2/15,Tahun Baharu Cina (anggaran)
+2037/2/16,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2037/2/17,Awal Muharam (anggaran)
+2037/2/18,Cuti Tahun Baharu Cina (anggaran)
+2037/4/28,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2037/5/1,Hari Pekerja
+2037/5/29,Hari Wesak (anggaran)
+2037/6/1,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2037/8/31,Hari Kebangsaan
+2037/9/16,Hari Malaysia
+2037/11/9,Hari Raya Puasa (anggaran)
+2037/11/10,Hari Raya Puasa (Hari Kedua) (anggaran)
+2037/12/25,Hari Krismas
+2038/1/16,Hari Raya Qurban (anggaran)
+2038/2/4,Tahun Baharu Cina (anggaran)
+2038/2/5,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2038/2/6,Awal Muharam (anggaran)
+2038/4/17,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2038/5/1,Hari Pekerja
+2038/5/18,Hari Wesak (anggaran)
+2038/6/7,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2038/8/31,Hari Kebangsaan
+2038/9/16,Hari Malaysia
+2038/10/30,Hari Raya Puasa (anggaran)
+2038/10/31,Hari Raya Puasa (Hari Kedua) (anggaran)
+2038/11/1,Cuti Hari Raya Puasa (Hari Kedua) (anggaran)
+2038/12/25,Hari Krismas
+2039/1/6,Hari Raya Qurban (anggaran)
+2039/1/24,Tahun Baharu Cina (anggaran)
+2039/1/25,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2039/1/26,Awal Muharam (anggaran)
+2039/4/6,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2039/5/1,Hari Pekerja
+2039/5/2,Cuti Hari Pekerja
+2039/5/7,Hari Wesak (anggaran)
+2039/6/6,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2039/8/31,Hari Kebangsaan
+2039/9/16,Hari Malaysia
+2039/10/19,Hari Raya Puasa (anggaran)
+2039/10/20,Hari Raya Puasa (Hari Kedua) (anggaran)
+2039/12/25,Hari Krismas
+2039/12/26,Hari Raya Qurban (anggaran)
+2039/12/27,Cuti Hari Krismas
+2040/1/16,Awal Muharam (anggaran)
+2040/2/12,Tahun Baharu Cina (anggaran)
+2040/2/13,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2040/2/14,Cuti Tahun Baharu Cina (anggaran)
+2040/3/25,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2040/3/26,Cuti Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2040/5/1,Hari Pekerja
+2040/5/25,Hari Wesak (anggaran)
+2040/6/4,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2040/8/31,Hari Kebangsaan
+2040/9/16,Hari Malaysia
+2040/9/17,Cuti Hari Malaysia
+2040/10/8,Hari Raya Puasa (anggaran)
+2040/10/9,Hari Raya Puasa (Hari Kedua) (anggaran)
+2040/12/15,Hari Raya Qurban (anggaran)
+2040/12/25,Hari Krismas
+2041/1/4,Awal Muharam (anggaran)
+2041/2/1,Tahun Baharu Cina (anggaran)
+2041/2/2,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2041/3/15,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2041/5/1,Hari Pekerja
+2041/5/14,Hari Wesak (anggaran)
+2041/6/3,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2041/8/31,Hari Kebangsaan
+2041/9/16,Hari Malaysia
+2041/9/27,Hari Raya Puasa (anggaran)
+2041/9/28,Hari Raya Puasa (Hari Kedua) (anggaran)
+2041/12/4,Hari Raya Qurban (anggaran)
+2041/12/25,Awal Muharam (anggaran); Hari Krismas
+2042/1/22,Tahun Baharu Cina (anggaran)
+2042/1/23,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2042/3/5,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2042/5/1,Hari Pekerja
+2042/5/4,Hari Wesak (anggaran)
+2042/5/5,Cuti Hari Wesak (anggaran)
+2042/6/2,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2042/8/31,Hari Kebangsaan
+2042/9/1,Cuti Hari Kebangsaan
+2042/9/16,Hari Malaysia; Hari Raya Puasa (anggaran)
+2042/9/17,Hari Raya Puasa (Hari Kedua) (anggaran)
+2042/11/23,Hari Raya Qurban (anggaran)
+2042/11/24,Cuti Hari Raya Qurban (anggaran)
+2042/12/14,Awal Muharam (anggaran)
+2042/12/25,Hari Krismas
+2043/2/10,Tahun Baharu Cina (anggaran)
+2043/2/11,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2043/2/22,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2043/2/23,Cuti Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2043/5/1,Hari Pekerja
+2043/5/23,Hari Wesak (anggaran)
+2043/6/1,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2043/8/31,Hari Kebangsaan
+2043/9/5,Hari Raya Puasa (anggaran)
+2043/9/6,Hari Raya Puasa (Hari Kedua) (anggaran)
+2043/9/7,Cuti Hari Raya Puasa (Hari Kedua) (anggaran)
+2043/9/16,Hari Malaysia
+2043/11/12,Hari Raya Qurban (anggaran)
+2043/12/3,Awal Muharam (anggaran)
+2043/12/25,Hari Krismas
+2044/1/30,Tahun Baharu Cina (anggaran)
+2044/1/31,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2044/2/1,Cuti Tahun Baharu Cina (Hari Kedua) (anggaran)
+2044/2/12,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2044/5/1,Hari Pekerja
+2044/5/2,Cuti Hari Pekerja
+2044/5/12,Hari Wesak (anggaran)
+2044/6/6,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2044/8/25,Hari Raya Puasa (anggaran)
+2044/8/26,Hari Raya Puasa (Hari Kedua) (anggaran)
+2044/8/31,Hari Kebangsaan
+2044/9/16,Hari Malaysia
+2044/11/1,Hari Raya Qurban (anggaran)
+2044/11/21,Awal Muharam (anggaran)
+2044/12/25,Hari Krismas
+2044/12/26,Cuti Hari Krismas
+2045/1/31,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2045/2/17,Tahun Baharu Cina (anggaran)
+2045/2/18,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2045/5/1,Hari Pekerja; Hari Wesak (anggaran)
+2045/6/5,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2045/8/14,Hari Raya Puasa (anggaran)
+2045/8/15,Hari Raya Puasa (Hari Kedua) (anggaran)
+2045/8/31,Hari Kebangsaan
+2045/9/16,Hari Malaysia
+2045/10/21,Hari Raya Qurban (anggaran)
+2045/11/10,Awal Muharam (anggaran)
+2045/12/25,Hari Krismas
+2046/1/20,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2046/2/6,Tahun Baharu Cina (anggaran)
+2046/2/7,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2046/5/1,Hari Pekerja
+2046/5/20,Hari Wesak (anggaran)
+2046/5/21,Cuti Hari Wesak (anggaran)
+2046/6/4,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2046/8/4,Hari Raya Puasa (anggaran)
+2046/8/5,Hari Raya Puasa (Hari Kedua) (anggaran)
+2046/8/6,Cuti Hari Raya Puasa (Hari Kedua) (anggaran)
+2046/8/31,Hari Kebangsaan
+2046/9/16,Hari Malaysia
+2046/9/17,Cuti Hari Malaysia
+2046/10/11,Hari Raya Qurban (anggaran)
+2046/10/31,Awal Muharam (anggaran)
+2046/12/25,Hari Krismas
+2047/1/9,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2047/1/26,Tahun Baharu Cina (anggaran)
+2047/1/27,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2047/1/28,Cuti Tahun Baharu Cina (Hari Kedua) (anggaran)
+2047/5/1,Hari Pekerja
+2047/5/9,Hari Wesak (anggaran)
+2047/6/3,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2047/7/24,Hari Raya Puasa (anggaran)
+2047/7/25,Hari Raya Puasa (Hari Kedua) (anggaran)
+2047/8/31,Hari Kebangsaan
+2047/9/16,Hari Malaysia
+2047/9/30,Hari Raya Qurban (anggaran)
+2047/10/21,Awal Muharam (anggaran)
+2047/12/25,Hari Krismas
+2047/12/29,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2047/12/30,Cuti Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2048/2/14,Tahun Baharu Cina (anggaran)
+2048/2/15,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2048/5/1,Hari Pekerja
+2048/5/27,Hari Wesak (anggaran)
+2048/6/1,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2048/7/13,Hari Raya Puasa (anggaran)
+2048/7/14,Hari Raya Puasa (Hari Kedua) (anggaran)
+2048/8/31,Hari Kebangsaan
+2048/9/16,Hari Malaysia
+2048/9/19,Hari Raya Qurban (anggaran)
+2048/10/9,Awal Muharam (anggaran)
+2048/12/18,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2048/12/25,Hari Krismas
+2049/2/2,Tahun Baharu Cina (anggaran)
+2049/2/3,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2049/5/1,Hari Pekerja
+2049/5/16,Hari Wesak (anggaran)
+2049/5/17,Cuti Hari Wesak (anggaran)
+2049/6/7,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2049/7/2,Hari Raya Puasa (anggaran)
+2049/7/3,Hari Raya Puasa (Hari Kedua) (anggaran)
+2049/8/31,Hari Kebangsaan
+2049/9/8,Hari Raya Qurban (anggaran)
+2049/9/16,Hari Malaysia
+2049/9/29,Awal Muharam (anggaran)
+2049/12/8,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2049/12/25,Hari Krismas
+2050/1/23,Tahun Baharu Cina (anggaran)
+2050/1/24,Tahun Baharu Cina (Hari Kedua) (anggaran)
+2050/1/25,Cuti Tahun Baharu Cina (anggaran)
+2050/5/1,Hari Pekerja
+2050/5/2,Cuti Hari Pekerja
+2050/5/5,Hari Wesak (anggaran)
+2050/6/6,Hari Keputeraan Rasmi Seri Paduka Baginda Yang di-Pertuan Agong
+2050/6/21,Hari Raya Puasa (anggaran)
+2050/6/22,Hari Raya Puasa (Hari Kedua) (anggaran)
+2050/8/28,Hari Raya Qurban (anggaran)
+2050/8/29,Cuti Hari Raya Qurban (anggaran)
+2050/8/31,Hari Kebangsaan
+2050/9/16,Hari Malaysia
+2050/9/18,Awal Muharam (anggaran)
+2050/11/27,Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2050/11/28,Cuti Hari Keputeraan Nabi Muhammad S.A.W. (anggaran)
+2050/12/25,Hari Krismas
+2050/12/26,Cuti Hari Krismas

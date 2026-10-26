@@ -1,0 +1,466 @@
+# VN の祝日（2020〜2050年、言語: vi）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Tết Dương lịch
+2020/1/23,29 Tết
+2020/1/24,Giao thừa Tết Nguyên Đán
+2020/1/25,Tết Nguyên Đán
+2020/1/26,Mùng hai Tết Nguyên Đán
+2020/1/27,Mùng ba Tết Nguyên Đán
+2020/1/28,Mùng bốn Tết Nguyên Đán
+2020/1/29,Mùng năm Tết Nguyên Đán
+2020/4/2,Ngày Giỗ Tổ Hùng Vương
+2020/4/30,Ngày Chiến thắng
+2020/5/1,Ngày Quốc tế Lao động
+2020/9/2,Quốc khánh
+2021/1/1,Tết Dương lịch
+2021/2/10,29 Tết
+2021/2/11,Giao thừa Tết Nguyên Đán
+2021/2/12,Tết Nguyên Đán
+2021/2/13,Mùng hai Tết Nguyên Đán
+2021/2/14,Mùng ba Tết Nguyên Đán
+2021/2/15,Mùng bốn Tết Nguyên Đán
+2021/2/16,Mùng năm Tết Nguyên Đán
+2021/4/21,Ngày Giỗ Tổ Hùng Vương
+2021/4/30,Ngày Chiến thắng
+2021/5/1,Ngày Quốc tế Lao động
+2021/5/3,Ngày Quốc tế Lao động (nghỉ bù)
+2021/9/2,Quốc khánh
+2021/9/3,Quốc khánh
+2022/1/1,Tết Dương lịch
+2022/1/3,Tết Dương lịch (nghỉ bù)
+2022/1/31,Giao thừa Tết Nguyên Đán
+2022/2/1,Tết Nguyên Đán
+2022/2/2,Mùng hai Tết Nguyên Đán
+2022/2/3,Mùng ba Tết Nguyên Đán
+2022/2/4,Mùng bốn Tết Nguyên Đán
+2022/4/10,Ngày Giỗ Tổ Hùng Vương
+2022/4/11,Ngày Giỗ Tổ Hùng Vương (nghỉ bù)
+2022/4/30,Ngày Chiến thắng
+2022/5/1,Ngày Quốc tế Lao động
+2022/5/2,Ngày Chiến thắng (nghỉ bù)
+2022/5/3,Ngày Quốc tế Lao động (nghỉ bù)
+2022/9/1,Quốc khánh
+2022/9/2,Quốc khánh
+2023/1/1,Tết Dương lịch
+2023/1/2,Tết Dương lịch (nghỉ bù)
+2023/1/20,29 Tết
+2023/1/21,Giao thừa Tết Nguyên Đán
+2023/1/22,Tết Nguyên Đán
+2023/1/23,Mùng hai Tết Nguyên Đán
+2023/1/24,Mùng ba Tết Nguyên Đán
+2023/1/25,Mùng bốn Tết Nguyên Đán
+2023/1/26,Mùng năm Tết Nguyên Đán
+2023/4/29,Ngày Giỗ Tổ Hùng Vương
+2023/4/30,Ngày Chiến thắng
+2023/5/1,Ngày Quốc tế Lao động
+2023/5/2,Ngày Giỗ Tổ Hùng Vương (nghỉ bù)
+2023/5/3,Ngày Chiến thắng (nghỉ bù)
+2023/9/1,Quốc khánh
+2023/9/2,Quốc khánh
+2023/9/4,Quốc khánh (nghỉ bù)
+2024/1/1,Tết Dương lịch
+2024/2/8,29 Tết
+2024/2/9,Giao thừa Tết Nguyên Đán
+2024/2/10,Tết Nguyên Đán
+2024/2/11,Mùng hai Tết Nguyên Đán
+2024/2/12,Mùng ba Tết Nguyên Đán
+2024/2/13,Mùng bốn Tết Nguyên Đán
+2024/2/14,Mùng năm Tết Nguyên Đán
+2024/4/18,Ngày Giỗ Tổ Hùng Vương
+2024/4/29,Ngày nghỉ (thay cho ngày 04/05/2024)
+2024/4/30,Ngày Chiến thắng
+2024/5/1,Ngày Quốc tế Lao động
+2024/9/2,Quốc khánh
+2024/9/3,Quốc khánh
+2025/1/1,Tết Dương lịch
+2025/1/27,29 Tết
+2025/1/28,Giao thừa Tết Nguyên Đán
+2025/1/29,Tết Nguyên Đán
+2025/1/30,Mùng hai Tết Nguyên Đán
+2025/1/31,Mùng ba Tết Nguyên Đán
+2025/2/1,Mùng bốn Tết Nguyên Đán
+2025/4/7,Ngày Giỗ Tổ Hùng Vương
+2025/4/30,Ngày Chiến thắng
+2025/5/1,Ngày Quốc tế Lao động
+2025/5/2,Ngày nghỉ (thay cho ngày 26/04/2025)
+2025/9/1,Quốc khánh
+2025/9/2,Quốc khánh
+2026/1/1,Tết Dương lịch
+2026/2/16,Giao thừa Tết Nguyên Đán
+2026/2/17,Tết Nguyên Đán
+2026/2/18,Mùng hai Tết Nguyên Đán
+2026/2/19,Mùng ba Tết Nguyên Đán
+2026/2/20,Mùng bốn Tết Nguyên Đán
+2026/4/26,Ngày Giỗ Tổ Hùng Vương
+2026/4/27,Ngày Giỗ Tổ Hùng Vương (nghỉ bù)
+2026/4/30,Ngày Chiến thắng
+2026/5/1,Ngày Quốc tế Lao động
+2026/8/31,Ngày nghỉ (thay cho ngày 22/08/2026)
+2026/9/1,Quốc khánh
+2026/9/2,Quốc khánh
+2026/11/24,Ngày Văn hóa Việt Nam
+2027/1/1,Tết Dương lịch
+2027/2/4,29 Tết
+2027/2/5,Giao thừa Tết Nguyên Đán
+2027/2/6,Tết Nguyên Đán
+2027/2/7,Mùng hai Tết Nguyên Đán
+2027/2/8,Mùng ba Tết Nguyên Đán
+2027/2/9,Mùng bốn Tết Nguyên Đán
+2027/2/10,Mùng năm Tết Nguyên Đán
+2027/4/16,Ngày Giỗ Tổ Hùng Vương
+2027/4/30,Ngày Chiến thắng
+2027/5/1,Ngày Quốc tế Lao động
+2027/5/3,Ngày Quốc tế Lao động (nghỉ bù)
+2027/9/2,Quốc khánh
+2027/9/3,Quốc khánh
+2027/11/24,Ngày Văn hóa Việt Nam
+2028/1/1,Tết Dương lịch
+2028/1/3,Tết Dương lịch (nghỉ bù)
+2028/1/24,29 Tết
+2028/1/25,Giao thừa Tết Nguyên Đán
+2028/1/26,Tết Nguyên Đán
+2028/1/27,Mùng hai Tết Nguyên Đán
+2028/1/28,Mùng ba Tết Nguyên Đán
+2028/1/29,Mùng bốn Tết Nguyên Đán
+2028/4/4,Ngày Giỗ Tổ Hùng Vương
+2028/4/30,Ngày Chiến thắng
+2028/5/1,Ngày Quốc tế Lao động
+2028/5/2,Ngày Chiến thắng (nghỉ bù)
+2028/9/1,Quốc khánh
+2028/9/2,Quốc khánh
+2028/9/4,Quốc khánh (nghỉ bù)
+2028/11/24,Ngày Văn hóa Việt Nam
+2029/1/1,Tết Dương lịch
+2029/2/12,Giao thừa Tết Nguyên Đán
+2029/2/13,Tết Nguyên Đán
+2029/2/14,Mùng hai Tết Nguyên Đán
+2029/2/15,Mùng ba Tết Nguyên Đán
+2029/2/16,Mùng bốn Tết Nguyên Đán
+2029/4/23,Ngày Giỗ Tổ Hùng Vương
+2029/4/30,Ngày Chiến thắng
+2029/5/1,Ngày Quốc tế Lao động
+2029/9/2,Quốc khánh
+2029/9/3,Quốc khánh
+2029/9/4,Quốc khánh (nghỉ bù)
+2029/11/24,Ngày Văn hóa Việt Nam
+2029/11/26,Ngày Văn hóa Việt Nam (nghỉ bù)
+2030/1/1,Tết Dương lịch
+2030/1/31,29 Tết
+2030/2/1,Giao thừa Tết Nguyên Đán
+2030/2/2,Tết Nguyên Đán
+2030/2/3,Mùng hai Tết Nguyên Đán
+2030/2/4,Mùng ba Tết Nguyên Đán
+2030/2/5,Mùng bốn Tết Nguyên Đán
+2030/2/6,Mùng năm Tết Nguyên Đán
+2030/4/12,Ngày Giỗ Tổ Hùng Vương
+2030/4/30,Ngày Chiến thắng
+2030/5/1,Ngày Quốc tế Lao động
+2030/9/2,Quốc khánh
+2030/9/3,Quốc khánh
+2030/11/24,Ngày Văn hóa Việt Nam
+2030/11/25,Ngày Văn hóa Việt Nam (nghỉ bù)
+2031/1/1,Tết Dương lịch
+2031/1/21,29 Tết
+2031/1/22,Giao thừa Tết Nguyên Đán
+2031/1/23,Tết Nguyên Đán
+2031/1/24,Mùng hai Tết Nguyên Đán
+2031/1/25,Mùng ba Tết Nguyên Đán
+2031/1/26,Mùng bốn Tết Nguyên Đán
+2031/1/27,Mùng năm Tết Nguyên Đán
+2031/4/1,Ngày Giỗ Tổ Hùng Vương
+2031/4/30,Ngày Chiến thắng
+2031/5/1,Ngày Quốc tế Lao động
+2031/9/1,Quốc khánh
+2031/9/2,Quốc khánh
+2031/11/24,Ngày Văn hóa Việt Nam
+2032/1/1,Tết Dương lịch
+2032/2/9,29 Tết
+2032/2/10,Giao thừa Tết Nguyên Đán
+2032/2/11,Tết Nguyên Đán
+2032/2/12,Mùng hai Tết Nguyên Đán
+2032/2/13,Mùng ba Tết Nguyên Đán
+2032/2/14,Mùng bốn Tết Nguyên Đán
+2032/4/19,Ngày Giỗ Tổ Hùng Vương
+2032/4/30,Ngày Chiến thắng
+2032/5/1,Ngày Quốc tế Lao động
+2032/5/3,Ngày Quốc tế Lao động (nghỉ bù)
+2032/9/2,Quốc khánh
+2032/9/3,Quốc khánh
+2032/11/24,Ngày Văn hóa Việt Nam
+2033/1/1,Tết Dương lịch
+2033/1/3,Tết Dương lịch (nghỉ bù)
+2033/1/30,Giao thừa Tết Nguyên Đán
+2033/1/31,Tết Nguyên Đán
+2033/2/1,Mùng hai Tết Nguyên Đán
+2033/2/2,Mùng ba Tết Nguyên Đán
+2033/2/3,Mùng bốn Tết Nguyên Đán
+2033/2/4,Mùng năm Tết Nguyên Đán
+2033/4/9,Ngày Giỗ Tổ Hùng Vương
+2033/4/11,Ngày Giỗ Tổ Hùng Vương (nghỉ bù)
+2033/4/30,Ngày Chiến thắng
+2033/5/1,Ngày Quốc tế Lao động
+2033/5/2,Ngày Chiến thắng (nghỉ bù)
+2033/5/3,Ngày Quốc tế Lao động (nghỉ bù)
+2033/9/1,Quốc khánh
+2033/9/2,Quốc khánh
+2033/11/24,Ngày Văn hóa Việt Nam
+2034/1/1,Tết Dương lịch
+2034/1/2,Tết Dương lịch (nghỉ bù)
+2034/2/17,29 Tết
+2034/2/18,Giao thừa Tết Nguyên Đán
+2034/2/19,Tết Nguyên Đán
+2034/2/20,Mùng hai Tết Nguyên Đán
+2034/2/21,Mùng ba Tết Nguyên Đán
+2034/2/22,Mùng bốn Tết Nguyên Đán
+2034/2/23,Mùng năm Tết Nguyên Đán
+2034/4/28,Ngày Giỗ Tổ Hùng Vương
+2034/4/30,Ngày Chiến thắng
+2034/5/1,Ngày Quốc tế Lao động
+2034/5/2,Ngày Chiến thắng (nghỉ bù)
+2034/9/1,Quốc khánh
+2034/9/2,Quốc khánh
+2034/9/4,Quốc khánh (nghỉ bù)
+2034/11/24,Ngày Văn hóa Việt Nam
+2035/1/1,Tết Dương lịch
+2035/2/6,29 Tết
+2035/2/7,Giao thừa Tết Nguyên Đán
+2035/2/8,Tết Nguyên Đán
+2035/2/9,Mùng hai Tết Nguyên Đán
+2035/2/10,Mùng ba Tết Nguyên Đán
+2035/2/11,Mùng bốn Tết Nguyên Đán
+2035/2/12,Mùng năm Tết Nguyên Đán
+2035/4/17,Ngày Giỗ Tổ Hùng Vương
+2035/4/30,Ngày Chiến thắng
+2035/5/1,Ngày Quốc tế Lao động
+2035/9/2,Quốc khánh
+2035/9/3,Quốc khánh
+2035/9/4,Quốc khánh (nghỉ bù)
+2035/11/24,Ngày Văn hóa Việt Nam
+2035/11/26,Ngày Văn hóa Việt Nam (nghỉ bù)
+2036/1/1,Tết Dương lịch
+2036/1/27,Giao thừa Tết Nguyên Đán
+2036/1/28,Tết Nguyên Đán
+2036/1/29,Mùng hai Tết Nguyên Đán
+2036/1/30,Mùng ba Tết Nguyên Đán
+2036/1/31,Mùng bốn Tết Nguyên Đán
+2036/2/1,Mùng năm Tết Nguyên Đán
+2036/4/6,Ngày Giỗ Tổ Hùng Vương
+2036/4/7,Ngày Giỗ Tổ Hùng Vương (nghỉ bù)
+2036/4/30,Ngày Chiến thắng
+2036/5/1,Ngày Quốc tế Lao động
+2036/9/1,Quốc khánh
+2036/9/2,Quốc khánh
+2036/11/24,Ngày Văn hóa Việt Nam
+2037/1/1,Tết Dương lịch
+2037/2/13,29 Tết
+2037/2/14,Giao thừa Tết Nguyên Đán
+2037/2/15,Tết Nguyên Đán
+2037/2/16,Mùng hai Tết Nguyên Đán
+2037/2/17,Mùng ba Tết Nguyên Đán
+2037/2/18,Mùng bốn Tết Nguyên Đán
+2037/2/19,Mùng năm Tết Nguyên Đán
+2037/4/24,Ngày Giỗ Tổ Hùng Vương
+2037/4/30,Ngày Chiến thắng
+2037/5/1,Ngày Quốc tế Lao động
+2037/9/1,Quốc khánh
+2037/9/2,Quốc khánh
+2037/11/24,Ngày Văn hóa Việt Nam
+2038/1/1,Tết Dương lịch
+2038/2/2,29 Tết
+2038/2/3,Giao thừa Tết Nguyên Đán
+2038/2/4,Tết Nguyên Đán
+2038/2/5,Mùng hai Tết Nguyên Đán
+2038/2/6,Mùng ba Tết Nguyên Đán
+2038/2/7,Mùng bốn Tết Nguyên Đán
+2038/2/8,Mùng năm Tết Nguyên Đán
+2038/4/13,Ngày Giỗ Tổ Hùng Vương
+2038/4/30,Ngày Chiến thắng
+2038/5/1,Ngày Quốc tế Lao động
+2038/5/3,Ngày Quốc tế Lao động (nghỉ bù)
+2038/9/2,Quốc khánh
+2038/9/3,Quốc khánh
+2038/11/24,Ngày Văn hóa Việt Nam
+2039/1/1,Tết Dương lịch
+2039/1/3,Tết Dương lịch (nghỉ bù)
+2039/1/23,Giao thừa Tết Nguyên Đán
+2039/1/24,Tết Nguyên Đán
+2039/1/25,Mùng hai Tết Nguyên Đán
+2039/1/26,Mùng ba Tết Nguyên Đán
+2039/1/27,Mùng bốn Tết Nguyên Đán
+2039/1/28,Mùng năm Tết Nguyên Đán
+2039/4/3,Ngày Giỗ Tổ Hùng Vương
+2039/4/4,Ngày Giỗ Tổ Hùng Vương (nghỉ bù)
+2039/4/30,Ngày Chiến thắng
+2039/5/1,Ngày Quốc tế Lao động
+2039/5/2,Ngày Chiến thắng (nghỉ bù)
+2039/5/3,Ngày Quốc tế Lao động (nghỉ bù)
+2039/9/1,Quốc khánh
+2039/9/2,Quốc khánh
+2039/11/24,Ngày Văn hóa Việt Nam
+2040/1/1,Tết Dương lịch
+2040/1/2,Tết Dương lịch (nghỉ bù)
+2040/2/10,29 Tết
+2040/2/11,Giao thừa Tết Nguyên Đán
+2040/2/12,Tết Nguyên Đán
+2040/2/13,Mùng hai Tết Nguyên Đán
+2040/2/14,Mùng ba Tết Nguyên Đán
+2040/2/15,Mùng bốn Tết Nguyên Đán
+2040/2/16,Mùng năm Tết Nguyên Đán
+2040/4/20,Ngày Giỗ Tổ Hùng Vương
+2040/4/30,Ngày Chiến thắng
+2040/5/1,Ngày Quốc tế Lao động
+2040/9/2,Quốc khánh
+2040/9/3,Quốc khánh
+2040/9/4,Quốc khánh (nghỉ bù)
+2040/11/24,Ngày Văn hóa Việt Nam
+2040/11/26,Ngày Văn hóa Việt Nam (nghỉ bù)
+2041/1/1,Tết Dương lịch
+2041/1/30,29 Tết
+2041/1/31,Giao thừa Tết Nguyên Đán
+2041/2/1,Tết Nguyên Đán
+2041/2/2,Mùng hai Tết Nguyên Đán
+2041/2/3,Mùng ba Tết Nguyên Đán
+2041/2/4,Mùng bốn Tết Nguyên Đán
+2041/2/5,Mùng năm Tết Nguyên Đán
+2041/4/10,Ngày Giỗ Tổ Hùng Vương
+2041/4/30,Ngày Chiến thắng
+2041/5/1,Ngày Quốc tế Lao động
+2041/9/2,Quốc khánh
+2041/9/3,Quốc khánh
+2041/11/24,Ngày Văn hóa Việt Nam
+2041/11/25,Ngày Văn hóa Việt Nam (nghỉ bù)
+2042/1/1,Tết Dương lịch
+2042/1/20,29 Tết
+2042/1/21,Giao thừa Tết Nguyên Đán
+2042/1/22,Tết Nguyên Đán
+2042/1/23,Mùng hai Tết Nguyên Đán
+2042/1/24,Mùng ba Tết Nguyên Đán
+2042/1/25,Mùng bốn Tết Nguyên Đán
+2042/4/29,Ngày Giỗ Tổ Hùng Vương
+2042/4/30,Ngày Chiến thắng
+2042/5/1,Ngày Quốc tế Lao động
+2042/9/1,Quốc khánh
+2042/9/2,Quốc khánh
+2042/11/24,Ngày Văn hóa Việt Nam
+2043/1/1,Tết Dương lịch
+2043/2/9,Giao thừa Tết Nguyên Đán
+2043/2/10,Tết Nguyên Đán
+2043/2/11,Mùng hai Tết Nguyên Đán
+2043/2/12,Mùng ba Tết Nguyên Đán
+2043/2/13,Mùng bốn Tết Nguyên Đán
+2043/4/19,Ngày Giỗ Tổ Hùng Vương
+2043/4/20,Ngày Giỗ Tổ Hùng Vương (nghỉ bù)
+2043/4/30,Ngày Chiến thắng
+2043/5/1,Ngày Quốc tế Lao động
+2043/9/1,Quốc khánh
+2043/9/2,Quốc khánh
+2043/11/24,Ngày Văn hóa Việt Nam
+2044/1/1,Tết Dương lịch
+2044/1/28,29 Tết
+2044/1/29,Giao thừa Tết Nguyên Đán
+2044/1/30,Tết Nguyên Đán
+2044/1/31,Mùng hai Tết Nguyên Đán
+2044/2/1,Mùng ba Tết Nguyên Đán
+2044/2/2,Mùng bốn Tết Nguyên Đán
+2044/2/3,Mùng năm Tết Nguyên Đán
+2044/4/7,Ngày Giỗ Tổ Hùng Vương
+2044/4/30,Ngày Chiến thắng
+2044/5/1,Ngày Quốc tế Lao động
+2044/5/2,Ngày Chiến thắng (nghỉ bù)
+2044/5/3,Ngày Quốc tế Lao động (nghỉ bù)
+2044/9/1,Quốc khánh
+2044/9/2,Quốc khánh
+2044/11/24,Ngày Văn hóa Việt Nam
+2045/1/1,Tết Dương lịch
+2045/1/2,Tết Dương lịch (nghỉ bù)
+2045/2/15,29 Tết
+2045/2/16,Giao thừa Tết Nguyên Đán
+2045/2/17,Tết Nguyên Đán
+2045/2/18,Mùng hai Tết Nguyên Đán
+2045/2/19,Mùng ba Tết Nguyên Đán
+2045/2/20,Mùng bốn Tết Nguyên Đán
+2045/2/21,Mùng năm Tết Nguyên Đán
+2045/4/26,Ngày Giỗ Tổ Hùng Vương
+2045/4/30,Ngày Chiến thắng
+2045/5/1,Ngày Quốc tế Lao động
+2045/5/2,Ngày Chiến thắng (nghỉ bù)
+2045/9/1,Quốc khánh
+2045/9/2,Quốc khánh
+2045/9/4,Quốc khánh (nghỉ bù)
+2045/11/24,Ngày Văn hóa Việt Nam
+2046/1/1,Tết Dương lịch
+2046/2/5,Giao thừa Tết Nguyên Đán
+2046/2/6,Tết Nguyên Đán
+2046/2/7,Mùng hai Tết Nguyên Đán
+2046/2/8,Mùng ba Tết Nguyên Đán
+2046/2/9,Mùng bốn Tết Nguyên Đán
+2046/4/15,Ngày Giỗ Tổ Hùng Vương
+2046/4/16,Ngày Giỗ Tổ Hùng Vương (nghỉ bù)
+2046/4/30,Ngày Chiến thắng
+2046/5/1,Ngày Quốc tế Lao động
+2046/9/2,Quốc khánh
+2046/9/3,Quốc khánh
+2046/9/4,Quốc khánh (nghỉ bù)
+2046/11/24,Ngày Văn hóa Việt Nam
+2046/11/26,Ngày Văn hóa Việt Nam (nghỉ bù)
+2047/1/1,Tết Dương lịch
+2047/1/24,29 Tết
+2047/1/25,Giao thừa Tết Nguyên Đán
+2047/1/26,Tết Nguyên Đán
+2047/1/27,Mùng hai Tết Nguyên Đán
+2047/1/28,Mùng ba Tết Nguyên Đán
+2047/1/29,Mùng bốn Tết Nguyên Đán
+2047/1/30,Mùng năm Tết Nguyên Đán
+2047/4/4,Ngày Giỗ Tổ Hùng Vương
+2047/4/30,Ngày Chiến thắng
+2047/5/1,Ngày Quốc tế Lao động
+2047/9/2,Quốc khánh
+2047/9/3,Quốc khánh
+2047/11/24,Ngày Văn hóa Việt Nam
+2047/11/25,Ngày Văn hóa Việt Nam (nghỉ bù)
+2048/1/1,Tết Dương lịch
+2048/2/12,29 Tết
+2048/2/13,Giao thừa Tết Nguyên Đán
+2048/2/14,Tết Nguyên Đán
+2048/2/15,Mùng hai Tết Nguyên Đán
+2048/2/16,Mùng ba Tết Nguyên Đán
+2048/2/17,Mùng bốn Tết Nguyên Đán
+2048/2/18,Mùng năm Tết Nguyên Đán
+2048/4/22,Ngày Giỗ Tổ Hùng Vương
+2048/4/30,Ngày Chiến thắng
+2048/5/1,Ngày Quốc tế Lao động
+2048/9/1,Quốc khánh
+2048/9/2,Quốc khánh
+2048/11/24,Ngày Văn hóa Việt Nam
+2049/1/1,Tết Dương lịch
+2049/2/1,Giao thừa Tết Nguyên Đán
+2049/2/2,Tết Nguyên Đán
+2049/2/3,Mùng hai Tết Nguyên Đán
+2049/2/4,Mùng ba Tết Nguyên Đán
+2049/2/5,Mùng bốn Tết Nguyên Đán
+2049/4/11,Ngày Giỗ Tổ Hùng Vương
+2049/4/12,Ngày Giỗ Tổ Hùng Vương (nghỉ bù)
+2049/4/30,Ngày Chiến thắng
+2049/5/1,Ngày Quốc tế Lao động
+2049/5/3,Ngày Quốc tế Lao động (nghỉ bù)
+2049/9/2,Quốc khánh
+2049/9/3,Quốc khánh
+2049/11/24,Ngày Văn hóa Việt Nam
+2050/1/1,Tết Dương lịch
+2050/1/3,Tết Dương lịch (nghỉ bù)
+2050/1/21,29 Tết
+2050/1/22,Giao thừa Tết Nguyên Đán
+2050/1/23,Tết Nguyên Đán
+2050/1/24,Mùng hai Tết Nguyên Đán
+2050/1/25,Mùng ba Tết Nguyên Đán
+2050/1/26,Mùng bốn Tết Nguyên Đán
+2050/1/27,Mùng năm Tết Nguyên Đán
+2050/4/1,Ngày Giỗ Tổ Hùng Vương
+2050/4/30,Ngày Chiến thắng
+2050/5/1,Ngày Quốc tế Lao động
+2050/5/2,Ngày Chiến thắng (nghỉ bù)
+2050/5/3,Ngày Quốc tế Lao động (nghỉ bù)
+2050/9/1,Quốc khánh
+2050/9/2,Quốc khánh
+2050/11/24,Ngày Văn hóa Việt Nam

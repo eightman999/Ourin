@@ -1,0 +1,282 @@
+# DE の祝日（2020〜2050年、言語: de）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Neujahr
+2020/4/10,Karfreitag
+2020/4/13,Ostermontag
+2020/5/1,Erster Mai
+2020/5/21,Christi Himmelfahrt
+2020/6/1,Pfingstmontag
+2020/10/3,Tag der Deutschen Einheit
+2020/12/25,Erster Weihnachtstag
+2020/12/26,Zweiter Weihnachtstag
+2021/1/1,Neujahr
+2021/4/2,Karfreitag
+2021/4/5,Ostermontag
+2021/5/1,Erster Mai
+2021/5/13,Christi Himmelfahrt
+2021/5/24,Pfingstmontag
+2021/10/3,Tag der Deutschen Einheit
+2021/12/25,Erster Weihnachtstag
+2021/12/26,Zweiter Weihnachtstag
+2022/1/1,Neujahr
+2022/4/15,Karfreitag
+2022/4/18,Ostermontag
+2022/5/1,Erster Mai
+2022/5/26,Christi Himmelfahrt
+2022/6/6,Pfingstmontag
+2022/10/3,Tag der Deutschen Einheit
+2022/12/25,Erster Weihnachtstag
+2022/12/26,Zweiter Weihnachtstag
+2023/1/1,Neujahr
+2023/4/7,Karfreitag
+2023/4/10,Ostermontag
+2023/5/1,Erster Mai
+2023/5/18,Christi Himmelfahrt
+2023/5/29,Pfingstmontag
+2023/10/3,Tag der Deutschen Einheit
+2023/12/25,Erster Weihnachtstag
+2023/12/26,Zweiter Weihnachtstag
+2024/1/1,Neujahr
+2024/3/29,Karfreitag
+2024/4/1,Ostermontag
+2024/5/1,Erster Mai
+2024/5/9,Christi Himmelfahrt
+2024/5/20,Pfingstmontag
+2024/10/3,Tag der Deutschen Einheit
+2024/12/25,Erster Weihnachtstag
+2024/12/26,Zweiter Weihnachtstag
+2025/1/1,Neujahr
+2025/4/18,Karfreitag
+2025/4/21,Ostermontag
+2025/5/1,Erster Mai
+2025/5/29,Christi Himmelfahrt
+2025/6/9,Pfingstmontag
+2025/10/3,Tag der Deutschen Einheit
+2025/12/25,Erster Weihnachtstag
+2025/12/26,Zweiter Weihnachtstag
+2026/1/1,Neujahr
+2026/4/3,Karfreitag
+2026/4/6,Ostermontag
+2026/5/1,Erster Mai
+2026/5/14,Christi Himmelfahrt
+2026/5/25,Pfingstmontag
+2026/10/3,Tag der Deutschen Einheit
+2026/12/25,Erster Weihnachtstag
+2026/12/26,Zweiter Weihnachtstag
+2027/1/1,Neujahr
+2027/3/26,Karfreitag
+2027/3/29,Ostermontag
+2027/5/1,Erster Mai
+2027/5/6,Christi Himmelfahrt
+2027/5/17,Pfingstmontag
+2027/10/3,Tag der Deutschen Einheit
+2027/12/25,Erster Weihnachtstag
+2027/12/26,Zweiter Weihnachtstag
+2028/1/1,Neujahr
+2028/4/14,Karfreitag
+2028/4/17,Ostermontag
+2028/5/1,Erster Mai
+2028/5/25,Christi Himmelfahrt
+2028/6/5,Pfingstmontag
+2028/10/3,Tag der Deutschen Einheit
+2028/12/25,Erster Weihnachtstag
+2028/12/26,Zweiter Weihnachtstag
+2029/1/1,Neujahr
+2029/3/30,Karfreitag
+2029/4/2,Ostermontag
+2029/5/1,Erster Mai
+2029/5/10,Christi Himmelfahrt
+2029/5/21,Pfingstmontag
+2029/10/3,Tag der Deutschen Einheit
+2029/12/25,Erster Weihnachtstag
+2029/12/26,Zweiter Weihnachtstag
+2030/1/1,Neujahr
+2030/4/19,Karfreitag
+2030/4/22,Ostermontag
+2030/5/1,Erster Mai
+2030/5/30,Christi Himmelfahrt
+2030/6/10,Pfingstmontag
+2030/10/3,Tag der Deutschen Einheit
+2030/12/25,Erster Weihnachtstag
+2030/12/26,Zweiter Weihnachtstag
+2031/1/1,Neujahr
+2031/4/11,Karfreitag
+2031/4/14,Ostermontag
+2031/5/1,Erster Mai
+2031/5/22,Christi Himmelfahrt
+2031/6/2,Pfingstmontag
+2031/10/3,Tag der Deutschen Einheit
+2031/12/25,Erster Weihnachtstag
+2031/12/26,Zweiter Weihnachtstag
+2032/1/1,Neujahr
+2032/3/26,Karfreitag
+2032/3/29,Ostermontag
+2032/5/1,Erster Mai
+2032/5/6,Christi Himmelfahrt
+2032/5/17,Pfingstmontag
+2032/10/3,Tag der Deutschen Einheit
+2032/12/25,Erster Weihnachtstag
+2032/12/26,Zweiter Weihnachtstag
+2033/1/1,Neujahr
+2033/4/15,Karfreitag
+2033/4/18,Ostermontag
+2033/5/1,Erster Mai
+2033/5/26,Christi Himmelfahrt
+2033/6/6,Pfingstmontag
+2033/10/3,Tag der Deutschen Einheit
+2033/12/25,Erster Weihnachtstag
+2033/12/26,Zweiter Weihnachtstag
+2034/1/1,Neujahr
+2034/4/7,Karfreitag
+2034/4/10,Ostermontag
+2034/5/1,Erster Mai
+2034/5/18,Christi Himmelfahrt
+2034/5/29,Pfingstmontag
+2034/10/3,Tag der Deutschen Einheit
+2034/12/25,Erster Weihnachtstag
+2034/12/26,Zweiter Weihnachtstag
+2035/1/1,Neujahr
+2035/3/23,Karfreitag
+2035/3/26,Ostermontag
+2035/5/1,Erster Mai
+2035/5/3,Christi Himmelfahrt
+2035/5/14,Pfingstmontag
+2035/10/3,Tag der Deutschen Einheit
+2035/12/25,Erster Weihnachtstag
+2035/12/26,Zweiter Weihnachtstag
+2036/1/1,Neujahr
+2036/4/11,Karfreitag
+2036/4/14,Ostermontag
+2036/5/1,Erster Mai
+2036/5/22,Christi Himmelfahrt
+2036/6/2,Pfingstmontag
+2036/10/3,Tag der Deutschen Einheit
+2036/12/25,Erster Weihnachtstag
+2036/12/26,Zweiter Weihnachtstag
+2037/1/1,Neujahr
+2037/4/3,Karfreitag
+2037/4/6,Ostermontag
+2037/5/1,Erster Mai
+2037/5/14,Christi Himmelfahrt
+2037/5/25,Pfingstmontag
+2037/10/3,Tag der Deutschen Einheit
+2037/12/25,Erster Weihnachtstag
+2037/12/26,Zweiter Weihnachtstag
+2038/1/1,Neujahr
+2038/4/23,Karfreitag
+2038/4/26,Ostermontag
+2038/5/1,Erster Mai
+2038/6/3,Christi Himmelfahrt
+2038/6/14,Pfingstmontag
+2038/10/3,Tag der Deutschen Einheit
+2038/12/25,Erster Weihnachtstag
+2038/12/26,Zweiter Weihnachtstag
+2039/1/1,Neujahr
+2039/4/8,Karfreitag
+2039/4/11,Ostermontag
+2039/5/1,Erster Mai
+2039/5/19,Christi Himmelfahrt
+2039/5/30,Pfingstmontag
+2039/10/3,Tag der Deutschen Einheit
+2039/12/25,Erster Weihnachtstag
+2039/12/26,Zweiter Weihnachtstag
+2040/1/1,Neujahr
+2040/3/30,Karfreitag
+2040/4/2,Ostermontag
+2040/5/1,Erster Mai
+2040/5/10,Christi Himmelfahrt
+2040/5/21,Pfingstmontag
+2040/10/3,Tag der Deutschen Einheit
+2040/12/25,Erster Weihnachtstag
+2040/12/26,Zweiter Weihnachtstag
+2041/1/1,Neujahr
+2041/4/19,Karfreitag
+2041/4/22,Ostermontag
+2041/5/1,Erster Mai
+2041/5/30,Christi Himmelfahrt
+2041/6/10,Pfingstmontag
+2041/10/3,Tag der Deutschen Einheit
+2041/12/25,Erster Weihnachtstag
+2041/12/26,Zweiter Weihnachtstag
+2042/1/1,Neujahr
+2042/4/4,Karfreitag
+2042/4/7,Ostermontag
+2042/5/1,Erster Mai
+2042/5/15,Christi Himmelfahrt
+2042/5/26,Pfingstmontag
+2042/10/3,Tag der Deutschen Einheit
+2042/12/25,Erster Weihnachtstag
+2042/12/26,Zweiter Weihnachtstag
+2043/1/1,Neujahr
+2043/3/27,Karfreitag
+2043/3/30,Ostermontag
+2043/5/1,Erster Mai
+2043/5/7,Christi Himmelfahrt
+2043/5/18,Pfingstmontag
+2043/10/3,Tag der Deutschen Einheit
+2043/12/25,Erster Weihnachtstag
+2043/12/26,Zweiter Weihnachtstag
+2044/1/1,Neujahr
+2044/4/15,Karfreitag
+2044/4/18,Ostermontag
+2044/5/1,Erster Mai
+2044/5/26,Christi Himmelfahrt
+2044/6/6,Pfingstmontag
+2044/10/3,Tag der Deutschen Einheit
+2044/12/25,Erster Weihnachtstag
+2044/12/26,Zweiter Weihnachtstag
+2045/1/1,Neujahr
+2045/4/7,Karfreitag
+2045/4/10,Ostermontag
+2045/5/1,Erster Mai
+2045/5/18,Christi Himmelfahrt
+2045/5/29,Pfingstmontag
+2045/10/3,Tag der Deutschen Einheit
+2045/12/25,Erster Weihnachtstag
+2045/12/26,Zweiter Weihnachtstag
+2046/1/1,Neujahr
+2046/3/23,Karfreitag
+2046/3/26,Ostermontag
+2046/5/1,Erster Mai
+2046/5/3,Christi Himmelfahrt
+2046/5/14,Pfingstmontag
+2046/10/3,Tag der Deutschen Einheit
+2046/12/25,Erster Weihnachtstag
+2046/12/26,Zweiter Weihnachtstag
+2047/1/1,Neujahr
+2047/4/12,Karfreitag
+2047/4/15,Ostermontag
+2047/5/1,Erster Mai
+2047/5/23,Christi Himmelfahrt
+2047/6/3,Pfingstmontag
+2047/10/3,Tag der Deutschen Einheit
+2047/12/25,Erster Weihnachtstag
+2047/12/26,Zweiter Weihnachtstag
+2048/1/1,Neujahr
+2048/4/3,Karfreitag
+2048/4/6,Ostermontag
+2048/5/1,Erster Mai
+2048/5/14,Christi Himmelfahrt
+2048/5/25,Pfingstmontag
+2048/10/3,Tag der Deutschen Einheit
+2048/12/25,Erster Weihnachtstag
+2048/12/26,Zweiter Weihnachtstag
+2049/1/1,Neujahr
+2049/4/16,Karfreitag
+2049/4/19,Ostermontag
+2049/5/1,Erster Mai
+2049/5/27,Christi Himmelfahrt
+2049/6/7,Pfingstmontag
+2049/10/3,Tag der Deutschen Einheit
+2049/12/25,Erster Weihnachtstag
+2049/12/26,Zweiter Weihnachtstag
+2050/1/1,Neujahr
+2050/4/8,Karfreitag
+2050/4/11,Ostermontag
+2050/5/1,Erster Mai
+2050/5/19,Christi Himmelfahrt
+2050/5/30,Pfingstmontag
+2050/10/3,Tag der Deutschen Einheit
+2050/12/25,Erster Weihnachtstag
+2050/12/26,Zweiter Weihnachtstag

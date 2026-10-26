@@ -1,0 +1,344 @@
+# AW の祝日（2020〜2050年、言語: pap_AW）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Aña Nobo
+2020/1/25,Dia di Betico
+2020/2/24,Dialuna despues di Carnaval Grandi
+2020/3/18,Dia di Himno y Bandera
+2020/4/10,Bierna Santo
+2020/4/13,Di dos dia di Pasco di Resureccion
+2020/4/27,Aña di Rey
+2020/5/1,Dia di Obrero
+2020/5/21,Dia di Asuncion
+2020/12/25,Pasco di Nacemento
+2020/12/26,Di dos dia di Pasco di Nacemento
+2021/1/1,Aña Nobo
+2021/1/25,Dia di Betico
+2021/2/15,Dialuna despues di Carnaval Grandi
+2021/3/18,Dia di Himno y Bandera
+2021/4/2,Bierna Santo
+2021/4/5,Di dos dia di Pasco di Resureccion
+2021/4/27,Dia di Rey
+2021/5/1,Dia di Obrero
+2021/5/13,Dia di Asuncion
+2021/12/25,Pasco di Nacemento
+2021/12/26,Di dos dia di Pasco di Nacemento
+2022/1/1,Aña Nobo
+2022/1/25,Dia di Betico
+2022/2/28,Dialuna despues di Carnaval Grandi
+2022/3/18,Dia di Himno y Bandera
+2022/4/15,Bierna Santo
+2022/4/18,Di dos dia di Pasco di Resureccion
+2022/4/27,Dia di Rey
+2022/5/2,Dia di Obrero
+2022/5/26,Dia di Asuncion
+2022/12/25,Pasco di Nacemento
+2022/12/26,Di dos dia di Pasco di Nacemento
+2023/1/1,Aña Nobo
+2023/1/25,Dia di Betico
+2023/2/20,Dialuna prome cu diaranson di shinish
+2023/3/18,Dia di Himno y Bandera
+2023/4/7,Bierna Santo
+2023/4/10,Di dos dia di Pasco di Resureccion
+2023/4/27,Dia di Rey
+2023/5/1,Dia di Obrero
+2023/5/18,Dia di Asuncion
+2023/12/25,Pasco di Nacemento
+2023/12/26,Di dos dia di Pasco di Nacemento
+2024/1/1,Aña Nobo
+2024/1/25,Dia di Betico
+2024/2/12,Dialuna prome cu diaranson di shinish
+2024/3/18,Dia di Himno y Bandera
+2024/3/29,Bierna Santo
+2024/4/1,Di dos dia di Pasco di Resureccion
+2024/4/27,Dia di Rey
+2024/5/1,Dia di Obrero
+2024/5/9,Dia di Asuncion
+2024/12/25,Pasco di Nacemento
+2024/12/26,Di dos dia di Pasco di Nacemento
+2025/1/1,Aña Nobo
+2025/1/25,Dia di Betico
+2025/3/3,Dialuna prome cu diaranson di shinish
+2025/3/18,Dia di Himno y Bandera
+2025/4/18,Bierna Santo
+2025/4/21,Di dos dia di Pasco di Resureccion
+2025/4/26,Dia di Rey
+2025/5/1,Dia di Obrero
+2025/5/29,Dia di Asuncion
+2025/12/25,Pasco di Nacemento
+2025/12/26,Di dos dia di Pasco di Nacemento
+2026/1/1,Aña Nobo
+2026/1/25,Dia di Betico
+2026/2/16,Dialuna prome cu diaranson di shinish
+2026/3/18,Dia di Himno y Bandera
+2026/4/3,Bierna Santo
+2026/4/6,Di dos dia di Pasco di Resureccion
+2026/4/27,Dia di Rey
+2026/5/1,Dia di Obrero
+2026/5/14,Dia di Asuncion
+2026/12/25,Pasco di Nacemento
+2026/12/26,Di dos dia di Pasco di Nacemento
+2027/1/1,Aña Nobo
+2027/1/25,Dia di Betico
+2027/2/8,Dialuna prome cu diaranson di shinish
+2027/3/18,Dia di Himno y Bandera
+2027/3/26,Bierna Santo
+2027/3/29,Di dos dia di Pasco di Resureccion
+2027/4/27,Dia di Rey
+2027/5/1,Dia di Obrero
+2027/5/6,Dia di Asuncion
+2027/12/25,Pasco di Nacemento
+2027/12/26,Di dos dia di Pasco di Nacemento
+2028/1/1,Aña Nobo
+2028/1/25,Dia di Betico
+2028/2/28,Dialuna prome cu diaranson di shinish
+2028/3/18,Dia di Himno y Bandera
+2028/4/14,Bierna Santo
+2028/4/17,Di dos dia di Pasco di Resureccion
+2028/4/27,Dia di Rey
+2028/5/1,Dia di Obrero
+2028/5/25,Dia di Asuncion
+2028/12/25,Pasco di Nacemento
+2028/12/26,Di dos dia di Pasco di Nacemento
+2029/1/1,Aña Nobo
+2029/1/25,Dia di Betico
+2029/2/12,Dialuna prome cu diaranson di shinish
+2029/3/18,Dia di Himno y Bandera
+2029/3/30,Bierna Santo
+2029/4/2,Di dos dia di Pasco di Resureccion
+2029/4/27,Dia di Rey
+2029/5/1,Dia di Obrero
+2029/5/10,Dia di Asuncion
+2029/12/25,Pasco di Nacemento
+2029/12/26,Di dos dia di Pasco di Nacemento
+2030/1/1,Aña Nobo
+2030/1/25,Dia di Betico
+2030/3/4,Dialuna prome cu diaranson di shinish
+2030/3/18,Dia di Himno y Bandera
+2030/4/19,Bierna Santo
+2030/4/22,Di dos dia di Pasco di Resureccion
+2030/4/27,Dia di Rey
+2030/5/1,Dia di Obrero
+2030/5/30,Dia di Asuncion
+2030/12/25,Pasco di Nacemento
+2030/12/26,Di dos dia di Pasco di Nacemento
+2031/1/1,Aña Nobo
+2031/1/25,Dia di Betico
+2031/2/24,Dialuna prome cu diaranson di shinish
+2031/3/18,Dia di Himno y Bandera
+2031/4/11,Bierna Santo
+2031/4/14,Di dos dia di Pasco di Resureccion
+2031/4/26,Dia di Rey
+2031/5/1,Dia di Obrero
+2031/5/22,Dia di Asuncion
+2031/12/25,Pasco di Nacemento
+2031/12/26,Di dos dia di Pasco di Nacemento
+2032/1/1,Aña Nobo
+2032/1/25,Dia di Betico
+2032/2/9,Dialuna prome cu diaranson di shinish
+2032/3/18,Dia di Himno y Bandera
+2032/3/26,Bierna Santo
+2032/3/29,Di dos dia di Pasco di Resureccion
+2032/4/27,Dia di Rey
+2032/5/1,Dia di Obrero
+2032/5/6,Dia di Asuncion
+2032/12/25,Pasco di Nacemento
+2032/12/26,Di dos dia di Pasco di Nacemento
+2033/1/1,Aña Nobo
+2033/1/25,Dia di Betico
+2033/2/28,Dialuna prome cu diaranson di shinish
+2033/3/18,Dia di Himno y Bandera
+2033/4/15,Bierna Santo
+2033/4/18,Di dos dia di Pasco di Resureccion
+2033/4/27,Dia di Rey
+2033/5/2,Dia di Obrero
+2033/5/26,Dia di Asuncion
+2033/12/25,Pasco di Nacemento
+2033/12/26,Di dos dia di Pasco di Nacemento
+2034/1/1,Aña Nobo
+2034/1/25,Dia di Betico
+2034/2/20,Dialuna prome cu diaranson di shinish
+2034/3/18,Dia di Himno y Bandera
+2034/4/7,Bierna Santo
+2034/4/10,Di dos dia di Pasco di Resureccion
+2034/4/27,Dia di Rey
+2034/5/1,Dia di Obrero
+2034/5/18,Dia di Asuncion
+2034/12/25,Pasco di Nacemento
+2034/12/26,Di dos dia di Pasco di Nacemento
+2035/1/1,Aña Nobo
+2035/1/25,Dia di Betico
+2035/2/5,Dialuna prome cu diaranson di shinish
+2035/3/18,Dia di Himno y Bandera
+2035/3/23,Bierna Santo
+2035/3/26,Di dos dia di Pasco di Resureccion
+2035/4/27,Dia di Rey
+2035/5/1,Dia di Obrero
+2035/5/3,Dia di Asuncion
+2035/12/25,Pasco di Nacemento
+2035/12/26,Di dos dia di Pasco di Nacemento
+2036/1/1,Aña Nobo
+2036/1/25,Dia di Betico
+2036/2/25,Dialuna prome cu diaranson di shinish
+2036/3/18,Dia di Himno y Bandera
+2036/4/11,Bierna Santo
+2036/4/14,Di dos dia di Pasco di Resureccion
+2036/4/26,Dia di Rey
+2036/5/1,Dia di Obrero
+2036/5/22,Dia di Asuncion
+2036/12/25,Pasco di Nacemento
+2036/12/26,Di dos dia di Pasco di Nacemento
+2037/1/1,Aña Nobo
+2037/1/25,Dia di Betico
+2037/2/16,Dialuna prome cu diaranson di shinish
+2037/3/18,Dia di Himno y Bandera
+2037/4/3,Bierna Santo
+2037/4/6,Di dos dia di Pasco di Resureccion
+2037/4/27,Dia di Rey
+2037/5/1,Dia di Obrero
+2037/5/14,Dia di Asuncion
+2037/12/25,Pasco di Nacemento
+2037/12/26,Di dos dia di Pasco di Nacemento
+2038/1/1,Aña Nobo
+2038/1/25,Dia di Betico
+2038/3/8,Dialuna prome cu diaranson di shinish
+2038/3/18,Dia di Himno y Bandera
+2038/4/23,Bierna Santo
+2038/4/26,Di dos dia di Pasco di Resureccion
+2038/4/27,Dia di Rey
+2038/5/1,Dia di Obrero
+2038/6/3,Dia di Asuncion
+2038/12/25,Pasco di Nacemento
+2038/12/26,Di dos dia di Pasco di Nacemento
+2039/1/1,Aña Nobo
+2039/1/25,Dia di Betico
+2039/2/21,Dialuna prome cu diaranson di shinish
+2039/3/18,Dia di Himno y Bandera
+2039/4/8,Bierna Santo
+2039/4/11,Di dos dia di Pasco di Resureccion
+2039/4/27,Dia di Rey
+2039/5/2,Dia di Obrero
+2039/5/19,Dia di Asuncion
+2039/12/25,Pasco di Nacemento
+2039/12/26,Di dos dia di Pasco di Nacemento
+2040/1/1,Aña Nobo
+2040/1/25,Dia di Betico
+2040/2/13,Dialuna prome cu diaranson di shinish
+2040/3/18,Dia di Himno y Bandera
+2040/3/30,Bierna Santo
+2040/4/2,Di dos dia di Pasco di Resureccion
+2040/4/27,Dia di Rey
+2040/5/1,Dia di Obrero
+2040/5/10,Dia di Asuncion
+2040/12/25,Pasco di Nacemento
+2040/12/26,Di dos dia di Pasco di Nacemento
+2041/1/1,Aña Nobo
+2041/1/25,Dia di Betico
+2041/3/4,Dialuna prome cu diaranson di shinish
+2041/3/18,Dia di Himno y Bandera
+2041/4/19,Bierna Santo
+2041/4/22,Di dos dia di Pasco di Resureccion
+2041/4/27,Dia di Rey
+2041/5/1,Dia di Obrero
+2041/5/30,Dia di Asuncion
+2041/12/25,Pasco di Nacemento
+2041/12/26,Di dos dia di Pasco di Nacemento
+2042/1/1,Aña Nobo
+2042/1/25,Dia di Betico
+2042/2/17,Dialuna prome cu diaranson di shinish
+2042/3/18,Dia di Himno y Bandera
+2042/4/4,Bierna Santo
+2042/4/7,Di dos dia di Pasco di Resureccion
+2042/4/26,Dia di Rey
+2042/5/1,Dia di Obrero
+2042/5/15,Dia di Asuncion
+2042/12/25,Pasco di Nacemento
+2042/12/26,Di dos dia di Pasco di Nacemento
+2043/1/1,Aña Nobo
+2043/1/25,Dia di Betico
+2043/2/9,Dialuna prome cu diaranson di shinish
+2043/3/18,Dia di Himno y Bandera
+2043/3/27,Bierna Santo
+2043/3/30,Di dos dia di Pasco di Resureccion
+2043/4/27,Dia di Rey
+2043/5/1,Dia di Obrero
+2043/5/7,Dia di Asuncion
+2043/12/25,Pasco di Nacemento
+2043/12/26,Di dos dia di Pasco di Nacemento
+2044/1/1,Aña Nobo
+2044/1/25,Dia di Betico
+2044/2/29,Dialuna prome cu diaranson di shinish
+2044/3/18,Dia di Himno y Bandera
+2044/4/15,Bierna Santo
+2044/4/18,Di dos dia di Pasco di Resureccion
+2044/4/27,Dia di Rey
+2044/5/2,Dia di Obrero
+2044/5/26,Dia di Asuncion
+2044/12/25,Pasco di Nacemento
+2044/12/26,Di dos dia di Pasco di Nacemento
+2045/1/1,Aña Nobo
+2045/1/25,Dia di Betico
+2045/2/20,Dialuna prome cu diaranson di shinish
+2045/3/18,Dia di Himno y Bandera
+2045/4/7,Bierna Santo
+2045/4/10,Di dos dia di Pasco di Resureccion
+2045/4/27,Dia di Rey
+2045/5/1,Dia di Obrero
+2045/5/18,Dia di Asuncion
+2045/12/25,Pasco di Nacemento
+2045/12/26,Di dos dia di Pasco di Nacemento
+2046/1/1,Aña Nobo
+2046/1/25,Dia di Betico
+2046/2/5,Dialuna prome cu diaranson di shinish
+2046/3/18,Dia di Himno y Bandera
+2046/3/23,Bierna Santo
+2046/3/26,Di dos dia di Pasco di Resureccion
+2046/4/27,Dia di Rey
+2046/5/1,Dia di Obrero
+2046/5/3,Dia di Asuncion
+2046/12/25,Pasco di Nacemento
+2046/12/26,Di dos dia di Pasco di Nacemento
+2047/1/1,Aña Nobo
+2047/1/25,Dia di Betico
+2047/2/25,Dialuna prome cu diaranson di shinish
+2047/3/18,Dia di Himno y Bandera
+2047/4/12,Bierna Santo
+2047/4/15,Di dos dia di Pasco di Resureccion
+2047/4/27,Dia di Rey
+2047/5/1,Dia di Obrero
+2047/5/23,Dia di Asuncion
+2047/12/25,Pasco di Nacemento
+2047/12/26,Di dos dia di Pasco di Nacemento
+2048/1/1,Aña Nobo
+2048/1/25,Dia di Betico
+2048/2/17,Dialuna prome cu diaranson di shinish
+2048/3/18,Dia di Himno y Bandera
+2048/4/3,Bierna Santo
+2048/4/6,Di dos dia di Pasco di Resureccion
+2048/4/27,Dia di Rey
+2048/5/1,Dia di Obrero
+2048/5/14,Dia di Asuncion
+2048/12/25,Pasco di Nacemento
+2048/12/26,Di dos dia di Pasco di Nacemento
+2049/1/1,Aña Nobo
+2049/1/25,Dia di Betico
+2049/3/1,Dialuna prome cu diaranson di shinish
+2049/3/18,Dia di Himno y Bandera
+2049/4/16,Bierna Santo
+2049/4/19,Di dos dia di Pasco di Resureccion
+2049/4/27,Dia di Rey
+2049/5/1,Dia di Obrero
+2049/5/27,Dia di Asuncion
+2049/12/25,Pasco di Nacemento
+2049/12/26,Di dos dia di Pasco di Nacemento
+2050/1/1,Aña Nobo
+2050/1/25,Dia di Betico
+2050/2/21,Dialuna prome cu diaranson di shinish
+2050/3/18,Dia di Himno y Bandera
+2050/4/8,Bierna Santo
+2050/4/11,Di dos dia di Pasco di Resureccion
+2050/4/27,Dia di Rey
+2050/5/2,Dia di Obrero
+2050/5/19,Dia di Asuncion
+2050/12/25,Pasco di Nacemento
+2050/12/26,Di dos dia di Pasco di Nacemento

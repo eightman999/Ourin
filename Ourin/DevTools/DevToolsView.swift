@@ -24,7 +24,7 @@ struct DevToolsView: View {
             NavigationSplitView {
                 List(selection: $selection) {
                     ForEach(Section.allCases) { section in
-                        Text(section.rawValue)
+                        Text(LocalizedStringKey(section.rawValue))
                             .tag(section)
                     }
                 }
@@ -47,7 +47,7 @@ struct DevToolsView: View {
         NavigationView {
             List(selection: $selection) {
                 ForEach(Section.allCases) { section in
-                    Text(section.rawValue)
+                    Text(LocalizedStringKey(section.rawValue))
                         .tag(section)
                 }
             }

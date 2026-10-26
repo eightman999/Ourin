@@ -2,9 +2,14 @@
 
 このディレクトリには、Ourin の全仕様書とドキュメントが含まれています。
 
+[使い方ガイド](https://furinlab.com/ourin/guide/) · [公開ドキュメント](https://furinlab.com/ourin/docs/) · [対応状況・互換性](https://furinlab.com/ourin/compatibility/)
+
+開発版では灯・ese-shiori・偽栞・忍・翡翠・結奈・美坂と里珠 Proxy を実装済みです。追加対応は公開配布版には未収録で、全機能・全ゴーストの互換性を保証しません（2026-10-25）。検証範囲と必要な外部ランタイムは [追加7栞](ADDITIONAL_SHIORI_ja-jp.md)、[SHIOLINK / MiyoJS](SHIOLINK_ja-jp.md)、[里珠 Proxy](RISHU_ja-jp.md) を参照してください。MiyoJS は実エンジン＋最小辞書、里珠は公式 echo サンプルで確認済みです。配布ゴースト全体の検証は残っています。
+
 ## 📖 閲覧方法
 
-- **マークダウン版**: このディレクトリの `.md` ファイルを直接閲覧
+- **公開サイト**: [ガイド・ドキュメントを読む](https://furinlab.com/ourin/docs/)
+- **マークダウン版（ソース閲覧）**: このディレクトリの `.md` ファイルを直接閲覧
 - **HTML版**: `html/` ディレクトリの HTML ファイルを閲覧（[索引ページ](html/index.html)から選択可能）
 
 ## 🎯 入門・概要
@@ -18,8 +23,8 @@
 
 ### SHIORI システム
 - [SHIORI/3.0M 仕様](SHIORI_3.0M_SPEC.md) 🟡 **部分実装** - SHIORI プロトコルの macOS ネイティブ実装仕様
-  - YAYA バックエンドで実装済み
-  - C ABI での Bundle/Plugin ロードは未実装
+  - YAYA / 里々 / SHIOLINK / 里珠 Proxy / native runtime の共通要求経路
+  - 開発版の C ABI・XPC 接続と制約は [Native SHIORI ABI](NATIVE_SHIORI_ABI_ja-jp.md) を参照
 
 ### SSTP プロトコル
 - [SSTP/1.xM 仕様](SSTP_1.xM_SPEC.md) 🟡 **部分互換** - SSTP プロトコルの macOS 差分仕様

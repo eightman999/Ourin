@@ -1,0 +1,495 @@
+# LV の祝日（2020〜2050年、言語: lv）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Jaungada diena
+2020/4/10,Lielā Piektdiena
+2020/4/12,Pirmās Lieldienas
+2020/4/13,Otrās Lieldienas
+2020/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2020/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2020/5/10,Mātes diena
+2020/5/31,Vasarsvētki
+2020/6/22,Brīvdiena (pārcelta no 13.06.2020)
+2020/6/23,Līgo diena
+2020/6/24,Jāņu diena
+2020/11/18,Latvijas Republikas Proklamēšanas diena
+2020/12/24,Ziemassvētku vakars
+2020/12/25,Pirmie Ziemassvētki
+2020/12/26,Otrie Ziemassvētki
+2020/12/31,Vecgada diena
+2021/1/1,Jaungada diena
+2021/4/2,Lielā Piektdiena
+2021/4/4,Pirmās Lieldienas
+2021/4/5,Otrās Lieldienas
+2021/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2021/5/3,Brīvdiena (pārcelta no 08.05.2021)
+2021/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2021/5/9,Mātes diena
+2021/5/23,Vasarsvētki
+2021/6/23,Līgo diena
+2021/6/24,Jāņu diena
+2021/6/25,Brīvdiena (pārcelta no 19.06.2021)
+2021/11/18,Latvijas Republikas Proklamēšanas diena
+2021/11/19,Brīvdiena (pārcelta no 13.11.2021)
+2021/12/24,Ziemassvētku vakars
+2021/12/25,Pirmie Ziemassvētki
+2021/12/26,Otrie Ziemassvētki
+2021/12/31,Vecgada diena
+2022/1/1,Jaungada diena
+2022/4/15,Lielā Piektdiena
+2022/4/17,Pirmās Lieldienas
+2022/4/18,Otrās Lieldienas
+2022/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2022/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2022/5/8,Mātes diena
+2022/6/5,Vasarsvētki
+2022/6/23,Līgo diena
+2022/6/24,Jāņu diena
+2022/11/18,Latvijas Republikas Proklamēšanas diena
+2022/12/24,Ziemassvētku vakars
+2022/12/25,Pirmie Ziemassvētki
+2022/12/26,Otrie Ziemassvētki
+2022/12/31,Vecgada diena
+2023/1/1,Jaungada diena
+2023/4/7,Lielā Piektdiena
+2023/4/9,Pirmās Lieldienas
+2023/4/10,Otrās Lieldienas
+2023/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2023/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2023/5/5,Brīvdiena (pārcelta no 20.05.2023)
+2023/5/14,Mātes diena
+2023/5/28,Vasarsvētki
+2023/5/29,Diena, kad Latvijas hokeja komanda ieguva bronzas medaļu 2023. gada Pasaules hokeja čempionātā
+2023/6/23,Līgo diena
+2023/6/24,Jāņu diena
+2023/7/10,Vispārējo latviešu Dziesmu un deju svētku noslēguma diena
+2023/11/18,Latvijas Republikas Proklamēšanas diena
+2023/11/20,Latvijas Republikas Proklamēšanas diena (brīvdiena)
+2023/12/24,Ziemassvētku vakars
+2023/12/25,Pirmie Ziemassvētki
+2023/12/26,Otrie Ziemassvētki
+2023/12/31,Vecgada diena
+2024/1/1,Jaungada diena
+2024/3/29,Lielā Piektdiena
+2024/3/31,Pirmās Lieldienas
+2024/4/1,Otrās Lieldienas
+2024/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2024/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2024/5/6,Latvijas Republikas Neatkarības atjaunošanas diena (brīvdiena)
+2024/5/12,Mātes diena
+2024/5/19,Vasarsvētki
+2024/6/23,Līgo diena
+2024/6/24,Jāņu diena
+2024/11/18,Latvijas Republikas Proklamēšanas diena
+2024/12/23,Brīvdiena (pārcelta no 14.12.2024)
+2024/12/24,Ziemassvētku vakars
+2024/12/25,Pirmie Ziemassvētki
+2024/12/26,Otrie Ziemassvētki
+2024/12/30,Brīvdiena (pārcelta no 28.12.2024)
+2024/12/31,Vecgada diena
+2025/1/1,Jaungada diena
+2025/4/18,Lielā Piektdiena
+2025/4/20,Pirmās Lieldienas
+2025/4/21,Otrās Lieldienas
+2025/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2025/5/2,Brīvdiena (pārcelta no 10.05.2025)
+2025/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2025/5/5,Latvijas Republikas Neatkarības atjaunošanas diena (brīvdiena)
+2025/5/11,Mātes diena
+2025/6/8,Vasarsvētki
+2025/6/23,Līgo diena
+2025/6/24,Jāņu diena
+2025/11/17,Brīvdiena (pārcelta no 08.11.2025)
+2025/11/18,Latvijas Republikas Proklamēšanas diena
+2025/12/24,Ziemassvētku vakars
+2025/12/25,Pirmie Ziemassvētki
+2025/12/26,Otrie Ziemassvētki
+2025/12/31,Vecgada diena
+2026/1/1,Jaungada diena
+2026/1/2,Brīvdiena (pārcelta no 17.01.2026)
+2026/4/3,Lielā Piektdiena
+2026/4/5,Pirmās Lieldienas
+2026/4/6,Otrās Lieldienas
+2026/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2026/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2026/5/10,Mātes diena
+2026/5/24,Vasarsvētki
+2026/6/22,Brīvdiena (pārcelta no 27.06.2026)
+2026/6/23,Līgo diena
+2026/6/24,Jāņu diena
+2026/11/18,Latvijas Republikas Proklamēšanas diena
+2026/12/24,Ziemassvētku vakars
+2026/12/25,Pirmie Ziemassvētki
+2026/12/26,Otrie Ziemassvētki
+2026/12/31,Vecgada diena
+2027/1/1,Jaungada diena
+2027/3/26,Lielā Piektdiena
+2027/3/28,Pirmās Lieldienas
+2027/3/29,Otrās Lieldienas
+2027/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2027/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2027/5/9,Mātes diena
+2027/5/16,Vasarsvētki
+2027/6/23,Līgo diena
+2027/6/24,Jāņu diena
+2027/11/18,Latvijas Republikas Proklamēšanas diena
+2027/12/24,Ziemassvētku vakars
+2027/12/25,Pirmie Ziemassvētki
+2027/12/26,Otrie Ziemassvētki
+2027/12/31,Vecgada diena
+2028/1/1,Jaungada diena
+2028/4/14,Lielā Piektdiena
+2028/4/16,Pirmās Lieldienas
+2028/4/17,Otrās Lieldienas
+2028/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2028/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2028/5/14,Mātes diena
+2028/6/4,Vasarsvētki
+2028/6/23,Līgo diena
+2028/6/24,Jāņu diena
+2028/11/18,Latvijas Republikas Proklamēšanas diena
+2028/11/20,Latvijas Republikas Proklamēšanas diena (brīvdiena)
+2028/12/24,Ziemassvētku vakars
+2028/12/25,Pirmie Ziemassvētki
+2028/12/26,Otrie Ziemassvētki
+2028/12/31,Vecgada diena
+2029/1/1,Jaungada diena
+2029/3/30,Lielā Piektdiena
+2029/4/1,Pirmās Lieldienas
+2029/4/2,Otrās Lieldienas
+2029/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2029/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2029/5/13,Mātes diena
+2029/5/20,Vasarsvētki
+2029/6/23,Līgo diena
+2029/6/24,Jāņu diena
+2029/11/18,Latvijas Republikas Proklamēšanas diena
+2029/11/19,Latvijas Republikas Proklamēšanas diena (brīvdiena)
+2029/12/24,Ziemassvētku vakars
+2029/12/25,Pirmie Ziemassvētki
+2029/12/26,Otrie Ziemassvētki
+2029/12/31,Vecgada diena
+2030/1/1,Jaungada diena
+2030/4/19,Lielā Piektdiena
+2030/4/21,Pirmās Lieldienas
+2030/4/22,Otrās Lieldienas
+2030/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2030/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2030/5/6,Latvijas Republikas Neatkarības atjaunošanas diena (brīvdiena)
+2030/5/12,Mātes diena
+2030/6/9,Vasarsvētki
+2030/6/23,Līgo diena
+2030/6/24,Jāņu diena
+2030/11/18,Latvijas Republikas Proklamēšanas diena
+2030/12/24,Ziemassvētku vakars
+2030/12/25,Pirmie Ziemassvētki
+2030/12/26,Otrie Ziemassvētki
+2030/12/31,Vecgada diena
+2031/1/1,Jaungada diena
+2031/4/11,Lielā Piektdiena
+2031/4/13,Pirmās Lieldienas
+2031/4/14,Otrās Lieldienas
+2031/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2031/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2031/5/5,Latvijas Republikas Neatkarības atjaunošanas diena (brīvdiena)
+2031/5/11,Mātes diena
+2031/6/1,Vasarsvētki
+2031/6/23,Līgo diena
+2031/6/24,Jāņu diena
+2031/11/18,Latvijas Republikas Proklamēšanas diena
+2031/12/24,Ziemassvētku vakars
+2031/12/25,Pirmie Ziemassvētki
+2031/12/26,Otrie Ziemassvētki
+2031/12/31,Vecgada diena
+2032/1/1,Jaungada diena
+2032/3/26,Lielā Piektdiena
+2032/3/28,Pirmās Lieldienas
+2032/3/29,Otrās Lieldienas
+2032/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2032/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2032/5/9,Mātes diena
+2032/5/16,Vasarsvētki
+2032/6/23,Līgo diena
+2032/6/24,Jāņu diena
+2032/11/18,Latvijas Republikas Proklamēšanas diena
+2032/12/24,Ziemassvētku vakars
+2032/12/25,Pirmie Ziemassvētki
+2032/12/26,Otrie Ziemassvētki
+2032/12/31,Vecgada diena
+2033/1/1,Jaungada diena
+2033/4/15,Lielā Piektdiena
+2033/4/17,Pirmās Lieldienas
+2033/4/18,Otrās Lieldienas
+2033/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2033/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2033/5/8,Mātes diena
+2033/6/5,Vasarsvētki
+2033/6/23,Līgo diena
+2033/6/24,Jāņu diena
+2033/11/18,Latvijas Republikas Proklamēšanas diena
+2033/12/24,Ziemassvētku vakars
+2033/12/25,Pirmie Ziemassvētki
+2033/12/26,Otrie Ziemassvētki
+2033/12/31,Vecgada diena
+2034/1/1,Jaungada diena
+2034/4/7,Lielā Piektdiena
+2034/4/9,Pirmās Lieldienas
+2034/4/10,Otrās Lieldienas
+2034/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2034/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2034/5/14,Mātes diena
+2034/5/28,Vasarsvētki
+2034/6/23,Līgo diena
+2034/6/24,Jāņu diena
+2034/11/18,Latvijas Republikas Proklamēšanas diena
+2034/11/20,Latvijas Republikas Proklamēšanas diena (brīvdiena)
+2034/12/24,Ziemassvētku vakars
+2034/12/25,Pirmie Ziemassvētki
+2034/12/26,Otrie Ziemassvētki
+2034/12/31,Vecgada diena
+2035/1/1,Jaungada diena
+2035/3/23,Lielā Piektdiena
+2035/3/25,Pirmās Lieldienas
+2035/3/26,Otrās Lieldienas
+2035/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2035/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2035/5/13,Mātes diena; Vasarsvētki
+2035/6/23,Līgo diena
+2035/6/24,Jāņu diena
+2035/11/18,Latvijas Republikas Proklamēšanas diena
+2035/11/19,Latvijas Republikas Proklamēšanas diena (brīvdiena)
+2035/12/24,Ziemassvētku vakars
+2035/12/25,Pirmie Ziemassvētki
+2035/12/26,Otrie Ziemassvētki
+2035/12/31,Vecgada diena
+2036/1/1,Jaungada diena
+2036/4/11,Lielā Piektdiena
+2036/4/13,Pirmās Lieldienas
+2036/4/14,Otrās Lieldienas
+2036/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2036/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2036/5/5,Latvijas Republikas Neatkarības atjaunošanas diena (brīvdiena)
+2036/5/11,Mātes diena
+2036/6/1,Vasarsvētki
+2036/6/23,Līgo diena
+2036/6/24,Jāņu diena
+2036/11/18,Latvijas Republikas Proklamēšanas diena
+2036/12/24,Ziemassvētku vakars
+2036/12/25,Pirmie Ziemassvētki
+2036/12/26,Otrie Ziemassvētki
+2036/12/31,Vecgada diena
+2037/1/1,Jaungada diena
+2037/4/3,Lielā Piektdiena
+2037/4/5,Pirmās Lieldienas
+2037/4/6,Otrās Lieldienas
+2037/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2037/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2037/5/10,Mātes diena
+2037/5/24,Vasarsvētki
+2037/6/23,Līgo diena
+2037/6/24,Jāņu diena
+2037/11/18,Latvijas Republikas Proklamēšanas diena
+2037/12/24,Ziemassvētku vakars
+2037/12/25,Pirmie Ziemassvētki
+2037/12/26,Otrie Ziemassvētki
+2037/12/31,Vecgada diena
+2038/1/1,Jaungada diena
+2038/4/23,Lielā Piektdiena
+2038/4/25,Pirmās Lieldienas
+2038/4/26,Otrās Lieldienas
+2038/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2038/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2038/5/9,Mātes diena
+2038/6/13,Vasarsvētki
+2038/6/23,Līgo diena
+2038/6/24,Jāņu diena
+2038/11/18,Latvijas Republikas Proklamēšanas diena
+2038/12/24,Ziemassvētku vakars
+2038/12/25,Pirmie Ziemassvētki
+2038/12/26,Otrie Ziemassvētki
+2038/12/31,Vecgada diena
+2039/1/1,Jaungada diena
+2039/4/8,Lielā Piektdiena
+2039/4/10,Pirmās Lieldienas
+2039/4/11,Otrās Lieldienas
+2039/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2039/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2039/5/8,Mātes diena
+2039/5/29,Vasarsvētki
+2039/6/23,Līgo diena
+2039/6/24,Jāņu diena
+2039/11/18,Latvijas Republikas Proklamēšanas diena
+2039/12/24,Ziemassvētku vakars
+2039/12/25,Pirmie Ziemassvētki
+2039/12/26,Otrie Ziemassvētki
+2039/12/31,Vecgada diena
+2040/1/1,Jaungada diena
+2040/3/30,Lielā Piektdiena
+2040/4/1,Pirmās Lieldienas
+2040/4/2,Otrās Lieldienas
+2040/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2040/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2040/5/13,Mātes diena
+2040/5/20,Vasarsvētki
+2040/6/23,Līgo diena
+2040/6/24,Jāņu diena
+2040/11/18,Latvijas Republikas Proklamēšanas diena
+2040/11/19,Latvijas Republikas Proklamēšanas diena (brīvdiena)
+2040/12/24,Ziemassvētku vakars
+2040/12/25,Pirmie Ziemassvētki
+2040/12/26,Otrie Ziemassvētki
+2040/12/31,Vecgada diena
+2041/1/1,Jaungada diena
+2041/4/19,Lielā Piektdiena
+2041/4/21,Pirmās Lieldienas
+2041/4/22,Otrās Lieldienas
+2041/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2041/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2041/5/6,Latvijas Republikas Neatkarības atjaunošanas diena (brīvdiena)
+2041/5/12,Mātes diena
+2041/6/9,Vasarsvētki
+2041/6/23,Līgo diena
+2041/6/24,Jāņu diena
+2041/11/18,Latvijas Republikas Proklamēšanas diena
+2041/12/24,Ziemassvētku vakars
+2041/12/25,Pirmie Ziemassvētki
+2041/12/26,Otrie Ziemassvētki
+2041/12/31,Vecgada diena
+2042/1/1,Jaungada diena
+2042/4/4,Lielā Piektdiena
+2042/4/6,Pirmās Lieldienas
+2042/4/7,Otrās Lieldienas
+2042/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2042/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2042/5/5,Latvijas Republikas Neatkarības atjaunošanas diena (brīvdiena)
+2042/5/11,Mātes diena
+2042/5/25,Vasarsvētki
+2042/6/23,Līgo diena
+2042/6/24,Jāņu diena
+2042/11/18,Latvijas Republikas Proklamēšanas diena
+2042/12/24,Ziemassvētku vakars
+2042/12/25,Pirmie Ziemassvētki
+2042/12/26,Otrie Ziemassvētki
+2042/12/31,Vecgada diena
+2043/1/1,Jaungada diena
+2043/3/27,Lielā Piektdiena
+2043/3/29,Pirmās Lieldienas
+2043/3/30,Otrās Lieldienas
+2043/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2043/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2043/5/10,Mātes diena
+2043/5/17,Vasarsvētki
+2043/6/23,Līgo diena
+2043/6/24,Jāņu diena
+2043/11/18,Latvijas Republikas Proklamēšanas diena
+2043/12/24,Ziemassvētku vakars
+2043/12/25,Pirmie Ziemassvētki
+2043/12/26,Otrie Ziemassvētki
+2043/12/31,Vecgada diena
+2044/1/1,Jaungada diena
+2044/4/15,Lielā Piektdiena
+2044/4/17,Pirmās Lieldienas
+2044/4/18,Otrās Lieldienas
+2044/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2044/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2044/5/8,Mātes diena
+2044/6/5,Vasarsvētki
+2044/6/23,Līgo diena
+2044/6/24,Jāņu diena
+2044/11/18,Latvijas Republikas Proklamēšanas diena
+2044/12/24,Ziemassvētku vakars
+2044/12/25,Pirmie Ziemassvētki
+2044/12/26,Otrie Ziemassvētki
+2044/12/31,Vecgada diena
+2045/1/1,Jaungada diena
+2045/4/7,Lielā Piektdiena
+2045/4/9,Pirmās Lieldienas
+2045/4/10,Otrās Lieldienas
+2045/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2045/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2045/5/14,Mātes diena
+2045/5/28,Vasarsvētki
+2045/6/23,Līgo diena
+2045/6/24,Jāņu diena
+2045/11/18,Latvijas Republikas Proklamēšanas diena
+2045/11/20,Latvijas Republikas Proklamēšanas diena (brīvdiena)
+2045/12/24,Ziemassvētku vakars
+2045/12/25,Pirmie Ziemassvētki
+2045/12/26,Otrie Ziemassvētki
+2045/12/31,Vecgada diena
+2046/1/1,Jaungada diena
+2046/3/23,Lielā Piektdiena
+2046/3/25,Pirmās Lieldienas
+2046/3/26,Otrās Lieldienas
+2046/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2046/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2046/5/13,Mātes diena; Vasarsvētki
+2046/6/23,Līgo diena
+2046/6/24,Jāņu diena
+2046/11/18,Latvijas Republikas Proklamēšanas diena
+2046/11/19,Latvijas Republikas Proklamēšanas diena (brīvdiena)
+2046/12/24,Ziemassvētku vakars
+2046/12/25,Pirmie Ziemassvētki
+2046/12/26,Otrie Ziemassvētki
+2046/12/31,Vecgada diena
+2047/1/1,Jaungada diena
+2047/4/12,Lielā Piektdiena
+2047/4/14,Pirmās Lieldienas
+2047/4/15,Otrās Lieldienas
+2047/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2047/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2047/5/6,Latvijas Republikas Neatkarības atjaunošanas diena (brīvdiena)
+2047/5/12,Mātes diena
+2047/6/2,Vasarsvētki
+2047/6/23,Līgo diena
+2047/6/24,Jāņu diena
+2047/11/18,Latvijas Republikas Proklamēšanas diena
+2047/12/24,Ziemassvētku vakars
+2047/12/25,Pirmie Ziemassvētki
+2047/12/26,Otrie Ziemassvētki
+2047/12/31,Vecgada diena
+2048/1/1,Jaungada diena
+2048/4/3,Lielā Piektdiena
+2048/4/5,Pirmās Lieldienas
+2048/4/6,Otrās Lieldienas
+2048/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2048/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2048/5/10,Mātes diena
+2048/5/24,Vasarsvētki
+2048/6/23,Līgo diena
+2048/6/24,Jāņu diena
+2048/11/18,Latvijas Republikas Proklamēšanas diena
+2048/12/24,Ziemassvētku vakars
+2048/12/25,Pirmie Ziemassvētki
+2048/12/26,Otrie Ziemassvētki
+2048/12/31,Vecgada diena
+2049/1/1,Jaungada diena
+2049/4/16,Lielā Piektdiena
+2049/4/18,Pirmās Lieldienas
+2049/4/19,Otrās Lieldienas
+2049/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2049/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2049/5/9,Mātes diena
+2049/6/6,Vasarsvētki
+2049/6/23,Līgo diena
+2049/6/24,Jāņu diena
+2049/11/18,Latvijas Republikas Proklamēšanas diena
+2049/12/24,Ziemassvētku vakars
+2049/12/25,Pirmie Ziemassvētki
+2049/12/26,Otrie Ziemassvētki
+2049/12/31,Vecgada diena
+2050/1/1,Jaungada diena
+2050/4/8,Lielā Piektdiena
+2050/4/10,Pirmās Lieldienas
+2050/4/11,Otrās Lieldienas
+2050/5/1,Darba svētki; Latvijas Republikas Satversmes sapulces sasaukšanas diena
+2050/5/4,Latvijas Republikas Neatkarības atjaunošanas diena
+2050/5/8,Mātes diena
+2050/5/29,Vasarsvētki
+2050/6/23,Līgo diena
+2050/6/24,Jāņu diena
+2050/11/18,Latvijas Republikas Proklamēšanas diena
+2050/12/24,Ziemassvētku vakars
+2050/12/25,Pirmie Ziemassvētki
+2050/12/26,Otrie Ziemassvētki
+2050/12/31,Vecgada diena

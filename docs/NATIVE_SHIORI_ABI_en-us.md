@@ -4,6 +4,19 @@
 
 Updated: 2026-10-25. This contract describes the development implementation, not support in previously published binaries.
 
+## Selecting a macOS module
+
+Keep the Windows `shiori` entry and explicitly select a macOS module in `descript.txt`:
+
+```text
+shiori,yaya.dll
+shiori.macos,native/libyaya.dylib
+```
+
+A nonempty `shiori.macos` takes precedence during both startup and reload. Paths are relative to `ghost/master`; Windows backslash separators are accepted. Even names such as `yaya` use the explicitly selected native file, rather than a bundled helper. An empty value uses the existing `shiori` rule; a missing explicit file fails to load. The dictionary directory is the selected module's parent. The ABI declaration below is still required.
+
+For automatic selection of a bundled compatibility engine, retain the original `shiori` without adding `shiori.macos`. See [additional engines](ADDITIONAL_SHIORI_ja-jp.md) for setup and limitations.
+
 ## Declaration
 
 For macOS `.bundle` / `.plugin` modules, set `OurinShioriABI` in `Contents/Info.plist`. For standalone libraries, append `.plist` to the library filename and place that file beside it (for example, `engine.dylib.plist`).
@@ -19,10 +32,13 @@ For macOS `.bundle` / `.plugin` modules, set `OurinShioriABI` in `Contents/Info.
 | `ukagaka-long` | `int32_t(void *, long)` | `void *(void *, long *)` | `int32_t(void)` |
 | `ukagaka-int32` | `int32_t(void *, int32_t)` | `void *(void *, int32_t *)` | `int32_t(void)` |
 | `kagari` | `int32_t(void *, long)` → instance ID | `void *(int32_t id, void *, long *)` | `int32_t(int32_t id)` |
+| `aosora` | `long(void *, long)` → instance ID | `void *(long id, void *, long *)` | `int32_t(long id)` |
 
 The `long` in `ukagaka-long` is a 64-bit integer on macOS. `kagari` is the KAGARI POSIX export set; see [KAWARI/KAGARI engines](KAWARI_KAGARI_ENGINES_ja-jp.md). Ports that retain Windows-style 32-bit lengths must use `ukagaka-int32`. This SHIORI-specific key is separate from the `OurinModuleABI` contract used by SAORI and other modules.
 
 Without a declaration, only the existing Ourin ABI exporting `shiori_request` is accepted. An unprefixed `request` is rejected rather than having its signature guessed. Unknown declaration values also cause a load error.
+
+`aosora` uses `aosora_load` / `aosora_request` / `aosora_unload`. Instance IDs are 64-bit; zero means load failure. Input/response ownership matches `ukagaka-*`. See [optional setup and real-ghost verification (Japanese)](compatibility-corpus/aosora.md). Source-derived Aosora is not bundled in the standard release.
 
 ## Symbols and ownership
 

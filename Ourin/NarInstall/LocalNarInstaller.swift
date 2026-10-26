@@ -91,23 +91,23 @@ final class NarInstaller {
 
         var description: String {
             switch self {
-            case .notZip: return "NAR (ZIP) ではありません"
-            case .unzipFailed(let s): return "展開に失敗: \(s)"
-            case .installTxtNotFound: return "install.txt が見つかりません"
-            case .installTxtDecodeFailed: return "install.txt を読み取れません（UTF‑8/SJIS）"
-            case .installTxtMissingKey(let k): return "install.txt の必須キーが不足: \(k)"
-            case .unsupportedType(let t): return "未対応の type: \(t)"
-            case .zipSlipDetected(let p): return "危険なパスが検出されました: \(p)"
-            case .directoryConflict(let d): return "設置先が衝突: \(d)"
-            case .invalidDeletePath(let p): return "delete.txt の危険なパス: \(p)"
-            case .deleteInstructionDecodeFailed: return "delete.txt をデコードできません"
-            case .updateDescriptorNotFound: return "updates2.dau / updates.txt / update.txt が見つかりません"
-            case .updateDescriptorDecodeFailed: return "更新定義ファイルをデコードできません"
-            case .updateDescriptorInvalid: return "更新定義ファイルの形式が不正です"
-            case .updateDownloadFailed(let path): return "更新ファイルを適用できません: \(path)"
-            case .updateMD5Mismatch(let path): return "更新ファイルのMD5が一致しません: \(path)"
-            case .basewareArchiveUnsupported(let path): return "ベースウェア更新にアーカイブは使えません: \(path)"
-            case .attachedComponentSourceNotFound(let type): return "付属コンポーネントのソースが見つかりません: \(type)"
+            case .notZip: return NSLocalizedString("NAR (ZIP) ではありません", comment: "NAR install error")
+            case .unzipFailed(let s): return String(format: NSLocalizedString("展開に失敗: %@", comment: "NAR install error"), s)
+            case .installTxtNotFound: return NSLocalizedString("install.txt が見つかりません", comment: "NAR install error")
+            case .installTxtDecodeFailed: return NSLocalizedString("install.txt を読み取れません（UTF-8/SJIS）", comment: "NAR install error")
+            case .installTxtMissingKey(let k): return String(format: NSLocalizedString("install.txt の必須キーが不足: %@", comment: "NAR install error"), k)
+            case .unsupportedType(let t): return String(format: NSLocalizedString("未対応の type: %@", comment: "NAR install error"), t)
+            case .zipSlipDetected(let p): return String(format: NSLocalizedString("危険なパスが検出されました: %@", comment: "NAR install error"), p)
+            case .directoryConflict(let d): return String(format: NSLocalizedString("設置先が衝突: %@", comment: "NAR install error"), d)
+            case .invalidDeletePath(let p): return String(format: NSLocalizedString("delete.txt の危険なパス: %@", comment: "NAR install error"), p)
+            case .deleteInstructionDecodeFailed: return NSLocalizedString("delete.txt をデコードできません", comment: "NAR install error")
+            case .updateDescriptorNotFound: return NSLocalizedString("updates2.dau / updates.txt / update.txt が見つかりません", comment: "NAR install error")
+            case .updateDescriptorDecodeFailed: return NSLocalizedString("更新定義ファイルをデコードできません", comment: "NAR install error")
+            case .updateDescriptorInvalid: return NSLocalizedString("更新定義ファイルの形式が不正です", comment: "NAR install error")
+            case .updateDownloadFailed(let path): return String(format: NSLocalizedString("更新ファイルを適用できません: %@", comment: "NAR install error"), path)
+            case .updateMD5Mismatch(let path): return String(format: NSLocalizedString("更新ファイルのMD5が一致しません: %@", comment: "NAR install error"), path)
+            case .basewareArchiveUnsupported(let path): return String(format: NSLocalizedString("ベースウェア更新にアーカイブは使えません: %@", comment: "Baseware update error"), path)
+            case .attachedComponentSourceNotFound(let type): return String(format: NSLocalizedString("付属コンポーネントのソースが見つかりません: %@", comment: "NAR install error"), type)
             }
         }
     }
@@ -137,8 +137,9 @@ final class NarInstaller {
         try FileManager.default.createDirectory(at: tmpExtract, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tmpRoot) }
         try ZipUtil.extractZip(narURL, to: tmpExtract)
+        let packageRoot = ZipUtil.packageRoot(in: tmpExtract)
 
-        let installTxt = tmpExtract.appendingPathComponent("install.txt")
+        let installTxt = packageRoot.appendingPathComponent("install.txt")
         guard FileManager.default.fileExists(atPath: installTxt.path) else { throw Error.installTxtNotFound }
         do {
             return try InstallTxtParser.parse(data: Data(contentsOf: installTxt))
@@ -167,9 +168,11 @@ final class NarInstaller {
 
         log.info("extracting to tmp: \(tmpExtract.path,)")
         try ZipUtil.extractZip(narURL, to: tmpExtract)
+        // フォルダごと圧縮した NAR は、その中を NAR のルートとして扱う。
+        let packageRoot = ZipUtil.packageRoot(in: tmpExtract)
 
         // 3) install.txt を読む
-        let installTxt = tmpExtract.appendingPathComponent("install.txt")
+        let installTxt = packageRoot.appendingPathComponent("install.txt")
         guard FileManager.default.fileExists(atPath: installTxt.path) else { throw Error.installTxtNotFound }
         let itData = try Data(contentsOf: installTxt)
         // charset 宣言があればそのエンコーディングで優先デコードする（parse(data:) 内で処理）。
@@ -203,15 +206,15 @@ final class NarInstaller {
         // 7) 安全コピー（Zip Slip 対策）
         let parent = target.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
-        try ZipUtil.secureCopyTree(from: tmpExtract, to: target)
-        try applyDeleteInstructions(from: tmpExtract, to: target)
+        try ZipUtil.secureCopyTree(from: packageRoot, to: target)
+        try applyDeleteInstructions(from: packageRoot, to: target)
 
         // 8) type=ghost に同梱されたバルーンを balloon/<name> へも展開
         if manifest.type.lowercased() == "ghost",
            let balloonDir = manifest.balloonDirectory?.trimmingCharacters(in: .whitespacesAndNewlines),
            !balloonDir.isEmpty {
             try installBundledBalloon(
-                fromExtract: tmpExtract,
+                fromExtract: packageRoot,
                 balloonDirectory: balloonDir,
                 balloonSourceDirectory: manifest.balloonSourceDirectory
             )
@@ -220,7 +223,7 @@ final class NarInstaller {
         // 9) type=ghost / type=shell に同梱された付属コンポーネント（*.directory 系）を汎用展開
         //    UKADOC install.txt: balloon/headline/plugin/calendar.skin/calendar.plugin を同時インストール可能。
         //    step 8 で処理済みの type=ghost + balloon（単一）は重複回避のためスキップ。
-        try installAttachedComponents(fromExtract: tmpExtract, manifest: manifest)
+        try installAttachedComponents(fromExtract: packageRoot, manifest: manifest)
 
         if manifest.type.lowercased() == "headline" {
             UserDefaults.standard.set(manifest.directory, forKey: "OurinLastInstalledHeadlineName")

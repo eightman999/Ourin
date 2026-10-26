@@ -1,0 +1,580 @@
+# PH の祝日（2020〜2050年、言語: en_PH）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/1/25,Chinese New Year
+2020/2/25,EDSA People Power Revolution Anniversary
+2020/4/9,Araw ng Kagitingan; Maundy Thursday
+2020/4/10,Good Friday
+2020/4/11,Black Saturday
+2020/5/1,Labor Day
+2020/5/25,Eid'l Fitr
+2020/6/12,Independence Day
+2020/7/31,Eid'l Adha
+2020/8/21,Ninoy Aquino Day
+2020/8/31,National Heroes Day
+2020/11/1,All Saints' Day
+2020/11/2,Additional special (non-working) day
+2020/11/30,Bonifacio Day
+2020/12/8,Feast of the Immaculate Conception of Mary
+2020/12/24,Additional special (non-working) day
+2020/12/25,Christmas Day
+2020/12/30,Rizal Day
+2020/12/31,Last Day of the Year
+2021/1/1,New Year's Day
+2021/2/12,Chinese New Year
+2021/2/25,EDSA People Power Revolution Anniversary
+2021/4/1,Maundy Thursday
+2021/4/2,Good Friday
+2021/4/3,Black Saturday
+2021/4/9,Araw ng Kagitingan
+2021/5/1,Labor Day
+2021/5/13,Eid'l Fitr
+2021/6/12,Independence Day
+2021/7/20,Eid'l Adha
+2021/8/21,Ninoy Aquino Day
+2021/8/30,National Heroes Day
+2021/11/1,All Saints' Day
+2021/11/30,Bonifacio Day
+2021/12/8,Feast of the Immaculate Conception of Mary
+2021/12/25,Christmas Day
+2021/12/30,Rizal Day
+2022/1/1,New Year's Day
+2022/2/1,Chinese New Year
+2022/2/25,EDSA People Power Revolution Anniversary
+2022/4/9,Araw ng Kagitingan
+2022/4/14,Maundy Thursday
+2022/4/15,Good Friday
+2022/4/16,Black Saturday
+2022/5/1,Labor Day
+2022/5/3,Eid'l Fitr
+2022/5/9,Elections special (non-working) day
+2022/6/12,Independence Day
+2022/7/9,Eid'l Adha
+2022/8/21,Ninoy Aquino Day
+2022/8/29,National Heroes Day
+2022/10/31,Additional special (non-working) day
+2022/11/1,All Saints' Day
+2022/11/30,Bonifacio Day
+2022/12/8,Feast of the Immaculate Conception of Mary
+2022/12/25,Christmas Day
+2022/12/30,Rizal Day
+2023/1/1,New Year's Day
+2023/1/2,Additional special (non-working) day
+2023/2/24,EDSA People Power Revolution Anniversary
+2023/4/6,Maundy Thursday
+2023/4/7,Good Friday
+2023/4/8,Black Saturday
+2023/4/10,Araw ng Kagitingan
+2023/4/21,Eid'l Fitr
+2023/5/1,Labor Day
+2023/6/12,Independence Day
+2023/6/28,Eid'l Adha
+2023/8/21,Ninoy Aquino Day
+2023/8/28,National Heroes Day
+2023/10/30,Elections special (non-working) day
+2023/11/1,All Saints' Day
+2023/11/2,Additional special (non-working) day
+2023/11/27,Bonifacio Day
+2023/12/8,Feast of the Immaculate Conception of Mary
+2023/12/25,Christmas Day
+2023/12/26,Additional special (non-working) day
+2023/12/30,Rizal Day
+2023/12/31,Last Day of the Year
+2024/1/1,New Year's Day
+2024/2/9,Additional special (non-working) day
+2024/2/10,Chinese New Year
+2024/3/28,Maundy Thursday
+2024/3/29,Good Friday
+2024/3/30,Black Saturday
+2024/4/9,Araw ng Kagitingan
+2024/4/10,Eid'l Fitr
+2024/5/1,Labor Day
+2024/6/12,Independence Day
+2024/6/17,Eid'l Adha
+2024/8/23,Ninoy Aquino Day
+2024/8/26,National Heroes Day
+2024/11/1,All Saints' Day
+2024/11/2,Additional special (non-working) day
+2024/11/30,Bonifacio Day
+2024/12/8,Feast of the Immaculate Conception of Mary
+2024/12/24,Additional special (non-working) day
+2024/12/25,Christmas Day
+2024/12/30,Rizal Day
+2024/12/31,Last Day of the Year
+2025/1/1,New Year's Day
+2025/1/29,Chinese New Year
+2025/4/1,Eid'l Fitr
+2025/4/9,Araw ng Kagitingan
+2025/4/17,Maundy Thursday
+2025/4/18,Good Friday
+2025/4/19,Black Saturday
+2025/5/1,Labor Day
+2025/5/12,Elections special (non-working) day
+2025/6/6,Eid'l Adha
+2025/6/12,Independence Day
+2025/7/27,Additional special (non-working) day
+2025/8/21,Ninoy Aquino Day
+2025/8/25,National Heroes Day
+2025/10/31,All Saints' Day Eve
+2025/11/1,All Saints' Day
+2025/11/30,Bonifacio Day
+2025/12/8,Feast of the Immaculate Conception of Mary
+2025/12/24,Christmas Eve
+2025/12/25,Christmas Day
+2025/12/30,Rizal Day
+2025/12/31,Last Day of the Year
+2026/1/1,New Year's Day
+2026/2/17,Chinese New Year
+2026/3/20,Eid'l Fitr
+2026/4/2,Maundy Thursday
+2026/4/3,Good Friday
+2026/4/4,Black Saturday
+2026/4/9,Araw ng Kagitingan
+2026/5/1,Labor Day
+2026/5/27,Eid'l Adha
+2026/6/12,Independence Day
+2026/8/21,Ninoy Aquino Day
+2026/8/31,National Heroes Day
+2026/11/1,All Saints' Day
+2026/11/2,All Souls' Day
+2026/11/30,Bonifacio Day
+2026/12/8,Feast of the Immaculate Conception of Mary
+2026/12/24,Christmas Eve
+2026/12/25,Christmas Day
+2026/12/30,Rizal Day
+2026/12/31,Last Day of the Year
+2027/1/1,New Year's Day
+2027/2/6,Chinese New Year
+2027/3/9,Eid'l Fitr (estimated)
+2027/3/25,Maundy Thursday
+2027/3/26,Good Friday
+2027/3/27,Black Saturday
+2027/4/9,Araw ng Kagitingan
+2027/5/1,Labor Day
+2027/5/16,Eid'l Adha (estimated)
+2027/6/12,Independence Day
+2027/8/21,Ninoy Aquino Day
+2027/8/30,National Heroes Day
+2027/11/1,All Saints' Day
+2027/11/2,All Souls' Day
+2027/11/30,Bonifacio Day
+2027/12/8,Feast of the Immaculate Conception of Mary
+2027/12/24,Christmas Eve
+2027/12/25,Christmas Day
+2027/12/30,Rizal Day
+2027/12/31,Last Day of the Year
+2028/1/1,New Year's Day
+2028/1/26,Chinese New Year
+2028/2/26,Eid'l Fitr (estimated)
+2028/4/9,Araw ng Kagitingan
+2028/4/13,Maundy Thursday
+2028/4/14,Good Friday
+2028/4/15,Black Saturday
+2028/5/1,Labor Day
+2028/5/5,Eid'l Adha (estimated)
+2028/6/12,Independence Day
+2028/8/21,Ninoy Aquino Day
+2028/8/28,National Heroes Day
+2028/11/1,All Saints' Day
+2028/11/30,Bonifacio Day
+2028/12/8,Feast of the Immaculate Conception of Mary
+2028/12/25,Christmas Day
+2028/12/30,Rizal Day
+2028/12/31,Last Day of the Year
+2029/1/1,New Year's Day
+2029/2/13,Chinese New Year
+2029/2/14,Eid'l Fitr (estimated)
+2029/3/29,Maundy Thursday
+2029/3/30,Good Friday
+2029/3/31,Black Saturday
+2029/4/9,Araw ng Kagitingan
+2029/4/24,Eid'l Adha (estimated)
+2029/5/1,Labor Day
+2029/6/12,Independence Day
+2029/8/21,Ninoy Aquino Day
+2029/8/27,National Heroes Day
+2029/11/1,All Saints' Day
+2029/11/30,Bonifacio Day
+2029/12/8,Feast of the Immaculate Conception of Mary
+2029/12/25,Christmas Day
+2029/12/30,Rizal Day
+2029/12/31,Last Day of the Year
+2030/1/1,New Year's Day
+2030/2/3,Chinese New Year
+2030/2/4,Eid'l Fitr (estimated)
+2030/4/9,Araw ng Kagitingan
+2030/4/13,Eid'l Adha (estimated)
+2030/4/18,Maundy Thursday
+2030/4/19,Good Friday
+2030/4/20,Black Saturday
+2030/5/1,Labor Day
+2030/6/12,Independence Day
+2030/8/21,Ninoy Aquino Day
+2030/8/26,National Heroes Day
+2030/11/1,All Saints' Day
+2030/11/30,Bonifacio Day
+2030/12/8,Feast of the Immaculate Conception of Mary
+2030/12/25,Christmas Day
+2030/12/30,Rizal Day
+2030/12/31,Last Day of the Year
+2031/1/1,New Year's Day
+2031/1/23,Chinese New Year
+2031/1/24,Eid'l Fitr (estimated)
+2031/4/2,Eid'l Adha (estimated)
+2031/4/9,Araw ng Kagitingan
+2031/4/10,Maundy Thursday
+2031/4/11,Good Friday
+2031/4/12,Black Saturday
+2031/5/1,Labor Day
+2031/6/12,Independence Day
+2031/8/21,Ninoy Aquino Day
+2031/8/25,National Heroes Day
+2031/11/1,All Saints' Day
+2031/11/30,Bonifacio Day
+2031/12/8,Feast of the Immaculate Conception of Mary
+2031/12/25,Christmas Day
+2031/12/30,Rizal Day
+2031/12/31,Last Day of the Year
+2032/1/1,New Year's Day
+2032/1/14,Eid'l Fitr (estimated)
+2032/2/11,Chinese New Year
+2032/3/22,Eid'l Adha (estimated)
+2032/3/25,Maundy Thursday
+2032/3/26,Good Friday
+2032/3/27,Black Saturday
+2032/4/9,Araw ng Kagitingan
+2032/5/1,Labor Day
+2032/6/12,Independence Day
+2032/8/21,Ninoy Aquino Day
+2032/8/30,National Heroes Day
+2032/11/1,All Saints' Day
+2032/11/30,Bonifacio Day
+2032/12/8,Feast of the Immaculate Conception of Mary
+2032/12/25,Christmas Day
+2032/12/30,Rizal Day
+2032/12/31,Last Day of the Year
+2033/1/1,New Year's Day
+2033/1/2,Eid'l Fitr (estimated)
+2033/1/31,Chinese New Year
+2033/3/11,Eid'l Adha (estimated)
+2033/4/9,Araw ng Kagitingan
+2033/4/14,Maundy Thursday
+2033/4/15,Good Friday
+2033/4/16,Black Saturday
+2033/5/1,Labor Day
+2033/6/12,Independence Day
+2033/8/21,Ninoy Aquino Day
+2033/8/29,National Heroes Day
+2033/11/1,All Saints' Day
+2033/11/30,Bonifacio Day
+2033/12/8,Feast of the Immaculate Conception of Mary
+2033/12/23,Eid'l Fitr (estimated)
+2033/12/25,Christmas Day
+2033/12/30,Rizal Day
+2033/12/31,Last Day of the Year
+2034/1/1,New Year's Day
+2034/2/19,Chinese New Year
+2034/3/1,Eid'l Adha (estimated)
+2034/4/6,Maundy Thursday
+2034/4/7,Good Friday
+2034/4/8,Black Saturday
+2034/4/9,Araw ng Kagitingan
+2034/5/1,Labor Day
+2034/6/12,Independence Day
+2034/8/21,Ninoy Aquino Day
+2034/8/28,National Heroes Day
+2034/11/1,All Saints' Day
+2034/11/30,Bonifacio Day
+2034/12/8,Feast of the Immaculate Conception of Mary
+2034/12/12,Eid'l Fitr (estimated)
+2034/12/25,Christmas Day
+2034/12/30,Rizal Day
+2034/12/31,Last Day of the Year
+2035/1/1,New Year's Day
+2035/2/8,Chinese New Year
+2035/2/18,Eid'l Adha (estimated)
+2035/3/22,Maundy Thursday
+2035/3/23,Good Friday
+2035/3/24,Black Saturday
+2035/4/9,Araw ng Kagitingan
+2035/5/1,Labor Day
+2035/6/12,Independence Day
+2035/8/21,Ninoy Aquino Day
+2035/8/27,National Heroes Day
+2035/11/1,All Saints' Day
+2035/11/30,Bonifacio Day
+2035/12/1,Eid'l Fitr (estimated)
+2035/12/8,Feast of the Immaculate Conception of Mary
+2035/12/25,Christmas Day
+2035/12/30,Rizal Day
+2035/12/31,Last Day of the Year
+2036/1/1,New Year's Day
+2036/1/28,Chinese New Year
+2036/2/7,Eid'l Adha (estimated)
+2036/4/9,Araw ng Kagitingan
+2036/4/10,Maundy Thursday
+2036/4/11,Good Friday
+2036/4/12,Black Saturday
+2036/5/1,Labor Day
+2036/6/12,Independence Day
+2036/8/21,Ninoy Aquino Day
+2036/8/25,National Heroes Day
+2036/11/1,All Saints' Day
+2036/11/19,Eid'l Fitr (estimated)
+2036/11/30,Bonifacio Day
+2036/12/8,Feast of the Immaculate Conception of Mary
+2036/12/25,Christmas Day
+2036/12/30,Rizal Day
+2036/12/31,Last Day of the Year
+2037/1/1,New Year's Day
+2037/1/26,Eid'l Adha (estimated)
+2037/2/15,Chinese New Year
+2037/4/2,Maundy Thursday
+2037/4/3,Good Friday
+2037/4/4,Black Saturday
+2037/4/9,Araw ng Kagitingan
+2037/5/1,Labor Day
+2037/6/12,Independence Day
+2037/8/21,Ninoy Aquino Day
+2037/8/31,National Heroes Day
+2037/11/1,All Saints' Day
+2037/11/8,Eid'l Fitr (estimated)
+2037/11/30,Bonifacio Day
+2037/12/8,Feast of the Immaculate Conception of Mary
+2037/12/25,Christmas Day
+2037/12/30,Rizal Day
+2037/12/31,Last Day of the Year
+2038/1/1,New Year's Day
+2038/1/16,Eid'l Adha (estimated)
+2038/2/4,Chinese New Year
+2038/4/9,Araw ng Kagitingan
+2038/4/22,Maundy Thursday
+2038/4/23,Good Friday
+2038/4/24,Black Saturday
+2038/5/1,Labor Day
+2038/6/12,Independence Day
+2038/8/21,Ninoy Aquino Day
+2038/8/30,National Heroes Day
+2038/10/29,Eid'l Fitr (estimated)
+2038/11/1,All Saints' Day
+2038/11/30,Bonifacio Day
+2038/12/8,Feast of the Immaculate Conception of Mary
+2038/12/25,Christmas Day
+2038/12/30,Rizal Day
+2038/12/31,Last Day of the Year
+2039/1/1,New Year's Day
+2039/1/5,Eid'l Adha (estimated)
+2039/1/24,Chinese New Year
+2039/4/7,Maundy Thursday
+2039/4/8,Good Friday
+2039/4/9,Araw ng Kagitingan; Black Saturday
+2039/5/1,Labor Day
+2039/6/12,Independence Day
+2039/8/21,Ninoy Aquino Day
+2039/8/29,National Heroes Day
+2039/10/19,Eid'l Fitr (estimated)
+2039/11/1,All Saints' Day
+2039/11/30,Bonifacio Day
+2039/12/8,Feast of the Immaculate Conception of Mary
+2039/12/25,Christmas Day
+2039/12/26,Eid'l Adha (estimated)
+2039/12/30,Rizal Day
+2039/12/31,Last Day of the Year
+2040/1/1,New Year's Day
+2040/2/12,Chinese New Year
+2040/3/29,Maundy Thursday
+2040/3/30,Good Friday
+2040/3/31,Black Saturday
+2040/4/9,Araw ng Kagitingan
+2040/5/1,Labor Day
+2040/6/12,Independence Day
+2040/8/21,Ninoy Aquino Day
+2040/8/27,National Heroes Day
+2040/10/7,Eid'l Fitr (estimated)
+2040/11/1,All Saints' Day
+2040/11/30,Bonifacio Day
+2040/12/8,Feast of the Immaculate Conception of Mary
+2040/12/14,Eid'l Adha (estimated)
+2040/12/25,Christmas Day
+2040/12/30,Rizal Day
+2040/12/31,Last Day of the Year
+2041/1/1,New Year's Day
+2041/2/1,Chinese New Year
+2041/4/9,Araw ng Kagitingan
+2041/4/18,Maundy Thursday
+2041/4/19,Good Friday
+2041/4/20,Black Saturday
+2041/5/1,Labor Day
+2041/6/12,Independence Day
+2041/8/21,Ninoy Aquino Day
+2041/8/26,National Heroes Day
+2041/9/26,Eid'l Fitr (estimated)
+2041/11/1,All Saints' Day
+2041/11/30,Bonifacio Day
+2041/12/4,Eid'l Adha (estimated)
+2041/12/8,Feast of the Immaculate Conception of Mary
+2041/12/25,Christmas Day
+2041/12/30,Rizal Day
+2041/12/31,Last Day of the Year
+2042/1/1,New Year's Day
+2042/1/22,Chinese New Year
+2042/4/3,Maundy Thursday
+2042/4/4,Good Friday
+2042/4/5,Black Saturday
+2042/4/9,Araw ng Kagitingan
+2042/5/1,Labor Day
+2042/6/12,Independence Day
+2042/8/21,Ninoy Aquino Day
+2042/8/25,National Heroes Day
+2042/9/15,Eid'l Fitr (estimated)
+2042/11/1,All Saints' Day
+2042/11/23,Eid'l Adha (estimated)
+2042/11/30,Bonifacio Day
+2042/12/8,Feast of the Immaculate Conception of Mary
+2042/12/25,Christmas Day
+2042/12/30,Rizal Day
+2042/12/31,Last Day of the Year
+2043/1/1,New Year's Day
+2043/2/10,Chinese New Year
+2043/3/26,Maundy Thursday
+2043/3/27,Good Friday
+2043/3/28,Black Saturday
+2043/4/9,Araw ng Kagitingan
+2043/5/1,Labor Day
+2043/6/12,Independence Day
+2043/8/21,Ninoy Aquino Day
+2043/8/31,National Heroes Day
+2043/9/4,Eid'l Fitr (estimated)
+2043/11/1,All Saints' Day
+2043/11/12,Eid'l Adha (estimated)
+2043/11/30,Bonifacio Day
+2043/12/8,Feast of the Immaculate Conception of Mary
+2043/12/25,Christmas Day
+2043/12/30,Rizal Day
+2043/12/31,Last Day of the Year
+2044/1/1,New Year's Day
+2044/1/30,Chinese New Year
+2044/4/9,Araw ng Kagitingan
+2044/4/14,Maundy Thursday
+2044/4/15,Good Friday
+2044/4/16,Black Saturday
+2044/5/1,Labor Day
+2044/6/12,Independence Day
+2044/8/21,Ninoy Aquino Day
+2044/8/24,Eid'l Fitr (estimated)
+2044/8/29,National Heroes Day
+2044/10/31,Eid'l Adha (estimated)
+2044/11/1,All Saints' Day
+2044/11/30,Bonifacio Day
+2044/12/8,Feast of the Immaculate Conception of Mary
+2044/12/25,Christmas Day
+2044/12/30,Rizal Day
+2044/12/31,Last Day of the Year
+2045/1/1,New Year's Day
+2045/2/17,Chinese New Year
+2045/4/6,Maundy Thursday
+2045/4/7,Good Friday
+2045/4/8,Black Saturday
+2045/4/9,Araw ng Kagitingan
+2045/5/1,Labor Day
+2045/6/12,Independence Day
+2045/8/14,Eid'l Fitr (estimated)
+2045/8/21,Ninoy Aquino Day
+2045/8/28,National Heroes Day
+2045/10/21,Eid'l Adha (estimated)
+2045/11/1,All Saints' Day
+2045/11/30,Bonifacio Day
+2045/12/8,Feast of the Immaculate Conception of Mary
+2045/12/25,Christmas Day
+2045/12/30,Rizal Day
+2045/12/31,Last Day of the Year
+2046/1/1,New Year's Day
+2046/2/6,Chinese New Year
+2046/3/22,Maundy Thursday
+2046/3/23,Good Friday
+2046/3/24,Black Saturday
+2046/4/9,Araw ng Kagitingan
+2046/5/1,Labor Day
+2046/6/12,Independence Day
+2046/8/3,Eid'l Fitr (estimated)
+2046/8/21,Ninoy Aquino Day
+2046/8/27,National Heroes Day
+2046/10/10,Eid'l Adha (estimated)
+2046/11/1,All Saints' Day
+2046/11/30,Bonifacio Day
+2046/12/8,Feast of the Immaculate Conception of Mary
+2046/12/25,Christmas Day
+2046/12/30,Rizal Day
+2046/12/31,Last Day of the Year
+2047/1/1,New Year's Day
+2047/1/26,Chinese New Year
+2047/4/9,Araw ng Kagitingan
+2047/4/11,Maundy Thursday
+2047/4/12,Good Friday
+2047/4/13,Black Saturday
+2047/5/1,Labor Day
+2047/6/12,Independence Day
+2047/7/24,Eid'l Fitr (estimated)
+2047/8/21,Ninoy Aquino Day
+2047/8/26,National Heroes Day
+2047/9/30,Eid'l Adha (estimated)
+2047/11/1,All Saints' Day
+2047/11/30,Bonifacio Day
+2047/12/8,Feast of the Immaculate Conception of Mary
+2047/12/25,Christmas Day
+2047/12/30,Rizal Day
+2047/12/31,Last Day of the Year
+2048/1/1,New Year's Day
+2048/2/14,Chinese New Year
+2048/4/2,Maundy Thursday
+2048/4/3,Good Friday
+2048/4/4,Black Saturday
+2048/4/9,Araw ng Kagitingan
+2048/5/1,Labor Day
+2048/6/12,Independence Day
+2048/7/12,Eid'l Fitr (estimated)
+2048/8/21,Ninoy Aquino Day
+2048/8/31,National Heroes Day
+2048/9/19,Eid'l Adha (estimated)
+2048/11/1,All Saints' Day
+2048/11/30,Bonifacio Day
+2048/12/8,Feast of the Immaculate Conception of Mary
+2048/12/25,Christmas Day
+2048/12/30,Rizal Day
+2048/12/31,Last Day of the Year
+2049/1/1,New Year's Day
+2049/2/2,Chinese New Year
+2049/4/9,Araw ng Kagitingan
+2049/4/15,Maundy Thursday
+2049/4/16,Good Friday
+2049/4/17,Black Saturday
+2049/5/1,Labor Day
+2049/6/12,Independence Day
+2049/7/1,Eid'l Fitr (estimated)
+2049/8/21,Ninoy Aquino Day
+2049/8/30,National Heroes Day
+2049/9/8,Eid'l Adha (estimated)
+2049/11/1,All Saints' Day
+2049/11/30,Bonifacio Day
+2049/12/8,Feast of the Immaculate Conception of Mary
+2049/12/25,Christmas Day
+2049/12/30,Rizal Day
+2049/12/31,Last Day of the Year
+2050/1/1,New Year's Day
+2050/1/23,Chinese New Year
+2050/4/7,Maundy Thursday
+2050/4/8,Good Friday
+2050/4/9,Araw ng Kagitingan; Black Saturday
+2050/5/1,Labor Day
+2050/6/12,Independence Day
+2050/6/20,Eid'l Fitr (estimated)
+2050/8/21,Ninoy Aquino Day
+2050/8/28,Eid'l Adha (estimated)
+2050/8/29,National Heroes Day
+2050/11/1,All Saints' Day
+2050/11/30,Bonifacio Day
+2050/12/8,Feast of the Immaculate Conception of Mary
+2050/12/25,Christmas Day
+2050/12/30,Rizal Day
+2050/12/31,Last Day of the Year

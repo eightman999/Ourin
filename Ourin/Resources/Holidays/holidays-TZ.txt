@@ -1,0 +1,543 @@
+# TZ の祝日（2020〜2050年、言語: sw）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Mwaka Mpya
+2020/1/12,Mapinduzi ya Zanzibar
+2020/1/13,Badala ya Mapinduzi ya Zanzibar
+2020/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2020/4/10,Ijumaa Kuu
+2020/4/13,Jumatatu ya Pasaka
+2020/4/26,Muungano wa Tanzania
+2020/4/27,Badala ya Muungano wa Tanzania
+2020/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2020/5/24,Eid El-Fitri
+2020/5/25,Eid El-Fitri
+2020/5/26,Badala ya Eid El-Fitri
+2020/7/7,Sabasaba
+2020/7/31,Eid El Hajj
+2020/8/8,Sikukuu ya Wakulima
+2020/8/10,Badala ya Sikukuu ya Wakulima
+2020/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2020/10/28,Sikukuu ya Uchaguzi Mkuu wa Tanzania
+2020/10/29,Maulidi
+2020/12/9,Uhuru na Jamhuri
+2020/12/25,Kuzaliwa Kristo
+2020/12/26,Siku ya Kupeana Zawadi
+2020/12/28,Badala ya Siku ya Kupeana Zawadi
+2021/1/1,Mwaka Mpya
+2021/1/12,Mapinduzi ya Zanzibar
+2021/3/22,Mazishi ya John Pombe Magufuli
+2021/3/25,Mazishi ya John Pombe Magufuli
+2021/4/2,Ijumaa Kuu
+2021/4/5,Jumatatu ya Pasaka
+2021/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2021/4/26,Muungano wa Tanzania
+2021/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2021/5/3,Badala ya Sikukuu ya Wafanyakazi Ulimwenguni
+2021/5/14,Eid El-Fitri
+2021/5/15,Eid El-Fitri
+2021/5/17,Badala ya Eid El-Fitri
+2021/7/7,Sabasaba
+2021/7/21,Eid El Hajj
+2021/8/8,Sikukuu ya Wakulima
+2021/8/9,Badala ya Sikukuu ya Wakulima
+2021/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2021/10/19,Maulidi
+2021/12/9,Uhuru na Jamhuri
+2021/12/25,Kuzaliwa Kristo
+2021/12/26,Siku ya Kupeana Zawadi
+2021/12/27,Badala ya Kuzaliwa Kristo; Badala ya Siku ya Kupeana Zawadi
+2022/1/1,Mwaka Mpya
+2022/1/3,Badala ya Mwaka Mpya
+2022/1/12,Mapinduzi ya Zanzibar
+2022/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2022/4/15,Ijumaa Kuu
+2022/4/18,Jumatatu ya Pasaka
+2022/4/26,Muungano wa Tanzania
+2022/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2022/5/2,Badala ya Sikukuu ya Wafanyakazi Ulimwenguni
+2022/5/3,Eid El-Fitri
+2022/5/4,Eid El-Fitri
+2022/7/7,Sabasaba
+2022/7/10,Eid El Hajj
+2022/7/11,Badala ya Eid El Hajj
+2022/8/8,Sikukuu ya Wakulima
+2022/8/23,Siku ya Sensa ya Kitaifa ya Watu na Makazi
+2022/10/9,Maulidi
+2022/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2022/12/9,Uhuru na Jamhuri
+2022/12/25,Kuzaliwa Kristo
+2022/12/26,Siku ya Kupeana Zawadi
+2023/1/1,Mwaka Mpya
+2023/1/12,Mapinduzi ya Zanzibar
+2023/4/7,Ijumaa Kuu; Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2023/4/10,Jumatatu ya Pasaka
+2023/4/22,Eid El-Fitri
+2023/4/23,Eid El-Fitri
+2023/4/26,Muungano wa Tanzania
+2023/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2023/6/29,Eid El Hajj
+2023/7/7,Sabasaba
+2023/8/8,Sikukuu ya Wakulima
+2023/9/28,Maulidi
+2023/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2023/12/9,Uhuru na Jamhuri
+2023/12/25,Kuzaliwa Kristo
+2023/12/26,Siku ya Kupeana Zawadi
+2024/1/1,Mwaka Mpya
+2024/1/12,Mapinduzi ya Zanzibar
+2024/3/29,Ijumaa Kuu
+2024/4/1,Jumatatu ya Pasaka
+2024/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2024/4/10,Eid El-Fitri
+2024/4/11,Eid El-Fitri
+2024/4/26,Muungano wa Tanzania
+2024/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2024/6/17,Eid El Hajj
+2024/7/7,Sabasaba
+2024/8/8,Sikukuu ya Wakulima
+2024/9/16,Maulidi
+2024/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2024/12/9,Uhuru na Jamhuri
+2024/12/25,Kuzaliwa Kristo
+2024/12/26,Siku ya Kupeana Zawadi
+2025/1/1,Mwaka Mpya
+2025/1/12,Mapinduzi ya Zanzibar
+2025/3/31,Eid El-Fitri
+2025/4/1,Eid El-Fitri
+2025/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2025/4/18,Ijumaa Kuu
+2025/4/21,Jumatatu ya Pasaka
+2025/4/26,Muungano wa Tanzania
+2025/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2025/6/7,Eid El Hajj
+2025/7/7,Sabasaba
+2025/8/8,Sikukuu ya Wakulima
+2025/9/4,Maulidi
+2025/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2025/12/9,Uhuru na Jamhuri
+2025/12/25,Kuzaliwa Kristo
+2025/12/26,Siku ya Kupeana Zawadi
+2026/1/1,Mwaka Mpya
+2026/1/12,Mapinduzi ya Zanzibar
+2026/3/21,Eid El-Fitri (makisio)
+2026/3/22,Eid El-Fitri (makisio)
+2026/4/3,Ijumaa Kuu
+2026/4/6,Jumatatu ya Pasaka
+2026/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2026/4/26,Muungano wa Tanzania
+2026/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2026/5/28,Eid El Hajj (makisio)
+2026/7/7,Sabasaba
+2026/8/8,Sikukuu ya Wakulima
+2026/8/26,Maulidi (makisio)
+2026/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2026/12/9,Uhuru na Jamhuri
+2026/12/25,Kuzaliwa Kristo
+2026/12/26,Siku ya Kupeana Zawadi
+2027/1/1,Mwaka Mpya
+2027/1/12,Mapinduzi ya Zanzibar
+2027/3/10,Eid El-Fitri (makisio)
+2027/3/11,Eid El-Fitri (makisio)
+2027/3/26,Ijumaa Kuu
+2027/3/29,Jumatatu ya Pasaka
+2027/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2027/4/26,Muungano wa Tanzania
+2027/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2027/5/17,Eid El Hajj (makisio)
+2027/7/7,Sabasaba
+2027/8/8,Sikukuu ya Wakulima
+2027/8/15,Maulidi (makisio)
+2027/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2027/12/9,Uhuru na Jamhuri
+2027/12/25,Kuzaliwa Kristo
+2027/12/26,Siku ya Kupeana Zawadi
+2028/1/1,Mwaka Mpya
+2028/1/12,Mapinduzi ya Zanzibar
+2028/2/27,Eid El-Fitri (makisio)
+2028/2/28,Eid El-Fitri (makisio)
+2028/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2028/4/14,Ijumaa Kuu
+2028/4/17,Jumatatu ya Pasaka
+2028/4/26,Muungano wa Tanzania
+2028/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2028/5/6,Eid El Hajj (makisio)
+2028/7/7,Sabasaba
+2028/8/4,Maulidi (makisio)
+2028/8/8,Sikukuu ya Wakulima
+2028/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2028/12/9,Uhuru na Jamhuri
+2028/12/25,Kuzaliwa Kristo
+2028/12/26,Siku ya Kupeana Zawadi
+2029/1/1,Mwaka Mpya
+2029/1/12,Mapinduzi ya Zanzibar
+2029/2/15,Eid El-Fitri (makisio)
+2029/2/16,Eid El-Fitri (makisio)
+2029/3/30,Ijumaa Kuu
+2029/4/2,Jumatatu ya Pasaka
+2029/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2029/4/25,Eid El Hajj (makisio)
+2029/4/26,Muungano wa Tanzania
+2029/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2029/7/7,Sabasaba
+2029/7/25,Maulidi (makisio)
+2029/8/8,Sikukuu ya Wakulima
+2029/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2029/12/9,Uhuru na Jamhuri
+2029/12/25,Kuzaliwa Kristo
+2029/12/26,Siku ya Kupeana Zawadi
+2030/1/1,Mwaka Mpya
+2030/1/12,Mapinduzi ya Zanzibar
+2030/2/5,Eid El-Fitri (makisio)
+2030/2/6,Eid El-Fitri (makisio)
+2030/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2030/4/14,Eid El Hajj (makisio)
+2030/4/19,Ijumaa Kuu
+2030/4/22,Jumatatu ya Pasaka
+2030/4/26,Muungano wa Tanzania
+2030/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2030/7/7,Sabasaba
+2030/7/14,Maulidi (makisio)
+2030/8/8,Sikukuu ya Wakulima
+2030/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2030/12/9,Uhuru na Jamhuri
+2030/12/25,Kuzaliwa Kristo
+2030/12/26,Siku ya Kupeana Zawadi
+2031/1/1,Mwaka Mpya
+2031/1/12,Mapinduzi ya Zanzibar
+2031/1/25,Eid El-Fitri (makisio)
+2031/1/26,Eid El-Fitri (makisio)
+2031/4/3,Eid El Hajj (makisio)
+2031/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2031/4/11,Ijumaa Kuu
+2031/4/14,Jumatatu ya Pasaka
+2031/4/26,Muungano wa Tanzania
+2031/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2031/7/3,Maulidi (makisio)
+2031/7/7,Sabasaba
+2031/8/8,Sikukuu ya Wakulima
+2031/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2031/12/9,Uhuru na Jamhuri
+2031/12/25,Kuzaliwa Kristo
+2031/12/26,Siku ya Kupeana Zawadi
+2032/1/1,Mwaka Mpya
+2032/1/12,Mapinduzi ya Zanzibar
+2032/1/15,Eid El-Fitri (makisio)
+2032/1/16,Eid El-Fitri (makisio)
+2032/3/23,Eid El Hajj (makisio)
+2032/3/26,Ijumaa Kuu
+2032/3/29,Jumatatu ya Pasaka
+2032/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2032/4/26,Muungano wa Tanzania
+2032/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2032/6/21,Maulidi (makisio)
+2032/7/7,Sabasaba
+2032/8/8,Sikukuu ya Wakulima
+2032/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2032/12/9,Uhuru na Jamhuri
+2032/12/25,Kuzaliwa Kristo
+2032/12/26,Siku ya Kupeana Zawadi
+2033/1/1,Mwaka Mpya
+2033/1/3,Eid El-Fitri (makisio)
+2033/1/4,Eid El-Fitri (makisio)
+2033/1/12,Mapinduzi ya Zanzibar
+2033/3/12,Eid El Hajj (makisio)
+2033/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2033/4/15,Ijumaa Kuu
+2033/4/18,Jumatatu ya Pasaka
+2033/4/26,Muungano wa Tanzania
+2033/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2033/6/10,Maulidi (makisio)
+2033/7/7,Sabasaba
+2033/8/8,Sikukuu ya Wakulima
+2033/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2033/12/9,Uhuru na Jamhuri
+2033/12/24,Eid El-Fitri (makisio)
+2033/12/25,Eid El-Fitri (makisio); Kuzaliwa Kristo
+2033/12/26,Siku ya Kupeana Zawadi
+2034/1/1,Mwaka Mpya
+2034/1/12,Mapinduzi ya Zanzibar
+2034/3/2,Eid El Hajj (makisio)
+2034/4/7,Ijumaa Kuu; Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2034/4/10,Jumatatu ya Pasaka
+2034/4/26,Muungano wa Tanzania
+2034/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2034/5/31,Maulidi (makisio)
+2034/7/7,Sabasaba
+2034/8/8,Sikukuu ya Wakulima
+2034/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2034/12/9,Uhuru na Jamhuri
+2034/12/13,Eid El-Fitri (makisio)
+2034/12/14,Eid El-Fitri (makisio)
+2034/12/25,Kuzaliwa Kristo
+2034/12/26,Siku ya Kupeana Zawadi
+2035/1/1,Mwaka Mpya
+2035/1/12,Mapinduzi ya Zanzibar
+2035/2/19,Eid El Hajj (makisio)
+2035/3/23,Ijumaa Kuu
+2035/3/26,Jumatatu ya Pasaka
+2035/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2035/4/26,Muungano wa Tanzania
+2035/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2035/5/21,Maulidi (makisio)
+2035/7/7,Sabasaba
+2035/8/8,Sikukuu ya Wakulima
+2035/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2035/12/2,Eid El-Fitri (makisio)
+2035/12/3,Eid El-Fitri (makisio)
+2035/12/9,Uhuru na Jamhuri
+2035/12/25,Kuzaliwa Kristo
+2035/12/26,Siku ya Kupeana Zawadi
+2036/1/1,Mwaka Mpya
+2036/1/12,Mapinduzi ya Zanzibar
+2036/2/8,Eid El Hajj (makisio)
+2036/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2036/4/11,Ijumaa Kuu
+2036/4/14,Jumatatu ya Pasaka
+2036/4/26,Muungano wa Tanzania
+2036/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2036/5/9,Maulidi (makisio)
+2036/7/7,Sabasaba
+2036/8/8,Sikukuu ya Wakulima
+2036/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2036/11/20,Eid El-Fitri (makisio)
+2036/11/21,Eid El-Fitri (makisio)
+2036/12/9,Uhuru na Jamhuri
+2036/12/25,Kuzaliwa Kristo
+2036/12/26,Siku ya Kupeana Zawadi
+2037/1/1,Mwaka Mpya
+2037/1/12,Mapinduzi ya Zanzibar
+2037/1/27,Eid El Hajj (makisio)
+2037/4/3,Ijumaa Kuu
+2037/4/6,Jumatatu ya Pasaka
+2037/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2037/4/26,Muungano wa Tanzania
+2037/4/29,Maulidi (makisio)
+2037/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2037/7/7,Sabasaba
+2037/8/8,Sikukuu ya Wakulima
+2037/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2037/11/9,Eid El-Fitri (makisio)
+2037/11/10,Eid El-Fitri (makisio)
+2037/12/9,Uhuru na Jamhuri
+2037/12/25,Kuzaliwa Kristo
+2037/12/26,Siku ya Kupeana Zawadi
+2038/1/1,Mwaka Mpya
+2038/1/12,Mapinduzi ya Zanzibar
+2038/1/17,Eid El Hajj (makisio)
+2038/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2038/4/18,Maulidi (makisio)
+2038/4/23,Ijumaa Kuu
+2038/4/26,Jumatatu ya Pasaka; Muungano wa Tanzania
+2038/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2038/7/7,Sabasaba
+2038/8/8,Sikukuu ya Wakulima
+2038/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2038/10/30,Eid El-Fitri (makisio)
+2038/10/31,Eid El-Fitri (makisio)
+2038/12/9,Uhuru na Jamhuri
+2038/12/25,Kuzaliwa Kristo
+2038/12/26,Siku ya Kupeana Zawadi
+2039/1/1,Mwaka Mpya
+2039/1/6,Eid El Hajj (makisio)
+2039/1/12,Mapinduzi ya Zanzibar
+2039/4/7,Maulidi (makisio); Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2039/4/8,Ijumaa Kuu
+2039/4/11,Jumatatu ya Pasaka
+2039/4/26,Muungano wa Tanzania
+2039/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2039/7/7,Sabasaba
+2039/8/8,Sikukuu ya Wakulima
+2039/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2039/10/20,Eid El-Fitri (makisio)
+2039/10/21,Eid El-Fitri (makisio)
+2039/12/9,Uhuru na Jamhuri
+2039/12/25,Kuzaliwa Kristo
+2039/12/26,Siku ya Kupeana Zawadi
+2039/12/27,Eid El Hajj (makisio)
+2040/1/1,Mwaka Mpya
+2040/1/12,Mapinduzi ya Zanzibar
+2040/3/26,Maulidi (makisio)
+2040/3/30,Ijumaa Kuu
+2040/4/2,Jumatatu ya Pasaka
+2040/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2040/4/26,Muungano wa Tanzania
+2040/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2040/7/7,Sabasaba
+2040/8/8,Sikukuu ya Wakulima
+2040/10/8,Eid El-Fitri (makisio)
+2040/10/9,Eid El-Fitri (makisio)
+2040/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2040/12/9,Uhuru na Jamhuri
+2040/12/15,Eid El Hajj (makisio)
+2040/12/25,Kuzaliwa Kristo
+2040/12/26,Siku ya Kupeana Zawadi
+2041/1/1,Mwaka Mpya
+2041/1/12,Mapinduzi ya Zanzibar
+2041/3/16,Maulidi (makisio)
+2041/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2041/4/19,Ijumaa Kuu
+2041/4/22,Jumatatu ya Pasaka
+2041/4/26,Muungano wa Tanzania
+2041/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2041/7/7,Sabasaba
+2041/8/8,Sikukuu ya Wakulima
+2041/9/27,Eid El-Fitri (makisio)
+2041/9/28,Eid El-Fitri (makisio)
+2041/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2041/12/5,Eid El Hajj (makisio)
+2041/12/9,Uhuru na Jamhuri
+2041/12/25,Kuzaliwa Kristo
+2041/12/26,Siku ya Kupeana Zawadi
+2042/1/1,Mwaka Mpya
+2042/1/12,Mapinduzi ya Zanzibar
+2042/3/5,Maulidi (makisio)
+2042/4/4,Ijumaa Kuu
+2042/4/7,Jumatatu ya Pasaka; Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2042/4/26,Muungano wa Tanzania
+2042/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2042/7/7,Sabasaba
+2042/8/8,Sikukuu ya Wakulima
+2042/9/16,Eid El-Fitri (makisio)
+2042/9/17,Eid El-Fitri (makisio)
+2042/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2042/11/24,Eid El Hajj (makisio)
+2042/12/9,Uhuru na Jamhuri
+2042/12/25,Kuzaliwa Kristo
+2042/12/26,Siku ya Kupeana Zawadi
+2043/1/1,Mwaka Mpya
+2043/1/12,Mapinduzi ya Zanzibar
+2043/2/23,Maulidi (makisio)
+2043/3/27,Ijumaa Kuu
+2043/3/30,Jumatatu ya Pasaka
+2043/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2043/4/26,Muungano wa Tanzania
+2043/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2043/7/7,Sabasaba
+2043/8/8,Sikukuu ya Wakulima
+2043/9/5,Eid El-Fitri (makisio)
+2043/9/6,Eid El-Fitri (makisio)
+2043/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2043/11/13,Eid El Hajj (makisio)
+2043/12/9,Uhuru na Jamhuri
+2043/12/25,Kuzaliwa Kristo
+2043/12/26,Siku ya Kupeana Zawadi
+2044/1/1,Mwaka Mpya
+2044/1/12,Mapinduzi ya Zanzibar
+2044/2/12,Maulidi (makisio)
+2044/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2044/4/15,Ijumaa Kuu
+2044/4/18,Jumatatu ya Pasaka
+2044/4/26,Muungano wa Tanzania
+2044/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2044/7/7,Sabasaba
+2044/8/8,Sikukuu ya Wakulima
+2044/8/25,Eid El-Fitri (makisio)
+2044/8/26,Eid El-Fitri (makisio)
+2044/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2044/11/1,Eid El Hajj (makisio)
+2044/12/9,Uhuru na Jamhuri
+2044/12/25,Kuzaliwa Kristo
+2044/12/26,Siku ya Kupeana Zawadi
+2045/1/1,Mwaka Mpya
+2045/1/12,Mapinduzi ya Zanzibar
+2045/1/31,Maulidi (makisio)
+2045/4/7,Ijumaa Kuu; Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2045/4/10,Jumatatu ya Pasaka
+2045/4/26,Muungano wa Tanzania
+2045/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2045/7/7,Sabasaba
+2045/8/8,Sikukuu ya Wakulima
+2045/8/15,Eid El-Fitri (makisio)
+2045/8/16,Eid El-Fitri (makisio)
+2045/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2045/10/22,Eid El Hajj (makisio)
+2045/12/9,Uhuru na Jamhuri
+2045/12/25,Kuzaliwa Kristo
+2045/12/26,Siku ya Kupeana Zawadi
+2046/1/1,Mwaka Mpya
+2046/1/12,Mapinduzi ya Zanzibar
+2046/1/20,Maulidi (makisio)
+2046/3/23,Ijumaa Kuu
+2046/3/26,Jumatatu ya Pasaka
+2046/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2046/4/26,Muungano wa Tanzania
+2046/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2046/7/7,Sabasaba
+2046/8/4,Eid El-Fitri (makisio)
+2046/8/5,Eid El-Fitri (makisio)
+2046/8/8,Sikukuu ya Wakulima
+2046/10/11,Eid El Hajj (makisio)
+2046/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2046/12/9,Uhuru na Jamhuri
+2046/12/25,Kuzaliwa Kristo
+2046/12/26,Siku ya Kupeana Zawadi
+2047/1/1,Mwaka Mpya
+2047/1/9,Maulidi (makisio)
+2047/1/12,Mapinduzi ya Zanzibar
+2047/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2047/4/12,Ijumaa Kuu
+2047/4/15,Jumatatu ya Pasaka
+2047/4/26,Muungano wa Tanzania
+2047/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2047/7/7,Sabasaba
+2047/7/25,Eid El-Fitri (makisio)
+2047/7/26,Eid El-Fitri (makisio)
+2047/8/8,Sikukuu ya Wakulima
+2047/10/1,Eid El Hajj (makisio)
+2047/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2047/12/9,Uhuru na Jamhuri
+2047/12/25,Kuzaliwa Kristo
+2047/12/26,Siku ya Kupeana Zawadi
+2047/12/30,Maulidi (makisio)
+2048/1/1,Mwaka Mpya
+2048/1/12,Mapinduzi ya Zanzibar
+2048/4/3,Ijumaa Kuu
+2048/4/6,Jumatatu ya Pasaka
+2048/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2048/4/26,Muungano wa Tanzania
+2048/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2048/7/7,Sabasaba
+2048/7/13,Eid El-Fitri (makisio)
+2048/7/14,Eid El-Fitri (makisio)
+2048/8/8,Sikukuu ya Wakulima
+2048/9/20,Eid El Hajj (makisio)
+2048/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2048/12/9,Uhuru na Jamhuri
+2048/12/19,Maulidi (makisio)
+2048/12/25,Kuzaliwa Kristo
+2048/12/26,Siku ya Kupeana Zawadi
+2049/1/1,Mwaka Mpya
+2049/1/12,Mapinduzi ya Zanzibar
+2049/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2049/4/16,Ijumaa Kuu
+2049/4/19,Jumatatu ya Pasaka
+2049/4/26,Muungano wa Tanzania
+2049/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2049/7/2,Eid El-Fitri (makisio)
+2049/7/3,Eid El-Fitri (makisio)
+2049/7/7,Sabasaba
+2049/8/8,Sikukuu ya Wakulima
+2049/9/9,Eid El Hajj (makisio)
+2049/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2049/12/8,Maulidi (makisio)
+2049/12/9,Uhuru na Jamhuri
+2049/12/25,Kuzaliwa Kristo
+2049/12/26,Siku ya Kupeana Zawadi
+2050/1/1,Mwaka Mpya
+2050/1/12,Mapinduzi ya Zanzibar
+2050/4/7,Siku ya kumbukumbu ya Rais wa Kwanza wa Serikali ya Mapinduzi Zanzibar Sheikh Abeid Amani Karume
+2050/4/8,Ijumaa Kuu
+2050/4/11,Jumatatu ya Pasaka
+2050/4/26,Muungano wa Tanzania
+2050/5/1,Sikukuu ya Wafanyakazi Ulimwenguni
+2050/6/21,Eid El-Fitri (makisio)
+2050/6/22,Eid El-Fitri (makisio)
+2050/7/7,Sabasaba
+2050/8/8,Sikukuu ya Wakulima
+2050/8/29,Eid El Hajj (makisio)
+2050/10/14,Kumbukumbu ya Mwalimu Nyerere na Kilele cha mbio za Mwenge
+2050/11/27,Maulidi (makisio)
+2050/12/9,Uhuru na Jamhuri
+2050/12/25,Kuzaliwa Kristo
+2050/12/26,Siku ya Kupeana Zawadi

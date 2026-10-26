@@ -1,0 +1,634 @@
+# GM の祝日（2020〜2050年、言語: en_GM）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/2/18,Independence Day
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/5/1,Labour Day
+2020/5/20,Lialat-Ul-Qadr
+2020/5/23,Koriteh
+2020/5/25,Africa Liberation Day
+2020/7/22,July 22 Revolution Day
+2020/7/31,Tobaski
+2020/8/15,Feast of the Assumption
+2020/8/29,Yawmul Ashura
+2020/10/29,Mawlid Nabi
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2021/1/1,New Year's Day
+2021/2/18,Independence Day
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/5/1,Labour Day
+2021/5/3,Labour Day (observed)
+2021/5/9,Lialat-Ul-Qadr
+2021/5/10,Lialat-Ul-Qadr (observed)
+2021/5/13,Koriteh
+2021/5/14,Koriteh
+2021/5/25,Africa Liberation Day
+2021/7/20,Tobaski
+2021/7/21,Tobaski
+2021/7/22,July 22 Revolution Day
+2021/8/15,Feast of the Assumption
+2021/8/16,Feast of the Assumption (observed)
+2021/8/19,Yawmul Ashura
+2021/10/19,Mawlid Nabi
+2021/12/25,Christmas Day
+2021/12/26,Boxing Day
+2021/12/27,Boxing Day (observed)
+2022/1/1,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/2/18,Independence Day
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/4/29,Lialat-Ul-Qadr
+2022/5/1,Labour Day
+2022/5/2,Koriteh; Labour Day (observed)
+2022/5/3,Koriteh
+2022/5/25,Africa Liberation Day
+2022/7/9,Tobaski
+2022/7/10,Tobaski
+2022/7/11,Tobaski (observed)
+2022/7/22,July 22 Revolution Day
+2022/8/8,Yawmul Ashura
+2022/8/15,Feast of the Assumption
+2022/10/8,Mawlid Nabi
+2022/10/10,Mawlid Nabi (observed)
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/2/18,Independence Day
+2023/2/20,Independence Day (observed)
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/4/18,Lialat-Ul-Qadr
+2023/4/21,Koriteh
+2023/4/22,Koriteh
+2023/4/24,Koriteh (observed)
+2023/5/1,Labour Day
+2023/5/25,Africa Liberation Day
+2023/6/28,Tobaski
+2023/6/29,Tobaski
+2023/7/22,July 22 Revolution Day
+2023/7/24,July 22 Revolution Day (observed)
+2023/7/28,Yawmul Ashura
+2023/8/15,Feast of the Assumption
+2023/9/28,Mawlid Nabi
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/2/18,Independence Day
+2024/2/19,Independence Day (observed)
+2024/3/29,Good Friday
+2024/4/1,Easter Monday
+2024/4/6,Lialat-Ul-Qadr
+2024/4/8,Lialat-Ul-Qadr (observed)
+2024/4/10,Koriteh
+2024/4/11,Koriteh
+2024/5/1,Labour Day
+2024/5/25,Africa Liberation Day
+2024/5/27,Africa Liberation Day (observed)
+2024/6/16,Tobaski
+2024/6/17,Tobaski
+2024/7/16,Yawmul Ashura
+2024/7/22,July 22 Revolution Day
+2024/8/15,Feast of the Assumption
+2024/9/16,Mawlid Nabi
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/2/18,Independence Day
+2025/3/27,Lialat-Ul-Qadr
+2025/3/30,Koriteh
+2025/3/31,Koriteh
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/5/1,Labour Day
+2025/5/25,Africa Liberation Day
+2025/5/26,Africa Liberation Day (observed)
+2025/6/6,Tobaski
+2025/6/7,Tobaski
+2025/6/9,Tobaski (observed)
+2025/7/5,Yawmul Ashura
+2025/7/7,Yawmul Ashura (observed)
+2025/7/22,July 22 Revolution Day
+2025/8/15,Feast of the Assumption
+2025/9/4,Mawlid Nabi (estimated)
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/2/18,Independence Day
+2026/3/16,Lialat-Ul-Qadr (estimated)
+2026/3/20,Koriteh (estimated)
+2026/3/21,Koriteh (estimated)
+2026/3/23,Koriteh (observed, estimated)
+2026/4/3,Good Friday
+2026/4/6,Easter Monday
+2026/5/1,Labour Day
+2026/5/25,Africa Liberation Day
+2026/5/27,Tobaski (estimated)
+2026/5/28,Tobaski (estimated)
+2026/6/25,Yawmul Ashura (estimated)
+2026/7/22,July 22 Revolution Day
+2026/8/15,Feast of the Assumption
+2026/8/17,Feast of the Assumption (observed)
+2026/8/25,Mawlid Nabi (estimated)
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2026/12/28,Boxing Day (observed)
+2027/1/1,New Year's Day
+2027/2/18,Independence Day
+2027/3/6,Lialat-Ul-Qadr (estimated)
+2027/3/8,Lialat-Ul-Qadr (observed, estimated)
+2027/3/9,Koriteh (estimated)
+2027/3/10,Koriteh (estimated)
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/5/1,Labour Day
+2027/5/3,Labour Day (observed)
+2027/5/16,Tobaski (estimated)
+2027/5/17,Tobaski (estimated)
+2027/5/25,Africa Liberation Day
+2027/6/15,Yawmul Ashura (estimated)
+2027/7/22,July 22 Revolution Day
+2027/8/14,Mawlid Nabi (estimated)
+2027/8/15,Feast of the Assumption
+2027/8/16,Feast of the Assumption (observed); Mawlid Nabi (observed, estimated)
+2027/12/25,Christmas Day
+2027/12/26,Boxing Day
+2027/12/27,Boxing Day (observed)
+2028/1/1,New Year's Day
+2028/1/3,New Year's Day (observed)
+2028/2/18,Independence Day
+2028/2/23,Lialat-Ul-Qadr (estimated)
+2028/2/26,Koriteh (estimated)
+2028/2/27,Koriteh (estimated)
+2028/2/28,Koriteh (observed, estimated)
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/5/1,Labour Day
+2028/5/5,Tobaski (estimated)
+2028/5/6,Tobaski (estimated)
+2028/5/8,Tobaski (observed, estimated)
+2028/5/25,Africa Liberation Day
+2028/6/3,Yawmul Ashura (estimated)
+2028/6/5,Yawmul Ashura (observed, estimated)
+2028/7/22,July 22 Revolution Day
+2028/7/24,July 22 Revolution Day (observed)
+2028/8/3,Mawlid Nabi (estimated)
+2028/8/15,Feast of the Assumption
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/2/11,Lialat-Ul-Qadr (estimated)
+2029/2/12,Lialat-Ul-Qadr (observed, estimated)
+2029/2/14,Koriteh (estimated)
+2029/2/15,Koriteh (estimated)
+2029/2/18,Independence Day
+2029/2/19,Independence Day (observed)
+2029/3/30,Good Friday
+2029/4/2,Easter Monday
+2029/4/24,Tobaski (estimated)
+2029/4/25,Tobaski (estimated)
+2029/5/1,Labour Day
+2029/5/23,Yawmul Ashura (estimated)
+2029/5/25,Africa Liberation Day
+2029/7/22,July 22 Revolution Day
+2029/7/23,July 22 Revolution Day (observed)
+2029/7/24,Mawlid Nabi (estimated)
+2029/8/15,Feast of the Assumption
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/1/31,Lialat-Ul-Qadr (estimated)
+2030/2/4,Koriteh (estimated)
+2030/2/5,Koriteh (estimated)
+2030/2/18,Independence Day
+2030/4/13,Tobaski (estimated)
+2030/4/14,Tobaski (estimated)
+2030/4/15,Tobaski (observed, estimated)
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/5/1,Labour Day
+2030/5/12,Yawmul Ashura (estimated)
+2030/5/13,Yawmul Ashura (observed, estimated)
+2030/5/25,Africa Liberation Day
+2030/5/27,Africa Liberation Day (observed)
+2030/7/13,Mawlid Nabi (estimated)
+2030/7/15,Mawlid Nabi (observed, estimated)
+2030/7/22,July 22 Revolution Day
+2030/8/15,Feast of the Assumption
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/1/21,Lialat-Ul-Qadr (estimated)
+2031/1/24,Koriteh (estimated)
+2031/1/25,Koriteh (estimated)
+2031/1/27,Koriteh (observed, estimated)
+2031/2/18,Independence Day
+2031/4/2,Tobaski (estimated)
+2031/4/3,Tobaski (estimated)
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/5/1,Labour Day
+2031/5/2,Yawmul Ashura (estimated)
+2031/5/25,Africa Liberation Day
+2031/5/26,Africa Liberation Day (observed)
+2031/7/2,Mawlid Nabi (estimated)
+2031/7/22,July 22 Revolution Day
+2031/8/15,Feast of the Assumption
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/1/10,Lialat-Ul-Qadr (estimated)
+2032/1/12,Lialat-Ul-Qadr (observed, estimated)
+2032/1/14,Koriteh (estimated)
+2032/1/15,Koriteh (estimated)
+2032/2/18,Independence Day
+2032/3/22,Tobaski (estimated)
+2032/3/23,Tobaski (estimated)
+2032/3/26,Good Friday
+2032/3/29,Easter Monday
+2032/4/20,Yawmul Ashura (estimated)
+2032/5/1,Labour Day
+2032/5/3,Labour Day (observed)
+2032/5/25,Africa Liberation Day
+2032/6/20,Mawlid Nabi (estimated)
+2032/6/21,Mawlid Nabi (observed, estimated)
+2032/7/22,July 22 Revolution Day
+2032/8/15,Feast of the Assumption
+2032/8/16,Feast of the Assumption (observed)
+2032/12/25,Christmas Day
+2032/12/26,Boxing Day
+2032/12/27,Boxing Day (observed)
+2032/12/30,Lialat-Ul-Qadr (estimated)
+2033/1/1,New Year's Day
+2033/1/2,Koriteh (estimated)
+2033/1/3,Koriteh (estimated); New Year's Day (observed)
+2033/2/18,Independence Day
+2033/3/11,Tobaski (estimated)
+2033/3/12,Tobaski (estimated)
+2033/3/14,Tobaski (observed, estimated)
+2033/4/10,Yawmul Ashura (estimated)
+2033/4/11,Yawmul Ashura (observed, estimated)
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/5/1,Labour Day
+2033/5/2,Labour Day (observed)
+2033/5/25,Africa Liberation Day
+2033/6/9,Mawlid Nabi (estimated)
+2033/7/22,July 22 Revolution Day
+2033/8/15,Feast of the Assumption
+2033/12/19,Lialat-Ul-Qadr (estimated)
+2033/12/23,Koriteh (estimated)
+2033/12/24,Koriteh (estimated)
+2033/12/25,Christmas Day
+2033/12/26,Boxing Day; Koriteh (observed, estimated)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/2/18,Independence Day
+2034/2/20,Independence Day (observed)
+2034/3/1,Tobaski (estimated)
+2034/3/2,Tobaski (estimated)
+2034/3/30,Yawmul Ashura (estimated)
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/5/1,Labour Day
+2034/5/25,Africa Liberation Day
+2034/5/30,Mawlid Nabi (estimated)
+2034/7/22,July 22 Revolution Day
+2034/7/24,July 22 Revolution Day (observed)
+2034/8/15,Feast of the Assumption
+2034/12/8,Lialat-Ul-Qadr (estimated)
+2034/12/12,Koriteh (estimated)
+2034/12/13,Koriteh (estimated)
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/2/18,Independence Day; Tobaski (estimated)
+2035/2/19,Independence Day (observed); Tobaski (estimated)
+2035/3/20,Yawmul Ashura (estimated)
+2035/3/23,Good Friday
+2035/3/26,Easter Monday
+2035/5/1,Labour Day
+2035/5/20,Mawlid Nabi (estimated)
+2035/5/21,Mawlid Nabi (observed, estimated)
+2035/5/25,Africa Liberation Day
+2035/7/22,July 22 Revolution Day
+2035/7/23,July 22 Revolution Day (observed)
+2035/8/15,Feast of the Assumption
+2035/11/27,Lialat-Ul-Qadr (estimated)
+2035/12/1,Koriteh (estimated)
+2035/12/2,Koriteh (estimated)
+2035/12/3,Koriteh (observed, estimated)
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/2/7,Tobaski (estimated)
+2036/2/8,Tobaski (estimated)
+2036/2/18,Independence Day
+2036/3/8,Yawmul Ashura (estimated)
+2036/3/10,Yawmul Ashura (observed, estimated)
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/5/1,Labour Day
+2036/5/8,Mawlid Nabi (estimated)
+2036/5/25,Africa Liberation Day
+2036/5/26,Africa Liberation Day (observed)
+2036/7/22,July 22 Revolution Day
+2036/8/15,Feast of the Assumption
+2036/11/15,Lialat-Ul-Qadr (estimated)
+2036/11/17,Lialat-Ul-Qadr (observed, estimated)
+2036/11/19,Koriteh (estimated)
+2036/11/20,Koriteh (estimated)
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/1/26,Tobaski (estimated)
+2037/1/27,Tobaski (estimated)
+2037/2/18,Independence Day
+2037/2/25,Yawmul Ashura (estimated)
+2037/4/3,Good Friday
+2037/4/6,Easter Monday
+2037/4/28,Mawlid Nabi (estimated)
+2037/5/1,Labour Day
+2037/5/25,Africa Liberation Day
+2037/7/22,July 22 Revolution Day
+2037/8/15,Feast of the Assumption
+2037/8/17,Feast of the Assumption (observed)
+2037/11/5,Lialat-Ul-Qadr (estimated)
+2037/11/8,Koriteh (estimated)
+2037/11/9,Koriteh (estimated)
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2037/12/28,Boxing Day (observed)
+2038/1/1,New Year's Day
+2038/1/16,Tobaski (estimated)
+2038/1/17,Tobaski (estimated)
+2038/1/18,Tobaski (observed, estimated)
+2038/2/14,Yawmul Ashura (estimated)
+2038/2/15,Yawmul Ashura (observed, estimated)
+2038/2/18,Independence Day
+2038/4/17,Mawlid Nabi (estimated)
+2038/4/19,Mawlid Nabi (observed, estimated)
+2038/4/23,Good Friday
+2038/4/26,Easter Monday
+2038/5/1,Labour Day
+2038/5/3,Labour Day (observed)
+2038/5/25,Africa Liberation Day
+2038/7/22,July 22 Revolution Day
+2038/8/15,Feast of the Assumption
+2038/8/16,Feast of the Assumption (observed)
+2038/10/26,Lialat-Ul-Qadr (estimated)
+2038/10/29,Koriteh (estimated)
+2038/10/30,Koriteh (estimated)
+2038/11/1,Koriteh (observed, estimated)
+2038/12/25,Christmas Day
+2038/12/26,Boxing Day
+2038/12/27,Boxing Day (observed)
+2039/1/1,New Year's Day
+2039/1/3,New Year's Day (observed)
+2039/1/5,Tobaski (estimated)
+2039/1/6,Tobaski (estimated)
+2039/2/4,Yawmul Ashura (estimated)
+2039/2/18,Independence Day
+2039/4/6,Mawlid Nabi (estimated)
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/5/1,Labour Day
+2039/5/2,Labour Day (observed)
+2039/5/25,Africa Liberation Day
+2039/7/22,July 22 Revolution Day
+2039/8/15,Feast of the Assumption
+2039/10/15,Lialat-Ul-Qadr (estimated)
+2039/10/17,Lialat-Ul-Qadr (observed, estimated)
+2039/10/19,Koriteh (estimated)
+2039/10/20,Koriteh (estimated)
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day; Tobaski (estimated)
+2039/12/27,Tobaski (estimated)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/1/24,Yawmul Ashura (estimated)
+2040/2/18,Independence Day
+2040/2/20,Independence Day (observed)
+2040/3/25,Mawlid Nabi (estimated)
+2040/3/26,Mawlid Nabi (observed, estimated)
+2040/3/30,Good Friday
+2040/4/2,Easter Monday
+2040/5/1,Labour Day
+2040/5/25,Africa Liberation Day
+2040/7/22,July 22 Revolution Day
+2040/7/23,July 22 Revolution Day (observed)
+2040/8/15,Feast of the Assumption
+2040/10/3,Lialat-Ul-Qadr (estimated)
+2040/10/7,Koriteh (estimated)
+2040/10/8,Koriteh (estimated)
+2040/12/14,Tobaski (estimated)
+2040/12/15,Tobaski (estimated)
+2040/12/17,Tobaski (observed, estimated)
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/1/13,Yawmul Ashura (estimated)
+2041/1/14,Yawmul Ashura (observed, estimated)
+2041/2/18,Independence Day
+2041/3/15,Mawlid Nabi (estimated)
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/5/1,Labour Day
+2041/5/25,Africa Liberation Day
+2041/5/27,Africa Liberation Day (observed)
+2041/7/22,July 22 Revolution Day
+2041/8/15,Feast of the Assumption
+2041/9/23,Lialat-Ul-Qadr (estimated)
+2041/9/26,Koriteh (estimated)
+2041/9/27,Koriteh (estimated)
+2041/12/4,Tobaski (estimated)
+2041/12/5,Tobaski (estimated)
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/1/2,Yawmul Ashura (estimated)
+2042/2/18,Independence Day
+2042/3/4,Mawlid Nabi (estimated)
+2042/4/4,Good Friday
+2042/4/7,Easter Monday
+2042/5/1,Labour Day
+2042/5/25,Africa Liberation Day
+2042/5/26,Africa Liberation Day (observed)
+2042/7/22,July 22 Revolution Day
+2042/8/15,Feast of the Assumption
+2042/9/12,Lialat-Ul-Qadr (estimated)
+2042/9/15,Koriteh (estimated)
+2042/9/16,Koriteh (estimated)
+2042/11/23,Tobaski (estimated)
+2042/11/24,Tobaski (estimated)
+2042/12/23,Yawmul Ashura (estimated)
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/2/18,Independence Day
+2043/2/22,Mawlid Nabi (estimated)
+2043/2/23,Mawlid Nabi (observed, estimated)
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/5/1,Labour Day
+2043/5/25,Africa Liberation Day
+2043/7/22,July 22 Revolution Day
+2043/8/15,Feast of the Assumption
+2043/8/17,Feast of the Assumption (observed)
+2043/9/1,Lialat-Ul-Qadr (estimated)
+2043/9/4,Koriteh (estimated)
+2043/9/5,Koriteh (estimated)
+2043/9/7,Koriteh (observed, estimated)
+2043/11/12,Tobaski (estimated)
+2043/11/13,Tobaski (estimated)
+2043/12/12,Yawmul Ashura (estimated)
+2043/12/14,Yawmul Ashura (observed, estimated)
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2043/12/28,Boxing Day (observed)
+2044/1/1,New Year's Day
+2044/2/11,Mawlid Nabi (estimated)
+2044/2/18,Independence Day
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/5/1,Labour Day
+2044/5/2,Labour Day (observed)
+2044/5/25,Africa Liberation Day
+2044/7/22,July 22 Revolution Day
+2044/8/15,Feast of the Assumption
+2044/8/21,Lialat-Ul-Qadr (estimated)
+2044/8/22,Lialat-Ul-Qadr (observed, estimated)
+2044/8/24,Koriteh (estimated)
+2044/8/25,Koriteh (estimated)
+2044/10/31,Tobaski (estimated)
+2044/11/1,Tobaski (estimated)
+2044/11/30,Yawmul Ashura (estimated)
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/1/30,Mawlid Nabi (estimated)
+2045/2/18,Independence Day
+2045/2/20,Independence Day (observed)
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/5/1,Labour Day
+2045/5/25,Africa Liberation Day
+2045/7/22,July 22 Revolution Day
+2045/7/24,July 22 Revolution Day (observed)
+2045/8/10,Lialat-Ul-Qadr (estimated)
+2045/8/14,Koriteh (estimated)
+2045/8/15,Feast of the Assumption; Koriteh (estimated)
+2045/10/21,Tobaski (estimated)
+2045/10/22,Tobaski (estimated)
+2045/10/23,Tobaski (observed, estimated)
+2045/11/19,Yawmul Ashura (estimated)
+2045/11/20,Yawmul Ashura (observed, estimated)
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/1/19,Mawlid Nabi (estimated)
+2046/2/18,Independence Day
+2046/2/19,Independence Day (observed)
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/5/1,Labour Day
+2046/5/25,Africa Liberation Day
+2046/7/22,July 22 Revolution Day
+2046/7/23,July 22 Revolution Day (observed)
+2046/7/31,Lialat-Ul-Qadr (estimated)
+2046/8/3,Koriteh (estimated)
+2046/8/4,Koriteh (estimated)
+2046/8/6,Koriteh (observed, estimated)
+2046/8/15,Feast of the Assumption
+2046/10/10,Tobaski (estimated)
+2046/10/11,Tobaski (estimated)
+2046/11/9,Yawmul Ashura (estimated)
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/1/8,Mawlid Nabi (estimated)
+2047/2/18,Independence Day
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/5/1,Labour Day
+2047/5/25,Africa Liberation Day
+2047/5/27,Africa Liberation Day (observed)
+2047/7/20,Lialat-Ul-Qadr (estimated)
+2047/7/22,July 22 Revolution Day; Lialat-Ul-Qadr (observed, estimated)
+2047/7/24,Koriteh (estimated)
+2047/7/25,Koriteh (estimated)
+2047/8/15,Feast of the Assumption
+2047/9/30,Tobaski (estimated)
+2047/10/1,Tobaski (estimated)
+2047/10/29,Yawmul Ashura (estimated)
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2047/12/29,Mawlid Nabi (estimated)
+2047/12/30,Mawlid Nabi (observed, estimated)
+2048/1/1,New Year's Day
+2048/2/18,Independence Day
+2048/4/3,Good Friday
+2048/4/6,Easter Monday
+2048/5/1,Labour Day
+2048/5/25,Africa Liberation Day
+2048/7/8,Lialat-Ul-Qadr (estimated)
+2048/7/12,Koriteh (estimated)
+2048/7/13,Koriteh (estimated)
+2048/7/22,July 22 Revolution Day
+2048/8/15,Feast of the Assumption
+2048/8/17,Feast of the Assumption (observed)
+2048/9/19,Tobaski (estimated)
+2048/9/20,Tobaski (estimated)
+2048/9/21,Tobaski (observed, estimated)
+2048/10/18,Yawmul Ashura (estimated)
+2048/10/19,Yawmul Ashura (observed, estimated)
+2048/12/18,Mawlid Nabi (estimated)
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2048/12/28,Boxing Day (observed)
+2049/1/1,New Year's Day
+2049/2/18,Independence Day
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/5/1,Labour Day
+2049/5/3,Labour Day (observed)
+2049/5/25,Africa Liberation Day
+2049/6/28,Lialat-Ul-Qadr (estimated)
+2049/7/1,Koriteh (estimated)
+2049/7/2,Koriteh (estimated)
+2049/7/22,July 22 Revolution Day
+2049/8/15,Feast of the Assumption
+2049/8/16,Feast of the Assumption (observed)
+2049/9/8,Tobaski (estimated)
+2049/9/9,Tobaski (estimated)
+2049/10/7,Yawmul Ashura (estimated)
+2049/12/7,Mawlid Nabi (estimated)
+2049/12/25,Christmas Day
+2049/12/26,Boxing Day
+2049/12/27,Boxing Day (observed)
+2050/1/1,New Year's Day
+2050/1/3,New Year's Day (observed)
+2050/2/18,Independence Day
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/5/1,Labour Day
+2050/5/2,Labour Day (observed)
+2050/5/25,Africa Liberation Day
+2050/6/17,Lialat-Ul-Qadr (estimated)
+2050/6/20,Koriteh (estimated)
+2050/6/21,Koriteh (estimated)
+2050/7/22,July 22 Revolution Day
+2050/8/15,Feast of the Assumption
+2050/8/28,Tobaski (estimated)
+2050/8/29,Tobaski (estimated)
+2050/9/26,Yawmul Ashura (estimated)
+2050/11/26,Mawlid Nabi (estimated)
+2050/11/28,Mawlid Nabi (observed, estimated)
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day

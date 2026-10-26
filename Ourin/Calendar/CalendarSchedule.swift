@@ -280,14 +280,21 @@ final class CalendarScheduleEmitter {
     static let builtinSensorName = "builtin:calendar"
 
     private let store: CalendarScheduleStore
+    /// ゴースト用の予定表（`\![execute,schedule-add]`）。nil なら扱わない。
+    private let ghostStore: GhostScheduleStore?
     private let stateLock = NSLock()
     private var schedules: [CalendarSchedule] = []
     private var firedFiveMinuteKeys: Set<String> = []
+    private var firedGhostKeys: Set<String> = []
+    /// 直前に通知した「今日の予定」の内容。nil は未計測（最初の計測は通知せず基準にする）。
+    private var lastTodaySignature: String?
     private var timer: DispatchSourceTimer?
     private var handler: ((ShioriEvent) -> Void)?
 
-    init(store: CalendarScheduleStore = CalendarScheduleStore()) {
+    init(store: CalendarScheduleStore = CalendarScheduleStore(),
+         ghostStore: GhostScheduleStore? = GhostScheduleStore.shared) {
         self.store = store
+        self.ghostStore = ghostStore
     }
 
     func setHandler(_ handler: ((ShioriEvent) -> Void)?) {
@@ -316,6 +323,8 @@ final class CalendarScheduleEmitter {
         self.timer = nil
         self.schedules.removeAll()
         self.firedFiveMinuteKeys.removeAll()
+        self.firedGhostKeys.removeAll()
+        self.lastTodaySignature = nil
         stateLock.unlock()
         timer?.cancel()
     }
@@ -506,6 +515,80 @@ final class CalendarScheduleEmitter {
         for schedule in due {
             emit(ShioriEvent(id: .OnSchedule5MinutesToGo, refs: schedule.eventReferences()))
         }
+        emitGhostDueEvents(now: now, calendar: calendar)
+        emitTodayNotifyIfChanged(now: now, calendar: calendar)
+    }
+
+    /// ゴースト用予定の「n分前」通知（--notify の分数。省略時は 5 分前）。
+    private func emitGhostDueEvents(now: Date, calendar: Calendar) {
+        guard let ghostStore else { return }
+        let today = GhostScheduleToday.schedules(in: ghostStore, on: now, calendar: calendar)
+        stateLock.lock()
+        var due: [CalendarSchedule] = []
+        for item in today {
+            guard let start = item.schedule.startDate(calendar: calendar) else { continue }
+            let lead = TimeInterval((item.leadMinutes ?? 5) * 60)
+            let key = "\(item.schedule.id.uuidString)|\(start.timeIntervalSince1970)"
+            guard now >= start.addingTimeInterval(-lead), now < start, !firedGhostKeys.contains(key) else { continue }
+            firedGhostKeys.insert(key)
+            due.append(item.schedule)
+        }
+        // 通知済みの記録は日付ごとに作るキーなので、溜まりすぎたら捨てる（古い日の予定は再通知されない）。
+        if firedGhostKeys.count > 512 { firedGhostKeys.removeAll() }
+        stateLock.unlock()
+        for schedule in due {
+            emit(ShioriEvent(id: .OnSchedule5MinutesToGo, refs: schedule.eventReferences()))
+        }
+    }
+
+    /// 本体カレンダーの「今日の予定」が変わったら、全ゴーストへ OnScheduleTodayNotify を NOTIFY する。
+    private func emitTodayNotifyIfChanged(now: Date, calendar: Calendar) {
+        let todays = combinedSchedules(on: now, calendar: calendar)
+        let references = Self.todayNotifyReferences(todays, calendar: calendar)
+        let signature = references.keys.sorted().map { "\($0)=\(references[$0] ?? "")" }.joined(separator: "\n")
+            + "|" + ICalendarCodec.formatDate(now, calendar: calendar)
+        stateLock.lock()
+        let previous = lastTodaySignature
+        lastTodaySignature = signature
+        stateLock.unlock()
+        // 最初の計測は基準にするだけで通知しない（UKADOC: 変化が無ければ発生しない）。
+        guard let previous, previous != signature else { return }
+        emit(ShioriEvent(id: .OnScheduleTodayNotify, params: references, delivery: .notify, ignoreResponseScript: true))
+    }
+
+    /// ユーザー（センサ含む）とゴースト用の、今日の予定を時刻順に並べたもの。
+    func combinedSchedules(on date: Date, calendar: Calendar = .current) -> [CalendarSchedule] {
+        var result = schedules(on: date, calendar: calendar)
+        if let ghostStore {
+            result += GhostScheduleToday.schedules(in: ghostStore, on: date, calendar: ICalendarCodec.makeCalendar(timeZone: calendar.timeZone)).map(\.schedule)
+        }
+        return result.sorted { lhs, rhs in
+            let left = (lhs.startHour ?? 24) * 60 + (lhs.startMinute ?? 0)
+            let right = (rhs.startHour ?? 24) * 60 + (rhs.startMinute ?? 0)
+            return left == right ? lhs.caption < rhs.caption : left < right
+        }
+    }
+
+    /// OnScheduleTodayNotify の Reference。1 件ぶんは `タイプ\1caption\1subtitle\1script\1開始\1終了\1`
+    /// （末尾にも区切りが付く）。開始・終了は `年,月,日,時,分,秒`。時刻を設定していない予定は
+    /// 時・分・秒が空になり、終了は終了時刻を設定した予定にだけ入る。0 件なら Reference なし。
+    static func todayNotifyReferences(_ schedules: [CalendarSchedule], calendar: Calendar = .current) -> [String: String] {
+        var refs: [String: String] = [:]
+        for (index, schedule) in schedules.enumerated() {
+            let start: String
+            if let hour = schedule.startHour, let minute = schedule.startMinute {
+                start = "\(schedule.year),\(schedule.month),\(schedule.day),\(hour),\(minute),0"
+            } else {
+                start = "\(schedule.year),\(schedule.month),\(schedule.day),,,"
+            }
+            var end = ""
+            if let hour = schedule.endHour, let minute = schedule.endMinute {
+                end = "\(schedule.year),\(schedule.month),\(schedule.day),\(hour),\(minute),0"
+            }
+            refs["Reference\(index)"] = [schedule.type, schedule.caption, schedule.subtitle, schedule.script, start, end]
+                .joined(separator: "\u{1}") + "\u{1}"
+        }
+        return refs
     }
 
     private func emit(_ event: ShioriEvent) {

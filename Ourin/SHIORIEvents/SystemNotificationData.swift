@@ -177,11 +177,13 @@ enum SystemNotificationData {
         )
     }
 
+    /// 表示に使っている言語（実際に選ばれた lproj）。言語名はその言語自身での名前（日本語・English・简体中文 など）、
+    /// 言語フォルダはその lproj（SSP の言語フォルダに当たり、祝日表 holidays-XX.txt も入っている）。
     static func currentLanguageInfo(bundle: Bundle = .main) -> SystemLanguageInfo {
-        let languageID = (Locale.current.languageCode ?? "").lowercased()
+        let languageID = bundle.preferredLocalizations.first(where: { $0 != "Base" }) ?? ""
         let languageName = languageID.isEmpty
             ? ""
-            : (Locale.current.localizedString(forLanguageCode: languageID) ?? languageID)
+            : (Locale(identifier: languageID).localizedString(forIdentifier: languageID) ?? languageID)
         let resourcePath = languageID.isEmpty
             ? ""
             : (bundle.path(forResource: languageID, ofType: "lproj") ?? "")

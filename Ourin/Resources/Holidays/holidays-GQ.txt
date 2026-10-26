@@ -1,0 +1,479 @@
+# GQ の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/3/8,Día Internacional de la Mujer
+2020/4/9,Jueves Santo
+2020/4/10,Viernes Santo
+2020/5/1,Día Internacional del Trabajo
+2020/5/25,Día de la liberación Africana
+2020/6/5,Natalicio de Su Excelencia el Presidente de la República
+2020/6/11,Corpus Christi
+2020/8/3,Día de las Fuerzas Armadas
+2020/8/15,Día de la Constitución
+2020/8/17,Día de la Constitución (observado)
+2020/10/12,Día de la Independencia Nacional
+2020/12/8,Festividad de la Inmaculada Concepción de María
+2020/12/25,Día de Navidad
+2021/1/1,Año Nuevo
+2021/3/8,Día Internacional de la Mujer
+2021/4/1,Jueves Santo
+2021/4/2,Viernes Santo
+2021/5/1,Día Internacional del Trabajo
+2021/5/3,Día Internacional del Trabajo (observado)
+2021/5/25,Día de la liberación Africana
+2021/6/3,Corpus Christi
+2021/6/5,Natalicio de Su Excelencia el Presidente de la República
+2021/6/7,Natalicio de Su Excelencia el Presidente de la República (observado)
+2021/8/3,Día de las Fuerzas Armadas
+2021/8/15,Día de la Constitución
+2021/8/16,Día de la Constitución (observado)
+2021/10/12,Día de la Independencia Nacional
+2021/12/8,Festividad de la Inmaculada Concepción de María
+2021/12/25,Día de Navidad
+2021/12/27,Día de Navidad (observado)
+2022/1/1,Año Nuevo
+2022/1/3,Año Nuevo (observado)
+2022/3/8,Día Internacional de la Mujer
+2022/4/14,Jueves Santo
+2022/4/15,Viernes Santo
+2022/5/1,Día Internacional del Trabajo
+2022/5/2,Día Internacional del Trabajo (observado)
+2022/5/25,Día de la liberación Africana
+2022/6/5,Natalicio de Su Excelencia el Presidente de la República
+2022/6/6,Natalicio de Su Excelencia el Presidente de la República (observado)
+2022/6/16,Corpus Christi
+2022/8/3,Día de las Fuerzas Armadas
+2022/8/15,Día de la Constitución
+2022/10/12,Día de la Independencia Nacional
+2022/12/8,Festividad de la Inmaculada Concepción de María
+2022/12/25,Día de Navidad
+2022/12/26,Día de Navidad (observado)
+2023/1/1,Año Nuevo
+2023/1/2,Año Nuevo (observado)
+2023/3/8,Día Internacional de la Mujer
+2023/4/6,Jueves Santo
+2023/4/7,Viernes Santo
+2023/5/1,Día Internacional del Trabajo
+2023/5/25,Día de la liberación Africana
+2023/6/5,Natalicio de Su Excelencia el Presidente de la República
+2023/6/8,Corpus Christi
+2023/8/3,Día de las Fuerzas Armadas
+2023/8/15,Día de la Constitución
+2023/10/12,Día de la Independencia Nacional
+2023/12/8,Festividad de la Inmaculada Concepción de María
+2023/12/25,Día de Navidad
+2024/1/1,Año Nuevo
+2024/1/23,Victoria de la AFCON contra Costa de Marfil
+2024/3/8,Día Internacional de la Mujer
+2024/3/28,Jueves Santo
+2024/3/29,Viernes Santo
+2024/5/1,Día Internacional del Trabajo
+2024/5/25,Día de la liberación Africana
+2024/5/30,Corpus Christi
+2024/6/5,Natalicio de Su Excelencia el Presidente de la República
+2024/8/3,Día de las Fuerzas Armadas
+2024/8/5,Día de las Fuerzas Armadas (observado)
+2024/8/15,Día de la Constitución
+2024/10/12,Día de la Independencia Nacional
+2024/10/14,Día de la Independencia Nacional (observado)
+2024/12/8,Festividad de la Inmaculada Concepción de María
+2024/12/9,Festividad de la Inmaculada Concepción de María (observado)
+2024/12/25,Día de Navidad
+2025/1/1,Año Nuevo
+2025/3/8,Día Internacional de la Mujer
+2025/4/17,Jueves Santo
+2025/4/18,Viernes Santo
+2025/5/1,Día Internacional del Trabajo
+2025/5/25,Día de la liberación Africana
+2025/6/5,Natalicio de Su Excelencia el Presidente de la República
+2025/6/19,Corpus Christi
+2025/8/3,Día de las Fuerzas Armadas
+2025/8/4,Día de las Fuerzas Armadas (observado)
+2025/8/15,Día de la Constitución
+2025/10/12,Día de la Independencia Nacional
+2025/10/13,Día de la Independencia Nacional (observado)
+2025/12/8,Festividad de la Inmaculada Concepción de María
+2025/12/25,Día de Navidad
+2026/1/1,Año Nuevo
+2026/3/8,Día Internacional de la Mujer
+2026/4/2,Jueves Santo
+2026/4/3,Viernes Santo
+2026/5/1,Día Internacional del Trabajo
+2026/5/25,Día de la liberación Africana
+2026/6/4,Corpus Christi
+2026/6/5,Natalicio de Su Excelencia el Presidente de la República
+2026/8/3,Día de las Fuerzas Armadas
+2026/8/15,Día de la Constitución
+2026/8/17,Día de la Constitución (observado)
+2026/10/12,Día de la Independencia Nacional
+2026/12/8,Festividad de la Inmaculada Concepción de María
+2026/12/25,Día de Navidad
+2027/1/1,Año Nuevo
+2027/3/8,Día Internacional de la Mujer
+2027/3/25,Jueves Santo
+2027/3/26,Viernes Santo
+2027/5/1,Día Internacional del Trabajo
+2027/5/3,Día Internacional del Trabajo (observado)
+2027/5/25,Día de la liberación Africana
+2027/5/27,Corpus Christi
+2027/6/5,Natalicio de Su Excelencia el Presidente de la República
+2027/6/7,Natalicio de Su Excelencia el Presidente de la República (observado)
+2027/8/3,Día de las Fuerzas Armadas
+2027/8/15,Día de la Constitución
+2027/8/16,Día de la Constitución (observado)
+2027/10/12,Día de la Independencia Nacional
+2027/12/8,Festividad de la Inmaculada Concepción de María
+2027/12/25,Día de Navidad
+2027/12/27,Día de Navidad (observado)
+2028/1/1,Año Nuevo
+2028/1/3,Año Nuevo (observado)
+2028/3/8,Día Internacional de la Mujer
+2028/4/13,Jueves Santo
+2028/4/14,Viernes Santo
+2028/5/1,Día Internacional del Trabajo
+2028/5/25,Día de la liberación Africana
+2028/6/5,Natalicio de Su Excelencia el Presidente de la República
+2028/6/15,Corpus Christi
+2028/8/3,Día de las Fuerzas Armadas
+2028/8/15,Día de la Constitución
+2028/10/12,Día de la Independencia Nacional
+2028/12/8,Festividad de la Inmaculada Concepción de María
+2028/12/25,Día de Navidad
+2029/1/1,Año Nuevo
+2029/3/8,Día Internacional de la Mujer
+2029/3/29,Jueves Santo
+2029/3/30,Viernes Santo
+2029/5/1,Día Internacional del Trabajo
+2029/5/25,Día de la liberación Africana
+2029/5/31,Corpus Christi
+2029/6/5,Natalicio de Su Excelencia el Presidente de la República
+2029/8/3,Día de las Fuerzas Armadas
+2029/8/15,Día de la Constitución
+2029/10/12,Día de la Independencia Nacional
+2029/12/8,Festividad de la Inmaculada Concepción de María
+2029/12/10,Festividad de la Inmaculada Concepción de María (observado)
+2029/12/25,Día de Navidad
+2030/1/1,Año Nuevo
+2030/3/8,Día Internacional de la Mujer
+2030/4/18,Jueves Santo
+2030/4/19,Viernes Santo
+2030/5/1,Día Internacional del Trabajo
+2030/5/25,Día de la liberación Africana
+2030/6/5,Natalicio de Su Excelencia el Presidente de la República
+2030/6/20,Corpus Christi
+2030/8/3,Día de las Fuerzas Armadas
+2030/8/5,Día de las Fuerzas Armadas (observado)
+2030/8/15,Día de la Constitución
+2030/10/12,Día de la Independencia Nacional
+2030/10/14,Día de la Independencia Nacional (observado)
+2030/12/8,Festividad de la Inmaculada Concepción de María
+2030/12/9,Festividad de la Inmaculada Concepción de María (observado)
+2030/12/25,Día de Navidad
+2031/1/1,Año Nuevo
+2031/3/8,Día Internacional de la Mujer
+2031/4/10,Jueves Santo
+2031/4/11,Viernes Santo
+2031/5/1,Día Internacional del Trabajo
+2031/5/25,Día de la liberación Africana
+2031/6/5,Natalicio de Su Excelencia el Presidente de la República
+2031/6/12,Corpus Christi
+2031/8/3,Día de las Fuerzas Armadas
+2031/8/4,Día de las Fuerzas Armadas (observado)
+2031/8/15,Día de la Constitución
+2031/10/12,Día de la Independencia Nacional
+2031/10/13,Día de la Independencia Nacional (observado)
+2031/12/8,Festividad de la Inmaculada Concepción de María
+2031/12/25,Día de Navidad
+2032/1/1,Año Nuevo
+2032/3/8,Día Internacional de la Mujer
+2032/3/25,Jueves Santo
+2032/3/26,Viernes Santo
+2032/5/1,Día Internacional del Trabajo
+2032/5/3,Día Internacional del Trabajo (observado)
+2032/5/25,Día de la liberación Africana
+2032/5/27,Corpus Christi
+2032/6/5,Natalicio de Su Excelencia el Presidente de la República
+2032/6/7,Natalicio de Su Excelencia el Presidente de la República (observado)
+2032/8/3,Día de las Fuerzas Armadas
+2032/8/15,Día de la Constitución
+2032/8/16,Día de la Constitución (observado)
+2032/10/12,Día de la Independencia Nacional
+2032/12/8,Festividad de la Inmaculada Concepción de María
+2032/12/25,Día de Navidad
+2032/12/27,Día de Navidad (observado)
+2033/1/1,Año Nuevo
+2033/1/3,Año Nuevo (observado)
+2033/3/8,Día Internacional de la Mujer
+2033/4/14,Jueves Santo
+2033/4/15,Viernes Santo
+2033/5/1,Día Internacional del Trabajo
+2033/5/2,Día Internacional del Trabajo (observado)
+2033/5/25,Día de la liberación Africana
+2033/6/5,Natalicio de Su Excelencia el Presidente de la República
+2033/6/6,Natalicio de Su Excelencia el Presidente de la República (observado)
+2033/6/16,Corpus Christi
+2033/8/3,Día de las Fuerzas Armadas
+2033/8/15,Día de la Constitución
+2033/10/12,Día de la Independencia Nacional
+2033/12/8,Festividad de la Inmaculada Concepción de María
+2033/12/25,Día de Navidad
+2033/12/26,Día de Navidad (observado)
+2034/1/1,Año Nuevo
+2034/1/2,Año Nuevo (observado)
+2034/3/8,Día Internacional de la Mujer
+2034/4/6,Jueves Santo
+2034/4/7,Viernes Santo
+2034/5/1,Día Internacional del Trabajo
+2034/5/25,Día de la liberación Africana
+2034/6/5,Natalicio de Su Excelencia el Presidente de la República
+2034/6/8,Corpus Christi
+2034/8/3,Día de las Fuerzas Armadas
+2034/8/15,Día de la Constitución
+2034/10/12,Día de la Independencia Nacional
+2034/12/8,Festividad de la Inmaculada Concepción de María
+2034/12/25,Día de Navidad
+2035/1/1,Año Nuevo
+2035/3/8,Día Internacional de la Mujer
+2035/3/22,Jueves Santo
+2035/3/23,Viernes Santo
+2035/5/1,Día Internacional del Trabajo
+2035/5/24,Corpus Christi
+2035/5/25,Día de la liberación Africana
+2035/6/5,Natalicio de Su Excelencia el Presidente de la República
+2035/8/3,Día de las Fuerzas Armadas
+2035/8/15,Día de la Constitución
+2035/10/12,Día de la Independencia Nacional
+2035/12/8,Festividad de la Inmaculada Concepción de María
+2035/12/10,Festividad de la Inmaculada Concepción de María (observado)
+2035/12/25,Día de Navidad
+2036/1/1,Año Nuevo
+2036/3/8,Día Internacional de la Mujer
+2036/4/10,Jueves Santo
+2036/4/11,Viernes Santo
+2036/5/1,Día Internacional del Trabajo
+2036/5/25,Día de la liberación Africana
+2036/6/5,Natalicio de Su Excelencia el Presidente de la República
+2036/6/12,Corpus Christi
+2036/8/3,Día de las Fuerzas Armadas
+2036/8/4,Día de las Fuerzas Armadas (observado)
+2036/8/15,Día de la Constitución
+2036/10/12,Día de la Independencia Nacional
+2036/10/13,Día de la Independencia Nacional (observado)
+2036/12/8,Festividad de la Inmaculada Concepción de María
+2036/12/25,Día de Navidad
+2037/1/1,Año Nuevo
+2037/3/8,Día Internacional de la Mujer
+2037/4/2,Jueves Santo
+2037/4/3,Viernes Santo
+2037/5/1,Día Internacional del Trabajo
+2037/5/25,Día de la liberación Africana
+2037/6/4,Corpus Christi
+2037/6/5,Natalicio de Su Excelencia el Presidente de la República
+2037/8/3,Día de las Fuerzas Armadas
+2037/8/15,Día de la Constitución
+2037/8/17,Día de la Constitución (observado)
+2037/10/12,Día de la Independencia Nacional
+2037/12/8,Festividad de la Inmaculada Concepción de María
+2037/12/25,Día de Navidad
+2038/1/1,Año Nuevo
+2038/3/8,Día Internacional de la Mujer
+2038/4/22,Jueves Santo
+2038/4/23,Viernes Santo
+2038/5/1,Día Internacional del Trabajo
+2038/5/3,Día Internacional del Trabajo (observado)
+2038/5/25,Día de la liberación Africana
+2038/6/5,Natalicio de Su Excelencia el Presidente de la República
+2038/6/7,Natalicio de Su Excelencia el Presidente de la República (observado)
+2038/6/24,Corpus Christi
+2038/8/3,Día de las Fuerzas Armadas
+2038/8/15,Día de la Constitución
+2038/8/16,Día de la Constitución (observado)
+2038/10/12,Día de la Independencia Nacional
+2038/12/8,Festividad de la Inmaculada Concepción de María
+2038/12/25,Día de Navidad
+2038/12/27,Día de Navidad (observado)
+2039/1/1,Año Nuevo
+2039/1/3,Año Nuevo (observado)
+2039/3/8,Día Internacional de la Mujer
+2039/4/7,Jueves Santo
+2039/4/8,Viernes Santo
+2039/5/1,Día Internacional del Trabajo
+2039/5/2,Día Internacional del Trabajo (observado)
+2039/5/25,Día de la liberación Africana
+2039/6/5,Natalicio de Su Excelencia el Presidente de la República
+2039/6/6,Natalicio de Su Excelencia el Presidente de la República (observado)
+2039/6/9,Corpus Christi
+2039/8/3,Día de las Fuerzas Armadas
+2039/8/15,Día de la Constitución
+2039/10/12,Día de la Independencia Nacional
+2039/12/8,Festividad de la Inmaculada Concepción de María
+2039/12/25,Día de Navidad
+2039/12/26,Día de Navidad (observado)
+2040/1/1,Año Nuevo
+2040/1/2,Año Nuevo (observado)
+2040/3/8,Día Internacional de la Mujer
+2040/3/29,Jueves Santo
+2040/3/30,Viernes Santo
+2040/5/1,Día Internacional del Trabajo
+2040/5/25,Día de la liberación Africana
+2040/5/31,Corpus Christi
+2040/6/5,Natalicio de Su Excelencia el Presidente de la República
+2040/8/3,Día de las Fuerzas Armadas
+2040/8/15,Día de la Constitución
+2040/10/12,Día de la Independencia Nacional
+2040/12/8,Festividad de la Inmaculada Concepción de María
+2040/12/10,Festividad de la Inmaculada Concepción de María (observado)
+2040/12/25,Día de Navidad
+2041/1/1,Año Nuevo
+2041/3/8,Día Internacional de la Mujer
+2041/4/18,Jueves Santo
+2041/4/19,Viernes Santo
+2041/5/1,Día Internacional del Trabajo
+2041/5/25,Día de la liberación Africana
+2041/6/5,Natalicio de Su Excelencia el Presidente de la República
+2041/6/20,Corpus Christi
+2041/8/3,Día de las Fuerzas Armadas
+2041/8/5,Día de las Fuerzas Armadas (observado)
+2041/8/15,Día de la Constitución
+2041/10/12,Día de la Independencia Nacional
+2041/10/14,Día de la Independencia Nacional (observado)
+2041/12/8,Festividad de la Inmaculada Concepción de María
+2041/12/9,Festividad de la Inmaculada Concepción de María (observado)
+2041/12/25,Día de Navidad
+2042/1/1,Año Nuevo
+2042/3/8,Día Internacional de la Mujer
+2042/4/3,Jueves Santo
+2042/4/4,Viernes Santo
+2042/5/1,Día Internacional del Trabajo
+2042/5/25,Día de la liberación Africana
+2042/6/5,Corpus Christi; Natalicio de Su Excelencia el Presidente de la República
+2042/8/3,Día de las Fuerzas Armadas
+2042/8/4,Día de las Fuerzas Armadas (observado)
+2042/8/15,Día de la Constitución
+2042/10/12,Día de la Independencia Nacional
+2042/10/13,Día de la Independencia Nacional (observado)
+2042/12/8,Festividad de la Inmaculada Concepción de María
+2042/12/25,Día de Navidad
+2043/1/1,Año Nuevo
+2043/3/8,Día Internacional de la Mujer
+2043/3/26,Jueves Santo
+2043/3/27,Viernes Santo
+2043/5/1,Día Internacional del Trabajo
+2043/5/25,Día de la liberación Africana
+2043/5/28,Corpus Christi
+2043/6/5,Natalicio de Su Excelencia el Presidente de la República
+2043/8/3,Día de las Fuerzas Armadas
+2043/8/15,Día de la Constitución
+2043/8/17,Día de la Constitución (observado)
+2043/10/12,Día de la Independencia Nacional
+2043/12/8,Festividad de la Inmaculada Concepción de María
+2043/12/25,Día de Navidad
+2044/1/1,Año Nuevo
+2044/3/8,Día Internacional de la Mujer
+2044/4/14,Jueves Santo
+2044/4/15,Viernes Santo
+2044/5/1,Día Internacional del Trabajo
+2044/5/2,Día Internacional del Trabajo (observado)
+2044/5/25,Día de la liberación Africana
+2044/6/5,Natalicio de Su Excelencia el Presidente de la República
+2044/6/6,Natalicio de Su Excelencia el Presidente de la República (observado)
+2044/6/16,Corpus Christi
+2044/8/3,Día de las Fuerzas Armadas
+2044/8/15,Día de la Constitución
+2044/10/12,Día de la Independencia Nacional
+2044/12/8,Festividad de la Inmaculada Concepción de María
+2044/12/25,Día de Navidad
+2044/12/26,Día de Navidad (observado)
+2045/1/1,Año Nuevo
+2045/1/2,Año Nuevo (observado)
+2045/3/8,Día Internacional de la Mujer
+2045/4/6,Jueves Santo
+2045/4/7,Viernes Santo
+2045/5/1,Día Internacional del Trabajo
+2045/5/25,Día de la liberación Africana
+2045/6/5,Natalicio de Su Excelencia el Presidente de la República
+2045/6/8,Corpus Christi
+2045/8/3,Día de las Fuerzas Armadas
+2045/8/15,Día de la Constitución
+2045/10/12,Día de la Independencia Nacional
+2045/12/8,Festividad de la Inmaculada Concepción de María
+2045/12/25,Día de Navidad
+2046/1/1,Año Nuevo
+2046/3/8,Día Internacional de la Mujer
+2046/3/22,Jueves Santo
+2046/3/23,Viernes Santo
+2046/5/1,Día Internacional del Trabajo
+2046/5/24,Corpus Christi
+2046/5/25,Día de la liberación Africana
+2046/6/5,Natalicio de Su Excelencia el Presidente de la República
+2046/8/3,Día de las Fuerzas Armadas
+2046/8/15,Día de la Constitución
+2046/10/12,Día de la Independencia Nacional
+2046/12/8,Festividad de la Inmaculada Concepción de María
+2046/12/10,Festividad de la Inmaculada Concepción de María (observado)
+2046/12/25,Día de Navidad
+2047/1/1,Año Nuevo
+2047/3/8,Día Internacional de la Mujer
+2047/4/11,Jueves Santo
+2047/4/12,Viernes Santo
+2047/5/1,Día Internacional del Trabajo
+2047/5/25,Día de la liberación Africana
+2047/6/5,Natalicio de Su Excelencia el Presidente de la República
+2047/6/13,Corpus Christi
+2047/8/3,Día de las Fuerzas Armadas
+2047/8/5,Día de las Fuerzas Armadas (observado)
+2047/8/15,Día de la Constitución
+2047/10/12,Día de la Independencia Nacional
+2047/10/14,Día de la Independencia Nacional (observado)
+2047/12/8,Festividad de la Inmaculada Concepción de María
+2047/12/9,Festividad de la Inmaculada Concepción de María (observado)
+2047/12/25,Día de Navidad
+2048/1/1,Año Nuevo
+2048/3/8,Día Internacional de la Mujer
+2048/4/2,Jueves Santo
+2048/4/3,Viernes Santo
+2048/5/1,Día Internacional del Trabajo
+2048/5/25,Día de la liberación Africana
+2048/6/4,Corpus Christi
+2048/6/5,Natalicio de Su Excelencia el Presidente de la República
+2048/8/3,Día de las Fuerzas Armadas
+2048/8/15,Día de la Constitución
+2048/8/17,Día de la Constitución (observado)
+2048/10/12,Día de la Independencia Nacional
+2048/12/8,Festividad de la Inmaculada Concepción de María
+2048/12/25,Día de Navidad
+2049/1/1,Año Nuevo
+2049/3/8,Día Internacional de la Mujer
+2049/4/15,Jueves Santo
+2049/4/16,Viernes Santo
+2049/5/1,Día Internacional del Trabajo
+2049/5/3,Día Internacional del Trabajo (observado)
+2049/5/25,Día de la liberación Africana
+2049/6/5,Natalicio de Su Excelencia el Presidente de la República
+2049/6/7,Natalicio de Su Excelencia el Presidente de la República (observado)
+2049/6/17,Corpus Christi
+2049/8/3,Día de las Fuerzas Armadas
+2049/8/15,Día de la Constitución
+2049/8/16,Día de la Constitución (observado)
+2049/10/12,Día de la Independencia Nacional
+2049/12/8,Festividad de la Inmaculada Concepción de María
+2049/12/25,Día de Navidad
+2049/12/27,Día de Navidad (observado)
+2050/1/1,Año Nuevo
+2050/1/3,Año Nuevo (observado)
+2050/3/8,Día Internacional de la Mujer
+2050/4/7,Jueves Santo
+2050/4/8,Viernes Santo
+2050/5/1,Día Internacional del Trabajo
+2050/5/2,Día Internacional del Trabajo (observado)
+2050/5/25,Día de la liberación Africana
+2050/6/5,Natalicio de Su Excelencia el Presidente de la República
+2050/6/6,Natalicio de Su Excelencia el Presidente de la República (observado)
+2050/6/9,Corpus Christi
+2050/8/3,Día de las Fuerzas Armadas
+2050/8/15,Día de la Constitución
+2050/10/12,Día de la Independencia Nacional
+2050/12/8,Festividad de la Inmaculada Concepción de María
+2050/12/25,Día de Navidad
+2050/12/26,Día de Navidad (observado)

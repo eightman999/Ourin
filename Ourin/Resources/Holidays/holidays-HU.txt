@@ -1,0 +1,420 @@
+# HU の祝日（2020〜2050年、言語: hu）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Újév
+2020/3/15,Nemzeti ünnep
+2020/4/10,Nagypéntek
+2020/4/12,Húsvét
+2020/4/13,Húsvét Hétfő
+2020/5/1,A Munka ünnepe
+2020/5/31,Pünkösd
+2020/6/1,Pünkösdhétfő
+2020/8/20,Az államalapítás ünnepe
+2020/8/21,Pihenőnap (2020. 08. 29.-től helyettesítve)
+2020/10/23,Nemzeti ünnep
+2020/11/1,Mindenszentek
+2020/12/24,Pihenőnap (2020. 12. 12.-től helyettesítve)
+2020/12/25,Karácsony
+2020/12/26,Karácsony másnapja
+2021/1/1,Újév
+2021/3/15,Nemzeti ünnep
+2021/4/2,Nagypéntek
+2021/4/4,Húsvét
+2021/4/5,Húsvét Hétfő
+2021/5/1,A Munka ünnepe
+2021/5/23,Pünkösd
+2021/5/24,Pünkösdhétfő
+2021/8/20,Az államalapítás ünnepe
+2021/10/23,Nemzeti ünnep
+2021/11/1,Mindenszentek
+2021/12/24,Pihenőnap (2021. 12. 11.-től helyettesítve)
+2021/12/25,Karácsony
+2021/12/26,Karácsony másnapja
+2022/1/1,Újév
+2022/3/14,Pihenőnap (2022. 03. 26.-től helyettesítve)
+2022/3/15,Nemzeti ünnep
+2022/4/15,Nagypéntek
+2022/4/17,Húsvét
+2022/4/18,Húsvét Hétfő
+2022/5/1,A Munka ünnepe
+2022/6/5,Pünkösd
+2022/6/6,Pünkösdhétfő
+2022/8/20,Az államalapítás ünnepe
+2022/10/23,Nemzeti ünnep
+2022/10/31,Pihenőnap (2022. 10. 15.-től helyettesítve)
+2022/11/1,Mindenszentek
+2022/12/25,Karácsony
+2022/12/26,Karácsony másnapja
+2023/1/1,Újév
+2023/3/15,Nemzeti ünnep
+2023/4/7,Nagypéntek
+2023/4/9,Húsvét
+2023/4/10,Húsvét Hétfő
+2023/5/1,A Munka ünnepe
+2023/5/28,Pünkösd
+2023/5/29,Pünkösdhétfő
+2023/8/20,Az államalapítás ünnepe
+2023/10/23,Nemzeti ünnep
+2023/11/1,Mindenszentek
+2023/12/25,Karácsony
+2023/12/26,Karácsony másnapja
+2024/1/1,Újév
+2024/3/15,Nemzeti ünnep
+2024/3/29,Nagypéntek
+2024/3/31,Húsvét
+2024/4/1,Húsvét Hétfő
+2024/5/1,A Munka ünnepe
+2024/5/19,Pünkösd
+2024/5/20,Pünkösdhétfő
+2024/8/19,Pihenőnap (2024. 08. 03.-től helyettesítve)
+2024/8/20,Az államalapítás ünnepe
+2024/10/23,Nemzeti ünnep
+2024/11/1,Mindenszentek
+2024/12/24,Pihenőnap (2024. 12. 07.-től helyettesítve)
+2024/12/25,Karácsony
+2024/12/26,Karácsony másnapja
+2024/12/27,Pihenőnap (2024. 12. 14.-től helyettesítve)
+2025/1/1,Újév
+2025/3/15,Nemzeti ünnep
+2025/4/18,Nagypéntek
+2025/4/20,Húsvét
+2025/4/21,Húsvét Hétfő
+2025/5/1,A Munka ünnepe
+2025/5/2,Pihenőnap (2025. 05. 17.-től helyettesítve)
+2025/6/8,Pünkösd
+2025/6/9,Pünkösdhétfő
+2025/8/20,Az államalapítás ünnepe
+2025/10/23,Nemzeti ünnep
+2025/10/24,Pihenőnap (2025. 10. 18.-től helyettesítve)
+2025/11/1,Mindenszentek
+2025/12/24,Pihenőnap (2025. 12. 13.-től helyettesítve)
+2025/12/25,Karácsony
+2025/12/26,Karácsony másnapja
+2026/1/1,Újév
+2026/1/2,Pihenőnap (2026. 01. 10.-től helyettesítve)
+2026/3/15,Nemzeti ünnep
+2026/4/3,Nagypéntek
+2026/4/5,Húsvét
+2026/4/6,Húsvét Hétfő
+2026/5/1,A Munka ünnepe
+2026/5/24,Pünkösd
+2026/5/25,Pünkösdhétfő
+2026/8/20,Az államalapítás ünnepe
+2026/8/21,Pihenőnap (2026. 08. 08.-től helyettesítve)
+2026/10/23,Nemzeti ünnep
+2026/11/1,Mindenszentek
+2026/12/24,Pihenőnap (2026. 12. 12.-től helyettesítve)
+2026/12/25,Karácsony
+2026/12/26,Karácsony másnapja
+2027/1/1,Újév
+2027/3/15,Nemzeti ünnep
+2027/3/26,Nagypéntek
+2027/3/28,Húsvét
+2027/3/29,Húsvét Hétfő
+2027/5/1,A Munka ünnepe
+2027/5/16,Pünkösd
+2027/5/17,Pünkösdhétfő
+2027/8/20,Az államalapítás ünnepe
+2027/10/23,Nemzeti ünnep
+2027/11/1,Mindenszentek
+2027/12/25,Karácsony
+2027/12/26,Karácsony másnapja
+2028/1/1,Újév
+2028/3/15,Nemzeti ünnep
+2028/4/14,Nagypéntek
+2028/4/16,Húsvét
+2028/4/17,Húsvét Hétfő
+2028/5/1,A Munka ünnepe
+2028/6/4,Pünkösd
+2028/6/5,Pünkösdhétfő
+2028/8/20,Az államalapítás ünnepe
+2028/10/23,Nemzeti ünnep
+2028/11/1,Mindenszentek
+2028/12/25,Karácsony
+2028/12/26,Karácsony másnapja
+2029/1/1,Újév
+2029/3/15,Nemzeti ünnep
+2029/3/30,Nagypéntek
+2029/4/1,Húsvét
+2029/4/2,Húsvét Hétfő
+2029/5/1,A Munka ünnepe
+2029/5/20,Pünkösd
+2029/5/21,Pünkösdhétfő
+2029/8/20,Az államalapítás ünnepe
+2029/10/23,Nemzeti ünnep
+2029/11/1,Mindenszentek
+2029/12/25,Karácsony
+2029/12/26,Karácsony másnapja
+2030/1/1,Újév
+2030/3/15,Nemzeti ünnep
+2030/4/19,Nagypéntek
+2030/4/21,Húsvét
+2030/4/22,Húsvét Hétfő
+2030/5/1,A Munka ünnepe
+2030/6/9,Pünkösd
+2030/6/10,Pünkösdhétfő
+2030/8/20,Az államalapítás ünnepe
+2030/10/23,Nemzeti ünnep
+2030/11/1,Mindenszentek
+2030/12/25,Karácsony
+2030/12/26,Karácsony másnapja
+2031/1/1,Újév
+2031/3/15,Nemzeti ünnep
+2031/4/11,Nagypéntek
+2031/4/13,Húsvét
+2031/4/14,Húsvét Hétfő
+2031/5/1,A Munka ünnepe
+2031/6/1,Pünkösd
+2031/6/2,Pünkösdhétfő
+2031/8/20,Az államalapítás ünnepe
+2031/10/23,Nemzeti ünnep
+2031/11/1,Mindenszentek
+2031/12/25,Karácsony
+2031/12/26,Karácsony másnapja
+2032/1/1,Újév
+2032/3/15,Nemzeti ünnep
+2032/3/26,Nagypéntek
+2032/3/28,Húsvét
+2032/3/29,Húsvét Hétfő
+2032/5/1,A Munka ünnepe
+2032/5/16,Pünkösd
+2032/5/17,Pünkösdhétfő
+2032/8/20,Az államalapítás ünnepe
+2032/10/23,Nemzeti ünnep
+2032/11/1,Mindenszentek
+2032/12/25,Karácsony
+2032/12/26,Karácsony másnapja
+2033/1/1,Újév
+2033/3/15,Nemzeti ünnep
+2033/4/15,Nagypéntek
+2033/4/17,Húsvét
+2033/4/18,Húsvét Hétfő
+2033/5/1,A Munka ünnepe
+2033/6/5,Pünkösd
+2033/6/6,Pünkösdhétfő
+2033/8/20,Az államalapítás ünnepe
+2033/10/23,Nemzeti ünnep
+2033/11/1,Mindenszentek
+2033/12/25,Karácsony
+2033/12/26,Karácsony másnapja
+2034/1/1,Újév
+2034/3/15,Nemzeti ünnep
+2034/4/7,Nagypéntek
+2034/4/9,Húsvét
+2034/4/10,Húsvét Hétfő
+2034/5/1,A Munka ünnepe
+2034/5/28,Pünkösd
+2034/5/29,Pünkösdhétfő
+2034/8/20,Az államalapítás ünnepe
+2034/10/23,Nemzeti ünnep
+2034/11/1,Mindenszentek
+2034/12/25,Karácsony
+2034/12/26,Karácsony másnapja
+2035/1/1,Újév
+2035/3/15,Nemzeti ünnep
+2035/3/23,Nagypéntek
+2035/3/25,Húsvét
+2035/3/26,Húsvét Hétfő
+2035/5/1,A Munka ünnepe
+2035/5/13,Pünkösd
+2035/5/14,Pünkösdhétfő
+2035/8/20,Az államalapítás ünnepe
+2035/10/23,Nemzeti ünnep
+2035/11/1,Mindenszentek
+2035/12/25,Karácsony
+2035/12/26,Karácsony másnapja
+2036/1/1,Újév
+2036/3/15,Nemzeti ünnep
+2036/4/11,Nagypéntek
+2036/4/13,Húsvét
+2036/4/14,Húsvét Hétfő
+2036/5/1,A Munka ünnepe
+2036/6/1,Pünkösd
+2036/6/2,Pünkösdhétfő
+2036/8/20,Az államalapítás ünnepe
+2036/10/23,Nemzeti ünnep
+2036/11/1,Mindenszentek
+2036/12/25,Karácsony
+2036/12/26,Karácsony másnapja
+2037/1/1,Újév
+2037/3/15,Nemzeti ünnep
+2037/4/3,Nagypéntek
+2037/4/5,Húsvét
+2037/4/6,Húsvét Hétfő
+2037/5/1,A Munka ünnepe
+2037/5/24,Pünkösd
+2037/5/25,Pünkösdhétfő
+2037/8/20,Az államalapítás ünnepe
+2037/10/23,Nemzeti ünnep
+2037/11/1,Mindenszentek
+2037/12/25,Karácsony
+2037/12/26,Karácsony másnapja
+2038/1/1,Újév
+2038/3/15,Nemzeti ünnep
+2038/4/23,Nagypéntek
+2038/4/25,Húsvét
+2038/4/26,Húsvét Hétfő
+2038/5/1,A Munka ünnepe
+2038/6/13,Pünkösd
+2038/6/14,Pünkösdhétfő
+2038/8/20,Az államalapítás ünnepe
+2038/10/23,Nemzeti ünnep
+2038/11/1,Mindenszentek
+2038/12/25,Karácsony
+2038/12/26,Karácsony másnapja
+2039/1/1,Újév
+2039/3/15,Nemzeti ünnep
+2039/4/8,Nagypéntek
+2039/4/10,Húsvét
+2039/4/11,Húsvét Hétfő
+2039/5/1,A Munka ünnepe
+2039/5/29,Pünkösd
+2039/5/30,Pünkösdhétfő
+2039/8/20,Az államalapítás ünnepe
+2039/10/23,Nemzeti ünnep
+2039/11/1,Mindenszentek
+2039/12/25,Karácsony
+2039/12/26,Karácsony másnapja
+2040/1/1,Újév
+2040/3/15,Nemzeti ünnep
+2040/3/30,Nagypéntek
+2040/4/1,Húsvét
+2040/4/2,Húsvét Hétfő
+2040/5/1,A Munka ünnepe
+2040/5/20,Pünkösd
+2040/5/21,Pünkösdhétfő
+2040/8/20,Az államalapítás ünnepe
+2040/10/23,Nemzeti ünnep
+2040/11/1,Mindenszentek
+2040/12/25,Karácsony
+2040/12/26,Karácsony másnapja
+2041/1/1,Újév
+2041/3/15,Nemzeti ünnep
+2041/4/19,Nagypéntek
+2041/4/21,Húsvét
+2041/4/22,Húsvét Hétfő
+2041/5/1,A Munka ünnepe
+2041/6/9,Pünkösd
+2041/6/10,Pünkösdhétfő
+2041/8/20,Az államalapítás ünnepe
+2041/10/23,Nemzeti ünnep
+2041/11/1,Mindenszentek
+2041/12/25,Karácsony
+2041/12/26,Karácsony másnapja
+2042/1/1,Újév
+2042/3/15,Nemzeti ünnep
+2042/4/4,Nagypéntek
+2042/4/6,Húsvét
+2042/4/7,Húsvét Hétfő
+2042/5/1,A Munka ünnepe
+2042/5/25,Pünkösd
+2042/5/26,Pünkösdhétfő
+2042/8/20,Az államalapítás ünnepe
+2042/10/23,Nemzeti ünnep
+2042/11/1,Mindenszentek
+2042/12/25,Karácsony
+2042/12/26,Karácsony másnapja
+2043/1/1,Újév
+2043/3/15,Nemzeti ünnep
+2043/3/27,Nagypéntek
+2043/3/29,Húsvét
+2043/3/30,Húsvét Hétfő
+2043/5/1,A Munka ünnepe
+2043/5/17,Pünkösd
+2043/5/18,Pünkösdhétfő
+2043/8/20,Az államalapítás ünnepe
+2043/10/23,Nemzeti ünnep
+2043/11/1,Mindenszentek
+2043/12/25,Karácsony
+2043/12/26,Karácsony másnapja
+2044/1/1,Újév
+2044/3/15,Nemzeti ünnep
+2044/4/15,Nagypéntek
+2044/4/17,Húsvét
+2044/4/18,Húsvét Hétfő
+2044/5/1,A Munka ünnepe
+2044/6/5,Pünkösd
+2044/6/6,Pünkösdhétfő
+2044/8/20,Az államalapítás ünnepe
+2044/10/23,Nemzeti ünnep
+2044/11/1,Mindenszentek
+2044/12/25,Karácsony
+2044/12/26,Karácsony másnapja
+2045/1/1,Újév
+2045/3/15,Nemzeti ünnep
+2045/4/7,Nagypéntek
+2045/4/9,Húsvét
+2045/4/10,Húsvét Hétfő
+2045/5/1,A Munka ünnepe
+2045/5/28,Pünkösd
+2045/5/29,Pünkösdhétfő
+2045/8/20,Az államalapítás ünnepe
+2045/10/23,Nemzeti ünnep
+2045/11/1,Mindenszentek
+2045/12/25,Karácsony
+2045/12/26,Karácsony másnapja
+2046/1/1,Újév
+2046/3/15,Nemzeti ünnep
+2046/3/23,Nagypéntek
+2046/3/25,Húsvét
+2046/3/26,Húsvét Hétfő
+2046/5/1,A Munka ünnepe
+2046/5/13,Pünkösd
+2046/5/14,Pünkösdhétfő
+2046/8/20,Az államalapítás ünnepe
+2046/10/23,Nemzeti ünnep
+2046/11/1,Mindenszentek
+2046/12/25,Karácsony
+2046/12/26,Karácsony másnapja
+2047/1/1,Újév
+2047/3/15,Nemzeti ünnep
+2047/4/12,Nagypéntek
+2047/4/14,Húsvét
+2047/4/15,Húsvét Hétfő
+2047/5/1,A Munka ünnepe
+2047/6/2,Pünkösd
+2047/6/3,Pünkösdhétfő
+2047/8/20,Az államalapítás ünnepe
+2047/10/23,Nemzeti ünnep
+2047/11/1,Mindenszentek
+2047/12/25,Karácsony
+2047/12/26,Karácsony másnapja
+2048/1/1,Újév
+2048/3/15,Nemzeti ünnep
+2048/4/3,Nagypéntek
+2048/4/5,Húsvét
+2048/4/6,Húsvét Hétfő
+2048/5/1,A Munka ünnepe
+2048/5/24,Pünkösd
+2048/5/25,Pünkösdhétfő
+2048/8/20,Az államalapítás ünnepe
+2048/10/23,Nemzeti ünnep
+2048/11/1,Mindenszentek
+2048/12/25,Karácsony
+2048/12/26,Karácsony másnapja
+2049/1/1,Újév
+2049/3/15,Nemzeti ünnep
+2049/4/16,Nagypéntek
+2049/4/18,Húsvét
+2049/4/19,Húsvét Hétfő
+2049/5/1,A Munka ünnepe
+2049/6/6,Pünkösd
+2049/6/7,Pünkösdhétfő
+2049/8/20,Az államalapítás ünnepe
+2049/10/23,Nemzeti ünnep
+2049/11/1,Mindenszentek
+2049/12/25,Karácsony
+2049/12/26,Karácsony másnapja
+2050/1/1,Újév
+2050/3/15,Nemzeti ünnep
+2050/4/8,Nagypéntek
+2050/4/10,Húsvét
+2050/4/11,Húsvét Hétfő
+2050/5/1,A Munka ünnepe
+2050/5/29,Pünkösd
+2050/5/30,Pünkösdhétfő
+2050/8/20,Az államalapítás ünnepe
+2050/10/23,Nemzeti ünnep
+2050/11/1,Mindenszentek
+2050/12/25,Karácsony
+2050/12/26,Karácsony másnapja

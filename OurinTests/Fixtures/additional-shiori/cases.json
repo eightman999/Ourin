@@ -1,0 +1,26 @@
+[
+  {
+    "product": "akari",
+    "state_file": "akari-vars.json"
+  },
+  {
+    "product": "ese-shiori",
+    "state_file": "ese-shiori-state.json"
+  },
+  {
+    "product": "niseshiori",
+    "state_file": "nise-shiori-state.json"
+  },
+  {
+    "product": "shino",
+    "state_file": "shino-state.json"
+  },
+  {
+    "product": "hisui",
+    "state_file": "hisui-state.json"
+  },
+  {
+    "product": "yuhna",
+    "state_file": "yuhna-state.json"
+  }
+]

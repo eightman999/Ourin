@@ -40,8 +40,8 @@ struct ShiolinkTests {
     @Test func productionFactorySelectsAndLoadsShiolink() throws {
         let (root, context) = try fixture()
         defer { try? FileManager.default.removeItem(at: root) }
-        #expect(ShioriRuntimeFactory.kind(for: context.moduleName) == .shiolink)
-        let runtime = try #require(ShioriRuntimeFactory.makeRuntime(for: context.moduleName))
+        #expect(ShioriRuntimeFactory.kind(for: context.moduleName, ghostRoot: context.ghostRoot) == .shiolink)
+        let runtime = try #require(ShioriRuntimeFactory.makeRuntime(for: context.moduleName, ghostRoot: context.ghostRoot))
         defer { runtime.unload() }
         #expect(runtime.kind == .shiolink)
         #expect(runtime.load(context: context))

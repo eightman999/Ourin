@@ -46,6 +46,10 @@ public final class SSTPListener {
                 let header = buffer.subdata(in: 0..<range.lowerBound)
                 let body = buffer.subdata(in: range.upperBound..<buffer.count)
                 let headerText = String(data: header, encoding: .utf8) ?? ""
+                if InternalSaoriRouting.isSaoriRequest(headerText) {
+                    self?.send(conn, text: InternalSaoriRouting.directSSTPOnlyResponse)
+                    return
+                }
                 let req = SSTPParser.parseRequest(text: headerText, body: body)
                 if req.headers["Charset"] == nil {
                     let resp = "SSTP/1.4 400 Bad Request\r\nCharset: UTF-8\r\n\r\n"

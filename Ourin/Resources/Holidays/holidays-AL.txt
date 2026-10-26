@@ -1,0 +1,631 @@
+# AL の祝日（2020〜2050年、言語: sq）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Festat e Vitit të Ri
+2020/1/2,Festat e Vitit të Ri
+2020/1/3,Ditë pushimi
+2020/3/14,Dita e Verës
+2020/3/16,Dita e Verës (ditë pushimi e shtyrë)
+2020/3/22,Dita e Nevruzit
+2020/3/23,Dita e Nevruzit (ditë pushimi e shtyrë)
+2020/4/12,E diela e Pashkëve Katolike
+2020/4/13,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2020/4/19,E diela e Pashkëve Ortodokse
+2020/4/20,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2020/5/1,Dita Ndërkombëtare e Punëtorëve
+2020/5/24,Dita e Bajramit të Madh
+2020/5/25,Dita e Bajramit të Madh (ditë pushimi e shtyrë)
+2020/7/31,Dita e Kurban Bajramit
+2020/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2020/9/7,Dita e Shenjtërimit të Shenjt Terezës (ditë pushimi e shtyrë)
+2020/11/28,Dita Flamurit dhe e Pavarësisë
+2020/11/29,Dita e Çlirimit
+2020/11/30,Dita Flamurit dhe e Pavarësisë (ditë pushimi e shtyrë)
+2020/12/1,Dita e Çlirimit (ditë pushimi e shtyrë)
+2020/12/8,Dita Kombëtare e Rinisë
+2020/12/25,Krishtlindjet
+2021/1/1,Festat e Vitit të Ri
+2021/1/2,Festat e Vitit të Ri
+2021/1/4,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2021/3/14,Dita e Verës
+2021/3/15,Dita e Verës (ditë pushimi e shtyrë)
+2021/3/22,Dita e Nevruzit
+2021/4/4,E diela e Pashkëve Katolike
+2021/4/5,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2021/5/1,Dita Ndërkombëtare e Punëtorëve
+2021/5/2,E diela e Pashkëve Ortodokse
+2021/5/3,Dita Ndërkombëtare e Punëtorëve (ditë pushimi e shtyrë)
+2021/5/4,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2021/5/13,Dita e Bajramit të Madh
+2021/7/20,Dita e Kurban Bajramit
+2021/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2021/9/6,Dita e Shenjtërimit të Shenjt Terezës (ditë pushimi e shtyrë)
+2021/11/28,Dita Flamurit dhe e Pavarësisë
+2021/11/29,Dita e Çlirimit
+2021/11/30,Dita Flamurit dhe e Pavarësisë (ditë pushimi e shtyrë)
+2021/12/8,Dita Kombëtare e Rinisë
+2021/12/25,Krishtlindjet
+2021/12/27,Krishtlindjet (ditë pushimi e shtyrë)
+2022/1/1,Festat e Vitit të Ri
+2022/1/2,Festat e Vitit të Ri
+2022/1/3,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2022/1/4,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2022/3/14,Dita e Verës
+2022/3/21,Ditë pushimi
+2022/3/22,Dita e Nevruzit
+2022/4/17,E diela e Pashkëve Katolike
+2022/4/18,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2022/4/24,E diela e Pashkëve Ortodokse
+2022/4/25,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2022/5/1,Dita Ndërkombëtare e Punëtorëve
+2022/5/2,Dita e Bajramit të Madh
+2022/5/3,Dita Ndërkombëtare e Punëtorëve (ditë pushimi e shtyrë)
+2022/7/9,Dita e Kurban Bajramit
+2022/7/11,Dita e Kurban Bajramit (ditë pushimi e shtyrë)
+2022/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2022/11/28,Dita Flamurit dhe e Pavarësisë
+2022/11/29,Dita e Çlirimit
+2022/12/8,Dita Kombëtare e Rinisë
+2022/12/25,Krishtlindjet
+2022/12/26,Krishtlindjet (ditë pushimi e shtyrë)
+2023/1/1,Festat e Vitit të Ri
+2023/1/2,Festat e Vitit të Ri
+2023/1/3,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2023/3/14,Dita e Verës
+2023/3/22,Dita e Nevruzit
+2023/4/9,E diela e Pashkëve Katolike
+2023/4/10,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2023/4/16,E diela e Pashkëve Ortodokse
+2023/4/17,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2023/4/21,Dita e Bajramit të Madh
+2023/5/1,Dita Ndërkombëtare e Punëtorëve
+2023/6/28,Dita e Kurban Bajramit
+2023/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2023/11/28,Dita Flamurit dhe e Pavarësisë
+2023/11/29,Dita e Çlirimit
+2023/12/8,Dita Kombëtare e Rinisë
+2023/12/25,Krishtlindjet
+2024/1/1,Festat e Vitit të Ri
+2024/1/2,Festat e Vitit të Ri
+2024/3/14,Dita e Verës
+2024/3/15,Ditë pushimi
+2024/3/22,Dita e Nevruzit
+2024/3/31,E diela e Pashkëve Katolike
+2024/4/1,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2024/4/10,Dita e Bajramit të Madh
+2024/5/1,Dita Ndërkombëtare e Punëtorëve
+2024/5/5,E diela e Pashkëve Ortodokse
+2024/5/6,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2024/6/16,Dita e Kurban Bajramit
+2024/6/17,Dita e Kurban Bajramit (ditë pushimi e shtyrë)
+2024/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2024/11/22,Dita e Alfabetit
+2024/11/28,Dita Flamurit dhe e Pavarësisë
+2024/11/29,Dita e Çlirimit
+2024/12/8,Dita Kombëtare e Rinisë
+2024/12/9,Dita Kombëtare e Rinisë (ditë pushimi e shtyrë)
+2024/12/25,Krishtlindjet
+2025/1/1,Festat e Vitit të Ri
+2025/1/2,Festat e Vitit të Ri
+2025/3/14,Dita e Verës
+2025/3/22,Dita e Nevruzit
+2025/3/24,Dita e Nevruzit (ditë pushimi e shtyrë)
+2025/3/30,Dita e Bajramit të Madh
+2025/3/31,Dita e Bajramit të Madh (ditë pushimi e shtyrë)
+2025/4/20,E diela e Pashkëve Katolike; E diela e Pashkëve Ortodokse
+2025/4/21,E diela e Pashkëve Katolike (ditë pushimi e shtyrë); E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2025/5/1,Dita Ndërkombëtare e Punëtorëve
+2025/6/6,Dita e Kurban Bajramit
+2025/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2025/11/22,Dita e Alfabetit
+2025/11/24,Dita e Alfabetit (ditë pushimi e shtyrë)
+2025/11/28,Dita Flamurit dhe e Pavarësisë
+2025/11/29,Dita e Çlirimit
+2025/12/1,Dita e Çlirimit (ditë pushimi e shtyrë)
+2025/12/8,Dita Kombëtare e Rinisë
+2025/12/25,Krishtlindjet
+2026/1/1,Festat e Vitit të Ri
+2026/1/2,Festat e Vitit të Ri
+2026/3/14,Dita e Verës
+2026/3/16,Dita e Verës (ditë pushimi e shtyrë)
+2026/3/20,Dita e Bajramit të Madh (e vlerësuar)
+2026/3/22,Dita e Nevruzit
+2026/3/23,Dita e Nevruzit (ditë pushimi e shtyrë)
+2026/4/5,E diela e Pashkëve Katolike
+2026/4/6,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2026/4/12,E diela e Pashkëve Ortodokse
+2026/4/13,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2026/5/1,Dita Ndërkombëtare e Punëtorëve
+2026/5/27,Dita e Kurban Bajramit (e vlerësuar)
+2026/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2026/9/7,Dita e Shenjtërimit të Shenjt Terezës (ditë pushimi e shtyrë)
+2026/11/22,Dita e Alfabetit
+2026/11/23,Dita e Alfabetit (ditë pushimi e shtyrë)
+2026/11/28,Dita Flamurit dhe e Pavarësisë
+2026/11/29,Dita e Çlirimit
+2026/11/30,Dita Flamurit dhe e Pavarësisë (ditë pushimi e shtyrë)
+2026/12/1,Dita e Çlirimit (ditë pushimi e shtyrë)
+2026/12/8,Dita Kombëtare e Rinisë
+2026/12/25,Krishtlindjet
+2027/1/1,Festat e Vitit të Ri
+2027/1/2,Festat e Vitit të Ri
+2027/1/4,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2027/3/9,Dita e Bajramit të Madh (e vlerësuar)
+2027/3/14,Dita e Verës
+2027/3/15,Dita e Verës (ditë pushimi e shtyrë)
+2027/3/22,Dita e Nevruzit
+2027/3/28,E diela e Pashkëve Katolike
+2027/3/29,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2027/5/1,Dita Ndërkombëtare e Punëtorëve
+2027/5/2,E diela e Pashkëve Ortodokse
+2027/5/3,Dita Ndërkombëtare e Punëtorëve (ditë pushimi e shtyrë)
+2027/5/4,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2027/5/16,Dita e Kurban Bajramit (e vlerësuar)
+2027/5/17,Dita e Kurban Bajramit (ditë pushimi e shtyrë, e vlerësuar)
+2027/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2027/9/6,Dita e Shenjtërimit të Shenjt Terezës (ditë pushimi e shtyrë)
+2027/11/22,Dita e Alfabetit
+2027/11/28,Dita Flamurit dhe e Pavarësisë
+2027/11/29,Dita e Çlirimit
+2027/11/30,Dita Flamurit dhe e Pavarësisë (ditë pushimi e shtyrë)
+2027/12/8,Dita Kombëtare e Rinisë
+2027/12/25,Krishtlindjet
+2027/12/27,Krishtlindjet (ditë pushimi e shtyrë)
+2028/1/1,Festat e Vitit të Ri
+2028/1/2,Festat e Vitit të Ri
+2028/1/3,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2028/1/4,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2028/2/26,Dita e Bajramit të Madh (e vlerësuar)
+2028/2/28,Dita e Bajramit të Madh (ditë pushimi e shtyrë, e vlerësuar)
+2028/3/14,Dita e Verës
+2028/3/22,Dita e Nevruzit
+2028/4/16,E diela e Pashkëve Katolike; E diela e Pashkëve Ortodokse
+2028/4/17,E diela e Pashkëve Katolike (ditë pushimi e shtyrë); E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2028/5/1,Dita Ndërkombëtare e Punëtorëve
+2028/5/5,Dita e Kurban Bajramit (e vlerësuar)
+2028/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2028/11/22,Dita e Alfabetit
+2028/11/28,Dita Flamurit dhe e Pavarësisë
+2028/11/29,Dita e Çlirimit
+2028/12/8,Dita Kombëtare e Rinisë
+2028/12/25,Krishtlindjet
+2029/1/1,Festat e Vitit të Ri
+2029/1/2,Festat e Vitit të Ri
+2029/2/14,Dita e Bajramit të Madh (e vlerësuar)
+2029/3/14,Dita e Verës
+2029/3/22,Dita e Nevruzit
+2029/4/1,E diela e Pashkëve Katolike
+2029/4/2,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2029/4/8,E diela e Pashkëve Ortodokse
+2029/4/9,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2029/4/24,Dita e Kurban Bajramit (e vlerësuar)
+2029/5/1,Dita Ndërkombëtare e Punëtorëve
+2029/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2029/11/22,Dita e Alfabetit
+2029/11/28,Dita Flamurit dhe e Pavarësisë
+2029/11/29,Dita e Çlirimit
+2029/12/8,Dita Kombëtare e Rinisë
+2029/12/10,Dita Kombëtare e Rinisë (ditë pushimi e shtyrë)
+2029/12/25,Krishtlindjet
+2030/1/1,Festat e Vitit të Ri
+2030/1/2,Festat e Vitit të Ri
+2030/2/4,Dita e Bajramit të Madh (e vlerësuar)
+2030/3/14,Dita e Verës
+2030/3/22,Dita e Nevruzit
+2030/4/13,Dita e Kurban Bajramit (e vlerësuar)
+2030/4/15,Dita e Kurban Bajramit (ditë pushimi e shtyrë, e vlerësuar)
+2030/4/21,E diela e Pashkëve Katolike
+2030/4/22,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2030/4/28,E diela e Pashkëve Ortodokse
+2030/4/29,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2030/5/1,Dita Ndërkombëtare e Punëtorëve
+2030/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2030/11/22,Dita e Alfabetit
+2030/11/28,Dita Flamurit dhe e Pavarësisë
+2030/11/29,Dita e Çlirimit
+2030/12/8,Dita Kombëtare e Rinisë
+2030/12/9,Dita Kombëtare e Rinisë (ditë pushimi e shtyrë)
+2030/12/25,Krishtlindjet
+2031/1/1,Festat e Vitit të Ri
+2031/1/2,Festat e Vitit të Ri
+2031/1/24,Dita e Bajramit të Madh (e vlerësuar)
+2031/3/14,Dita e Verës
+2031/3/22,Dita e Nevruzit
+2031/3/24,Dita e Nevruzit (ditë pushimi e shtyrë)
+2031/4/2,Dita e Kurban Bajramit (e vlerësuar)
+2031/4/13,E diela e Pashkëve Katolike; E diela e Pashkëve Ortodokse
+2031/4/14,E diela e Pashkëve Katolike (ditë pushimi e shtyrë); E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2031/5/1,Dita Ndërkombëtare e Punëtorëve
+2031/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2031/11/22,Dita e Alfabetit
+2031/11/24,Dita e Alfabetit (ditë pushimi e shtyrë)
+2031/11/28,Dita Flamurit dhe e Pavarësisë
+2031/11/29,Dita e Çlirimit
+2031/12/1,Dita e Çlirimit (ditë pushimi e shtyrë)
+2031/12/8,Dita Kombëtare e Rinisë
+2031/12/25,Krishtlindjet
+2032/1/1,Festat e Vitit të Ri
+2032/1/2,Festat e Vitit të Ri
+2032/1/14,Dita e Bajramit të Madh (e vlerësuar)
+2032/3/14,Dita e Verës
+2032/3/15,Dita e Verës (ditë pushimi e shtyrë)
+2032/3/22,Dita e Kurban Bajramit (e vlerësuar); Dita e Nevruzit
+2032/3/28,E diela e Pashkëve Katolike
+2032/3/29,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2032/5/1,Dita Ndërkombëtare e Punëtorëve
+2032/5/2,E diela e Pashkëve Ortodokse
+2032/5/3,Dita Ndërkombëtare e Punëtorëve (ditë pushimi e shtyrë)
+2032/5/4,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2032/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2032/9/6,Dita e Shenjtërimit të Shenjt Terezës (ditë pushimi e shtyrë)
+2032/11/22,Dita e Alfabetit
+2032/11/28,Dita Flamurit dhe e Pavarësisë
+2032/11/29,Dita e Çlirimit
+2032/11/30,Dita Flamurit dhe e Pavarësisë (ditë pushimi e shtyrë)
+2032/12/8,Dita Kombëtare e Rinisë
+2032/12/25,Krishtlindjet
+2032/12/27,Krishtlindjet (ditë pushimi e shtyrë)
+2033/1/1,Festat e Vitit të Ri
+2033/1/2,Dita e Bajramit të Madh (e vlerësuar); Festat e Vitit të Ri
+2033/1/3,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2033/1/4,Dita e Bajramit të Madh (ditë pushimi e shtyrë, e vlerësuar); Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2033/3/11,Dita e Kurban Bajramit (e vlerësuar)
+2033/3/14,Dita e Verës
+2033/3/22,Dita e Nevruzit
+2033/4/17,E diela e Pashkëve Katolike
+2033/4/18,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2033/4/24,E diela e Pashkëve Ortodokse
+2033/4/25,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2033/5/1,Dita Ndërkombëtare e Punëtorëve
+2033/5/2,Dita Ndërkombëtare e Punëtorëve (ditë pushimi e shtyrë)
+2033/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2033/11/22,Dita e Alfabetit
+2033/11/28,Dita Flamurit dhe e Pavarësisë
+2033/11/29,Dita e Çlirimit
+2033/12/8,Dita Kombëtare e Rinisë
+2033/12/23,Dita e Bajramit të Madh (e vlerësuar)
+2033/12/25,Krishtlindjet
+2033/12/26,Krishtlindjet (ditë pushimi e shtyrë)
+2034/1/1,Festat e Vitit të Ri
+2034/1/2,Festat e Vitit të Ri
+2034/1/3,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2034/3/1,Dita e Kurban Bajramit (e vlerësuar)
+2034/3/14,Dita e Verës
+2034/3/22,Dita e Nevruzit
+2034/4/9,E diela e Pashkëve Katolike; E diela e Pashkëve Ortodokse
+2034/4/10,E diela e Pashkëve Katolike (ditë pushimi e shtyrë); E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2034/5/1,Dita Ndërkombëtare e Punëtorëve
+2034/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2034/11/22,Dita e Alfabetit
+2034/11/28,Dita Flamurit dhe e Pavarësisë
+2034/11/29,Dita e Çlirimit
+2034/12/8,Dita Kombëtare e Rinisë
+2034/12/12,Dita e Bajramit të Madh (e vlerësuar)
+2034/12/25,Krishtlindjet
+2035/1/1,Festat e Vitit të Ri
+2035/1/2,Festat e Vitit të Ri
+2035/2/18,Dita e Kurban Bajramit (e vlerësuar)
+2035/2/19,Dita e Kurban Bajramit (ditë pushimi e shtyrë, e vlerësuar)
+2035/3/14,Dita e Verës
+2035/3/22,Dita e Nevruzit
+2035/3/25,E diela e Pashkëve Katolike
+2035/3/26,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2035/4/29,E diela e Pashkëve Ortodokse
+2035/4/30,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2035/5/1,Dita Ndërkombëtare e Punëtorëve
+2035/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2035/11/22,Dita e Alfabetit
+2035/11/28,Dita Flamurit dhe e Pavarësisë
+2035/11/29,Dita e Çlirimit
+2035/12/1,Dita e Bajramit të Madh (e vlerësuar)
+2035/12/3,Dita e Bajramit të Madh (ditë pushimi e shtyrë, e vlerësuar)
+2035/12/8,Dita Kombëtare e Rinisë
+2035/12/10,Dita Kombëtare e Rinisë (ditë pushimi e shtyrë)
+2035/12/25,Krishtlindjet
+2036/1/1,Festat e Vitit të Ri
+2036/1/2,Festat e Vitit të Ri
+2036/2/7,Dita e Kurban Bajramit (e vlerësuar)
+2036/3/14,Dita e Verës
+2036/3/22,Dita e Nevruzit
+2036/3/24,Dita e Nevruzit (ditë pushimi e shtyrë)
+2036/4/13,E diela e Pashkëve Katolike
+2036/4/14,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2036/4/20,E diela e Pashkëve Ortodokse
+2036/4/21,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2036/5/1,Dita Ndërkombëtare e Punëtorëve
+2036/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2036/11/19,Dita e Bajramit të Madh (e vlerësuar)
+2036/11/22,Dita e Alfabetit
+2036/11/24,Dita e Alfabetit (ditë pushimi e shtyrë)
+2036/11/28,Dita Flamurit dhe e Pavarësisë
+2036/11/29,Dita e Çlirimit
+2036/12/1,Dita e Çlirimit (ditë pushimi e shtyrë)
+2036/12/8,Dita Kombëtare e Rinisë
+2036/12/25,Krishtlindjet
+2037/1/1,Festat e Vitit të Ri
+2037/1/2,Festat e Vitit të Ri
+2037/1/26,Dita e Kurban Bajramit (e vlerësuar)
+2037/3/14,Dita e Verës
+2037/3/16,Dita e Verës (ditë pushimi e shtyrë)
+2037/3/22,Dita e Nevruzit
+2037/3/23,Dita e Nevruzit (ditë pushimi e shtyrë)
+2037/4/5,E diela e Pashkëve Katolike; E diela e Pashkëve Ortodokse
+2037/4/6,E diela e Pashkëve Katolike (ditë pushimi e shtyrë); E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2037/5/1,Dita Ndërkombëtare e Punëtorëve
+2037/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2037/9/7,Dita e Shenjtërimit të Shenjt Terezës (ditë pushimi e shtyrë)
+2037/11/8,Dita e Bajramit të Madh (e vlerësuar)
+2037/11/9,Dita e Bajramit të Madh (ditë pushimi e shtyrë, e vlerësuar)
+2037/11/22,Dita e Alfabetit
+2037/11/23,Dita e Alfabetit (ditë pushimi e shtyrë)
+2037/11/28,Dita Flamurit dhe e Pavarësisë
+2037/11/29,Dita e Çlirimit
+2037/11/30,Dita Flamurit dhe e Pavarësisë (ditë pushimi e shtyrë)
+2037/12/1,Dita e Çlirimit (ditë pushimi e shtyrë)
+2037/12/8,Dita Kombëtare e Rinisë
+2037/12/25,Krishtlindjet
+2038/1/1,Festat e Vitit të Ri
+2038/1/2,Festat e Vitit të Ri
+2038/1/4,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2038/1/16,Dita e Kurban Bajramit (e vlerësuar)
+2038/1/18,Dita e Kurban Bajramit (ditë pushimi e shtyrë, e vlerësuar)
+2038/3/14,Dita e Verës
+2038/3/15,Dita e Verës (ditë pushimi e shtyrë)
+2038/3/22,Dita e Nevruzit
+2038/4/25,E diela e Pashkëve Katolike; E diela e Pashkëve Ortodokse
+2038/4/26,E diela e Pashkëve Katolike (ditë pushimi e shtyrë); E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2038/5/1,Dita Ndërkombëtare e Punëtorëve
+2038/5/3,Dita Ndërkombëtare e Punëtorëve (ditë pushimi e shtyrë)
+2038/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2038/9/6,Dita e Shenjtërimit të Shenjt Terezës (ditë pushimi e shtyrë)
+2038/10/29,Dita e Bajramit të Madh (e vlerësuar)
+2038/11/22,Dita e Alfabetit
+2038/11/28,Dita Flamurit dhe e Pavarësisë
+2038/11/29,Dita e Çlirimit
+2038/11/30,Dita Flamurit dhe e Pavarësisë (ditë pushimi e shtyrë)
+2038/12/8,Dita Kombëtare e Rinisë
+2038/12/25,Krishtlindjet
+2038/12/27,Krishtlindjet (ditë pushimi e shtyrë)
+2039/1/1,Festat e Vitit të Ri
+2039/1/2,Festat e Vitit të Ri
+2039/1/3,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2039/1/4,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2039/1/5,Dita e Kurban Bajramit (e vlerësuar)
+2039/3/14,Dita e Verës
+2039/3/22,Dita e Nevruzit
+2039/4/10,E diela e Pashkëve Katolike
+2039/4/11,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2039/4/17,E diela e Pashkëve Ortodokse
+2039/4/18,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2039/5/1,Dita Ndërkombëtare e Punëtorëve
+2039/5/2,Dita Ndërkombëtare e Punëtorëve (ditë pushimi e shtyrë)
+2039/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2039/10/19,Dita e Bajramit të Madh (e vlerësuar)
+2039/11/22,Dita e Alfabetit
+2039/11/28,Dita Flamurit dhe e Pavarësisë
+2039/11/29,Dita e Çlirimit
+2039/12/8,Dita Kombëtare e Rinisë
+2039/12/25,Krishtlindjet
+2039/12/26,Dita e Kurban Bajramit (e vlerësuar)
+2039/12/27,Krishtlindjet (ditë pushimi e shtyrë)
+2040/1/1,Festat e Vitit të Ri
+2040/1/2,Festat e Vitit të Ri
+2040/1/3,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2040/3/14,Dita e Verës
+2040/3/22,Dita e Nevruzit
+2040/4/1,E diela e Pashkëve Katolike
+2040/4/2,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2040/5/1,Dita Ndërkombëtare e Punëtorëve
+2040/5/6,E diela e Pashkëve Ortodokse
+2040/5/7,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2040/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2040/10/7,Dita e Bajramit të Madh (e vlerësuar)
+2040/10/8,Dita e Bajramit të Madh (ditë pushimi e shtyrë, e vlerësuar)
+2040/11/22,Dita e Alfabetit
+2040/11/28,Dita Flamurit dhe e Pavarësisë
+2040/11/29,Dita e Çlirimit
+2040/12/8,Dita Kombëtare e Rinisë
+2040/12/10,Dita Kombëtare e Rinisë (ditë pushimi e shtyrë)
+2040/12/14,Dita e Kurban Bajramit (e vlerësuar)
+2040/12/25,Krishtlindjet
+2041/1/1,Festat e Vitit të Ri
+2041/1/2,Festat e Vitit të Ri
+2041/3/14,Dita e Verës
+2041/3/22,Dita e Nevruzit
+2041/4/21,E diela e Pashkëve Katolike; E diela e Pashkëve Ortodokse
+2041/4/22,E diela e Pashkëve Katolike (ditë pushimi e shtyrë); E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2041/5/1,Dita Ndërkombëtare e Punëtorëve
+2041/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2041/9/26,Dita e Bajramit të Madh (e vlerësuar)
+2041/11/22,Dita e Alfabetit
+2041/11/28,Dita Flamurit dhe e Pavarësisë
+2041/11/29,Dita e Çlirimit
+2041/12/4,Dita e Kurban Bajramit (e vlerësuar)
+2041/12/8,Dita Kombëtare e Rinisë
+2041/12/9,Dita Kombëtare e Rinisë (ditë pushimi e shtyrë)
+2041/12/25,Krishtlindjet
+2042/1/1,Festat e Vitit të Ri
+2042/1/2,Festat e Vitit të Ri
+2042/3/14,Dita e Verës
+2042/3/22,Dita e Nevruzit
+2042/3/24,Dita e Nevruzit (ditë pushimi e shtyrë)
+2042/4/6,E diela e Pashkëve Katolike
+2042/4/7,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2042/4/13,E diela e Pashkëve Ortodokse
+2042/4/14,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2042/5/1,Dita Ndërkombëtare e Punëtorëve
+2042/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2042/9/15,Dita e Bajramit të Madh (e vlerësuar)
+2042/11/22,Dita e Alfabetit
+2042/11/23,Dita e Kurban Bajramit (e vlerësuar)
+2042/11/24,Dita e Alfabetit (ditë pushimi e shtyrë)
+2042/11/25,Dita e Kurban Bajramit (ditë pushimi e shtyrë, e vlerësuar)
+2042/11/28,Dita Flamurit dhe e Pavarësisë
+2042/11/29,Dita e Çlirimit
+2042/12/1,Dita e Çlirimit (ditë pushimi e shtyrë)
+2042/12/8,Dita Kombëtare e Rinisë
+2042/12/25,Krishtlindjet
+2043/1/1,Festat e Vitit të Ri
+2043/1/2,Festat e Vitit të Ri
+2043/3/14,Dita e Verës
+2043/3/16,Dita e Verës (ditë pushimi e shtyrë)
+2043/3/22,Dita e Nevruzit
+2043/3/23,Dita e Nevruzit (ditë pushimi e shtyrë)
+2043/3/29,E diela e Pashkëve Katolike
+2043/3/30,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2043/5/1,Dita Ndërkombëtare e Punëtorëve
+2043/5/3,E diela e Pashkëve Ortodokse
+2043/5/4,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2043/9/4,Dita e Bajramit të Madh (e vlerësuar)
+2043/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2043/9/7,Dita e Shenjtërimit të Shenjt Terezës (ditë pushimi e shtyrë)
+2043/11/12,Dita e Kurban Bajramit (e vlerësuar)
+2043/11/22,Dita e Alfabetit
+2043/11/23,Dita e Alfabetit (ditë pushimi e shtyrë)
+2043/11/28,Dita Flamurit dhe e Pavarësisë
+2043/11/29,Dita e Çlirimit
+2043/11/30,Dita Flamurit dhe e Pavarësisë (ditë pushimi e shtyrë)
+2043/12/1,Dita e Çlirimit (ditë pushimi e shtyrë)
+2043/12/8,Dita Kombëtare e Rinisë
+2043/12/25,Krishtlindjet
+2044/1/1,Festat e Vitit të Ri
+2044/1/2,Festat e Vitit të Ri
+2044/1/4,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2044/3/14,Dita e Verës
+2044/3/22,Dita e Nevruzit
+2044/4/17,E diela e Pashkëve Katolike
+2044/4/18,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2044/4/24,E diela e Pashkëve Ortodokse
+2044/4/25,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2044/5/1,Dita Ndërkombëtare e Punëtorëve
+2044/5/2,Dita Ndërkombëtare e Punëtorëve (ditë pushimi e shtyrë)
+2044/8/24,Dita e Bajramit të Madh (e vlerësuar)
+2044/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2044/10/31,Dita e Kurban Bajramit (e vlerësuar)
+2044/11/22,Dita e Alfabetit
+2044/11/28,Dita Flamurit dhe e Pavarësisë
+2044/11/29,Dita e Çlirimit
+2044/12/8,Dita Kombëtare e Rinisë
+2044/12/25,Krishtlindjet
+2044/12/26,Krishtlindjet (ditë pushimi e shtyrë)
+2045/1/1,Festat e Vitit të Ri
+2045/1/2,Festat e Vitit të Ri
+2045/1/3,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2045/3/14,Dita e Verës
+2045/3/22,Dita e Nevruzit
+2045/4/9,E diela e Pashkëve Katolike; E diela e Pashkëve Ortodokse
+2045/4/10,E diela e Pashkëve Katolike (ditë pushimi e shtyrë); E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2045/5/1,Dita Ndërkombëtare e Punëtorëve
+2045/8/14,Dita e Bajramit të Madh (e vlerësuar)
+2045/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2045/10/21,Dita e Kurban Bajramit (e vlerësuar)
+2045/10/23,Dita e Kurban Bajramit (ditë pushimi e shtyrë, e vlerësuar)
+2045/11/22,Dita e Alfabetit
+2045/11/28,Dita Flamurit dhe e Pavarësisë
+2045/11/29,Dita e Çlirimit
+2045/12/8,Dita Kombëtare e Rinisë
+2045/12/25,Krishtlindjet
+2046/1/1,Festat e Vitit të Ri
+2046/1/2,Festat e Vitit të Ri
+2046/3/14,Dita e Verës
+2046/3/22,Dita e Nevruzit
+2046/3/25,E diela e Pashkëve Katolike
+2046/3/26,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2046/4/29,E diela e Pashkëve Ortodokse
+2046/4/30,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2046/5/1,Dita Ndërkombëtare e Punëtorëve
+2046/8/3,Dita e Bajramit të Madh (e vlerësuar)
+2046/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2046/10/10,Dita e Kurban Bajramit (e vlerësuar)
+2046/11/22,Dita e Alfabetit
+2046/11/28,Dita Flamurit dhe e Pavarësisë
+2046/11/29,Dita e Çlirimit
+2046/12/8,Dita Kombëtare e Rinisë
+2046/12/10,Dita Kombëtare e Rinisë (ditë pushimi e shtyrë)
+2046/12/25,Krishtlindjet
+2047/1/1,Festat e Vitit të Ri
+2047/1/2,Festat e Vitit të Ri
+2047/3/14,Dita e Verës
+2047/3/22,Dita e Nevruzit
+2047/4/14,E diela e Pashkëve Katolike
+2047/4/15,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2047/4/21,E diela e Pashkëve Ortodokse
+2047/4/22,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2047/5/1,Dita Ndërkombëtare e Punëtorëve
+2047/7/24,Dita e Bajramit të Madh (e vlerësuar)
+2047/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2047/9/30,Dita e Kurban Bajramit (e vlerësuar)
+2047/11/22,Dita e Alfabetit
+2047/11/28,Dita Flamurit dhe e Pavarësisë
+2047/11/29,Dita e Çlirimit
+2047/12/8,Dita Kombëtare e Rinisë
+2047/12/9,Dita Kombëtare e Rinisë (ditë pushimi e shtyrë)
+2047/12/25,Krishtlindjet
+2048/1/1,Festat e Vitit të Ri
+2048/1/2,Festat e Vitit të Ri
+2048/3/14,Dita e Verës
+2048/3/16,Dita e Verës (ditë pushimi e shtyrë)
+2048/3/22,Dita e Nevruzit
+2048/3/23,Dita e Nevruzit (ditë pushimi e shtyrë)
+2048/4/5,E diela e Pashkëve Katolike; E diela e Pashkëve Ortodokse
+2048/4/6,E diela e Pashkëve Katolike (ditë pushimi e shtyrë); E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2048/5/1,Dita Ndërkombëtare e Punëtorëve
+2048/7/12,Dita e Bajramit të Madh (e vlerësuar)
+2048/7/13,Dita e Bajramit të Madh (ditë pushimi e shtyrë, e vlerësuar)
+2048/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2048/9/7,Dita e Shenjtërimit të Shenjt Terezës (ditë pushimi e shtyrë)
+2048/9/19,Dita e Kurban Bajramit (e vlerësuar)
+2048/9/21,Dita e Kurban Bajramit (ditë pushimi e shtyrë, e vlerësuar)
+2048/11/22,Dita e Alfabetit
+2048/11/23,Dita e Alfabetit (ditë pushimi e shtyrë)
+2048/11/28,Dita Flamurit dhe e Pavarësisë
+2048/11/29,Dita e Çlirimit
+2048/11/30,Dita Flamurit dhe e Pavarësisë (ditë pushimi e shtyrë)
+2048/12/1,Dita e Çlirimit (ditë pushimi e shtyrë)
+2048/12/8,Dita Kombëtare e Rinisë
+2048/12/25,Krishtlindjet
+2049/1/1,Festat e Vitit të Ri
+2049/1/2,Festat e Vitit të Ri
+2049/1/4,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2049/3/14,Dita e Verës
+2049/3/15,Dita e Verës (ditë pushimi e shtyrë)
+2049/3/22,Dita e Nevruzit
+2049/4/18,E diela e Pashkëve Katolike
+2049/4/19,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2049/4/25,E diela e Pashkëve Ortodokse
+2049/4/26,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2049/5/1,Dita Ndërkombëtare e Punëtorëve
+2049/5/3,Dita Ndërkombëtare e Punëtorëve (ditë pushimi e shtyrë)
+2049/7/1,Dita e Bajramit të Madh (e vlerësuar)
+2049/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2049/9/6,Dita e Shenjtërimit të Shenjt Terezës (ditë pushimi e shtyrë)
+2049/9/8,Dita e Kurban Bajramit (e vlerësuar)
+2049/11/22,Dita e Alfabetit
+2049/11/28,Dita Flamurit dhe e Pavarësisë
+2049/11/29,Dita e Çlirimit
+2049/11/30,Dita Flamurit dhe e Pavarësisë (ditë pushimi e shtyrë)
+2049/12/8,Dita Kombëtare e Rinisë
+2049/12/25,Krishtlindjet
+2049/12/27,Krishtlindjet (ditë pushimi e shtyrë)
+2050/1/1,Festat e Vitit të Ri
+2050/1/2,Festat e Vitit të Ri
+2050/1/3,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2050/1/4,Festat e Vitit të Ri (ditë pushimi e shtyrë)
+2050/3/14,Dita e Verës
+2050/3/22,Dita e Nevruzit
+2050/4/10,E diela e Pashkëve Katolike
+2050/4/11,E diela e Pashkëve Katolike (ditë pushimi e shtyrë)
+2050/4/17,E diela e Pashkëve Ortodokse
+2050/4/18,E diela e Pashkëve Ortodokse (ditë pushimi e shtyrë)
+2050/5/1,Dita Ndërkombëtare e Punëtorëve
+2050/5/2,Dita Ndërkombëtare e Punëtorëve (ditë pushimi e shtyrë)
+2050/6/20,Dita e Bajramit të Madh (e vlerësuar)
+2050/8/28,Dita e Kurban Bajramit (e vlerësuar)
+2050/8/29,Dita e Kurban Bajramit (ditë pushimi e shtyrë, e vlerësuar)
+2050/9/5,Dita e Shenjtërimit të Shenjt Terezës
+2050/11/22,Dita e Alfabetit
+2050/11/28,Dita Flamurit dhe e Pavarësisë
+2050/11/29,Dita e Çlirimit
+2050/12/8,Dita Kombëtare e Rinisë
+2050/12/25,Krishtlindjet
+2050/12/26,Krishtlindjet (ditë pushimi e shtyrë)

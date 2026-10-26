@@ -19,4 +19,8 @@ Ourin用のSATORI helperです。固定した`ukatech/satoriya-shiori`をプロ�
 
 stdoutはJSON Lines専用、上流の診断出力はstderrです。1 helper processを1ゴーストへ割り当てます。
 
+UTF-8辞書の先頭BOMを読み飛ばし、CP932で表現できない文字は上流と同じく空白へ変換します。Unicodeを完全に保持する実装ではありません。不正な文字列は変換エラーとして扱い、辞書ファイル自体は書き換えません。
+
+ビルド後の回帰検証は、リポジトリルートで `python3 -m unittest discover -s satori_core/tests -p 'test_encoding.py' -v` を実行します。
+
 上流情報とローカル変更は[UPSTREAM.md](UPSTREAM.md)と[PATCHES.md](PATCHES.md)を参照してください。

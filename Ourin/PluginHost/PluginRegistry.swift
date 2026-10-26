@@ -246,6 +246,7 @@ public final class PluginRegistry {
     /// 2. 直置き native `.plugin`
     /// 3. legacy metadata-only directory
     public func discoverAndLoad() {
+        unloadAll()
         // 全検索パスから候補を収集し、ID ごとに優先順位の高いものを選ぶ。
         var candidates: [String: [PluginCandidate]] = [:]  // id -> candidates (descending priority)
         for dir in PluginRegistry.searchPaths() {
@@ -394,7 +395,8 @@ public final class PluginRegistry {
             case .nativePackage(_, let pkg, _):
                 return PluginRegistry.peekID(at: pkg) ?? ""
             case .nativeDirect(let bundleURL):
-                return PluginRegistry.peekID(at: bundleURL.deletingLastPathComponent()) ?? ""
+                return PluginRegistry.peekID(at: bundleURL)
+                    ?? PluginRegistry.peekID(at: bundleURL.deletingLastPathComponent()) ?? ""
             case .legacy(let record):
                 return record.meta.id
             }
@@ -416,7 +418,8 @@ public final class PluginRegistry {
                 NSLog("Plugin skipped (migration record has no executable): \(item.path)")
                 return
             }
-            let id = PluginRegistry.peekID(at: item.deletingLastPathComponent()) ?? ""
+            let id = PluginRegistry.peekID(at: item)
+                ?? PluginRegistry.peekID(at: item.deletingLastPathComponent()) ?? ""
             candidates[id, default: []].append(.nativeDirect(bundleURL: item))
             return
         }
@@ -537,8 +540,17 @@ public final class PluginRegistry {
                                   loadPathURL: URL) {
         do {
             let plug = try Plugin(url: bundleURL)
-            if !plug.load(directoryURL: loadPathURL) {
+            guard plug.load(directoryURL: loadPathURL) else {
                 NSLog("Plugin load() returned failure: \(bundleURL.lastPathComponent)")
+                if let meta = PluginRegistry.readMeta(from: plug,
+                                                       metadataRootURL: metadataRootURL,
+                                                       installManifest: installManifest,
+                                                       isNative: false) {
+                    appendLegacyMeta(LegacyPluginRecord(meta: meta,
+                        directoryURL: metadataRootURL ?? bundleURL,
+                        packageURL: metadataRootURL))
+                }
+                return
             }
             plugins.append(plug)
             if let meta = PluginRegistry.readMeta(from: plug,
@@ -566,7 +578,7 @@ public final class PluginRegistry {
         if !legacy.meta.id.isEmpty {
             loadedIDs.insert(legacy.meta.id)
         }
-        NSLog("Legacy Windows plugin registered as metadata only: \(legacy.meta.name) (\(legacy.meta.filename))")
+        NSLog("Plugin registered as metadata only: \(legacy.meta.name) (\(legacy.meta.filename))")
     }
 
     static func searchPaths() -> [URL] {
@@ -586,7 +598,8 @@ public final class PluginRegistry {
 
     private static func readMeta(from plugin: Plugin,
                                  metadataRootURL: URL?,
-                                 installManifest: InstallManifest?) -> PluginMeta? {
+                                 installManifest: InstallManifest?,
+                                 isNative: Bool = true) -> PluginMeta? {
         let bundle = plugin.bundle
         let descriptorURL = metadataRootURL?.appendingPathComponent("descript.txt")
             ?? bundle?.url(forResource: "descript", withExtension: "txt")
@@ -595,7 +608,7 @@ public final class PluginRegistry {
         return readMetaDictionary(
             LegacyDescriptor.readDictionary(from: descriptorURL),
             directoryURL: directoryURL,
-            isNative: true,
+            isNative: isNative,
             installManifest: installManifest,
             localizedMessages: readMessages(from: metadataRootURL) ?? readMessages(from: bundle?.resourceURL),
             executableURL: plugin.url,

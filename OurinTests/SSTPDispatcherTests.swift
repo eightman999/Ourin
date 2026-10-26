@@ -1388,7 +1388,7 @@ struct SSTPDispatcherTests {
             headers: ["Sender": "UnitTest"]
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
-        #expect(resp.contains("SSTP/1.4 400"))
+        #expect(resp.contains("SSTP/1.4 501"))
     }
 
     @Test
@@ -1396,10 +1396,9 @@ struct SSTPDispatcherTests {
         let fake = FakeSstpRoutingRegistry()
         let req = SSTPRequest(
             method: "FINE",
-            version: "SSTP/1.4",
+            version: "NoSuchSubcommand",
             headers: [
-                "Sender": "UnitTest",
-                "Reference0": "NoSuchSubcommand"
+                "Sender": "UnitTest"
             ]
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
@@ -1412,12 +1411,11 @@ struct SSTPDispatcherTests {
         let fake = FakeSstpRoutingRegistry()
         let req = SSTPRequest(
             method: "FINE",
-            version: "SSTP/1.4",
+            version: "MessageSend",
             headers: [
                 "Sender": "UnitTest",
-                "Reference0": "MessageSend",
-                "Reference1": "MissingGhost",
-                "Reference4": "\\h\\s0Hello"
+                "Reference0": "MissingGhost",
+                "Reference3": "\\h\\s0Hello"
             ]
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
@@ -1426,15 +1424,14 @@ struct SSTPDispatcherTests {
     }
 
     @Test
-    func fineMessageSendRejectsMissingReference4() async throws {
+    func fineMessageSendRejectsMissingReference3() async throws {
         let fake = FakeSstpRoutingRegistry()
         let req = SSTPRequest(
             method: "FINE",
-            version: "SSTP/1.4",
+            version: "MessageSend",
             headers: [
                 "Sender": "UnitTest",
-                "Reference0": "MessageSend",
-                "Reference1": "Emily"
+                "Reference0": "Emily"
             ]
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
@@ -1442,7 +1439,7 @@ struct SSTPDispatcherTests {
     }
 
     @Test @MainActor
-    func fineMessageSendResolvesGhostByNameAndReturns200() throws {
+    func fineMessageSendResolvesGhostByNameAndReturns200() async throws {
         let fake = FakeSstpRoutingRegistry()
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sstp-fine-message"))
         manager.ghostConfig = GhostConfiguration(
@@ -1451,24 +1448,29 @@ struct SSTPDispatcherTests {
             keroName: "FineKero"
         )
         let token = EventBridge.shared.register(runtime: nil, ghostManager: manager)
-        defer { EventBridge.shared.unregister(token) }
+        defer {
+            EventBridge.shared.unregister(token)
+            manager.cancelPlaybackForBalloonBreak()
+        }
 
         let req = SSTPRequest(
             method: "FINE",
-            version: "SSTP/1.4",
+            version: "MessageSend",
             headers: [
                 "Sender": "UnitTest",
-                "Reference0": "MessageSend",
-                "Reference1": "FineTarget",
-                "Reference4": "\\h\\s0Hello"
+                "Reference0": "FineTarget",
+                "Reference3": "\\h\\s0Hello"
             ]
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
         #expect(resp.contains("SSTP/1.4 200 OK"))
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async { continuation.resume() }
+        }
     }
 
     @Test @MainActor
-    func fineMessageSendFallsBackToSakuraNameResolution() throws {
+    func fineMessageSendResolvesSakuraName() async throws {
         let fake = FakeSstpRoutingRegistry()
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sstp-fine-sakura"))
         manager.ghostConfig = GhostConfiguration(
@@ -1477,37 +1479,61 @@ struct SSTPDispatcherTests {
             keroName: "FineKero2"
         )
         let token = EventBridge.shared.register(runtime: nil, ghostManager: manager)
-        defer { EventBridge.shared.unregister(token) }
+        defer {
+            EventBridge.shared.unregister(token)
+            manager.cancelPlaybackForBalloonBreak()
+        }
 
-        // Reference1 が無い場合、SSP は Reference2（さくら名）で解決する。
+        // Reference0 は name に加えて sakura.name とも照合する。
         let req = SSTPRequest(
             method: "FINE",
-            version: "SSTP/1.4",
+            version: "MessageSend",
             headers: [
                 "Sender": "UnitTest",
-                "Reference0": "MessageSend",
-                "Reference2": "FineSakura2",
-                "Reference3": "FineKero2",
-                "Reference4": "\\h\\s0Hello"
+                "Reference0": "FineSakura2",
+                "Reference1": "FineKero2",
+                "Reference3": "\\h\\s0Hello"
             ]
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
         #expect(resp.contains("SSTP/1.4 200 OK"))
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async { continuation.resume() }
+        }
     }
 
     @Test @MainActor
-    func fineSetScriptReturns200() throws {
+    func fineSetScriptReturns200() async throws {
         let fake = FakeSstpRoutingRegistry()
+        let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sstp-fine-input"))
+        let application = NSApplication.shared
+        let previousDelegate = application.delegate
+        let appDelegate = (previousDelegate as? AppDelegate) ?? AppDelegate()
+        let previousPrimary = appDelegate.ghostManager
+        application.delegate = appDelegate
+        appDelegate.ghostManager = manager
+        let token = EventBridge.shared.register(runtime: nil, ghostManager: manager)
+        defer {
+            manager.closeInputDialog(id: "OnFineSetScript")
+            EventBridge.shared.unregister(token)
+            appDelegate.ghostManager = previousPrimary
+            application.delegate = previousDelegate
+        }
         let req = SSTPRequest(
             method: "FINE",
-            version: "SSTP/1.4",
+            version: "SetScript",
             headers: [
                 "Sender": "UnitTest",
-                "Reference0": "SetScript",
-                "Reference1": "\\h\\s0Initial"
+                "Reference0": "\\h\\s0Initial"
             ]
         )
         let resp = SSTPDispatcher.dispatch(request: req, bridge: bridge, routingRegistry: fake)
         #expect(resp.contains("SSTP/1.4 200"))
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async { continuation.resume() }
+        }
+        let dialog = try #require(manager.activeInputDialogs.first { $0.id == "OnFineSetScript" })
+        let field = try #require(dialog.alert.accessoryView as? NSTextField)
+        #expect(field.stringValue == "\\h\\s0Initial")
     }
 }

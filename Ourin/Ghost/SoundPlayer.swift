@@ -21,12 +21,20 @@ final class SoundPlayer: NSObject, AVAudioPlayerDelegate {
     var onFinish: ((SoundPlayer, Bool) -> Void)?
     var onLoop: ((SoundPlayer) -> Void)?
     var onError: ((SoundPlayer, Int, String) -> Void)?
+    /// `--spectrum=` を指定したサウンドの再生中に、一定間隔で呼ばれる（OnSoundSpectrum）。
+    var onSpectrum: ((SoundPlayer, SpectrumReport) -> Void)?
+
+    private let sourceURL: URL
+    private let sourceIsRemote: Bool
+    private var spectrumEngine: SoundSpectrumEngine?
 
     /// リモート URL かどうかで再生基盤を選択する。
     /// - Parameters:
     ///   - isRemote: リモートなら AVPlayer、ローカルなら AVAudioPlayer。
     init?(filename: String, url: URL, options: SoundPlaybackOptions, isRemote: Bool = false) {
         self.filename = filename
+        self.sourceURL = url
+        self.sourceIsRemote = isRemote
         if isRemote {
             self.remotePlayer = AVPlayer(url: url)
             self.localPlayer = nil
@@ -128,6 +136,7 @@ final class SoundPlayer: NSObject, AVAudioPlayerDelegate {
 
     func stop() {
         isStopped = true
+        spectrumEngine?.stop(sendZero: true)
         if let localPlayer {
             localPlayer.stop()
             localPlayer.currentTime = 0
@@ -154,6 +163,7 @@ final class SoundPlayer: NSObject, AVAudioPlayerDelegate {
     /// - rate: 0.01..100.0。enableRate を先に立ててから rate を設定する。
     /// - seektime: 絶対/相対シーク（再生中も反映）
     func apply(options: SoundPlaybackOptions) {
+        applySpectrum(options)
         if let localPlayer {
             applyLocal(options: options, to: localPlayer)
         } else if let remotePlayer {
@@ -168,6 +178,25 @@ final class SoundPlayer: NSObject, AVAudioPlayerDelegate {
             }
             // balance は AVPlayer に pan が無いため無視（ローカル専用オプション）。
         }
+    }
+
+    /// `--spectrum` / `--spectrum-bands` / `--spectrum-hold`。再生中でもいつでも開始・停止・変更できる。
+    private func applySpectrum(_ options: SoundPlaybackOptions) {
+        guard options.spectrum != nil || options.spectrumBands != nil || options.spectrumHold != nil else { return }
+        if spectrumEngine == nil {
+            // ローカルのファイルだけ波形を解析できる。ストリーミングは帯域なしのときの再生位置だけ通知する。
+            spectrumEngine = SoundSpectrumEngine(
+                filename: filename,
+                fileURL: sourceIsRemote ? nil : sourceURL,
+                position: { [weak self] in self?.currentTime ?? 0 },
+                isPlaying: { [weak self] in self?.isPlaying ?? false },
+                report: { [weak self] report in
+                    guard let self else { return }
+                    self.onSpectrum?(self, report)
+                }
+            )
+        }
+        spectrumEngine?.configure(interval: options.spectrum, bands: options.spectrumBands, holdMilliseconds: options.spectrumHold)
     }
 
     private func applyLocal(options: SoundPlaybackOptions, to player: AVAudioPlayer) {
@@ -253,6 +282,7 @@ final class SoundPlayer: NSObject, AVAudioPlayerDelegate {
         }
         didFinish = true
         isPaused = false
+        spectrumEngine?.stop(sendZero: true)
         onFinish?(self, true)
     }
 
@@ -281,6 +311,7 @@ final class SoundPlayer: NSObject, AVAudioPlayerDelegate {
 
         didFinish = true
         isPaused = false
+        spectrumEngine?.stop(sendZero: true)
         onFinish?(self, flag)
     }
 

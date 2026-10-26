@@ -241,6 +241,10 @@ extension GhostManager {
         player.onError = { [weak self] player, code, message in
             self?.handleSoundError(player, code: code, message: message)
         }
+        player.onSpectrum = { [weak self] _, report in
+            guard self != nil else { return }
+            EventBridge.shared.notify(.OnSoundSpectrum, params: report.references)
+        }
     }
 
     private func removeSoundPlayer(_ player: SoundPlayer) {

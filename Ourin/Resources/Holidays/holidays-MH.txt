@@ -1,0 +1,364 @@
+# MH の祝日（2020〜2050年、言語: en）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/3/1,Nuclear Victims Remembrance Day
+2020/3/2,Nuclear Victims Remembrance Day Holiday
+2020/4/10,Good Friday
+2020/5/1,Constitution Day
+2020/7/3,Fisherman's Day
+2020/9/4,Dri-jerbal Day
+2020/9/25,Manit Day
+2020/11/17,President's Day
+2020/12/4,Gospel Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/3/1,Nuclear Victims Remembrance Day
+2021/4/2,Good Friday
+2021/4/30,Constitution Day Holiday
+2021/5/1,Constitution Day
+2021/7/2,Fisherman's Day
+2021/9/3,Dri-jerbal Day
+2021/9/24,Manit Day
+2021/11/17,President's Day
+2021/12/3,Gospel Day
+2021/12/24,Christmas Day Holiday
+2021/12/25,Christmas Day
+2021/12/31,New Year's Day Holiday
+2022/1/1,New Year's Day
+2022/3/1,Nuclear Victims Remembrance Day
+2022/4/15,Good Friday
+2022/5/1,Constitution Day
+2022/5/2,Constitution Day Holiday
+2022/7/1,Fisherman's Day
+2022/9/2,Dri-jerbal Day
+2022/9/30,Manit Day
+2022/11/17,President's Day
+2022/12/2,Gospel Day
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day Holiday
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day Holiday
+2023/3/1,Nuclear Victims Remembrance Day
+2023/4/7,Good Friday
+2023/5/1,Constitution Day
+2023/7/7,Fisherman's Day
+2023/9/1,Dri-jerbal Day
+2023/9/29,Manit Day
+2023/11/17,President's Day
+2023/11/20,General Election Day
+2023/12/1,Gospel Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/3/1,Nuclear Victims Remembrance Day
+2024/3/29,Good Friday
+2024/5/1,Constitution Day
+2024/7/5,Fisherman's Day
+2024/9/6,Dri-jerbal Day
+2024/9/27,Manit Day
+2024/11/17,President's Day
+2024/11/18,President's Day Holiday
+2024/12/6,Gospel Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/2/28,Nuclear Victims Remembrance Day Holiday
+2025/3/1,Nuclear Victims Remembrance Day
+2025/4/18,Good Friday
+2025/5/1,Constitution Day
+2025/7/4,Fisherman's Day
+2025/9/5,Dri-jerbal Day
+2025/9/26,Manit Day
+2025/11/17,President's Day
+2025/12/5,Gospel Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/3/1,Nuclear Victims Remembrance Day
+2026/3/2,Nuclear Victims Remembrance Day Holiday
+2026/4/3,Good Friday
+2026/5/1,Constitution Day
+2026/7/3,Fisherman's Day
+2026/9/4,Dri-jerbal Day
+2026/9/25,Manit Day
+2026/11/17,President's Day
+2026/12/4,Gospel Day
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/3/1,Nuclear Victims Remembrance Day
+2027/3/26,Good Friday
+2027/4/30,Constitution Day Holiday
+2027/5/1,Constitution Day
+2027/7/2,Fisherman's Day
+2027/9/3,Dri-jerbal Day
+2027/9/24,Manit Day
+2027/11/15,General Election Day
+2027/11/17,President's Day
+2027/12/3,Gospel Day
+2027/12/24,Christmas Day Holiday
+2027/12/25,Christmas Day
+2027/12/31,New Year's Day Holiday
+2028/1/1,New Year's Day
+2028/3/1,Nuclear Victims Remembrance Day
+2028/4/14,Good Friday
+2028/5/1,Constitution Day
+2028/7/7,Fisherman's Day
+2028/9/1,Dri-jerbal Day
+2028/9/29,Manit Day
+2028/11/17,President's Day
+2028/12/1,Gospel Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/3/1,Nuclear Victims Remembrance Day
+2029/3/30,Good Friday
+2029/5/1,Constitution Day
+2029/7/6,Fisherman's Day
+2029/9/7,Dri-jerbal Day
+2029/9/28,Manit Day
+2029/11/16,President's Day Holiday
+2029/11/17,President's Day
+2029/12/7,Gospel Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/3/1,Nuclear Victims Remembrance Day
+2030/4/19,Good Friday
+2030/5/1,Constitution Day
+2030/7/5,Fisherman's Day
+2030/9/6,Dri-jerbal Day
+2030/9/27,Manit Day
+2030/11/17,President's Day
+2030/11/18,President's Day Holiday
+2030/12/6,Gospel Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/2/28,Nuclear Victims Remembrance Day Holiday
+2031/3/1,Nuclear Victims Remembrance Day
+2031/4/11,Good Friday
+2031/5/1,Constitution Day
+2031/7/4,Fisherman's Day
+2031/9/5,Dri-jerbal Day
+2031/9/26,Manit Day
+2031/11/17,General Election Day; President's Day
+2031/12/5,Gospel Day
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/3/1,Nuclear Victims Remembrance Day
+2032/3/26,Good Friday
+2032/4/30,Constitution Day Holiday
+2032/5/1,Constitution Day
+2032/7/2,Fisherman's Day
+2032/9/3,Dri-jerbal Day
+2032/9/24,Manit Day
+2032/11/17,President's Day
+2032/12/3,Gospel Day
+2032/12/24,Christmas Day Holiday
+2032/12/25,Christmas Day
+2032/12/31,New Year's Day Holiday
+2033/1/1,New Year's Day
+2033/3/1,Nuclear Victims Remembrance Day
+2033/4/15,Good Friday
+2033/5/1,Constitution Day
+2033/5/2,Constitution Day Holiday
+2033/7/1,Fisherman's Day
+2033/9/2,Dri-jerbal Day
+2033/9/30,Manit Day
+2033/11/17,President's Day
+2033/12/2,Gospel Day
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day Holiday
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day Holiday
+2034/3/1,Nuclear Victims Remembrance Day
+2034/4/7,Good Friday
+2034/5/1,Constitution Day
+2034/7/7,Fisherman's Day
+2034/9/1,Dri-jerbal Day
+2034/9/29,Manit Day
+2034/11/17,President's Day
+2034/12/1,Gospel Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/3/1,Nuclear Victims Remembrance Day
+2035/3/23,Good Friday
+2035/5/1,Constitution Day
+2035/7/6,Fisherman's Day
+2035/9/7,Dri-jerbal Day
+2035/9/28,Manit Day
+2035/11/16,President's Day Holiday
+2035/11/17,President's Day
+2035/11/19,General Election Day
+2035/12/7,Gospel Day
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/2/29,Nuclear Victims Remembrance Day Holiday
+2036/3/1,Nuclear Victims Remembrance Day
+2036/4/11,Good Friday
+2036/5/1,Constitution Day
+2036/7/4,Fisherman's Day
+2036/9/5,Dri-jerbal Day
+2036/9/26,Manit Day
+2036/11/17,President's Day
+2036/12/5,Gospel Day
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/3/1,Nuclear Victims Remembrance Day
+2037/3/2,Nuclear Victims Remembrance Day Holiday
+2037/4/3,Good Friday
+2037/5/1,Constitution Day
+2037/7/3,Fisherman's Day
+2037/9/4,Dri-jerbal Day
+2037/9/25,Manit Day
+2037/11/17,President's Day
+2037/12/4,Gospel Day
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/3/1,Nuclear Victims Remembrance Day
+2038/4/23,Good Friday
+2038/4/30,Constitution Day Holiday
+2038/5/1,Constitution Day
+2038/7/2,Fisherman's Day
+2038/9/3,Dri-jerbal Day
+2038/9/24,Manit Day
+2038/11/17,President's Day
+2038/12/3,Gospel Day
+2038/12/24,Christmas Day Holiday
+2038/12/25,Christmas Day
+2038/12/31,New Year's Day Holiday
+2039/1/1,New Year's Day
+2039/3/1,Nuclear Victims Remembrance Day
+2039/4/8,Good Friday
+2039/5/1,Constitution Day
+2039/5/2,Constitution Day Holiday
+2039/7/1,Fisherman's Day
+2039/9/2,Dri-jerbal Day
+2039/9/30,Manit Day
+2039/11/17,President's Day
+2039/11/21,General Election Day
+2039/12/2,Gospel Day
+2039/12/25,Christmas Day
+2039/12/26,Christmas Day Holiday
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day Holiday
+2040/3/1,Nuclear Victims Remembrance Day
+2040/3/30,Good Friday
+2040/5/1,Constitution Day
+2040/7/6,Fisherman's Day
+2040/9/7,Dri-jerbal Day
+2040/9/28,Manit Day
+2040/11/16,President's Day Holiday
+2040/11/17,President's Day
+2040/12/7,Gospel Day
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/3/1,Nuclear Victims Remembrance Day
+2041/4/19,Good Friday
+2041/5/1,Constitution Day
+2041/7/5,Fisherman's Day
+2041/9/6,Dri-jerbal Day
+2041/9/27,Manit Day
+2041/11/17,President's Day
+2041/11/18,President's Day Holiday
+2041/12/6,Gospel Day
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/2/28,Nuclear Victims Remembrance Day Holiday
+2042/3/1,Nuclear Victims Remembrance Day
+2042/4/4,Good Friday
+2042/5/1,Constitution Day
+2042/7/4,Fisherman's Day
+2042/9/5,Dri-jerbal Day
+2042/9/26,Manit Day
+2042/11/17,President's Day
+2042/12/5,Gospel Day
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/3/1,Nuclear Victims Remembrance Day
+2043/3/2,Nuclear Victims Remembrance Day Holiday
+2043/3/27,Good Friday
+2043/5/1,Constitution Day
+2043/7/3,Fisherman's Day
+2043/9/4,Dri-jerbal Day
+2043/9/25,Manit Day
+2043/11/16,General Election Day
+2043/11/17,President's Day
+2043/12/4,Gospel Day
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/3/1,Nuclear Victims Remembrance Day
+2044/4/15,Good Friday
+2044/5/1,Constitution Day
+2044/5/2,Constitution Day Holiday
+2044/7/1,Fisherman's Day
+2044/9/2,Dri-jerbal Day
+2044/9/30,Manit Day
+2044/11/17,President's Day
+2044/12/2,Gospel Day
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day Holiday
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day Holiday
+2045/3/1,Nuclear Victims Remembrance Day
+2045/4/7,Good Friday
+2045/5/1,Constitution Day
+2045/7/7,Fisherman's Day
+2045/9/1,Dri-jerbal Day
+2045/9/29,Manit Day
+2045/11/17,President's Day
+2045/12/1,Gospel Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/3/1,Nuclear Victims Remembrance Day
+2046/3/23,Good Friday
+2046/5/1,Constitution Day
+2046/7/6,Fisherman's Day
+2046/9/7,Dri-jerbal Day
+2046/9/28,Manit Day
+2046/11/16,President's Day Holiday
+2046/11/17,President's Day
+2046/12/7,Gospel Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/3/1,Nuclear Victims Remembrance Day
+2047/4/12,Good Friday
+2047/5/1,Constitution Day
+2047/7/5,Fisherman's Day
+2047/9/6,Dri-jerbal Day
+2047/9/27,Manit Day
+2047/11/17,President's Day
+2047/11/18,General Election Day; President's Day Holiday
+2047/12/6,Gospel Day
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/3/1,Nuclear Victims Remembrance Day
+2048/3/2,Nuclear Victims Remembrance Day Holiday
+2048/4/3,Good Friday
+2048/5/1,Constitution Day
+2048/7/3,Fisherman's Day
+2048/9/4,Dri-jerbal Day
+2048/9/25,Manit Day
+2048/11/17,President's Day
+2048/12/4,Gospel Day
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/3/1,Nuclear Victims Remembrance Day
+2049/4/16,Good Friday
+2049/4/30,Constitution Day Holiday
+2049/5/1,Constitution Day
+2049/7/2,Fisherman's Day
+2049/9/3,Dri-jerbal Day
+2049/9/24,Manit Day
+2049/11/17,President's Day
+2049/12/3,Gospel Day
+2049/12/24,Christmas Day Holiday
+2049/12/25,Christmas Day
+2049/12/31,New Year's Day Holiday
+2050/1/1,New Year's Day
+2050/3/1,Nuclear Victims Remembrance Day
+2050/4/8,Good Friday
+2050/5/1,Constitution Day
+2050/5/2,Constitution Day Holiday
+2050/7/1,Fisherman's Day
+2050/9/2,Dri-jerbal Day
+2050/9/30,Manit Day
+2050/11/17,President's Day
+2050/12/2,Gospel Day
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day Holiday

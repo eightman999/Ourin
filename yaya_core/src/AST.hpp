@@ -179,12 +179,13 @@ struct ForNode : Node {
 
 struct ForeachNode : Node {
     std::shared_ptr<Node> arrayExpr; // expression yielding the array to iterate
-    std::string varName;             // loop variable name
+    std::string varName;             // value variable name
+    std::string keyName;             // optional key/index variable name
     std::vector<std::shared_ptr<Node>> body;
 
     ForeachNode(std::shared_ptr<Node> arr, const std::string& var,
-                const std::vector<std::shared_ptr<Node>>& b)
-        : arrayExpr(arr), varName(var), body(b) {
+                const std::vector<std::shared_ptr<Node>>& b, const std::string& key = "")
+        : arrayExpr(arr), varName(var), keyName(key), body(b) {
         type = NodeType::Foreach;
     }
 };

@@ -203,12 +203,20 @@ public enum EventReferenceTable {
         .init(id: "OnExecuteHTTPSSLInfo", references: ["asyncID", "url", "statusCode", "tlsVersion"], category: "network"),
         // Streaming は Complete の R4 をチャンク本文に置き換える。
         .init(id: "OnExecuteHTTPStreaming", references: ["method", "asyncID", "url", "data", "body", "cookie", "responseHeaders"], category: "network"),
-        .init(id: "OnExecuteWebSocketOpen", references: ["url"], category: "network"),
-        .init(id: "OnExecuteWebSocketReceive", references: ["payload", "url", "dataType"], category: "network"),
+        // UKADOC 2.8.05: R0 は --async の識別子、R1 は URL。
+        .init(id: "OnExecuteWebSocketOpen", references: ["asyncID", "url", "status"], category: "network"),
+        .init(id: "OnExecuteWebSocketReceive", references: ["asyncID", "url", "opcode", "data"], category: "network"),
+        .init(id: "OnExecuteWebSocketReconnect", references: ["asyncID", "url", "status"], category: "network"),
+        .init(id: "OnExecuteWebSocketFailure", references: ["asyncID", "url", "reason"], category: "network"),
+        .init(id: "OnExecuteWebSocket_SSLInfo", references: ["asyncID", "url", "status", "tlsVersion"], category: "network"),
+        // UKADOC 2.8.91: \![execute,filewatch]
+        .init(id: "OnExecuteFileWatchChange", references: ["asyncID", "path", "kind", "fullPath"], category: "file"),
+        .init(id: "OnExecuteFileWatchFailure", references: ["asyncID", "path", "reason"], category: "file"),
+        // 以下 Send / State / Error は Ourin 独自拡張。
         .init(id: "OnExecuteWebSocketSend", references: ["payload", "url", "dataType"], category: "network"),
         .init(id: "OnExecuteWebSocketState", references: ["state", "url"], category: "network"),
         .init(id: "OnExecuteWebSocketError", references: ["reason", "url"], category: "network"),
-        .init(id: "OnExecuteWebSocketClose", references: ["url"], category: "network"),
+        .init(id: "OnExecuteWebSocketClose", references: ["asyncID", "url", "reason"], category: "network"),
 
         // MARK: - メディア
         // OnMusicPlay 系はローカルの \\![sound] ではなく外部メディアプレイヤーの曲情報。
@@ -329,6 +337,8 @@ public enum EventReferenceTable {
         // Reference* contains a byte-value-1-delimited MAYUNA record.
         .init(id: "OnNotifyDressupInfo", references: ["dressupInfo"], notifyReturnIgnored: true, category: "system"),
         .init(id: "OnNotifyUserInfo", references: ["addressName", "fullName", "birthday", "gender"], notifyReturnIgnored: true, category: "system"),
+        // UKADOC 2.9.11: 今日の祝日名。祝日でない日や、名前の載っていない祝日では送られない。
+        .init(id: "OnNotifyHolidayInfo", references: ["name", "date", "countryCode"], notifyReturnIgnored: true, category: "system"),
         .init(id: "OnNotifyOSInfo", references: ["osInfo", "cpuInfo", "memoryInfo", "uptimeMinutes"], notifyReturnIgnored: true, category: "system"),
         // Reference* はインストール済みフォントの数だけ繰り返される。
         .init(id: "OnNotifyFontInfo", references: ["fontName"], notifyReturnIgnored: true, category: "system"),
@@ -415,6 +425,24 @@ public enum EventReferenceTable {
         // UKADOC: URL, scope, MIME, then the host's planned action.
         .init(id: "OnURLQuery", references: ["url", "scopeID", "mimeType", "plannedAction"], category: "dragdrop"),
         .init(id: "OnWallpaperChange", references: ["filePath"], category: "dragdrop"),
+        // UKADOC 2.8.86。R6 以降はモニタごとの「番号[\\1]パス[\\1]スタイル」が続く。
+        .init(id: "OnDesktopWallpaperChange", references: ["state", "cause", "path", "previousPath", "style", "backgroundColor"], category: "system"),
+        // UKADOC 2.8.90: \![execute,ical-get/ical-post]。Complete の Reference は予定の数だけ続く。
+        // Failure / Progress は OnExecuteHTTPFailure / OnExecuteHTTPComplete と同じ並び（R4 は parse / downloading など）。
+        .init(id: "OnExecuteICalComplete", references: ["calendar"], category: "network"),
+        .init(id: "OnExecuteICalFailure", references: ["method", "asyncID", "url", "data", "result", "cookie", "responseHeaders"], category: "network"),
+        .init(id: "OnExecuteICalProgress", references: ["method", "asyncID", "url", "data", "result", "cookie", "responseHeaders"], category: "network"),
+        .init(id: "OnExecuteICal_SSLInfo", references: ["asyncID", "url", "statusCode", "tlsVersion"], category: "network"),
+        // UKADOC 2.8.91 / 2.8.90。ScheduleGetComplete と ScheduleTodayNotify の Reference は予定の数だけ続く。
+        .init(id: "OnExecuteScheduleComplete", references: ["operation", "uid"], category: "calendar"),
+        .init(id: "OnExecuteScheduleFailure", references: ["operation", "reason", "uid"], category: "calendar"),
+        .init(id: "OnExecuteScheduleGetComplete", references: ["calendar"], category: "calendar"),
+        .init(id: "OnScheduleTodayNotify", references: ["schedule"], category: "calendar"),
+        // UKADOC 2.9.18〜2.9.20: R2〜R5 はチャンネル・帯域ごとの値をバイト値1区切りで並べる。
+        .init(id: "OnSoundSpectrum", references: ["filename", "bandCount", "channelLevels", "channelPeaks", "bandLevels", "bandPeaks", "position"], category: "sound"),
+        // UKADOC 2.9.13: 内蔵SAORIモジュールの --async の結果。Complete の R4 以降は Value0 以降。
+        .init(id: "OnInternalSaoriComplete", references: ["asyncID", "result", "module", "function"], category: "saori"),
+        .init(id: "OnInternalSaoriFailure", references: ["asyncID", "reason", "module", "function"], category: "saori"),
         // UKADOC: R2 は予約／空欄、R3=対象種別、R4=更新理由。
         .init(id: "OnUpdateBegin", references: ["ghostName", "path", "unused2", "targetType", "executionReason"], category: "update"),
         .init(id: "OnUpdateCheckComplete", references: ["reason", "fileList", "unused2", "targetType", "executionReason"], category: "update"),

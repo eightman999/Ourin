@@ -36,6 +36,11 @@ public final class DirectSSTPXPC: NSObject, NSXPCListenerDelegate, OurinSSTPXPC 
             reply(Data("SSTP/1.1 400 Bad Request\r\n\r\n".utf8))
             return
         }
+        // SAORI over DirectSSTP: SAORI/1.0 の要求は内蔵モジュールへ（応答は要求の Charset で返す）。
+        if InternalSaoriRouting.isSaoriRequest(text) {
+            reply(InternalSaoriRouting.respond(to: text))
+            return
+        }
         let req = SSTPParser.parseRequest(text: text)
         let resp = SSTPDispatcher.dispatchExternal(
             request: req,

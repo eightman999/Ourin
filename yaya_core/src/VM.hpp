@@ -3,6 +3,7 @@
 #include "AST.hpp"
 #include "Value.hpp"
 #include <map>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <functional>
@@ -21,6 +22,12 @@ public:
     
     // Execute system command
     virtual nlohmann::json executeCommand(const std::string& command, bool wait) = 0;
+    // Plugin packages must delegate execution to the host's explicit mapping.
+    virtual bool requiresHostExecution() const { return false; }
+    virtual nlohmann::json executeCommandWithArguments(const std::string& command, bool wait, const std::string& arguments) {
+        if (!arguments.empty()) return {{"ok", false}, {"status", 501}};
+        return executeCommand(command, wait);
+    }
     
     // Plugin/SAORI operations
     virtual nlohmann::json pluginOperation(const std::string& op, const nlohmann::json& params) = 0;
@@ -83,8 +90,17 @@ public:
     // Check if a function is registered
     bool hasFunction(const std::string& name) const;
 
+    // YAYA の fncdepth: ユーザー関数の呼び出しの深さの上限（yaya-shiori の CCallLimit）。
+    // 既定 32、0 は無制限、0 以外で 2 未満は 2。超えた呼び出しは本体を実行せずに空を返す。
+    static constexpr int DEFAULT_FUNCTION_DEPTH = 32;
+    void setMaxFunctionDepth(int depth) {
+        maxFunctionDepth_ = depth < 0 ? DEFAULT_FUNCTION_DEPTH : (depth == 1 ? 2 : depth);
+    }
+    int maxFunctionDepth() const { return maxFunctionDepth_; }
+
     // Set the ghost root path used to anchor relative persistence/DICLOAD paths.
     void setGhostRootPath(const std::string& path) { ghostRootPath_ = path; }
+    void setSaveFilePath(const std::string& path) { saveFilePath_ = path; }
     std::string getGhostRootPath() const { return ghostRootPath_; }
 
     // 辞書ロード時プリプロセッサ (#globaldefine) からの登録口。
@@ -109,17 +125,25 @@ private:
     // Local variable scope stack (for variables starting with '_')
     std::vector<std::map<std::string, Value>> localScopes_;
 
-    // SETDELIM/GETDELIM で設定する配列⇔文字列の既定区切り文字（SPLIT の区切り省略時に使用）
+    // 配列⇔文字列の既定区切り文字（SPLIT の区切り省略時などに使用）。
+    // SETDELIM は変数ごとの区切り（variableDelimiters_）を設定し、これは変えない。
     std::string arrayDelimiter_ = ",";
+
+    // SETDELIM(変数, 区切り) で変数ごとに設定する簡易配列の区切り（グローバル変数の分）。
+    // ローカル変数の分は、変数と同じ寿命になるようローカルスコープの中に持つ（variableDelimiter）。
+    std::map<std::string, std::string> variableDelimiters_;
 
     // FCHARSET で設定するテキストファイルの既定文字コード。
     // 0=Shift_JIS/CP932、1=UTF-8、127=OS既定（macOSではUTF-8として扱う）。
     int fileCharset_ = 1;
+    // Per-VM ownership ensures unload closes every open stream. Keys are resolved filenames.
+    std::map<std::string, std::unique_ptr<std::fstream>> fileHandles_;
 
     // SHIORI reference values
     std::vector<Value> references_;
 
     // Persistence/settings (Phase 7)
+    std::string saveFilePath_; // Host-provided module load path, independent of basepath.
     std::string ghostRootPath_;                          // base dir for SAVEVAR/RESTOREVAR/DICLOAD
     std::map<std::string, Value> settings_;              // GETSETTING/SETSETTING store
     std::vector<std::string> tempVarNames_;              // SHIORI3FW.RegisterTempVar (not persisted)
@@ -155,9 +179,13 @@ private:
     // RE_OPTION で設定する正規表現オプション（bit0: icase, bit1: multiline）
     int reOptions_ = 0;
 
-    // 再帰深度制限（無限ループ防止）
+    // 再帰深度制限（無限ループ防止）。fncdepth が無制限でもこれは超えない。
     int recursion_depth_ = 0;
     static constexpr int MAX_RECURSION_DEPTH = 1000;
+
+    // 実行中のユーザー関数の深さと、その上限（fncdepth）。
+    int functionDepth_ = 0;
+    int maxFunctionDepth_ = DEFAULT_FUNCTION_DEPTH;
 
     // 実行タイムアウト（無限ループ防止）
     std::chrono::steady_clock::time_point execution_start_time_;
@@ -210,6 +238,19 @@ private:
     std::optional<RefTarget> tryResolveReference(std::shared_ptr<AST::Node> node);
     Value readReference(const RefTarget& target);
     void writeReference(const RefTarget& target, const Value& value);
+
+    // 代入の左辺になる変数の要素（`a[i]`、`a[i][j]` ...）。添字は解決時に評価する。
+    struct ElementLvalue {
+        std::string varName;
+        std::vector<Value> indices;
+    };
+    std::optional<ElementLvalue> resolveElementLvalue(const std::shared_ptr<AST::Node>& node);
+    Value readElementLvalue(const ElementLvalue& target);
+    void writeElementLvalue(const ElementLvalue& target, const Value& value);
+
+    // 変数の簡易配列の区切り（SETDELIM で設定していなければ ","）。
+    std::string variableDelimiter(const std::string& name) const;
+    void setVariableDelimiter(const std::string& name, const std::string& delimiter);
     
     // Register built-in functions
     void registerBuiltins();

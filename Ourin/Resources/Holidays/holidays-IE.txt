@@ -1,0 +1,311 @@
+# IE の祝日（2020〜2050年、言語: en）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/3/17,Saint Patrick's Day
+2020/4/13,Easter Monday
+2020/5/4,May Day
+2020/6/1,June Bank Holiday
+2020/8/3,August Bank Holiday
+2020/10/26,October Bank Holiday
+2020/12/25,Christmas Day
+2020/12/26,Saint Stephen's Day
+2021/1/1,New Year's Day
+2021/3/17,Saint Patrick's Day
+2021/4/5,Easter Monday
+2021/5/3,May Day
+2021/6/7,June Bank Holiday
+2021/8/2,August Bank Holiday
+2021/10/25,October Bank Holiday
+2021/12/25,Christmas Day
+2021/12/26,Saint Stephen's Day
+2022/1/1,New Year's Day
+2022/3/17,Saint Patrick's Day
+2022/3/18,Day of Remembrance and Recognition
+2022/4/18,Easter Monday
+2022/5/2,May Day
+2022/6/6,June Bank Holiday
+2022/8/1,August Bank Holiday
+2022/10/31,October Bank Holiday
+2022/12/25,Christmas Day
+2022/12/26,Saint Stephen's Day
+2023/1/1,New Year's Day
+2023/2/6,Saint Brigid's Day
+2023/3/17,Saint Patrick's Day
+2023/4/10,Easter Monday
+2023/5/1,May Day
+2023/6/5,June Bank Holiday
+2023/8/7,August Bank Holiday
+2023/10/30,October Bank Holiday
+2023/12/25,Christmas Day
+2023/12/26,Saint Stephen's Day
+2024/1/1,New Year's Day
+2024/2/5,Saint Brigid's Day
+2024/3/17,Saint Patrick's Day
+2024/4/1,Easter Monday
+2024/5/6,May Day
+2024/6/3,June Bank Holiday
+2024/8/5,August Bank Holiday
+2024/10/28,October Bank Holiday
+2024/12/25,Christmas Day
+2024/12/26,Saint Stephen's Day
+2025/1/1,New Year's Day
+2025/2/3,Saint Brigid's Day
+2025/3/17,Saint Patrick's Day
+2025/4/21,Easter Monday
+2025/5/5,May Day
+2025/6/2,June Bank Holiday
+2025/8/4,August Bank Holiday
+2025/10/27,October Bank Holiday
+2025/12/25,Christmas Day
+2025/12/26,Saint Stephen's Day
+2026/1/1,New Year's Day
+2026/2/2,Saint Brigid's Day
+2026/3/17,Saint Patrick's Day
+2026/4/6,Easter Monday
+2026/5/4,May Day
+2026/6/1,June Bank Holiday
+2026/8/3,August Bank Holiday
+2026/10/26,October Bank Holiday
+2026/12/25,Christmas Day
+2026/12/26,Saint Stephen's Day
+2027/1/1,New Year's Day
+2027/2/1,Saint Brigid's Day
+2027/3/17,Saint Patrick's Day
+2027/3/29,Easter Monday
+2027/5/3,May Day
+2027/6/7,June Bank Holiday
+2027/8/2,August Bank Holiday
+2027/10/25,October Bank Holiday
+2027/12/25,Christmas Day
+2027/12/26,Saint Stephen's Day
+2028/1/1,New Year's Day
+2028/2/7,Saint Brigid's Day
+2028/3/17,Saint Patrick's Day
+2028/4/17,Easter Monday
+2028/5/1,May Day
+2028/6/5,June Bank Holiday
+2028/8/7,August Bank Holiday
+2028/10/30,October Bank Holiday
+2028/12/25,Christmas Day
+2028/12/26,Saint Stephen's Day
+2029/1/1,New Year's Day
+2029/2/5,Saint Brigid's Day
+2029/3/17,Saint Patrick's Day
+2029/4/2,Easter Monday
+2029/5/7,May Day
+2029/6/4,June Bank Holiday
+2029/8/6,August Bank Holiday
+2029/10/29,October Bank Holiday
+2029/12/25,Christmas Day
+2029/12/26,Saint Stephen's Day
+2030/1/1,New Year's Day
+2030/2/1,Saint Brigid's Day
+2030/3/17,Saint Patrick's Day
+2030/4/22,Easter Monday
+2030/5/6,May Day
+2030/6/3,June Bank Holiday
+2030/8/5,August Bank Holiday
+2030/10/28,October Bank Holiday
+2030/12/25,Christmas Day
+2030/12/26,Saint Stephen's Day
+2031/1/1,New Year's Day
+2031/2/3,Saint Brigid's Day
+2031/3/17,Saint Patrick's Day
+2031/4/14,Easter Monday
+2031/5/5,May Day
+2031/6/2,June Bank Holiday
+2031/8/4,August Bank Holiday
+2031/10/27,October Bank Holiday
+2031/12/25,Christmas Day
+2031/12/26,Saint Stephen's Day
+2032/1/1,New Year's Day
+2032/2/2,Saint Brigid's Day
+2032/3/17,Saint Patrick's Day
+2032/3/29,Easter Monday
+2032/5/3,May Day
+2032/6/7,June Bank Holiday
+2032/8/2,August Bank Holiday
+2032/10/25,October Bank Holiday
+2032/12/25,Christmas Day
+2032/12/26,Saint Stephen's Day
+2033/1/1,New Year's Day
+2033/2/7,Saint Brigid's Day
+2033/3/17,Saint Patrick's Day
+2033/4/18,Easter Monday
+2033/5/2,May Day
+2033/6/6,June Bank Holiday
+2033/8/1,August Bank Holiday
+2033/10/31,October Bank Holiday
+2033/12/25,Christmas Day
+2033/12/26,Saint Stephen's Day
+2034/1/1,New Year's Day
+2034/2/6,Saint Brigid's Day
+2034/3/17,Saint Patrick's Day
+2034/4/10,Easter Monday
+2034/5/1,May Day
+2034/6/5,June Bank Holiday
+2034/8/7,August Bank Holiday
+2034/10/30,October Bank Holiday
+2034/12/25,Christmas Day
+2034/12/26,Saint Stephen's Day
+2035/1/1,New Year's Day
+2035/2/5,Saint Brigid's Day
+2035/3/17,Saint Patrick's Day
+2035/3/26,Easter Monday
+2035/5/7,May Day
+2035/6/4,June Bank Holiday
+2035/8/6,August Bank Holiday
+2035/10/29,October Bank Holiday
+2035/12/25,Christmas Day
+2035/12/26,Saint Stephen's Day
+2036/1/1,New Year's Day
+2036/2/1,Saint Brigid's Day
+2036/3/17,Saint Patrick's Day
+2036/4/14,Easter Monday
+2036/5/5,May Day
+2036/6/2,June Bank Holiday
+2036/8/4,August Bank Holiday
+2036/10/27,October Bank Holiday
+2036/12/25,Christmas Day
+2036/12/26,Saint Stephen's Day
+2037/1/1,New Year's Day
+2037/2/2,Saint Brigid's Day
+2037/3/17,Saint Patrick's Day
+2037/4/6,Easter Monday
+2037/5/4,May Day
+2037/6/1,June Bank Holiday
+2037/8/3,August Bank Holiday
+2037/10/26,October Bank Holiday
+2037/12/25,Christmas Day
+2037/12/26,Saint Stephen's Day
+2038/1/1,New Year's Day
+2038/2/1,Saint Brigid's Day
+2038/3/17,Saint Patrick's Day
+2038/4/26,Easter Monday
+2038/5/3,May Day
+2038/6/7,June Bank Holiday
+2038/8/2,August Bank Holiday
+2038/10/25,October Bank Holiday
+2038/12/25,Christmas Day
+2038/12/26,Saint Stephen's Day
+2039/1/1,New Year's Day
+2039/2/7,Saint Brigid's Day
+2039/3/17,Saint Patrick's Day
+2039/4/11,Easter Monday
+2039/5/2,May Day
+2039/6/6,June Bank Holiday
+2039/8/1,August Bank Holiday
+2039/10/31,October Bank Holiday
+2039/12/25,Christmas Day
+2039/12/26,Saint Stephen's Day
+2040/1/1,New Year's Day
+2040/2/6,Saint Brigid's Day
+2040/3/17,Saint Patrick's Day
+2040/4/2,Easter Monday
+2040/5/7,May Day
+2040/6/4,June Bank Holiday
+2040/8/6,August Bank Holiday
+2040/10/29,October Bank Holiday
+2040/12/25,Christmas Day
+2040/12/26,Saint Stephen's Day
+2041/1/1,New Year's Day
+2041/2/1,Saint Brigid's Day
+2041/3/17,Saint Patrick's Day
+2041/4/22,Easter Monday
+2041/5/6,May Day
+2041/6/3,June Bank Holiday
+2041/8/5,August Bank Holiday
+2041/10/28,October Bank Holiday
+2041/12/25,Christmas Day
+2041/12/26,Saint Stephen's Day
+2042/1/1,New Year's Day
+2042/2/3,Saint Brigid's Day
+2042/3/17,Saint Patrick's Day
+2042/4/7,Easter Monday
+2042/5/5,May Day
+2042/6/2,June Bank Holiday
+2042/8/4,August Bank Holiday
+2042/10/27,October Bank Holiday
+2042/12/25,Christmas Day
+2042/12/26,Saint Stephen's Day
+2043/1/1,New Year's Day
+2043/2/2,Saint Brigid's Day
+2043/3/17,Saint Patrick's Day
+2043/3/30,Easter Monday
+2043/5/4,May Day
+2043/6/1,June Bank Holiday
+2043/8/3,August Bank Holiday
+2043/10/26,October Bank Holiday
+2043/12/25,Christmas Day
+2043/12/26,Saint Stephen's Day
+2044/1/1,New Year's Day
+2044/2/1,Saint Brigid's Day
+2044/3/17,Saint Patrick's Day
+2044/4/18,Easter Monday
+2044/5/2,May Day
+2044/6/6,June Bank Holiday
+2044/8/1,August Bank Holiday
+2044/10/31,October Bank Holiday
+2044/12/25,Christmas Day
+2044/12/26,Saint Stephen's Day
+2045/1/1,New Year's Day
+2045/2/6,Saint Brigid's Day
+2045/3/17,Saint Patrick's Day
+2045/4/10,Easter Monday
+2045/5/1,May Day
+2045/6/5,June Bank Holiday
+2045/8/7,August Bank Holiday
+2045/10/30,October Bank Holiday
+2045/12/25,Christmas Day
+2045/12/26,Saint Stephen's Day
+2046/1/1,New Year's Day
+2046/2/5,Saint Brigid's Day
+2046/3/17,Saint Patrick's Day
+2046/3/26,Easter Monday
+2046/5/7,May Day
+2046/6/4,June Bank Holiday
+2046/8/6,August Bank Holiday
+2046/10/29,October Bank Holiday
+2046/12/25,Christmas Day
+2046/12/26,Saint Stephen's Day
+2047/1/1,New Year's Day
+2047/2/1,Saint Brigid's Day
+2047/3/17,Saint Patrick's Day
+2047/4/15,Easter Monday
+2047/5/6,May Day
+2047/6/3,June Bank Holiday
+2047/8/5,August Bank Holiday
+2047/10/28,October Bank Holiday
+2047/12/25,Christmas Day
+2047/12/26,Saint Stephen's Day
+2048/1/1,New Year's Day
+2048/2/3,Saint Brigid's Day
+2048/3/17,Saint Patrick's Day
+2048/4/6,Easter Monday
+2048/5/4,May Day
+2048/6/1,June Bank Holiday
+2048/8/3,August Bank Holiday
+2048/10/26,October Bank Holiday
+2048/12/25,Christmas Day
+2048/12/26,Saint Stephen's Day
+2049/1/1,New Year's Day
+2049/2/1,Saint Brigid's Day
+2049/3/17,Saint Patrick's Day
+2049/4/19,Easter Monday
+2049/5/3,May Day
+2049/6/7,June Bank Holiday
+2049/8/2,August Bank Holiday
+2049/10/25,October Bank Holiday
+2049/12/25,Christmas Day
+2049/12/26,Saint Stephen's Day
+2050/1/1,New Year's Day
+2050/2/7,Saint Brigid's Day
+2050/3/17,Saint Patrick's Day
+2050/4/11,Easter Monday
+2050/5/2,May Day
+2050/6/6,June Bank Holiday
+2050/8/1,August Bank Holiday
+2050/10/31,October Bank Holiday
+2050/12/25,Christmas Day
+2050/12/26,Saint Stephen's Day

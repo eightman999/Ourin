@@ -1,0 +1,489 @@
+# AO holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/2/3,Day off for Liberation Movement Day
+2020/2/4,Liberation Movement Day
+2020/2/24,Day off for Carnival Day
+2020/2/25,Carnival Day
+2020/3/8,International Women's Day
+2020/3/23,Southern Africa Liberation Day
+2020/4/4,Peace and National Reconciliation Day
+2020/4/10,Good Friday
+2020/5/1,International Worker's Day
+2020/9/17,National Heroes' Day
+2020/9/18,Day off for National Heroes' Day
+2020/11/2,All Souls' Day
+2020/11/11,National Independence Day
+2020/12/25,Christmas and Family Day
+2021/1/1,New Year's Day
+2021/2/4,Liberation Movement Day
+2021/2/5,Day off for Liberation Movement Day
+2021/2/15,Day off for Carnival Day
+2021/2/16,Carnival Day
+2021/3/8,International Women's Day
+2021/3/22,Day off for Southern Africa Liberation Day
+2021/3/23,Southern Africa Liberation Day
+2021/4/2,Good Friday
+2021/4/4,Peace and National Reconciliation Day
+2021/5/1,International Worker's Day
+2021/9/17,National Heroes' Day
+2021/11/1,Day off for All Souls' Day
+2021/11/2,All Souls' Day
+2021/11/11,National Independence Day
+2021/11/12,Day off for National Independence Day
+2021/12/25,Christmas and Family Day
+2022/1/1,New Year's Day
+2022/2/4,Liberation Movement Day
+2022/2/28,Day off for Carnival Day
+2022/3/1,Carnival Day
+2022/3/7,Day off for International Women's Day
+2022/3/8,International Women's Day
+2022/3/23,Southern Africa Liberation Day
+2022/4/4,Peace and National Reconciliation Day
+2022/4/15,Good Friday
+2022/5/1,International Worker's Day
+2022/9/17,National Heroes' Day
+2022/11/2,All Souls' Day
+2022/11/11,National Independence Day
+2022/12/25,Christmas and Family Day
+2023/1/1,New Year's Day
+2023/2/4,Liberation Movement Day
+2023/2/20,Day off for Carnival Day
+2023/2/21,Carnival Day
+2023/3/8,International Women's Day
+2023/3/23,Southern Africa Liberation Day
+2023/3/24,Day off for Southern Africa Liberation Day
+2023/4/3,Day off for Peace and National Reconciliation Day
+2023/4/4,Peace and National Reconciliation Day
+2023/4/7,Good Friday
+2023/5/1,International Worker's Day
+2023/9/17,National Heroes' Day
+2023/11/2,All Souls' Day
+2023/11/3,Day off for All Souls' Day
+2023/11/11,National Independence Day
+2023/12/25,Christmas and Family Day
+2024/1/1,New Year's Day
+2024/2/4,Liberation Movement Day
+2024/2/12,Day off for Carnival Day
+2024/2/13,Carnival Day
+2024/3/8,International Women's Day
+2024/3/23,Southern Africa Liberation Day
+2024/3/29,Good Friday
+2024/4/4,Peace and National Reconciliation Day
+2024/4/5,Day off for Peace and National Reconciliation Day
+2024/5/1,International Worker's Day
+2024/9/16,Day off for National Heroes' Day
+2024/9/17,National Heroes' Day
+2024/11/2,All Souls' Day
+2024/11/11,National Independence Day
+2024/12/25,Christmas and Family Day
+2025/1/1,New Year's Day
+2025/2/3,Day off for Liberation Movement Day
+2025/2/4,Liberation Movement Day
+2025/3/3,Day off for Carnival Day
+2025/3/4,Carnival Day
+2025/3/8,International Women's Day
+2025/3/23,Southern Africa Liberation Day
+2025/4/4,Peace and National Reconciliation Day
+2025/4/18,Good Friday
+2025/5/1,International Worker's Day
+2025/5/2,Day off for International Worker's Day
+2025/9/17,National Heroes' Day
+2025/11/2,All Souls' Day
+2025/11/10,Day off for National Independence Day
+2025/11/11,National Independence Day
+2025/12/25,Christmas and Family Day
+2025/12/26,Day off for Christmas and Family Day
+2026/1/1,New Year's Day
+2026/1/2,Day off for New Year's Day
+2026/2/4,Liberation Movement Day
+2026/2/16,Day off for Carnival Day
+2026/2/17,Carnival Day
+2026/3/8,International Women's Day
+2026/3/23,Southern Africa Liberation Day
+2026/4/3,Good Friday
+2026/4/4,Peace and National Reconciliation Day
+2026/5/1,International Worker's Day
+2026/9/17,National Heroes' Day
+2026/9/18,Day off for National Heroes' Day
+2026/11/2,All Souls' Day
+2026/11/11,National Independence Day
+2026/12/25,Christmas and Family Day
+2027/1/1,New Year's Day
+2027/2/4,Liberation Movement Day
+2027/2/5,Day off for Liberation Movement Day
+2027/2/8,Day off for Carnival Day
+2027/2/9,Carnival Day
+2027/3/8,International Women's Day
+2027/3/22,Day off for Southern Africa Liberation Day
+2027/3/23,Southern Africa Liberation Day
+2027/3/26,Good Friday
+2027/4/4,Peace and National Reconciliation Day
+2027/5/1,International Worker's Day
+2027/9/17,National Heroes' Day
+2027/11/1,Day off for All Souls' Day
+2027/11/2,All Souls' Day
+2027/11/11,National Independence Day
+2027/11/12,Day off for National Independence Day
+2027/12/25,Christmas and Family Day
+2028/1/1,New Year's Day
+2028/2/4,Liberation Movement Day
+2028/2/28,Day off for Carnival Day
+2028/2/29,Carnival Day
+2028/3/8,International Women's Day
+2028/3/23,Southern Africa Liberation Day
+2028/3/24,Day off for Southern Africa Liberation Day
+2028/4/3,Day off for Peace and National Reconciliation Day
+2028/4/4,Peace and National Reconciliation Day
+2028/4/14,Good Friday
+2028/5/1,International Worker's Day
+2028/9/17,National Heroes' Day
+2028/11/2,All Souls' Day
+2028/11/3,Day off for All Souls' Day
+2028/11/11,National Independence Day
+2028/12/25,Christmas and Family Day
+2029/1/1,New Year's Day
+2029/2/4,Liberation Movement Day
+2029/2/12,Day off for Carnival Day
+2029/2/13,Carnival Day
+2029/3/8,International Women's Day
+2029/3/9,Day off for International Women's Day
+2029/3/23,Southern Africa Liberation Day
+2029/3/30,Good Friday
+2029/4/4,Peace and National Reconciliation Day
+2029/4/30,Day off for International Worker's Day
+2029/5/1,International Worker's Day
+2029/9/17,National Heroes' Day
+2029/11/2,All Souls' Day
+2029/11/11,National Independence Day
+2029/12/24,Day off for Christmas and Family Day
+2029/12/25,Christmas and Family Day
+2029/12/31,Day off for New Year's Day
+2030/1/1,New Year's Day
+2030/2/4,Liberation Movement Day
+2030/3/4,Day off for Carnival Day
+2030/3/5,Carnival Day
+2030/3/8,International Women's Day
+2030/3/23,Southern Africa Liberation Day
+2030/4/4,Peace and National Reconciliation Day
+2030/4/5,Day off for Peace and National Reconciliation Day
+2030/4/19,Good Friday
+2030/5/1,International Worker's Day
+2030/9/16,Day off for National Heroes' Day
+2030/9/17,National Heroes' Day
+2030/11/2,All Souls' Day
+2030/11/11,National Independence Day
+2030/12/25,Christmas and Family Day
+2031/1/1,New Year's Day
+2031/2/3,Day off for Liberation Movement Day
+2031/2/4,Liberation Movement Day
+2031/2/24,Day off for Carnival Day
+2031/2/25,Carnival Day
+2031/3/8,International Women's Day
+2031/3/23,Southern Africa Liberation Day
+2031/4/4,Peace and National Reconciliation Day
+2031/4/11,Good Friday
+2031/5/1,International Worker's Day
+2031/5/2,Day off for International Worker's Day
+2031/9/17,National Heroes' Day
+2031/11/2,All Souls' Day
+2031/11/10,Day off for National Independence Day
+2031/11/11,National Independence Day
+2031/12/25,Christmas and Family Day
+2031/12/26,Day off for Christmas and Family Day
+2032/1/1,New Year's Day
+2032/1/2,Day off for New Year's Day
+2032/2/4,Liberation Movement Day
+2032/2/9,Day off for Carnival Day
+2032/2/10,Carnival Day
+2032/3/8,International Women's Day
+2032/3/22,Day off for Southern Africa Liberation Day
+2032/3/23,Southern Africa Liberation Day
+2032/3/26,Good Friday
+2032/4/4,Peace and National Reconciliation Day
+2032/5/1,International Worker's Day
+2032/9/17,National Heroes' Day
+2032/11/1,Day off for All Souls' Day
+2032/11/2,All Souls' Day
+2032/11/11,National Independence Day
+2032/11/12,Day off for National Independence Day
+2032/12/25,Christmas and Family Day
+2033/1/1,New Year's Day
+2033/2/4,Liberation Movement Day
+2033/2/28,Day off for Carnival Day
+2033/3/1,Carnival Day
+2033/3/7,Day off for International Women's Day
+2033/3/8,International Women's Day
+2033/3/23,Southern Africa Liberation Day
+2033/4/4,Peace and National Reconciliation Day
+2033/4/15,Good Friday
+2033/5/1,International Worker's Day
+2033/9/17,National Heroes' Day
+2033/11/2,All Souls' Day
+2033/11/11,National Independence Day
+2033/12/25,Christmas and Family Day
+2034/1/1,New Year's Day
+2034/2/4,Liberation Movement Day
+2034/2/20,Day off for Carnival Day
+2034/2/21,Carnival Day
+2034/3/8,International Women's Day
+2034/3/23,Southern Africa Liberation Day
+2034/3/24,Day off for Southern Africa Liberation Day
+2034/4/3,Day off for Peace and National Reconciliation Day
+2034/4/4,Peace and National Reconciliation Day
+2034/4/7,Good Friday
+2034/5/1,International Worker's Day
+2034/9/17,National Heroes' Day
+2034/11/2,All Souls' Day
+2034/11/3,Day off for All Souls' Day
+2034/11/11,National Independence Day
+2034/12/25,Christmas and Family Day
+2035/1/1,New Year's Day
+2035/2/4,Liberation Movement Day
+2035/2/5,Day off for Carnival Day
+2035/2/6,Carnival Day
+2035/3/8,International Women's Day
+2035/3/9,Day off for International Women's Day
+2035/3/23,Good Friday; Southern Africa Liberation Day
+2035/4/4,Peace and National Reconciliation Day
+2035/4/30,Day off for International Worker's Day
+2035/5/1,International Worker's Day
+2035/9/17,National Heroes' Day
+2035/11/2,All Souls' Day
+2035/11/11,National Independence Day
+2035/12/24,Day off for Christmas and Family Day
+2035/12/25,Christmas and Family Day
+2035/12/31,Day off for New Year's Day
+2036/1/1,New Year's Day
+2036/2/4,Liberation Movement Day
+2036/2/25,Day off for Carnival Day
+2036/2/26,Carnival Day
+2036/3/8,International Women's Day
+2036/3/23,Southern Africa Liberation Day
+2036/4/4,Peace and National Reconciliation Day
+2036/4/11,Good Friday
+2036/5/1,International Worker's Day
+2036/5/2,Day off for International Worker's Day
+2036/9/17,National Heroes' Day
+2036/11/2,All Souls' Day
+2036/11/10,Day off for National Independence Day
+2036/11/11,National Independence Day
+2036/12/25,Christmas and Family Day
+2036/12/26,Day off for Christmas and Family Day
+2037/1/1,New Year's Day
+2037/1/2,Day off for New Year's Day
+2037/2/4,Liberation Movement Day
+2037/2/16,Day off for Carnival Day
+2037/2/17,Carnival Day
+2037/3/8,International Women's Day
+2037/3/23,Southern Africa Liberation Day
+2037/4/3,Good Friday
+2037/4/4,Peace and National Reconciliation Day
+2037/5/1,International Worker's Day
+2037/9/17,National Heroes' Day
+2037/9/18,Day off for National Heroes' Day
+2037/11/2,All Souls' Day
+2037/11/11,National Independence Day
+2037/12/25,Christmas and Family Day
+2038/1/1,New Year's Day
+2038/2/4,Liberation Movement Day
+2038/2/5,Day off for Liberation Movement Day
+2038/3/8,Day off for Carnival Day; International Women's Day
+2038/3/9,Carnival Day
+2038/3/22,Day off for Southern Africa Liberation Day
+2038/3/23,Southern Africa Liberation Day
+2038/4/4,Peace and National Reconciliation Day
+2038/4/23,Good Friday
+2038/5/1,International Worker's Day
+2038/9/17,National Heroes' Day
+2038/11/1,Day off for All Souls' Day
+2038/11/2,All Souls' Day
+2038/11/11,National Independence Day
+2038/11/12,Day off for National Independence Day
+2038/12/25,Christmas and Family Day
+2039/1/1,New Year's Day
+2039/2/4,Liberation Movement Day
+2039/2/21,Day off for Carnival Day
+2039/2/22,Carnival Day
+2039/3/7,Day off for International Women's Day
+2039/3/8,International Women's Day
+2039/3/23,Southern Africa Liberation Day
+2039/4/4,Peace and National Reconciliation Day
+2039/4/8,Good Friday
+2039/5/1,International Worker's Day
+2039/9/17,National Heroes' Day
+2039/11/2,All Souls' Day
+2039/11/11,National Independence Day
+2039/12/25,Christmas and Family Day
+2040/1/1,New Year's Day
+2040/2/4,Liberation Movement Day
+2040/2/13,Day off for Carnival Day
+2040/2/14,Carnival Day
+2040/3/8,International Women's Day
+2040/3/9,Day off for International Women's Day
+2040/3/23,Southern Africa Liberation Day
+2040/3/30,Good Friday
+2040/4/4,Peace and National Reconciliation Day
+2040/4/30,Day off for International Worker's Day
+2040/5/1,International Worker's Day
+2040/9/17,National Heroes' Day
+2040/11/2,All Souls' Day
+2040/11/11,National Independence Day
+2040/12/24,Day off for Christmas and Family Day
+2040/12/25,Christmas and Family Day
+2040/12/31,Day off for New Year's Day
+2041/1/1,New Year's Day
+2041/2/4,Liberation Movement Day
+2041/3/4,Day off for Carnival Day
+2041/3/5,Carnival Day
+2041/3/8,International Women's Day
+2041/3/23,Southern Africa Liberation Day
+2041/4/4,Peace and National Reconciliation Day
+2041/4/5,Day off for Peace and National Reconciliation Day
+2041/4/19,Good Friday
+2041/5/1,International Worker's Day
+2041/9/16,Day off for National Heroes' Day
+2041/9/17,National Heroes' Day
+2041/11/2,All Souls' Day
+2041/11/11,National Independence Day
+2041/12/25,Christmas and Family Day
+2042/1/1,New Year's Day
+2042/2/3,Day off for Liberation Movement Day
+2042/2/4,Liberation Movement Day
+2042/2/17,Day off for Carnival Day
+2042/2/18,Carnival Day
+2042/3/8,International Women's Day
+2042/3/23,Southern Africa Liberation Day
+2042/4/4,Good Friday; Peace and National Reconciliation Day
+2042/5/1,International Worker's Day
+2042/5/2,Day off for International Worker's Day
+2042/9/17,National Heroes' Day
+2042/11/2,All Souls' Day
+2042/11/10,Day off for National Independence Day
+2042/11/11,National Independence Day
+2042/12/25,Christmas and Family Day
+2042/12/26,Day off for Christmas and Family Day
+2043/1/1,New Year's Day
+2043/1/2,Day off for New Year's Day
+2043/2/4,Liberation Movement Day
+2043/2/9,Day off for Carnival Day
+2043/2/10,Carnival Day
+2043/3/8,International Women's Day
+2043/3/23,Southern Africa Liberation Day
+2043/3/27,Good Friday
+2043/4/4,Peace and National Reconciliation Day
+2043/5/1,International Worker's Day
+2043/9/17,National Heroes' Day
+2043/9/18,Day off for National Heroes' Day
+2043/11/2,All Souls' Day
+2043/11/11,National Independence Day
+2043/12/25,Christmas and Family Day
+2044/1/1,New Year's Day
+2044/2/4,Liberation Movement Day
+2044/2/5,Day off for Liberation Movement Day
+2044/2/29,Day off for Carnival Day
+2044/3/1,Carnival Day
+2044/3/7,Day off for International Women's Day
+2044/3/8,International Women's Day
+2044/3/23,Southern Africa Liberation Day
+2044/4/4,Peace and National Reconciliation Day
+2044/4/15,Good Friday
+2044/5/1,International Worker's Day
+2044/9/17,National Heroes' Day
+2044/11/2,All Souls' Day
+2044/11/11,National Independence Day
+2044/12/25,Christmas and Family Day
+2045/1/1,New Year's Day
+2045/2/4,Liberation Movement Day
+2045/2/20,Day off for Carnival Day
+2045/2/21,Carnival Day
+2045/3/8,International Women's Day
+2045/3/23,Southern Africa Liberation Day
+2045/3/24,Day off for Southern Africa Liberation Day
+2045/4/3,Day off for Peace and National Reconciliation Day
+2045/4/4,Peace and National Reconciliation Day
+2045/4/7,Good Friday
+2045/5/1,International Worker's Day
+2045/9/17,National Heroes' Day
+2045/11/2,All Souls' Day
+2045/11/3,Day off for All Souls' Day
+2045/11/11,National Independence Day
+2045/12/25,Christmas and Family Day
+2046/1/1,New Year's Day
+2046/2/4,Liberation Movement Day
+2046/2/5,Day off for Carnival Day
+2046/2/6,Carnival Day
+2046/3/8,International Women's Day
+2046/3/9,Day off for International Women's Day
+2046/3/23,Good Friday; Southern Africa Liberation Day
+2046/4/4,Peace and National Reconciliation Day
+2046/4/30,Day off for International Worker's Day
+2046/5/1,International Worker's Day
+2046/9/17,National Heroes' Day
+2046/11/2,All Souls' Day
+2046/11/11,National Independence Day
+2046/12/24,Day off for Christmas and Family Day
+2046/12/25,Christmas and Family Day
+2046/12/31,Day off for New Year's Day
+2047/1/1,New Year's Day
+2047/2/4,Liberation Movement Day
+2047/2/25,Day off for Carnival Day
+2047/2/26,Carnival Day
+2047/3/8,International Women's Day
+2047/3/23,Southern Africa Liberation Day
+2047/4/4,Peace and National Reconciliation Day
+2047/4/5,Day off for Peace and National Reconciliation Day
+2047/4/12,Good Friday
+2047/5/1,International Worker's Day
+2047/9/16,Day off for National Heroes' Day
+2047/9/17,National Heroes' Day
+2047/11/2,All Souls' Day
+2047/11/11,National Independence Day
+2047/12/25,Christmas and Family Day
+2048/1/1,New Year's Day
+2048/2/3,Day off for Liberation Movement Day
+2048/2/4,Liberation Movement Day
+2048/2/17,Day off for Carnival Day
+2048/2/18,Carnival Day
+2048/3/8,International Women's Day
+2048/3/23,Southern Africa Liberation Day
+2048/4/3,Good Friday
+2048/4/4,Peace and National Reconciliation Day
+2048/5/1,International Worker's Day
+2048/9/17,National Heroes' Day
+2048/9/18,Day off for National Heroes' Day
+2048/11/2,All Souls' Day
+2048/11/11,National Independence Day
+2048/12/25,Christmas and Family Day
+2049/1/1,New Year's Day
+2049/2/4,Liberation Movement Day
+2049/2/5,Day off for Liberation Movement Day
+2049/3/1,Day off for Carnival Day
+2049/3/2,Carnival Day
+2049/3/8,International Women's Day
+2049/3/22,Day off for Southern Africa Liberation Day
+2049/3/23,Southern Africa Liberation Day
+2049/4/4,Peace and National Reconciliation Day
+2049/4/16,Good Friday
+2049/5/1,International Worker's Day
+2049/9/17,National Heroes' Day
+2049/11/1,Day off for All Souls' Day
+2049/11/2,All Souls' Day
+2049/11/11,National Independence Day
+2049/11/12,Day off for National Independence Day
+2049/12/25,Christmas and Family Day
+2050/1/1,New Year's Day
+2050/2/4,Liberation Movement Day
+2050/2/21,Day off for Carnival Day
+2050/2/22,Carnival Day
+2050/3/7,Day off for International Women's Day
+2050/3/8,International Women's Day
+2050/3/23,Southern Africa Liberation Day
+2050/4/4,Peace and National Reconciliation Day
+2050/4/8,Good Friday
+2050/5/1,International Worker's Day
+2050/9/17,National Heroes' Day
+2050/11/2,All Souls' Day
+2050/11/11,National Independence Day
+2050/12/25,Christmas and Family Day

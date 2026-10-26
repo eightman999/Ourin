@@ -1,0 +1,516 @@
+# NG の祝日（2020〜2050年、言語: en_NG）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/5/1,Workers' Day
+2020/5/24,Id el Fitr
+2020/5/25,Id el Fitr Holiday
+2020/5/26,Id el Fitr (observed)
+2020/6/12,Democracy Day
+2020/7/31,Id el Kabir
+2020/8/1,Id el Kabir Holiday
+2020/8/3,Id el Kabir Holiday (observed)
+2020/10/1,National Day
+2020/10/29,Id el Maulud
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2020/12/28,Boxing Day (observed)
+2021/1/1,New Year's Day
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/5/1,Workers' Day
+2021/5/3,Workers' Day (observed)
+2021/5/13,Id el Fitr
+2021/5/14,Id el Fitr Holiday
+2021/6/12,Democracy Day
+2021/6/14,Democracy Day (observed)
+2021/7/20,Id el Kabir
+2021/7/21,Id el Kabir Holiday
+2021/10/1,National Day
+2021/10/19,Id el Maulud
+2021/12/25,Christmas Day
+2021/12/26,Boxing Day
+2021/12/27,Christmas Day (observed)
+2021/12/28,Boxing Day (observed)
+2022/1/1,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/5/1,Workers' Day
+2022/5/2,Id el Fitr
+2022/5/3,Id el Fitr Holiday
+2022/5/4,Workers' Day (observed)
+2022/6/12,Democracy Day
+2022/6/13,Democracy Day (observed)
+2022/7/9,Id el Kabir
+2022/7/10,Id el Kabir Holiday
+2022/7/11,Id el Kabir (observed)
+2022/7/12,Id el Kabir Holiday (observed)
+2022/10/1,National Day
+2022/10/3,National Day (observed)
+2022/10/8,Id el Maulud
+2022/10/10,Id el Maulud (observed)
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day
+2022/12/27,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/4/21,Id el Fitr
+2023/4/22,Id el Fitr Holiday
+2023/4/24,Id el Fitr Holiday (observed)
+2023/5/1,Workers' Day
+2023/5/29,Presidential Inauguration Day
+2023/6/12,Democracy Day
+2023/6/28,Id el Kabir
+2023/6/29,Id el Kabir Holiday
+2023/9/27,Id el Maulud
+2023/10/1,National Day
+2023/10/2,National Day (observed)
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/3/29,Good Friday
+2024/4/1,Easter Monday
+2024/4/10,Id el Fitr
+2024/4/11,Id el Fitr Holiday
+2024/5/1,Workers' Day
+2024/6/12,Democracy Day
+2024/6/16,Id el Kabir
+2024/6/17,Id el Kabir Holiday
+2024/6/18,Id el Kabir (observed)
+2024/9/16,Id el Maulud
+2024/10/1,National Day
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/3/30,Id el Fitr
+2025/3/31,Id el Fitr Holiday
+2025/4/1,Id el Fitr (observed)
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/5/1,Workers' Day
+2025/6/6,Id el Kabir
+2025/6/7,Id el Kabir Holiday
+2025/6/9,Id el Kabir Holiday (observed)
+2025/6/12,Democracy Day
+2025/7/15,Day of Mourning for President Muhammadu Buhari
+2025/9/5,Id el Maulud
+2025/10/1,National Day
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/3/19,Id el Fitr
+2026/3/20,Id el Fitr Holiday
+2026/4/3,Good Friday
+2026/4/6,Easter Monday
+2026/5/1,Workers' Day
+2026/5/28,Id el Kabir (estimated)
+2026/5/29,Id el Kabir Holiday (estimated)
+2026/6/12,Democracy Day
+2026/8/26,Id el Maulud (estimated)
+2026/10/1,National Day
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2026/12/28,Boxing Day (observed)
+2027/1/1,New Year's Day
+2027/3/10,Id el Fitr (estimated)
+2027/3/11,Id el Fitr Holiday (estimated)
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/5/1,Workers' Day
+2027/5/3,Workers' Day (observed)
+2027/5/17,Id el Kabir (estimated)
+2027/5/18,Id el Kabir Holiday (estimated)
+2027/5/29,Presidential Inauguration Day
+2027/6/12,Democracy Day
+2027/6/14,Democracy Day (observed)
+2027/8/15,Id el Maulud (estimated)
+2027/8/16,Id el Maulud (observed, estimated)
+2027/10/1,National Day
+2027/12/25,Christmas Day
+2027/12/26,Boxing Day
+2027/12/27,Christmas Day (observed)
+2027/12/28,Boxing Day (observed)
+2028/1/1,New Year's Day
+2028/1/3,New Year's Day (observed)
+2028/2/27,Id el Fitr (estimated)
+2028/2/28,Id el Fitr Holiday (estimated)
+2028/2/29,Id el Fitr (observed, estimated)
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/5/1,Workers' Day
+2028/5/6,Id el Kabir (estimated)
+2028/5/7,Id el Kabir Holiday (estimated)
+2028/5/8,Id el Kabir (observed, estimated)
+2028/5/9,Id el Kabir Holiday (observed, estimated)
+2028/6/12,Democracy Day
+2028/8/4,Id el Maulud (estimated)
+2028/10/1,National Day
+2028/10/2,National Day (observed)
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/2/15,Id el Fitr (estimated)
+2029/2/16,Id el Fitr Holiday (estimated)
+2029/3/30,Good Friday
+2029/4/2,Easter Monday
+2029/4/25,Id el Kabir (estimated)
+2029/4/26,Id el Kabir Holiday (estimated)
+2029/5/1,Workers' Day
+2029/6/12,Democracy Day
+2029/7/25,Id el Maulud (estimated)
+2029/10/1,National Day
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/2/5,Id el Fitr (estimated)
+2030/2/6,Id el Fitr Holiday (estimated)
+2030/4/14,Id el Kabir (estimated)
+2030/4/15,Id el Kabir Holiday (estimated)
+2030/4/16,Id el Kabir (observed, estimated)
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/5/1,Workers' Day
+2030/6/12,Democracy Day
+2030/7/14,Id el Maulud (estimated)
+2030/7/15,Id el Maulud (observed, estimated)
+2030/10/1,National Day
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/1/25,Id el Fitr (estimated)
+2031/1/26,Id el Fitr Holiday (estimated)
+2031/1/27,Id el Fitr (observed, estimated)
+2031/1/28,Id el Fitr Holiday (observed, estimated)
+2031/4/3,Id el Kabir (estimated)
+2031/4/4,Id el Kabir Holiday (estimated)
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/5/1,Workers' Day
+2031/5/29,Presidential Inauguration Day
+2031/6/12,Democracy Day
+2031/7/3,Id el Maulud (estimated)
+2031/10/1,National Day
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/1/15,Id el Fitr (estimated)
+2032/1/16,Id el Fitr Holiday (estimated)
+2032/3/23,Id el Kabir (estimated)
+2032/3/24,Id el Kabir Holiday (estimated)
+2032/3/26,Good Friday
+2032/3/29,Easter Monday
+2032/5/1,Workers' Day
+2032/5/3,Workers' Day (observed)
+2032/6/12,Democracy Day
+2032/6/14,Democracy Day (observed)
+2032/6/21,Id el Maulud (estimated)
+2032/10/1,National Day
+2032/12/25,Christmas Day
+2032/12/26,Boxing Day
+2032/12/27,Christmas Day (observed)
+2032/12/28,Boxing Day (observed)
+2033/1/1,New Year's Day
+2033/1/3,Id el Fitr (estimated)
+2033/1/4,Id el Fitr Holiday (estimated)
+2033/1/5,New Year's Day (observed)
+2033/3/12,Id el Kabir (estimated)
+2033/3/13,Id el Kabir Holiday (estimated)
+2033/3/14,Id el Kabir (observed, estimated)
+2033/3/15,Id el Kabir Holiday (observed, estimated)
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/5/1,Workers' Day
+2033/5/2,Workers' Day (observed)
+2033/6/10,Id el Maulud (estimated)
+2033/6/12,Democracy Day
+2033/6/13,Democracy Day (observed)
+2033/10/1,National Day
+2033/10/3,National Day (observed)
+2033/12/24,Id el Fitr (estimated)
+2033/12/25,Christmas Day; Id el Fitr Holiday (estimated)
+2033/12/26,Boxing Day
+2033/12/27,Id el Fitr (observed, estimated)
+2033/12/28,Christmas Day (observed); Id el Fitr Holiday (observed, estimated)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/3/2,Id el Kabir (estimated)
+2034/3/3,Id el Kabir Holiday (estimated)
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/5/1,Workers' Day
+2034/5/31,Id el Maulud (estimated)
+2034/6/12,Democracy Day
+2034/10/1,National Day
+2034/10/2,National Day (observed)
+2034/12/13,Id el Fitr (estimated)
+2034/12/14,Id el Fitr Holiday (estimated)
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/2/19,Id el Kabir (estimated)
+2035/2/20,Id el Kabir Holiday (estimated)
+2035/3/23,Good Friday
+2035/3/26,Easter Monday
+2035/5/1,Workers' Day
+2035/5/21,Id el Maulud (estimated)
+2035/5/29,Presidential Inauguration Day
+2035/6/12,Democracy Day
+2035/10/1,National Day
+2035/12/2,Id el Fitr (estimated)
+2035/12/3,Id el Fitr Holiday (estimated)
+2035/12/4,Id el Fitr (observed, estimated)
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/2/8,Id el Kabir (estimated)
+2036/2/9,Id el Kabir Holiday (estimated)
+2036/2/11,Id el Kabir Holiday (observed, estimated)
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/5/1,Workers' Day
+2036/5/9,Id el Maulud (estimated)
+2036/6/12,Democracy Day
+2036/10/1,National Day
+2036/11/20,Id el Fitr (estimated)
+2036/11/21,Id el Fitr Holiday (estimated)
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/1/27,Id el Kabir (estimated)
+2037/1/28,Id el Kabir Holiday (estimated)
+2037/4/3,Good Friday
+2037/4/6,Easter Monday
+2037/4/29,Id el Maulud (estimated)
+2037/5/1,Workers' Day
+2037/6/12,Democracy Day
+2037/10/1,National Day
+2037/11/9,Id el Fitr (estimated)
+2037/11/10,Id el Fitr Holiday (estimated)
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2037/12/28,Boxing Day (observed)
+2038/1/1,New Year's Day
+2038/1/17,Id el Kabir (estimated)
+2038/1/18,Id el Kabir Holiday (estimated)
+2038/1/19,Id el Kabir (observed, estimated)
+2038/4/18,Id el Maulud (estimated)
+2038/4/19,Id el Maulud (observed, estimated)
+2038/4/23,Good Friday
+2038/4/26,Easter Monday
+2038/5/1,Workers' Day
+2038/5/3,Workers' Day (observed)
+2038/6/12,Democracy Day
+2038/6/14,Democracy Day (observed)
+2038/10/1,National Day
+2038/10/30,Id el Fitr (estimated)
+2038/10/31,Id el Fitr Holiday (estimated)
+2038/11/1,Id el Fitr (observed, estimated)
+2038/11/2,Id el Fitr Holiday (observed, estimated)
+2038/12/25,Christmas Day
+2038/12/26,Boxing Day
+2038/12/27,Christmas Day (observed)
+2038/12/28,Boxing Day (observed)
+2039/1/1,New Year's Day
+2039/1/3,New Year's Day (observed)
+2039/1/6,Id el Kabir (estimated)
+2039/1/7,Id el Kabir Holiday (estimated)
+2039/4/7,Id el Maulud (estimated)
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/5/1,Workers' Day
+2039/5/2,Workers' Day (observed)
+2039/5/29,Presidential Inauguration Day
+2039/6/12,Democracy Day
+2039/6/13,Democracy Day (observed)
+2039/10/1,National Day
+2039/10/3,National Day (observed)
+2039/10/20,Id el Fitr (estimated)
+2039/10/21,Id el Fitr Holiday (estimated)
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day
+2039/12/27,Id el Kabir (estimated)
+2039/12/28,Id el Kabir Holiday (estimated)
+2039/12/29,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/3/26,Id el Maulud (estimated)
+2040/3/30,Good Friday
+2040/4/2,Easter Monday
+2040/5/1,Workers' Day
+2040/6/12,Democracy Day
+2040/10/1,National Day
+2040/10/8,Id el Fitr (estimated)
+2040/10/9,Id el Fitr Holiday (estimated)
+2040/12/15,Id el Kabir (estimated)
+2040/12/16,Id el Kabir Holiday (estimated)
+2040/12/17,Id el Kabir (observed, estimated)
+2040/12/18,Id el Kabir Holiday (observed, estimated)
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/3/16,Id el Maulud (estimated)
+2041/3/18,Id el Maulud (observed, estimated)
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/5/1,Workers' Day
+2041/6/12,Democracy Day
+2041/9/27,Id el Fitr (estimated)
+2041/9/28,Id el Fitr Holiday (estimated)
+2041/9/30,Id el Fitr Holiday (observed, estimated)
+2041/10/1,National Day
+2041/12/5,Id el Kabir (estimated)
+2041/12/6,Id el Kabir Holiday (estimated)
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/3/5,Id el Maulud (estimated)
+2042/4/4,Good Friday
+2042/4/7,Easter Monday
+2042/5/1,Workers' Day
+2042/6/12,Democracy Day
+2042/9/16,Id el Fitr (estimated)
+2042/9/17,Id el Fitr Holiday (estimated)
+2042/10/1,National Day
+2042/11/24,Id el Kabir (estimated)
+2042/11/25,Id el Kabir Holiday (estimated)
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/2/23,Id el Maulud (estimated)
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/5/1,Workers' Day
+2043/5/29,Presidential Inauguration Day
+2043/6/12,Democracy Day
+2043/9/5,Id el Fitr (estimated)
+2043/9/6,Id el Fitr Holiday (estimated)
+2043/9/7,Id el Fitr (observed, estimated)
+2043/9/8,Id el Fitr Holiday (observed, estimated)
+2043/10/1,National Day
+2043/11/13,Id el Kabir (estimated)
+2043/11/14,Id el Kabir Holiday (estimated)
+2043/11/16,Id el Kabir Holiday (observed, estimated)
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2043/12/28,Boxing Day (observed)
+2044/1/1,New Year's Day
+2044/2/12,Id el Maulud (estimated)
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/5/1,Workers' Day
+2044/5/2,Workers' Day (observed)
+2044/6/12,Democracy Day
+2044/6/13,Democracy Day (observed)
+2044/8/25,Id el Fitr (estimated)
+2044/8/26,Id el Fitr Holiday (estimated)
+2044/10/1,National Day
+2044/10/3,National Day (observed)
+2044/11/1,Id el Kabir (estimated)
+2044/11/2,Id el Kabir Holiday (estimated)
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day
+2044/12/27,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/1/31,Id el Maulud (estimated)
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/5/1,Workers' Day
+2045/6/12,Democracy Day
+2045/8/15,Id el Fitr (estimated)
+2045/8/16,Id el Fitr Holiday (estimated)
+2045/10/1,National Day
+2045/10/2,National Day (observed)
+2045/10/22,Id el Kabir (estimated)
+2045/10/23,Id el Kabir Holiday (estimated)
+2045/10/24,Id el Kabir (observed, estimated)
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/1/20,Id el Maulud (estimated)
+2046/1/22,Id el Maulud (observed, estimated)
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/5/1,Workers' Day
+2046/6/12,Democracy Day
+2046/8/4,Id el Fitr (estimated)
+2046/8/5,Id el Fitr Holiday (estimated)
+2046/8/6,Id el Fitr (observed, estimated)
+2046/8/7,Id el Fitr Holiday (observed, estimated)
+2046/10/1,National Day
+2046/10/11,Id el Kabir (estimated)
+2046/10/12,Id el Kabir Holiday (estimated)
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/1/9,Id el Maulud (estimated)
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/5/1,Workers' Day
+2047/5/29,Presidential Inauguration Day
+2047/6/12,Democracy Day
+2047/7/25,Id el Fitr (estimated)
+2047/7/26,Id el Fitr Holiday (estimated)
+2047/10/1,Id el Kabir (estimated); National Day
+2047/10/2,Id el Kabir Holiday (estimated)
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2047/12/30,Id el Maulud (estimated)
+2048/1/1,New Year's Day
+2048/4/3,Good Friday
+2048/4/6,Easter Monday
+2048/5/1,Workers' Day
+2048/6/12,Democracy Day
+2048/7/13,Id el Fitr (estimated)
+2048/7/14,Id el Fitr Holiday (estimated)
+2048/9/20,Id el Kabir (estimated)
+2048/9/21,Id el Kabir Holiday (estimated)
+2048/9/22,Id el Kabir (observed, estimated)
+2048/10/1,National Day
+2048/12/19,Id el Maulud (estimated)
+2048/12/21,Id el Maulud (observed, estimated)
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2048/12/28,Boxing Day (observed)
+2049/1/1,New Year's Day
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/5/1,Workers' Day
+2049/5/3,Workers' Day (observed)
+2049/6/12,Democracy Day
+2049/6/14,Democracy Day (observed)
+2049/7/2,Id el Fitr (estimated)
+2049/7/3,Id el Fitr Holiday (estimated)
+2049/7/5,Id el Fitr Holiday (observed, estimated)
+2049/9/9,Id el Kabir (estimated)
+2049/9/10,Id el Kabir Holiday (estimated)
+2049/10/1,National Day
+2049/12/8,Id el Maulud (estimated)
+2049/12/25,Christmas Day
+2049/12/26,Boxing Day
+2049/12/27,Christmas Day (observed)
+2049/12/28,Boxing Day (observed)
+2050/1/1,New Year's Day
+2050/1/3,New Year's Day (observed)
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/5/1,Workers' Day
+2050/5/2,Workers' Day (observed)
+2050/6/12,Democracy Day
+2050/6/13,Democracy Day (observed)
+2050/6/21,Id el Fitr (estimated)
+2050/6/22,Id el Fitr Holiday (estimated)
+2050/8/29,Id el Kabir (estimated)
+2050/8/30,Id el Kabir Holiday (estimated)
+2050/10/1,National Day
+2050/10/3,National Day (observed)
+2050/11/27,Id el Maulud (estimated)
+2050/11/28,Id el Maulud (observed, estimated)
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day
+2050/12/27,Christmas Day (observed)

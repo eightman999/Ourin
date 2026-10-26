@@ -1,0 +1,434 @@
+# VC の祝日（2020〜2050年、言語: en_VC）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/3/14,National Heroes' Day
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/5/1,National Workers' Day
+2020/6/1,Whit Monday
+2020/8/1,Emancipation Day
+2020/8/3,Carnival Monday
+2020/8/4,Carnival Tuesday
+2020/10/27,Independence Day
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2021/1/1,New Year's Day
+2021/1/22,Public Health Holiday
+2021/1/25,Public Health Holiday
+2021/3/14,National Heroes' Day
+2021/3/15,National Heroes' Day (observed)
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/5/1,National Workers' Day
+2021/5/24,Whit Monday
+2021/8/1,Emancipation Day
+2021/8/2,Emancipation Day (observed)
+2021/9/6,Carnival Monday
+2021/9/7,Carnival Tuesday
+2021/10/27,Independence Day
+2021/12/25,Christmas Day
+2021/12/26,Boxing Day
+2021/12/27,Boxing Day (observed)
+2022/1/1,New Year's Day
+2022/3/14,National Heroes' Day
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/5/1,National Workers' Day
+2022/5/2,National Workers' Day (observed)
+2022/6/6,Whit Monday
+2022/7/4,Carnival Monday
+2022/7/5,Carnival Tuesday
+2022/8/1,Emancipation Day
+2022/10/27,Independence Day
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day
+2022/12/27,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/3/14,National Heroes' Day
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/5/1,National Workers' Day
+2023/5/29,Whit Monday
+2023/7/10,Carnival Monday
+2023/7/11,Carnival Tuesday
+2023/8/1,Emancipation Day
+2023/10/27,Independence Day
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/3/14,National Heroes' Day
+2024/3/29,Good Friday
+2024/4/1,Easter Monday
+2024/5/1,National Workers' Day
+2024/5/20,Whit Monday
+2024/7/8,Carnival Monday
+2024/7/9,Carnival Tuesday
+2024/8/1,Emancipation Day
+2024/10/27,Independence Day
+2024/10/28,Independence Day (observed)
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/3/14,National Heroes' Day
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/5/1,National Workers' Day
+2025/5/21,National Spiritual Baptist Day
+2025/6/9,Whit Monday
+2025/7/7,Carnival Monday
+2025/7/8,Carnival Tuesday
+2025/8/1,Emancipation Day
+2025/10/27,Independence Day
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/3/14,National Heroes' Day
+2026/4/3,Good Friday
+2026/4/6,Easter Monday
+2026/5/1,National Workers' Day
+2026/5/21,National Spiritual Baptist Day
+2026/5/25,Whit Monday
+2026/7/6,Carnival Monday
+2026/7/7,Carnival Tuesday
+2026/8/1,Emancipation Day
+2026/10/27,Independence Day
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2027/1/1,New Year's Day
+2027/3/14,National Heroes' Day
+2027/3/15,National Heroes' Day (observed)
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/5/1,National Workers' Day
+2027/5/17,Whit Monday
+2027/5/21,National Spiritual Baptist Day
+2027/7/5,Carnival Monday
+2027/7/6,Carnival Tuesday
+2027/8/1,Emancipation Day
+2027/8/2,Emancipation Day (observed)
+2027/10/27,Independence Day
+2027/12/25,Christmas Day
+2027/12/26,Boxing Day
+2027/12/27,Boxing Day (observed)
+2028/1/1,New Year's Day
+2028/3/14,National Heroes' Day
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/5/1,National Workers' Day
+2028/5/21,National Spiritual Baptist Day
+2028/6/5,Whit Monday
+2028/7/3,Carnival Monday
+2028/7/4,Carnival Tuesday
+2028/8/1,Emancipation Day
+2028/10/27,Independence Day
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/3/14,National Heroes' Day
+2029/3/30,Good Friday
+2029/4/2,Easter Monday
+2029/5/1,National Workers' Day
+2029/5/21,National Spiritual Baptist Day; Whit Monday
+2029/7/2,Carnival Monday
+2029/7/3,Carnival Tuesday
+2029/8/1,Emancipation Day
+2029/10/27,Independence Day
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/3/14,National Heroes' Day
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/5/1,National Workers' Day
+2030/5/21,National Spiritual Baptist Day
+2030/6/10,Whit Monday
+2030/7/1,Carnival Monday
+2030/7/2,Carnival Tuesday
+2030/8/1,Emancipation Day
+2030/10/27,Independence Day
+2030/10/28,Independence Day (observed)
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/3/14,National Heroes' Day
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/5/1,National Workers' Day
+2031/5/21,National Spiritual Baptist Day
+2031/6/2,Whit Monday
+2031/7/7,Carnival Monday
+2031/7/8,Carnival Tuesday
+2031/8/1,Emancipation Day
+2031/10/27,Independence Day
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/3/14,National Heroes' Day
+2032/3/15,National Heroes' Day (observed)
+2032/3/26,Good Friday
+2032/3/29,Easter Monday
+2032/5/1,National Workers' Day
+2032/5/17,Whit Monday
+2032/5/21,National Spiritual Baptist Day
+2032/7/5,Carnival Monday
+2032/7/6,Carnival Tuesday
+2032/8/1,Emancipation Day
+2032/8/2,Emancipation Day (observed)
+2032/10/27,Independence Day
+2032/12/25,Christmas Day
+2032/12/26,Boxing Day
+2032/12/27,Boxing Day (observed)
+2033/1/1,New Year's Day
+2033/3/14,National Heroes' Day
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/5/1,National Workers' Day
+2033/5/2,National Workers' Day (observed)
+2033/5/21,National Spiritual Baptist Day
+2033/6/6,Whit Monday
+2033/7/4,Carnival Monday
+2033/7/5,Carnival Tuesday
+2033/8/1,Emancipation Day
+2033/10/27,Independence Day
+2033/12/25,Christmas Day
+2033/12/26,Boxing Day
+2033/12/27,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/3/14,National Heroes' Day
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/5/1,National Workers' Day
+2034/5/21,National Spiritual Baptist Day
+2034/5/29,Whit Monday
+2034/7/3,Carnival Monday
+2034/7/4,Carnival Tuesday
+2034/8/1,Emancipation Day
+2034/10/27,Independence Day
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/3/14,National Heroes' Day
+2035/3/23,Good Friday
+2035/3/26,Easter Monday
+2035/5/1,National Workers' Day
+2035/5/14,Whit Monday
+2035/5/21,National Spiritual Baptist Day
+2035/7/2,Carnival Monday
+2035/7/3,Carnival Tuesday
+2035/8/1,Emancipation Day
+2035/10/27,Independence Day
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/3/14,National Heroes' Day
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/5/1,National Workers' Day
+2036/5/21,National Spiritual Baptist Day
+2036/6/2,Whit Monday
+2036/7/7,Carnival Monday
+2036/7/8,Carnival Tuesday
+2036/8/1,Emancipation Day
+2036/10/27,Independence Day
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/3/14,National Heroes' Day
+2037/4/3,Good Friday
+2037/4/6,Easter Monday
+2037/5/1,National Workers' Day
+2037/5/21,National Spiritual Baptist Day
+2037/5/25,Whit Monday
+2037/7/6,Carnival Monday
+2037/7/7,Carnival Tuesday
+2037/8/1,Emancipation Day
+2037/10/27,Independence Day
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2038/1/1,New Year's Day
+2038/3/14,National Heroes' Day
+2038/3/15,National Heroes' Day (observed)
+2038/4/23,Good Friday
+2038/4/26,Easter Monday
+2038/5/1,National Workers' Day
+2038/5/21,National Spiritual Baptist Day
+2038/6/14,Whit Monday
+2038/7/5,Carnival Monday
+2038/7/6,Carnival Tuesday
+2038/8/1,Emancipation Day
+2038/8/2,Emancipation Day (observed)
+2038/10/27,Independence Day
+2038/12/25,Christmas Day
+2038/12/26,Boxing Day
+2038/12/27,Boxing Day (observed)
+2039/1/1,New Year's Day
+2039/3/14,National Heroes' Day
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/5/1,National Workers' Day
+2039/5/2,National Workers' Day (observed)
+2039/5/21,National Spiritual Baptist Day
+2039/5/30,Whit Monday
+2039/7/4,Carnival Monday
+2039/7/5,Carnival Tuesday
+2039/8/1,Emancipation Day
+2039/10/27,Independence Day
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day
+2039/12/27,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/3/14,National Heroes' Day
+2040/3/30,Good Friday
+2040/4/2,Easter Monday
+2040/5/1,National Workers' Day
+2040/5/21,National Spiritual Baptist Day; Whit Monday
+2040/7/2,Carnival Monday
+2040/7/3,Carnival Tuesday
+2040/8/1,Emancipation Day
+2040/10/27,Independence Day
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/3/14,National Heroes' Day
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/5/1,National Workers' Day
+2041/5/21,National Spiritual Baptist Day
+2041/6/10,Whit Monday
+2041/7/1,Carnival Monday
+2041/7/2,Carnival Tuesday
+2041/8/1,Emancipation Day
+2041/10/27,Independence Day
+2041/10/28,Independence Day (observed)
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/3/14,National Heroes' Day
+2042/4/4,Good Friday
+2042/4/7,Easter Monday
+2042/5/1,National Workers' Day
+2042/5/21,National Spiritual Baptist Day
+2042/5/26,Whit Monday
+2042/7/7,Carnival Monday
+2042/7/8,Carnival Tuesday
+2042/8/1,Emancipation Day
+2042/10/27,Independence Day
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/3/14,National Heroes' Day
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/5/1,National Workers' Day
+2043/5/18,Whit Monday
+2043/5/21,National Spiritual Baptist Day
+2043/7/6,Carnival Monday
+2043/7/7,Carnival Tuesday
+2043/8/1,Emancipation Day
+2043/10/27,Independence Day
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2044/1/1,New Year's Day
+2044/3/14,National Heroes' Day
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/5/1,National Workers' Day
+2044/5/2,National Workers' Day (observed)
+2044/5/21,National Spiritual Baptist Day
+2044/6/6,Whit Monday
+2044/7/4,Carnival Monday
+2044/7/5,Carnival Tuesday
+2044/8/1,Emancipation Day
+2044/10/27,Independence Day
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day
+2044/12/27,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/3/14,National Heroes' Day
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/5/1,National Workers' Day
+2045/5/21,National Spiritual Baptist Day
+2045/5/29,Whit Monday
+2045/7/3,Carnival Monday
+2045/7/4,Carnival Tuesday
+2045/8/1,Emancipation Day
+2045/10/27,Independence Day
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/3/14,National Heroes' Day
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/5/1,National Workers' Day
+2046/5/14,Whit Monday
+2046/5/21,National Spiritual Baptist Day
+2046/7/2,Carnival Monday
+2046/7/3,Carnival Tuesday
+2046/8/1,Emancipation Day
+2046/10/27,Independence Day
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/3/14,National Heroes' Day
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/5/1,National Workers' Day
+2047/5/21,National Spiritual Baptist Day
+2047/6/3,Whit Monday
+2047/7/1,Carnival Monday
+2047/7/2,Carnival Tuesday
+2047/8/1,Emancipation Day
+2047/10/27,Independence Day
+2047/10/28,Independence Day (observed)
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2048/1/1,New Year's Day
+2048/3/14,National Heroes' Day
+2048/4/3,Good Friday
+2048/4/6,Easter Monday
+2048/5/1,National Workers' Day
+2048/5/21,National Spiritual Baptist Day
+2048/5/25,Whit Monday
+2048/7/6,Carnival Monday
+2048/7/7,Carnival Tuesday
+2048/8/1,Emancipation Day
+2048/10/27,Independence Day
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2049/1/1,New Year's Day
+2049/3/14,National Heroes' Day
+2049/3/15,National Heroes' Day (observed)
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/5/1,National Workers' Day
+2049/5/21,National Spiritual Baptist Day
+2049/6/7,Whit Monday
+2049/7/5,Carnival Monday
+2049/7/6,Carnival Tuesday
+2049/8/1,Emancipation Day
+2049/8/2,Emancipation Day (observed)
+2049/10/27,Independence Day
+2049/12/25,Christmas Day
+2049/12/26,Boxing Day
+2049/12/27,Boxing Day (observed)
+2050/1/1,New Year's Day
+2050/3/14,National Heroes' Day
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/5/1,National Workers' Day
+2050/5/2,National Workers' Day (observed)
+2050/5/21,National Spiritual Baptist Day
+2050/5/30,Whit Monday
+2050/7/4,Carnival Monday
+2050/7/5,Carnival Tuesday
+2050/8/1,Emancipation Day
+2050/10/27,Independence Day
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day
+2050/12/27,Christmas Day (observed)

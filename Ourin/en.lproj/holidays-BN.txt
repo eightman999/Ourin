@@ -1,0 +1,615 @@
+# BN holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/1/25,Lunar New Year
+2020/2/23,National Day
+2020/2/24,National Day (observed)
+2020/3/22,Isra' and Mi'raj
+2020/3/23,Isra' and Mi'raj (observed)
+2020/4/24,First Day of Ramadan
+2020/4/25,First Day of Ramadan (observed)
+2020/5/10,Anniversary of the revelation of the Quran
+2020/5/11,Anniversary of the revelation of the Quran (observed)
+2020/5/24,Eid al-Fitr
+2020/5/25,Eid al-Fitr
+2020/5/26,Eid al-Fitr
+2020/5/27,Eid al-Fitr (observed)
+2020/5/31,Armed Forces Day
+2020/6/1,Armed Forces Day (observed)
+2020/7/15,Sultan Hassanal Bolkiah's Birthday
+2020/7/31,Eid al-Adha
+2020/8/1,Eid al-Adha (observed)
+2020/8/20,Islamic New Year
+2020/10/29,Prophet's Birthday
+2020/12/25,Christmas Day
+2020/12/26,Christmas Day (observed)
+2021/1/1,New Year's Day
+2021/1/2,New Year's Day (observed)
+2021/2/12,Lunar New Year
+2021/2/13,Lunar New Year (observed)
+2021/2/23,National Day
+2021/3/11,Isra' and Mi'raj
+2021/4/13,First Day of Ramadan
+2021/4/29,Anniversary of the revelation of the Quran
+2021/5/13,Eid al-Fitr
+2021/5/14,Eid al-Fitr
+2021/5/15,Eid al-Fitr
+2021/5/17,Eid al-Fitr (observed)
+2021/5/31,Armed Forces Day
+2021/7/15,Sultan Hassanal Bolkiah's Birthday
+2021/7/20,Eid al-Adha
+2021/8/10,Islamic New Year
+2021/10/19,Prophet's Birthday
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/2/1,Lunar New Year
+2022/2/23,National Day
+2022/2/28,Isra' and Mi'raj
+2022/4/3,First Day of Ramadan
+2022/4/4,First Day of Ramadan (observed)
+2022/4/19,Anniversary of the revelation of the Quran
+2022/5/2,Eid al-Fitr
+2022/5/3,Eid al-Fitr
+2022/5/4,Eid al-Fitr
+2022/5/31,Armed Forces Day
+2022/7/9,Eid al-Adha
+2022/7/15,Sultan Hassanal Bolkiah's Birthday
+2022/7/16,Sultan Hassanal Bolkiah's Birthday (observed)
+2022/7/30,Islamic New Year
+2022/10/8,Prophet's Birthday
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/1/22,Lunar New Year
+2023/1/23,Lunar New Year (observed)
+2023/2/18,Isra' and Mi'raj
+2023/2/23,National Day
+2023/3/23,First Day of Ramadan
+2023/4/8,Anniversary of the revelation of the Quran
+2023/4/22,Eid al-Fitr
+2023/4/23,Eid al-Fitr
+2023/4/24,Eid al-Fitr
+2023/4/25,Eid al-Fitr (observed)
+2023/5/31,Armed Forces Day
+2023/6/29,Eid al-Adha
+2023/7/15,Sultan Hassanal Bolkiah's Birthday
+2023/7/19,Islamic New Year
+2023/9/28,Prophet's Birthday
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/2/8,Isra' and Mi'raj
+2024/2/10,Lunar New Year
+2024/2/23,National Day
+2024/2/24,National Day (observed)
+2024/3/12,First Day of Ramadan
+2024/3/28,Anniversary of the revelation of the Quran
+2024/4/10,Eid al-Fitr
+2024/4/11,Eid al-Fitr
+2024/4/12,Eid al-Fitr
+2024/4/13,Eid al-Fitr (observed)
+2024/5/31,Armed Forces Day
+2024/6/1,Armed Forces Day (observed)
+2024/6/17,Eid al-Adha
+2024/7/7,Islamic New Year
+2024/7/8,Islamic New Year (observed)
+2024/7/15,Sultan Hassanal Bolkiah's Birthday
+2024/9/16,Prophet's Birthday
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/1/27,Isra' and Mi'raj
+2025/1/29,Lunar New Year
+2025/2/23,National Day
+2025/2/24,National Day (observed)
+2025/3/2,First Day of Ramadan
+2025/3/3,First Day of Ramadan (observed)
+2025/3/18,Anniversary of the revelation of the Quran
+2025/3/31,Eid al-Fitr
+2025/4/1,Eid al-Fitr
+2025/4/2,Eid al-Fitr
+2025/5/31,Armed Forces Day
+2025/6/7,Eid al-Adha
+2025/6/27,Islamic New Year
+2025/6/28,Islamic New Year (observed)
+2025/7/15,Sultan Hassanal Bolkiah's Birthday
+2025/9/5,Prophet's Birthday
+2025/9/6,Prophet's Birthday (observed)
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/1/17,Isra' and Mi'raj
+2026/2/17,Lunar New Year
+2026/2/19,First Day of Ramadan
+2026/2/23,National Day
+2026/3/7,Anniversary of the revelation of the Quran
+2026/3/21,Eid al-Fitr
+2026/3/22,Eid al-Fitr
+2026/3/23,Eid al-Fitr
+2026/3/24,Eid al-Fitr (observed)
+2026/5/27,Eid al-Adha
+2026/5/31,Armed Forces Day
+2026/6/1,Armed Forces Day (observed)
+2026/6/17,Islamic New Year
+2026/7/15,Sultan Hassanal Bolkiah's Birthday
+2026/8/25,Prophet's Birthday
+2026/12/25,Christmas Day
+2026/12/26,Christmas Day (observed)
+2027/1/1,New Year's Day
+2027/1/2,New Year's Day (observed)
+2027/1/6,Isra' and Mi'raj (estimated)
+2027/2/6,Lunar New Year
+2027/2/8,First Day of Ramadan (estimated)
+2027/2/23,National Day
+2027/2/24,Anniversary of the revelation of the Quran (estimated)
+2027/3/10,Eid al-Fitr (estimated)
+2027/3/11,Eid al-Fitr (estimated)
+2027/3/12,Eid al-Fitr (estimated)
+2027/3/13,Eid al-Fitr (observed, estimated)
+2027/5/17,Eid al-Adha (estimated)
+2027/5/31,Armed Forces Day
+2027/6/6,Islamic New Year (estimated)
+2027/6/7,Islamic New Year (observed, estimated)
+2027/7/15,Sultan Hassanal Bolkiah's Birthday
+2027/8/15,Prophet's Birthday (estimated)
+2027/8/16,Prophet's Birthday (observed, estimated)
+2027/12/25,Christmas Day
+2027/12/26,Isra' and Mi'raj (estimated)
+2027/12/27,Isra' and Mi'raj (observed, estimated)
+2028/1/1,New Year's Day
+2028/1/26,Lunar New Year
+2028/1/28,First Day of Ramadan (estimated)
+2028/1/29,First Day of Ramadan (observed, estimated)
+2028/2/13,Anniversary of the revelation of the Quran (estimated)
+2028/2/14,Anniversary of the revelation of the Quran (observed, estimated)
+2028/2/23,National Day
+2028/2/27,Eid al-Fitr (estimated)
+2028/2/28,Eid al-Fitr (estimated)
+2028/2/29,Eid al-Fitr (estimated)
+2028/3/1,Eid al-Fitr (observed, estimated)
+2028/5/5,Eid al-Adha (estimated)
+2028/5/6,Eid al-Adha (observed, estimated)
+2028/5/26,Islamic New Year (estimated)
+2028/5/27,Islamic New Year (observed, estimated)
+2028/5/31,Armed Forces Day
+2028/7/15,Sultan Hassanal Bolkiah's Birthday
+2028/8/4,Prophet's Birthday (estimated)
+2028/8/5,Prophet's Birthday (observed, estimated)
+2028/12/14,Isra' and Mi'raj (estimated)
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/1/16,First Day of Ramadan (estimated)
+2029/2/1,Anniversary of the revelation of the Quran (estimated)
+2029/2/13,Lunar New Year
+2029/2/15,Eid al-Fitr (estimated)
+2029/2/16,Eid al-Fitr (estimated)
+2029/2/17,Eid al-Fitr (estimated)
+2029/2/19,Eid al-Fitr (observed, estimated)
+2029/2/23,National Day
+2029/2/24,National Day (observed)
+2029/4/25,Eid al-Adha (estimated)
+2029/5/15,Islamic New Year (estimated)
+2029/5/31,Armed Forces Day
+2029/7/15,Sultan Hassanal Bolkiah's Birthday
+2029/7/16,Sultan Hassanal Bolkiah's Birthday (observed)
+2029/7/24,Prophet's Birthday (estimated)
+2029/12/4,Isra' and Mi'raj (estimated)
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/1/6,First Day of Ramadan (estimated)
+2030/1/7,First Day of Ramadan (observed, estimated)
+2030/1/22,Anniversary of the revelation of the Quran (estimated)
+2030/2/3,Lunar New Year
+2030/2/4,Eid al-Fitr (estimated)
+2030/2/5,Eid al-Fitr (estimated)
+2030/2/6,Eid al-Fitr (estimated)
+2030/2/7,Lunar New Year (observed)
+2030/2/23,National Day
+2030/4/14,Eid al-Adha (estimated)
+2030/4/15,Eid al-Adha (observed, estimated)
+2030/5/4,Islamic New Year (estimated)
+2030/5/31,Armed Forces Day
+2030/6/1,Armed Forces Day (observed)
+2030/7/13,Prophet's Birthday (estimated)
+2030/7/15,Sultan Hassanal Bolkiah's Birthday
+2030/11/23,Isra' and Mi'raj (estimated)
+2030/12/25,Christmas Day
+2030/12/26,First Day of Ramadan (estimated)
+2031/1/1,New Year's Day
+2031/1/11,Anniversary of the revelation of the Quran (estimated)
+2031/1/23,Lunar New Year
+2031/1/25,Eid al-Fitr (estimated)
+2031/1/26,Eid al-Fitr (estimated)
+2031/1/27,Eid al-Fitr (estimated)
+2031/1/28,Eid al-Fitr (observed, estimated)
+2031/2/23,National Day
+2031/2/24,National Day (observed)
+2031/4/3,Eid al-Adha (estimated)
+2031/4/23,Islamic New Year (estimated)
+2031/5/31,Armed Forces Day
+2031/7/2,Prophet's Birthday (estimated)
+2031/7/15,Sultan Hassanal Bolkiah's Birthday
+2031/11/13,Isra' and Mi'raj (estimated)
+2031/12/16,First Day of Ramadan (estimated)
+2031/12/25,Christmas Day
+2032/1/1,Anniversary of the revelation of the Quran (estimated); New Year's Day
+2032/1/3,Anniversary of the revelation of the Quran (observed, estimated); New Year's Day (observed)
+2032/1/14,Eid al-Fitr (estimated)
+2032/1/15,Eid al-Fitr (estimated)
+2032/1/16,Eid al-Fitr (estimated)
+2032/1/17,Eid al-Fitr (observed, estimated)
+2032/2/11,Lunar New Year
+2032/2/23,National Day
+2032/3/22,Eid al-Adha (estimated)
+2032/4/12,Islamic New Year (estimated)
+2032/5/31,Armed Forces Day
+2032/6/21,Prophet's Birthday (estimated)
+2032/7/15,Sultan Hassanal Bolkiah's Birthday
+2032/11/1,Isra' and Mi'raj (estimated)
+2032/12/4,First Day of Ramadan (estimated)
+2032/12/20,Anniversary of the revelation of the Quran (estimated)
+2032/12/25,Christmas Day
+2033/1/1,New Year's Day
+2033/1/3,Eid al-Fitr (estimated)
+2033/1/4,Eid al-Fitr (estimated)
+2033/1/5,Eid al-Fitr (estimated)
+2033/1/31,Lunar New Year
+2033/2/23,National Day
+2033/3/12,Eid al-Adha (estimated)
+2033/4/1,Islamic New Year (estimated)
+2033/4/2,Islamic New Year (observed, estimated)
+2033/5/31,Armed Forces Day
+2033/6/10,Prophet's Birthday (estimated)
+2033/6/11,Prophet's Birthday (observed, estimated)
+2033/7/15,Sultan Hassanal Bolkiah's Birthday
+2033/7/16,Sultan Hassanal Bolkiah's Birthday (observed)
+2033/10/21,Isra' and Mi'raj (estimated)
+2033/10/22,Isra' and Mi'raj (observed, estimated)
+2033/11/24,First Day of Ramadan (estimated)
+2033/12/10,Anniversary of the revelation of the Quran (estimated)
+2033/12/23,Eid al-Fitr (estimated)
+2033/12/24,Eid al-Fitr (estimated)
+2033/12/25,Christmas Day; Eid al-Fitr (estimated)
+2033/12/26,Eid al-Fitr (observed, estimated)
+2033/12/27,Christmas Day (observed)
+2033/12/28,Eid al-Fitr (observed, estimated)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/2/19,Lunar New Year
+2034/2/20,Lunar New Year (observed)
+2034/2/23,National Day
+2034/3/1,Eid al-Adha (estimated)
+2034/3/22,Islamic New Year (estimated)
+2034/5/30,Prophet's Birthday (estimated)
+2034/5/31,Armed Forces Day
+2034/7/15,Sultan Hassanal Bolkiah's Birthday
+2034/10/10,Isra' and Mi'raj (estimated)
+2034/11/13,First Day of Ramadan (estimated)
+2034/11/29,Anniversary of the revelation of the Quran (estimated)
+2034/12/12,Eid al-Fitr (estimated)
+2034/12/13,Eid al-Fitr (estimated)
+2034/12/14,Eid al-Fitr (estimated)
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/2/8,Lunar New Year
+2035/2/19,Eid al-Adha (estimated)
+2035/2/23,National Day
+2035/2/24,National Day (observed)
+2035/3/11,Islamic New Year (estimated)
+2035/3/12,Islamic New Year (observed, estimated)
+2035/5/20,Prophet's Birthday (estimated)
+2035/5/21,Prophet's Birthday (observed, estimated)
+2035/5/31,Armed Forces Day
+2035/7/15,Sultan Hassanal Bolkiah's Birthday
+2035/7/16,Sultan Hassanal Bolkiah's Birthday (observed)
+2035/9/30,Isra' and Mi'raj (estimated)
+2035/10/1,Isra' and Mi'raj (observed, estimated)
+2035/11/2,First Day of Ramadan (estimated)
+2035/11/3,First Day of Ramadan (observed, estimated)
+2035/11/18,Anniversary of the revelation of the Quran (estimated)
+2035/11/19,Anniversary of the revelation of the Quran (observed, estimated)
+2035/12/1,Eid al-Fitr (estimated)
+2035/12/2,Eid al-Fitr (estimated)
+2035/12/3,Eid al-Fitr (estimated)
+2035/12/4,Eid al-Fitr (observed, estimated)
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/1/28,Lunar New Year
+2036/2/8,Eid al-Adha (estimated)
+2036/2/9,Eid al-Adha (observed, estimated)
+2036/2/23,National Day
+2036/2/29,Islamic New Year (estimated)
+2036/3/1,Islamic New Year (observed, estimated)
+2036/5/9,Prophet's Birthday (estimated)
+2036/5/10,Prophet's Birthday (observed, estimated)
+2036/5/31,Armed Forces Day
+2036/7/15,Sultan Hassanal Bolkiah's Birthday
+2036/9/18,Isra' and Mi'raj (estimated)
+2036/10/21,First Day of Ramadan (estimated)
+2036/11/6,Anniversary of the revelation of the Quran (estimated)
+2036/11/19,Eid al-Fitr (estimated)
+2036/11/20,Eid al-Fitr (estimated)
+2036/11/21,Eid al-Fitr (estimated)
+2036/11/22,Eid al-Fitr (observed, estimated)
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/1/27,Eid al-Adha (estimated)
+2037/2/15,Lunar New Year
+2037/2/16,Lunar New Year (observed)
+2037/2/17,Islamic New Year (estimated)
+2037/2/23,National Day
+2037/4/28,Prophet's Birthday (estimated)
+2037/5/31,Armed Forces Day
+2037/6/1,Armed Forces Day (observed)
+2037/7/15,Sultan Hassanal Bolkiah's Birthday
+2037/9/8,Isra' and Mi'raj (estimated)
+2037/10/10,First Day of Ramadan (estimated)
+2037/10/26,Anniversary of the revelation of the Quran (estimated)
+2037/11/9,Eid al-Fitr (estimated)
+2037/11/10,Eid al-Fitr (estimated)
+2037/11/11,Eid al-Fitr (estimated)
+2037/12/25,Christmas Day
+2037/12/26,Christmas Day (observed)
+2038/1/1,New Year's Day
+2038/1/2,New Year's Day (observed)
+2038/1/16,Eid al-Adha (estimated)
+2038/2/4,Lunar New Year
+2038/2/6,Islamic New Year (estimated)
+2038/2/23,National Day
+2038/4/17,Prophet's Birthday (estimated)
+2038/5/31,Armed Forces Day
+2038/7/15,Sultan Hassanal Bolkiah's Birthday
+2038/8/29,Isra' and Mi'raj (estimated)
+2038/8/30,Isra' and Mi'raj (observed, estimated)
+2038/9/30,First Day of Ramadan (estimated)
+2038/10/16,Anniversary of the revelation of the Quran (estimated)
+2038/10/30,Eid al-Fitr (estimated)
+2038/10/31,Eid al-Fitr (estimated)
+2038/11/1,Eid al-Fitr (estimated)
+2038/11/2,Eid al-Fitr (observed, estimated)
+2038/12/25,Christmas Day
+2039/1/1,New Year's Day
+2039/1/6,Eid al-Adha (estimated)
+2039/1/24,Lunar New Year
+2039/1/26,Islamic New Year (estimated)
+2039/2/23,National Day
+2039/4/6,Prophet's Birthday (estimated)
+2039/5/31,Armed Forces Day
+2039/7/15,Sultan Hassanal Bolkiah's Birthday
+2039/7/16,Sultan Hassanal Bolkiah's Birthday (observed)
+2039/8/18,Isra' and Mi'raj (estimated)
+2039/9/20,First Day of Ramadan (estimated)
+2039/10/6,Anniversary of the revelation of the Quran (estimated)
+2039/10/19,Eid al-Fitr (estimated)
+2039/10/20,Eid al-Fitr (estimated)
+2039/10/21,Eid al-Fitr (estimated)
+2039/10/22,Eid al-Fitr (observed, estimated)
+2039/12/25,Christmas Day
+2039/12/26,Eid al-Adha (estimated)
+2039/12/27,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/1/16,Islamic New Year (estimated)
+2040/2/12,Lunar New Year
+2040/2/13,Lunar New Year (observed)
+2040/2/23,National Day
+2040/3/25,Prophet's Birthday (estimated)
+2040/3/26,Prophet's Birthday (observed, estimated)
+2040/5/31,Armed Forces Day
+2040/7/15,Sultan Hassanal Bolkiah's Birthday
+2040/7/16,Sultan Hassanal Bolkiah's Birthday (observed)
+2040/8/6,Isra' and Mi'raj (estimated)
+2040/9/8,First Day of Ramadan (estimated)
+2040/9/24,Anniversary of the revelation of the Quran (estimated)
+2040/10/8,Eid al-Fitr (estimated)
+2040/10/9,Eid al-Fitr (estimated)
+2040/10/10,Eid al-Fitr (estimated)
+2040/12/15,Eid al-Adha (estimated)
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/1/4,Islamic New Year (estimated)
+2041/1/5,Islamic New Year (observed, estimated)
+2041/2/1,Lunar New Year
+2041/2/2,Lunar New Year (observed)
+2041/2/23,National Day
+2041/3/15,Prophet's Birthday (estimated)
+2041/3/16,Prophet's Birthday (observed, estimated)
+2041/5/31,Armed Forces Day
+2041/6/1,Armed Forces Day (observed)
+2041/7/15,Sultan Hassanal Bolkiah's Birthday
+2041/7/26,Isra' and Mi'raj (estimated)
+2041/7/27,Isra' and Mi'raj (observed, estimated)
+2041/8/28,First Day of Ramadan (estimated)
+2041/9/13,Anniversary of the revelation of the Quran (estimated)
+2041/9/14,Anniversary of the revelation of the Quran (observed, estimated)
+2041/9/27,Eid al-Fitr (estimated)
+2041/9/28,Eid al-Fitr (estimated)
+2041/9/29,Eid al-Fitr (estimated)
+2041/9/30,Eid al-Fitr (observed, estimated)
+2041/10/1,Eid al-Fitr (observed, estimated)
+2041/12/4,Eid al-Adha (estimated)
+2041/12/25,Christmas Day; Islamic New Year (estimated)
+2041/12/26,Christmas Day (observed); Islamic New Year (observed, estimated)
+2042/1/1,New Year's Day
+2042/1/22,Lunar New Year
+2042/2/23,National Day
+2042/2/24,National Day (observed)
+2042/3/5,Prophet's Birthday (estimated)
+2042/5/31,Armed Forces Day
+2042/7/15,Isra' and Mi'raj (estimated); Sultan Hassanal Bolkiah's Birthday
+2042/7/16,Isra' and Mi'raj (observed, estimated); Sultan Hassanal Bolkiah's Birthday (observed)
+2042/8/17,First Day of Ramadan (estimated)
+2042/8/18,First Day of Ramadan (observed, estimated)
+2042/9/2,Anniversary of the revelation of the Quran (estimated)
+2042/9/16,Eid al-Fitr (estimated)
+2042/9/17,Eid al-Fitr (estimated)
+2042/9/18,Eid al-Fitr (estimated)
+2042/11/23,Eid al-Adha (estimated)
+2042/11/24,Eid al-Adha (observed, estimated)
+2042/12/14,Islamic New Year (estimated)
+2042/12/15,Islamic New Year (observed, estimated)
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/2/10,Lunar New Year
+2043/2/22,Prophet's Birthday (estimated)
+2043/2/23,National Day
+2043/2/24,Prophet's Birthday (observed, estimated)
+2043/5/31,Armed Forces Day
+2043/6/1,Armed Forces Day (observed)
+2043/7/5,Isra' and Mi'raj (estimated)
+2043/7/6,Isra' and Mi'raj (observed, estimated)
+2043/7/15,Sultan Hassanal Bolkiah's Birthday
+2043/8/7,First Day of Ramadan (estimated)
+2043/8/8,First Day of Ramadan (observed, estimated)
+2043/8/23,Anniversary of the revelation of the Quran (estimated)
+2043/8/24,Anniversary of the revelation of the Quran (observed, estimated)
+2043/9/5,Eid al-Fitr (estimated)
+2043/9/6,Eid al-Fitr (estimated)
+2043/9/7,Eid al-Fitr (estimated)
+2043/9/8,Eid al-Fitr (observed, estimated)
+2043/11/12,Eid al-Adha (estimated)
+2043/12/3,Islamic New Year (estimated)
+2043/12/25,Christmas Day
+2043/12/26,Christmas Day (observed)
+2044/1/1,New Year's Day
+2044/1/2,New Year's Day (observed)
+2044/1/30,Lunar New Year
+2044/2/12,Prophet's Birthday (estimated)
+2044/2/13,Prophet's Birthday (observed, estimated)
+2044/2/23,National Day
+2044/5/31,Armed Forces Day
+2044/6/24,Isra' and Mi'raj (estimated)
+2044/6/25,Isra' and Mi'raj (observed, estimated)
+2044/7/15,Sultan Hassanal Bolkiah's Birthday
+2044/7/16,Sultan Hassanal Bolkiah's Birthday (observed)
+2044/7/26,First Day of Ramadan (estimated)
+2044/8/11,Anniversary of the revelation of the Quran (estimated)
+2044/8/25,Eid al-Fitr (estimated)
+2044/8/26,Eid al-Fitr (estimated)
+2044/8/27,Eid al-Fitr (estimated)
+2044/8/29,Eid al-Fitr (observed, estimated)
+2044/11/1,Eid al-Adha (estimated)
+2044/11/21,Islamic New Year (estimated)
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/1/31,Prophet's Birthday (estimated)
+2045/2/17,Lunar New Year
+2045/2/18,Lunar New Year (observed)
+2045/2/23,National Day
+2045/5/31,Armed Forces Day
+2045/6/13,Isra' and Mi'raj (estimated)
+2045/7/15,Sultan Hassanal Bolkiah's Birthday
+2045/7/16,First Day of Ramadan (estimated)
+2045/7/17,First Day of Ramadan (observed, estimated)
+2045/8/1,Anniversary of the revelation of the Quran (estimated)
+2045/8/14,Eid al-Fitr (estimated)
+2045/8/15,Eid al-Fitr (estimated)
+2045/8/16,Eid al-Fitr (estimated)
+2045/10/21,Eid al-Adha (estimated)
+2045/11/10,Islamic New Year (estimated)
+2045/11/11,Islamic New Year (observed, estimated)
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/1/20,Prophet's Birthday (estimated)
+2046/2/6,Lunar New Year
+2046/2/23,National Day
+2046/2/24,National Day (observed)
+2046/5/31,Armed Forces Day
+2046/6/3,Isra' and Mi'raj (estimated)
+2046/6/4,Isra' and Mi'raj (observed, estimated)
+2046/7/6,First Day of Ramadan (estimated)
+2046/7/7,First Day of Ramadan (observed, estimated)
+2046/7/15,Sultan Hassanal Bolkiah's Birthday
+2046/7/16,Sultan Hassanal Bolkiah's Birthday (observed)
+2046/7/22,Anniversary of the revelation of the Quran (estimated)
+2046/7/23,Anniversary of the revelation of the Quran (observed, estimated)
+2046/8/4,Eid al-Fitr (estimated)
+2046/8/5,Eid al-Fitr (estimated)
+2046/8/6,Eid al-Fitr (estimated)
+2046/8/7,Eid al-Fitr (observed, estimated)
+2046/10/11,Eid al-Adha (estimated)
+2046/10/31,Islamic New Year (estimated)
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/1/9,Prophet's Birthday (estimated)
+2047/1/26,Lunar New Year
+2047/2/23,National Day
+2047/5/23,Isra' and Mi'raj (estimated)
+2047/5/31,Armed Forces Day
+2047/6/1,Armed Forces Day (observed)
+2047/6/25,First Day of Ramadan (estimated)
+2047/7/11,Anniversary of the revelation of the Quran (estimated)
+2047/7/15,Sultan Hassanal Bolkiah's Birthday
+2047/7/24,Eid al-Fitr (estimated)
+2047/7/25,Eid al-Fitr (estimated)
+2047/7/26,Eid al-Fitr (estimated)
+2047/7/27,Eid al-Fitr (observed, estimated)
+2047/9/30,Eid al-Adha (estimated)
+2047/10/21,Islamic New Year (estimated)
+2047/12/25,Christmas Day
+2047/12/29,Prophet's Birthday (estimated)
+2047/12/30,Prophet's Birthday (observed, estimated)
+2048/1/1,New Year's Day
+2048/2/14,Lunar New Year
+2048/2/15,Lunar New Year (observed)
+2048/2/23,National Day
+2048/2/24,National Day (observed)
+2048/5/11,Isra' and Mi'raj (estimated)
+2048/5/31,Armed Forces Day
+2048/6/1,Armed Forces Day (observed)
+2048/6/13,First Day of Ramadan (estimated)
+2048/6/29,Anniversary of the revelation of the Quran (estimated)
+2048/7/13,Eid al-Fitr (estimated)
+2048/7/14,Eid al-Fitr (estimated)
+2048/7/15,Eid al-Fitr (estimated); Sultan Hassanal Bolkiah's Birthday
+2048/7/16,Eid al-Fitr (observed, estimated); Sultan Hassanal Bolkiah's Birthday (observed)
+2048/9/19,Eid al-Adha (estimated)
+2048/10/9,Islamic New Year (estimated)
+2048/10/10,Islamic New Year (observed, estimated)
+2048/12/18,Prophet's Birthday (estimated)
+2048/12/19,Prophet's Birthday (observed, estimated)
+2048/12/25,Christmas Day
+2048/12/26,Christmas Day (observed)
+2049/1/1,New Year's Day
+2049/1/2,New Year's Day (observed)
+2049/2/2,Lunar New Year
+2049/2/23,National Day
+2049/4/30,Isra' and Mi'raj (estimated)
+2049/5/1,Isra' and Mi'raj (observed, estimated)
+2049/5/31,Armed Forces Day
+2049/6/2,First Day of Ramadan (estimated)
+2049/6/18,Anniversary of the revelation of the Quran (estimated)
+2049/6/19,Anniversary of the revelation of the Quran (observed, estimated)
+2049/7/2,Eid al-Fitr (estimated)
+2049/7/3,Eid al-Fitr (estimated)
+2049/7/4,Eid al-Fitr (estimated)
+2049/7/5,Eid al-Fitr (observed, estimated)
+2049/7/6,Eid al-Fitr (observed, estimated)
+2049/7/15,Sultan Hassanal Bolkiah's Birthday
+2049/9/8,Eid al-Adha (estimated)
+2049/9/29,Islamic New Year (estimated)
+2049/12/8,Prophet's Birthday (estimated)
+2049/12/25,Christmas Day
+2050/1/1,New Year's Day
+2050/1/23,Lunar New Year
+2050/1/24,Lunar New Year (observed)
+2050/2/23,National Day
+2050/4/20,Isra' and Mi'raj (estimated)
+2050/5/22,First Day of Ramadan (estimated)
+2050/5/23,First Day of Ramadan (observed, estimated)
+2050/5/31,Armed Forces Day
+2050/6/7,Anniversary of the revelation of the Quran (estimated)
+2050/6/21,Eid al-Fitr (estimated)
+2050/6/22,Eid al-Fitr (estimated)
+2050/6/23,Eid al-Fitr (estimated)
+2050/7/15,Sultan Hassanal Bolkiah's Birthday
+2050/7/16,Sultan Hassanal Bolkiah's Birthday (observed)
+2050/8/28,Eid al-Adha (estimated)
+2050/8/29,Eid al-Adha (observed, estimated)
+2050/9/18,Islamic New Year (estimated)
+2050/9/19,Islamic New Year (observed, estimated)
+2050/11/27,Prophet's Birthday (estimated)
+2050/11/28,Prophet's Birthday (observed, estimated)
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed)

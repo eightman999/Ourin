@@ -52,6 +52,9 @@ public struct GhostConfiguration {
     /// SHIORI DLL filename (shiori)
     public var shiori: String
 
+    /// Optional macOS-native module override (shiori.macos).
+    public var shioriMacOS: String?
+
     /// MAKOTO translator filename (makoto)
     public var makoto: String?
 
@@ -316,6 +319,10 @@ public struct GhostConfiguration {
         if let shiori = dict["shiori"] {
             config.shiori = shiori
         }
+        if let native = dict["shiori.macos"]?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !native.isEmpty {
+            config.shioriMacOS = native
+        }
         config.makoto = dict["makoto"]
         config.shioriVersion = dict["shiori.version"]
         config.shioriCache = dict["shiori.cache"].flatMap { $0 == "1" }
@@ -486,11 +493,7 @@ private extension GhostConfiguration {
     /// Parse a single descript.txt file
     static func parseDescriptFile(_ file: URL) throws -> [String: String] {
         let raw = try Data(contentsOf: file)
-        var text = String(data: raw, encoding: .utf8)
-        if text == nil {
-            text = String(data: raw, encoding: .shiftJIS)
-        }
-        guard let str = text else {
+        guard let str = EncodingAdapter.decodeTextDefinition(raw) else {
             throw NSError(domain: "GhostConfiguration", code: -1,
                          userInfo: [NSLocalizedDescriptionKey: "Encoding error"])
         }

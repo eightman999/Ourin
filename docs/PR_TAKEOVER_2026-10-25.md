@@ -2,8 +2,9 @@
 
 **確認日 / Checked:** 2026-10-25 JST
 
-ユーザー依頼により公開中の33 PRを引き継いだ。元の作業ツリーとClaudeのworktreeを保全し、専用worktreeへローカル統合した。GitHubのmerge/close、commit/pushは行っていない。 / Took over 33 open PRs in a dedicated worktree; original checkouts preserved. No remote merge/close, commit or push.
+ユーザー依頼により公開中の33 PRを引き継ぎ、統合PR #214およびCI修正PR #215をmasterへマージ済み。33件の元PRもmergedで、元headをmasterの祖先として確認した。以下の基点・作業手順は統合時の記録。 / All 33 original PRs and #214/#215 are now merged; the steps below preserve the integration history.
 
+**最新検証:** master `88b8172`、[GitHub CI](https://github.com/eightman999/Ourin/actions/runs/40149056400) の metadata/helper-cores/test/release-gate/test-x86_64 全5ジョブ成功。arm64 unitは1,520集計テスト/1,541実行、UI起動は12件成功。CIのx86_64成功はIntel実機での全操作確認を意味しない。
 - 作業コピー / Worktree: `/Users/eightman/.codex/worktrees/ourin-pr-integration/Ourin`
 - 基点 / Baseline: `77500e31655a3b920c036e56fe7653050f3c0265` (`test/all-verify`)。ローカル作業ブランチ: `codex/ourin-pr-integration`。32 PRのheadを祖先として確認。
 - 追加 / Added: PR #195 (`0459da1`) の差分と現行ブランチ `3bcf86b` のDLL互換修正。

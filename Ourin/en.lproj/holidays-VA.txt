@@ -1,0 +1,903 @@
+# VA holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,Solemnity of Mary, Mother of God
+2020/1/6,Epiphany
+2020/2/11,Anniversary of the Foundation of Vatican City
+2020/3/13,Anniversary of the Election of the Holy Father
+2020/3/19,Saint Joseph's Day
+2020/4/9,Maundy Thursday
+2020/4/10,Good Friday
+2020/4/11,Holy Saturday
+2020/4/12,Easter Sunday
+2020/4/13,Easter Monday
+2020/4/14,Easter Tuesday
+2020/4/23,Name Day of the Holy Father
+2020/5/1,Saint Joseph the Worker's Day
+2020/5/21,Ascension Day
+2020/5/31,Solemnity of Pentecost
+2020/6/7,Solemnity of Holy Trinity
+2020/6/11,Corpus Domini
+2020/6/29,Saints Peter and Paul's Day
+2020/8/14,Day Before Assumption of Mary
+2020/8/15,Assumption of Mary Day
+2020/8/16,Day After Assumption of Mary
+2020/11/1,All Saints' Day
+2020/11/2,All Souls' Day
+2020/12/8,Immaculate Conception
+2020/12/24,Christmas Eve
+2020/12/25,Christmas Day
+2020/12/26,Saint Stephen's Day
+2020/12/27,Saint John the Evangelist's Day
+2020/12/31,Last Day of the Year
+2021/1/1,Solemnity of Mary, Mother of God
+2021/1/6,Epiphany
+2021/2/11,Anniversary of the Foundation of Vatican City
+2021/3/13,Anniversary of the Election of the Holy Father
+2021/3/19,Saint Joseph's Day
+2021/4/1,Maundy Thursday
+2021/4/2,Good Friday
+2021/4/3,Holy Saturday
+2021/4/4,Easter Sunday
+2021/4/5,Easter Monday
+2021/4/6,Easter Tuesday
+2021/4/23,Name Day of the Holy Father
+2021/5/1,Saint Joseph the Worker's Day
+2021/5/13,Ascension Day
+2021/5/23,Solemnity of Pentecost
+2021/5/30,Solemnity of Holy Trinity
+2021/6/3,Corpus Domini
+2021/6/29,Saints Peter and Paul's Day
+2021/8/14,Day Before Assumption of Mary
+2021/8/15,Assumption of Mary Day
+2021/8/16,Day After Assumption of Mary
+2021/11/1,All Saints' Day
+2021/11/2,All Souls' Day
+2021/12/8,Immaculate Conception
+2021/12/24,Christmas Eve
+2021/12/25,Christmas Day
+2021/12/26,Saint Stephen's Day
+2021/12/27,Saint John the Evangelist's Day
+2021/12/31,Last Day of the Year
+2022/1/1,Solemnity of Mary, Mother of God
+2022/1/6,Epiphany
+2022/2/11,Anniversary of the Foundation of Vatican City
+2022/3/13,Anniversary of the Election of the Holy Father
+2022/3/19,Saint Joseph's Day
+2022/4/14,Maundy Thursday
+2022/4/15,Good Friday
+2022/4/16,Holy Saturday
+2022/4/17,Easter Sunday
+2022/4/18,Easter Monday
+2022/4/19,Easter Tuesday
+2022/4/23,Name Day of the Holy Father
+2022/5/1,Saint Joseph the Worker's Day
+2022/5/26,Ascension Day
+2022/6/5,Solemnity of Pentecost
+2022/6/12,Solemnity of Holy Trinity
+2022/6/16,Corpus Domini
+2022/6/29,Saints Peter and Paul's Day
+2022/8/14,Day Before Assumption of Mary
+2022/8/15,Assumption of Mary Day
+2022/8/16,Day After Assumption of Mary
+2022/11/1,All Saints' Day
+2022/11/2,All Souls' Day
+2022/12/8,Immaculate Conception
+2022/12/24,Christmas Eve
+2022/12/25,Christmas Day
+2022/12/26,Saint Stephen's Day
+2022/12/27,Saint John the Evangelist's Day
+2022/12/31,Last Day of the Year
+2023/1/1,Solemnity of Mary, Mother of God
+2023/1/6,Epiphany
+2023/2/11,Anniversary of the Foundation of Vatican City
+2023/3/13,Anniversary of the Election of the Holy Father
+2023/3/19,Saint Joseph's Day
+2023/4/6,Maundy Thursday
+2023/4/7,Good Friday
+2023/4/8,Holy Saturday
+2023/4/9,Easter Sunday
+2023/4/10,Easter Monday
+2023/4/11,Easter Tuesday
+2023/4/23,Name Day of the Holy Father
+2023/5/1,Saint Joseph the Worker's Day
+2023/5/18,Ascension Day
+2023/5/28,Solemnity of Pentecost
+2023/6/4,Solemnity of Holy Trinity
+2023/6/8,Corpus Domini
+2023/6/29,Saints Peter and Paul's Day
+2023/8/14,Day Before Assumption of Mary
+2023/8/15,Assumption of Mary Day
+2023/8/16,Day After Assumption of Mary
+2023/11/1,All Saints' Day
+2023/11/2,All Souls' Day
+2023/12/8,Immaculate Conception
+2023/12/24,Christmas Eve
+2023/12/25,Christmas Day
+2023/12/26,Saint Stephen's Day
+2023/12/27,Saint John the Evangelist's Day
+2023/12/31,Last Day of the Year
+2024/1/1,Solemnity of Mary, Mother of God
+2024/1/6,Epiphany
+2024/2/11,Anniversary of the Foundation of Vatican City
+2024/3/13,Anniversary of the Election of the Holy Father
+2024/3/19,Saint Joseph's Day
+2024/3/28,Maundy Thursday
+2024/3/29,Good Friday
+2024/3/30,Holy Saturday
+2024/3/31,Easter Sunday
+2024/4/1,Easter Monday
+2024/4/2,Easter Tuesday
+2024/4/23,Name Day of the Holy Father
+2024/5/1,Saint Joseph the Worker's Day
+2024/5/9,Ascension Day
+2024/5/19,Solemnity of Pentecost
+2024/5/26,Solemnity of Holy Trinity
+2024/5/30,Corpus Domini
+2024/6/29,Saints Peter and Paul's Day
+2024/8/14,Day Before Assumption of Mary
+2024/8/15,Assumption of Mary Day
+2024/8/16,Day After Assumption of Mary
+2024/11/1,All Saints' Day
+2024/11/2,All Souls' Day
+2024/12/8,Immaculate Conception
+2024/12/24,Christmas Eve
+2024/12/25,Christmas Day
+2024/12/26,Saint Stephen's Day
+2024/12/27,Saint John the Evangelist's Day
+2024/12/31,Last Day of the Year
+2025/1/1,Solemnity of Mary, Mother of God
+2025/1/6,Epiphany
+2025/2/11,Anniversary of the Foundation of Vatican City
+2025/3/13,Anniversary of the Election of the Holy Father
+2025/3/19,Saint Joseph's Day
+2025/4/17,Maundy Thursday
+2025/4/18,Good Friday
+2025/4/19,Holy Saturday
+2025/4/20,Easter Sunday
+2025/4/21,Easter Monday
+2025/4/22,Easter Tuesday
+2025/4/23,Name Day of the Holy Father
+2025/5/1,Saint Joseph the Worker's Day
+2025/5/29,Ascension Day
+2025/6/8,Solemnity of Pentecost
+2025/6/15,Solemnity of Holy Trinity
+2025/6/19,Corpus Domini
+2025/6/29,Saints Peter and Paul's Day
+2025/8/14,Day Before Assumption of Mary
+2025/8/15,Assumption of Mary Day
+2025/8/16,Day After Assumption of Mary
+2025/9/17,Name Day of the Holy Father
+2025/11/1,All Saints' Day
+2025/11/2,All Souls' Day
+2025/12/8,Immaculate Conception
+2025/12/24,Christmas Eve
+2025/12/25,Christmas Day
+2025/12/26,Saint Stephen's Day
+2025/12/27,Saint John the Evangelist's Day
+2025/12/31,Last Day of the Year
+2026/1/1,Solemnity of Mary, Mother of God
+2026/1/6,Epiphany
+2026/2/11,Anniversary of the Foundation of Vatican City
+2026/3/19,Saint Joseph's Day
+2026/4/2,Maundy Thursday
+2026/4/3,Good Friday
+2026/4/4,Holy Saturday
+2026/4/5,Easter Sunday
+2026/4/6,Easter Monday
+2026/4/7,Easter Tuesday
+2026/5/1,Saint Joseph the Worker's Day
+2026/5/8,Anniversary of the Election of the Holy Father
+2026/5/14,Ascension Day
+2026/5/24,Solemnity of Pentecost
+2026/5/31,Solemnity of Holy Trinity
+2026/6/4,Corpus Domini
+2026/6/29,Saints Peter and Paul's Day
+2026/8/14,Day Before Assumption of Mary
+2026/8/15,Assumption of Mary Day
+2026/8/16,Day After Assumption of Mary
+2026/9/17,Name Day of the Holy Father
+2026/11/1,All Saints' Day
+2026/11/2,All Souls' Day
+2026/12/8,Immaculate Conception
+2026/12/24,Christmas Eve
+2026/12/25,Christmas Day
+2026/12/26,Saint Stephen's Day
+2026/12/27,Saint John the Evangelist's Day
+2026/12/31,Last Day of the Year
+2027/1/1,Solemnity of Mary, Mother of God
+2027/1/6,Epiphany
+2027/2/11,Anniversary of the Foundation of Vatican City
+2027/3/19,Saint Joseph's Day
+2027/3/25,Maundy Thursday
+2027/3/26,Good Friday
+2027/3/27,Holy Saturday
+2027/3/28,Easter Sunday
+2027/3/29,Easter Monday
+2027/3/30,Easter Tuesday
+2027/5/1,Saint Joseph the Worker's Day
+2027/5/6,Ascension Day
+2027/5/8,Anniversary of the Election of the Holy Father
+2027/5/16,Solemnity of Pentecost
+2027/5/23,Solemnity of Holy Trinity
+2027/5/27,Corpus Domini
+2027/6/29,Saints Peter and Paul's Day
+2027/8/14,Day Before Assumption of Mary
+2027/8/15,Assumption of Mary Day
+2027/8/16,Day After Assumption of Mary
+2027/9/17,Name Day of the Holy Father
+2027/11/1,All Saints' Day
+2027/11/2,All Souls' Day
+2027/12/8,Immaculate Conception
+2027/12/24,Christmas Eve
+2027/12/25,Christmas Day
+2027/12/26,Saint Stephen's Day
+2027/12/27,Saint John the Evangelist's Day
+2027/12/31,Last Day of the Year
+2028/1/1,Solemnity of Mary, Mother of God
+2028/1/6,Epiphany
+2028/2/11,Anniversary of the Foundation of Vatican City
+2028/3/19,Saint Joseph's Day
+2028/4/13,Maundy Thursday
+2028/4/14,Good Friday
+2028/4/15,Holy Saturday
+2028/4/16,Easter Sunday
+2028/4/17,Easter Monday
+2028/4/18,Easter Tuesday
+2028/5/1,Saint Joseph the Worker's Day
+2028/5/8,Anniversary of the Election of the Holy Father
+2028/5/25,Ascension Day
+2028/6/4,Solemnity of Pentecost
+2028/6/11,Solemnity of Holy Trinity
+2028/6/15,Corpus Domini
+2028/6/29,Saints Peter and Paul's Day
+2028/8/14,Day Before Assumption of Mary
+2028/8/15,Assumption of Mary Day
+2028/8/16,Day After Assumption of Mary
+2028/9/17,Name Day of the Holy Father
+2028/11/1,All Saints' Day
+2028/11/2,All Souls' Day
+2028/12/8,Immaculate Conception
+2028/12/24,Christmas Eve
+2028/12/25,Christmas Day
+2028/12/26,Saint Stephen's Day
+2028/12/27,Saint John the Evangelist's Day
+2028/12/31,Last Day of the Year
+2029/1/1,Solemnity of Mary, Mother of God
+2029/1/6,Epiphany
+2029/2/11,Anniversary of the Foundation of Vatican City
+2029/3/19,Saint Joseph's Day
+2029/3/29,Maundy Thursday
+2029/3/30,Good Friday
+2029/3/31,Holy Saturday
+2029/4/1,Easter Sunday
+2029/4/2,Easter Monday
+2029/4/3,Easter Tuesday
+2029/5/1,Saint Joseph the Worker's Day
+2029/5/8,Anniversary of the Election of the Holy Father
+2029/5/10,Ascension Day
+2029/5/20,Solemnity of Pentecost
+2029/5/27,Solemnity of Holy Trinity
+2029/5/31,Corpus Domini
+2029/6/29,Saints Peter and Paul's Day
+2029/8/14,Day Before Assumption of Mary
+2029/8/15,Assumption of Mary Day
+2029/8/16,Day After Assumption of Mary
+2029/9/17,Name Day of the Holy Father
+2029/11/1,All Saints' Day
+2029/11/2,All Souls' Day
+2029/12/8,Immaculate Conception
+2029/12/24,Christmas Eve
+2029/12/25,Christmas Day
+2029/12/26,Saint Stephen's Day
+2029/12/27,Saint John the Evangelist's Day
+2029/12/31,Last Day of the Year
+2030/1/1,Solemnity of Mary, Mother of God
+2030/1/6,Epiphany
+2030/2/11,Anniversary of the Foundation of Vatican City
+2030/3/19,Saint Joseph's Day
+2030/4/18,Maundy Thursday
+2030/4/19,Good Friday
+2030/4/20,Holy Saturday
+2030/4/21,Easter Sunday
+2030/4/22,Easter Monday
+2030/4/23,Easter Tuesday
+2030/5/1,Saint Joseph the Worker's Day
+2030/5/8,Anniversary of the Election of the Holy Father
+2030/5/30,Ascension Day
+2030/6/9,Solemnity of Pentecost
+2030/6/16,Solemnity of Holy Trinity
+2030/6/20,Corpus Domini
+2030/6/29,Saints Peter and Paul's Day
+2030/8/14,Day Before Assumption of Mary
+2030/8/15,Assumption of Mary Day
+2030/8/16,Day After Assumption of Mary
+2030/9/17,Name Day of the Holy Father
+2030/11/1,All Saints' Day
+2030/11/2,All Souls' Day
+2030/12/8,Immaculate Conception
+2030/12/24,Christmas Eve
+2030/12/25,Christmas Day
+2030/12/26,Saint Stephen's Day
+2030/12/27,Saint John the Evangelist's Day
+2030/12/31,Last Day of the Year
+2031/1/1,Solemnity of Mary, Mother of God
+2031/1/6,Epiphany
+2031/2/11,Anniversary of the Foundation of Vatican City
+2031/3/19,Saint Joseph's Day
+2031/4/10,Maundy Thursday
+2031/4/11,Good Friday
+2031/4/12,Holy Saturday
+2031/4/13,Easter Sunday
+2031/4/14,Easter Monday
+2031/4/15,Easter Tuesday
+2031/5/1,Saint Joseph the Worker's Day
+2031/5/8,Anniversary of the Election of the Holy Father
+2031/5/22,Ascension Day
+2031/6/1,Solemnity of Pentecost
+2031/6/8,Solemnity of Holy Trinity
+2031/6/12,Corpus Domini
+2031/6/29,Saints Peter and Paul's Day
+2031/8/14,Day Before Assumption of Mary
+2031/8/15,Assumption of Mary Day
+2031/8/16,Day After Assumption of Mary
+2031/9/17,Name Day of the Holy Father
+2031/11/1,All Saints' Day
+2031/11/2,All Souls' Day
+2031/12/8,Immaculate Conception
+2031/12/24,Christmas Eve
+2031/12/25,Christmas Day
+2031/12/26,Saint Stephen's Day
+2031/12/27,Saint John the Evangelist's Day
+2031/12/31,Last Day of the Year
+2032/1/1,Solemnity of Mary, Mother of God
+2032/1/6,Epiphany
+2032/2/11,Anniversary of the Foundation of Vatican City
+2032/3/19,Saint Joseph's Day
+2032/3/25,Maundy Thursday
+2032/3/26,Good Friday
+2032/3/27,Holy Saturday
+2032/3/28,Easter Sunday
+2032/3/29,Easter Monday
+2032/3/30,Easter Tuesday
+2032/5/1,Saint Joseph the Worker's Day
+2032/5/6,Ascension Day
+2032/5/8,Anniversary of the Election of the Holy Father
+2032/5/16,Solemnity of Pentecost
+2032/5/23,Solemnity of Holy Trinity
+2032/5/27,Corpus Domini
+2032/6/29,Saints Peter and Paul's Day
+2032/8/14,Day Before Assumption of Mary
+2032/8/15,Assumption of Mary Day
+2032/8/16,Day After Assumption of Mary
+2032/9/17,Name Day of the Holy Father
+2032/11/1,All Saints' Day
+2032/11/2,All Souls' Day
+2032/12/8,Immaculate Conception
+2032/12/24,Christmas Eve
+2032/12/25,Christmas Day
+2032/12/26,Saint Stephen's Day
+2032/12/27,Saint John the Evangelist's Day
+2032/12/31,Last Day of the Year
+2033/1/1,Solemnity of Mary, Mother of God
+2033/1/6,Epiphany
+2033/2/11,Anniversary of the Foundation of Vatican City
+2033/3/19,Saint Joseph's Day
+2033/4/14,Maundy Thursday
+2033/4/15,Good Friday
+2033/4/16,Holy Saturday
+2033/4/17,Easter Sunday
+2033/4/18,Easter Monday
+2033/4/19,Easter Tuesday
+2033/5/1,Saint Joseph the Worker's Day
+2033/5/8,Anniversary of the Election of the Holy Father
+2033/5/26,Ascension Day
+2033/6/5,Solemnity of Pentecost
+2033/6/12,Solemnity of Holy Trinity
+2033/6/16,Corpus Domini
+2033/6/29,Saints Peter and Paul's Day
+2033/8/14,Day Before Assumption of Mary
+2033/8/15,Assumption of Mary Day
+2033/8/16,Day After Assumption of Mary
+2033/9/17,Name Day of the Holy Father
+2033/11/1,All Saints' Day
+2033/11/2,All Souls' Day
+2033/12/8,Immaculate Conception
+2033/12/24,Christmas Eve
+2033/12/25,Christmas Day
+2033/12/26,Saint Stephen's Day
+2033/12/27,Saint John the Evangelist's Day
+2033/12/31,Last Day of the Year
+2034/1/1,Solemnity of Mary, Mother of God
+2034/1/6,Epiphany
+2034/2/11,Anniversary of the Foundation of Vatican City
+2034/3/19,Saint Joseph's Day
+2034/4/6,Maundy Thursday
+2034/4/7,Good Friday
+2034/4/8,Holy Saturday
+2034/4/9,Easter Sunday
+2034/4/10,Easter Monday
+2034/4/11,Easter Tuesday
+2034/5/1,Saint Joseph the Worker's Day
+2034/5/8,Anniversary of the Election of the Holy Father
+2034/5/18,Ascension Day
+2034/5/28,Solemnity of Pentecost
+2034/6/4,Solemnity of Holy Trinity
+2034/6/8,Corpus Domini
+2034/6/29,Saints Peter and Paul's Day
+2034/8/14,Day Before Assumption of Mary
+2034/8/15,Assumption of Mary Day
+2034/8/16,Day After Assumption of Mary
+2034/9/17,Name Day of the Holy Father
+2034/11/1,All Saints' Day
+2034/11/2,All Souls' Day
+2034/12/8,Immaculate Conception
+2034/12/24,Christmas Eve
+2034/12/25,Christmas Day
+2034/12/26,Saint Stephen's Day
+2034/12/27,Saint John the Evangelist's Day
+2034/12/31,Last Day of the Year
+2035/1/1,Solemnity of Mary, Mother of God
+2035/1/6,Epiphany
+2035/2/11,Anniversary of the Foundation of Vatican City
+2035/3/19,Saint Joseph's Day
+2035/3/22,Maundy Thursday
+2035/3/23,Good Friday
+2035/3/24,Holy Saturday
+2035/3/25,Easter Sunday
+2035/3/26,Easter Monday
+2035/3/27,Easter Tuesday
+2035/5/1,Saint Joseph the Worker's Day
+2035/5/3,Ascension Day
+2035/5/8,Anniversary of the Election of the Holy Father
+2035/5/13,Solemnity of Pentecost
+2035/5/20,Solemnity of Holy Trinity
+2035/5/24,Corpus Domini
+2035/6/29,Saints Peter and Paul's Day
+2035/8/14,Day Before Assumption of Mary
+2035/8/15,Assumption of Mary Day
+2035/8/16,Day After Assumption of Mary
+2035/9/17,Name Day of the Holy Father
+2035/11/1,All Saints' Day
+2035/11/2,All Souls' Day
+2035/12/8,Immaculate Conception
+2035/12/24,Christmas Eve
+2035/12/25,Christmas Day
+2035/12/26,Saint Stephen's Day
+2035/12/27,Saint John the Evangelist's Day
+2035/12/31,Last Day of the Year
+2036/1/1,Solemnity of Mary, Mother of God
+2036/1/6,Epiphany
+2036/2/11,Anniversary of the Foundation of Vatican City
+2036/3/19,Saint Joseph's Day
+2036/4/10,Maundy Thursday
+2036/4/11,Good Friday
+2036/4/12,Holy Saturday
+2036/4/13,Easter Sunday
+2036/4/14,Easter Monday
+2036/4/15,Easter Tuesday
+2036/5/1,Saint Joseph the Worker's Day
+2036/5/8,Anniversary of the Election of the Holy Father
+2036/5/22,Ascension Day
+2036/6/1,Solemnity of Pentecost
+2036/6/8,Solemnity of Holy Trinity
+2036/6/12,Corpus Domini
+2036/6/29,Saints Peter and Paul's Day
+2036/8/14,Day Before Assumption of Mary
+2036/8/15,Assumption of Mary Day
+2036/8/16,Day After Assumption of Mary
+2036/9/17,Name Day of the Holy Father
+2036/11/1,All Saints' Day
+2036/11/2,All Souls' Day
+2036/12/8,Immaculate Conception
+2036/12/24,Christmas Eve
+2036/12/25,Christmas Day
+2036/12/26,Saint Stephen's Day
+2036/12/27,Saint John the Evangelist's Day
+2036/12/31,Last Day of the Year
+2037/1/1,Solemnity of Mary, Mother of God
+2037/1/6,Epiphany
+2037/2/11,Anniversary of the Foundation of Vatican City
+2037/3/19,Saint Joseph's Day
+2037/4/2,Maundy Thursday
+2037/4/3,Good Friday
+2037/4/4,Holy Saturday
+2037/4/5,Easter Sunday
+2037/4/6,Easter Monday
+2037/4/7,Easter Tuesday
+2037/5/1,Saint Joseph the Worker's Day
+2037/5/8,Anniversary of the Election of the Holy Father
+2037/5/14,Ascension Day
+2037/5/24,Solemnity of Pentecost
+2037/5/31,Solemnity of Holy Trinity
+2037/6/4,Corpus Domini
+2037/6/29,Saints Peter and Paul's Day
+2037/8/14,Day Before Assumption of Mary
+2037/8/15,Assumption of Mary Day
+2037/8/16,Day After Assumption of Mary
+2037/9/17,Name Day of the Holy Father
+2037/11/1,All Saints' Day
+2037/11/2,All Souls' Day
+2037/12/8,Immaculate Conception
+2037/12/24,Christmas Eve
+2037/12/25,Christmas Day
+2037/12/26,Saint Stephen's Day
+2037/12/27,Saint John the Evangelist's Day
+2037/12/31,Last Day of the Year
+2038/1/1,Solemnity of Mary, Mother of God
+2038/1/6,Epiphany
+2038/2/11,Anniversary of the Foundation of Vatican City
+2038/3/19,Saint Joseph's Day
+2038/4/22,Maundy Thursday
+2038/4/23,Good Friday
+2038/4/24,Holy Saturday
+2038/4/25,Easter Sunday
+2038/4/26,Easter Monday
+2038/4/27,Easter Tuesday
+2038/5/1,Saint Joseph the Worker's Day
+2038/5/8,Anniversary of the Election of the Holy Father
+2038/6/3,Ascension Day
+2038/6/13,Solemnity of Pentecost
+2038/6/20,Solemnity of Holy Trinity
+2038/6/24,Corpus Domini
+2038/6/29,Saints Peter and Paul's Day
+2038/8/14,Day Before Assumption of Mary
+2038/8/15,Assumption of Mary Day
+2038/8/16,Day After Assumption of Mary
+2038/9/17,Name Day of the Holy Father
+2038/11/1,All Saints' Day
+2038/11/2,All Souls' Day
+2038/12/8,Immaculate Conception
+2038/12/24,Christmas Eve
+2038/12/25,Christmas Day
+2038/12/26,Saint Stephen's Day
+2038/12/27,Saint John the Evangelist's Day
+2038/12/31,Last Day of the Year
+2039/1/1,Solemnity of Mary, Mother of God
+2039/1/6,Epiphany
+2039/2/11,Anniversary of the Foundation of Vatican City
+2039/3/19,Saint Joseph's Day
+2039/4/7,Maundy Thursday
+2039/4/8,Good Friday
+2039/4/9,Holy Saturday
+2039/4/10,Easter Sunday
+2039/4/11,Easter Monday
+2039/4/12,Easter Tuesday
+2039/5/1,Saint Joseph the Worker's Day
+2039/5/8,Anniversary of the Election of the Holy Father
+2039/5/19,Ascension Day
+2039/5/29,Solemnity of Pentecost
+2039/6/5,Solemnity of Holy Trinity
+2039/6/9,Corpus Domini
+2039/6/29,Saints Peter and Paul's Day
+2039/8/14,Day Before Assumption of Mary
+2039/8/15,Assumption of Mary Day
+2039/8/16,Day After Assumption of Mary
+2039/9/17,Name Day of the Holy Father
+2039/11/1,All Saints' Day
+2039/11/2,All Souls' Day
+2039/12/8,Immaculate Conception
+2039/12/24,Christmas Eve
+2039/12/25,Christmas Day
+2039/12/26,Saint Stephen's Day
+2039/12/27,Saint John the Evangelist's Day
+2039/12/31,Last Day of the Year
+2040/1/1,Solemnity of Mary, Mother of God
+2040/1/6,Epiphany
+2040/2/11,Anniversary of the Foundation of Vatican City
+2040/3/19,Saint Joseph's Day
+2040/3/29,Maundy Thursday
+2040/3/30,Good Friday
+2040/3/31,Holy Saturday
+2040/4/1,Easter Sunday
+2040/4/2,Easter Monday
+2040/4/3,Easter Tuesday
+2040/5/1,Saint Joseph the Worker's Day
+2040/5/8,Anniversary of the Election of the Holy Father
+2040/5/10,Ascension Day
+2040/5/20,Solemnity of Pentecost
+2040/5/27,Solemnity of Holy Trinity
+2040/5/31,Corpus Domini
+2040/6/29,Saints Peter and Paul's Day
+2040/8/14,Day Before Assumption of Mary
+2040/8/15,Assumption of Mary Day
+2040/8/16,Day After Assumption of Mary
+2040/9/17,Name Day of the Holy Father
+2040/11/1,All Saints' Day
+2040/11/2,All Souls' Day
+2040/12/8,Immaculate Conception
+2040/12/24,Christmas Eve
+2040/12/25,Christmas Day
+2040/12/26,Saint Stephen's Day
+2040/12/27,Saint John the Evangelist's Day
+2040/12/31,Last Day of the Year
+2041/1/1,Solemnity of Mary, Mother of God
+2041/1/6,Epiphany
+2041/2/11,Anniversary of the Foundation of Vatican City
+2041/3/19,Saint Joseph's Day
+2041/4/18,Maundy Thursday
+2041/4/19,Good Friday
+2041/4/20,Holy Saturday
+2041/4/21,Easter Sunday
+2041/4/22,Easter Monday
+2041/4/23,Easter Tuesday
+2041/5/1,Saint Joseph the Worker's Day
+2041/5/8,Anniversary of the Election of the Holy Father
+2041/5/30,Ascension Day
+2041/6/9,Solemnity of Pentecost
+2041/6/16,Solemnity of Holy Trinity
+2041/6/20,Corpus Domini
+2041/6/29,Saints Peter and Paul's Day
+2041/8/14,Day Before Assumption of Mary
+2041/8/15,Assumption of Mary Day
+2041/8/16,Day After Assumption of Mary
+2041/9/17,Name Day of the Holy Father
+2041/11/1,All Saints' Day
+2041/11/2,All Souls' Day
+2041/12/8,Immaculate Conception
+2041/12/24,Christmas Eve
+2041/12/25,Christmas Day
+2041/12/26,Saint Stephen's Day
+2041/12/27,Saint John the Evangelist's Day
+2041/12/31,Last Day of the Year
+2042/1/1,Solemnity of Mary, Mother of God
+2042/1/6,Epiphany
+2042/2/11,Anniversary of the Foundation of Vatican City
+2042/3/19,Saint Joseph's Day
+2042/4/3,Maundy Thursday
+2042/4/4,Good Friday
+2042/4/5,Holy Saturday
+2042/4/6,Easter Sunday
+2042/4/7,Easter Monday
+2042/4/8,Easter Tuesday
+2042/5/1,Saint Joseph the Worker's Day
+2042/5/8,Anniversary of the Election of the Holy Father
+2042/5/15,Ascension Day
+2042/5/25,Solemnity of Pentecost
+2042/6/1,Solemnity of Holy Trinity
+2042/6/5,Corpus Domini
+2042/6/29,Saints Peter and Paul's Day
+2042/8/14,Day Before Assumption of Mary
+2042/8/15,Assumption of Mary Day
+2042/8/16,Day After Assumption of Mary
+2042/9/17,Name Day of the Holy Father
+2042/11/1,All Saints' Day
+2042/11/2,All Souls' Day
+2042/12/8,Immaculate Conception
+2042/12/24,Christmas Eve
+2042/12/25,Christmas Day
+2042/12/26,Saint Stephen's Day
+2042/12/27,Saint John the Evangelist's Day
+2042/12/31,Last Day of the Year
+2043/1/1,Solemnity of Mary, Mother of God
+2043/1/6,Epiphany
+2043/2/11,Anniversary of the Foundation of Vatican City
+2043/3/19,Saint Joseph's Day
+2043/3/26,Maundy Thursday
+2043/3/27,Good Friday
+2043/3/28,Holy Saturday
+2043/3/29,Easter Sunday
+2043/3/30,Easter Monday
+2043/3/31,Easter Tuesday
+2043/5/1,Saint Joseph the Worker's Day
+2043/5/7,Ascension Day
+2043/5/8,Anniversary of the Election of the Holy Father
+2043/5/17,Solemnity of Pentecost
+2043/5/24,Solemnity of Holy Trinity
+2043/5/28,Corpus Domini
+2043/6/29,Saints Peter and Paul's Day
+2043/8/14,Day Before Assumption of Mary
+2043/8/15,Assumption of Mary Day
+2043/8/16,Day After Assumption of Mary
+2043/9/17,Name Day of the Holy Father
+2043/11/1,All Saints' Day
+2043/11/2,All Souls' Day
+2043/12/8,Immaculate Conception
+2043/12/24,Christmas Eve
+2043/12/25,Christmas Day
+2043/12/26,Saint Stephen's Day
+2043/12/27,Saint John the Evangelist's Day
+2043/12/31,Last Day of the Year
+2044/1/1,Solemnity of Mary, Mother of God
+2044/1/6,Epiphany
+2044/2/11,Anniversary of the Foundation of Vatican City
+2044/3/19,Saint Joseph's Day
+2044/4/14,Maundy Thursday
+2044/4/15,Good Friday
+2044/4/16,Holy Saturday
+2044/4/17,Easter Sunday
+2044/4/18,Easter Monday
+2044/4/19,Easter Tuesday
+2044/5/1,Saint Joseph the Worker's Day
+2044/5/8,Anniversary of the Election of the Holy Father
+2044/5/26,Ascension Day
+2044/6/5,Solemnity of Pentecost
+2044/6/12,Solemnity of Holy Trinity
+2044/6/16,Corpus Domini
+2044/6/29,Saints Peter and Paul's Day
+2044/8/14,Day Before Assumption of Mary
+2044/8/15,Assumption of Mary Day
+2044/8/16,Day After Assumption of Mary
+2044/9/17,Name Day of the Holy Father
+2044/11/1,All Saints' Day
+2044/11/2,All Souls' Day
+2044/12/8,Immaculate Conception
+2044/12/24,Christmas Eve
+2044/12/25,Christmas Day
+2044/12/26,Saint Stephen's Day
+2044/12/27,Saint John the Evangelist's Day
+2044/12/31,Last Day of the Year
+2045/1/1,Solemnity of Mary, Mother of God
+2045/1/6,Epiphany
+2045/2/11,Anniversary of the Foundation of Vatican City
+2045/3/19,Saint Joseph's Day
+2045/4/6,Maundy Thursday
+2045/4/7,Good Friday
+2045/4/8,Holy Saturday
+2045/4/9,Easter Sunday
+2045/4/10,Easter Monday
+2045/4/11,Easter Tuesday
+2045/5/1,Saint Joseph the Worker's Day
+2045/5/8,Anniversary of the Election of the Holy Father
+2045/5/18,Ascension Day
+2045/5/28,Solemnity of Pentecost
+2045/6/4,Solemnity of Holy Trinity
+2045/6/8,Corpus Domini
+2045/6/29,Saints Peter and Paul's Day
+2045/8/14,Day Before Assumption of Mary
+2045/8/15,Assumption of Mary Day
+2045/8/16,Day After Assumption of Mary
+2045/9/17,Name Day of the Holy Father
+2045/11/1,All Saints' Day
+2045/11/2,All Souls' Day
+2045/12/8,Immaculate Conception
+2045/12/24,Christmas Eve
+2045/12/25,Christmas Day
+2045/12/26,Saint Stephen's Day
+2045/12/27,Saint John the Evangelist's Day
+2045/12/31,Last Day of the Year
+2046/1/1,Solemnity of Mary, Mother of God
+2046/1/6,Epiphany
+2046/2/11,Anniversary of the Foundation of Vatican City
+2046/3/19,Saint Joseph's Day
+2046/3/22,Maundy Thursday
+2046/3/23,Good Friday
+2046/3/24,Holy Saturday
+2046/3/25,Easter Sunday
+2046/3/26,Easter Monday
+2046/3/27,Easter Tuesday
+2046/5/1,Saint Joseph the Worker's Day
+2046/5/3,Ascension Day
+2046/5/8,Anniversary of the Election of the Holy Father
+2046/5/13,Solemnity of Pentecost
+2046/5/20,Solemnity of Holy Trinity
+2046/5/24,Corpus Domini
+2046/6/29,Saints Peter and Paul's Day
+2046/8/14,Day Before Assumption of Mary
+2046/8/15,Assumption of Mary Day
+2046/8/16,Day After Assumption of Mary
+2046/9/17,Name Day of the Holy Father
+2046/11/1,All Saints' Day
+2046/11/2,All Souls' Day
+2046/12/8,Immaculate Conception
+2046/12/24,Christmas Eve
+2046/12/25,Christmas Day
+2046/12/26,Saint Stephen's Day
+2046/12/27,Saint John the Evangelist's Day
+2046/12/31,Last Day of the Year
+2047/1/1,Solemnity of Mary, Mother of God
+2047/1/6,Epiphany
+2047/2/11,Anniversary of the Foundation of Vatican City
+2047/3/19,Saint Joseph's Day
+2047/4/11,Maundy Thursday
+2047/4/12,Good Friday
+2047/4/13,Holy Saturday
+2047/4/14,Easter Sunday
+2047/4/15,Easter Monday
+2047/4/16,Easter Tuesday
+2047/5/1,Saint Joseph the Worker's Day
+2047/5/8,Anniversary of the Election of the Holy Father
+2047/5/23,Ascension Day
+2047/6/2,Solemnity of Pentecost
+2047/6/9,Solemnity of Holy Trinity
+2047/6/13,Corpus Domini
+2047/6/29,Saints Peter and Paul's Day
+2047/8/14,Day Before Assumption of Mary
+2047/8/15,Assumption of Mary Day
+2047/8/16,Day After Assumption of Mary
+2047/9/17,Name Day of the Holy Father
+2047/11/1,All Saints' Day
+2047/11/2,All Souls' Day
+2047/12/8,Immaculate Conception
+2047/12/24,Christmas Eve
+2047/12/25,Christmas Day
+2047/12/26,Saint Stephen's Day
+2047/12/27,Saint John the Evangelist's Day
+2047/12/31,Last Day of the Year
+2048/1/1,Solemnity of Mary, Mother of God
+2048/1/6,Epiphany
+2048/2/11,Anniversary of the Foundation of Vatican City
+2048/3/19,Saint Joseph's Day
+2048/4/2,Maundy Thursday
+2048/4/3,Good Friday
+2048/4/4,Holy Saturday
+2048/4/5,Easter Sunday
+2048/4/6,Easter Monday
+2048/4/7,Easter Tuesday
+2048/5/1,Saint Joseph the Worker's Day
+2048/5/8,Anniversary of the Election of the Holy Father
+2048/5/14,Ascension Day
+2048/5/24,Solemnity of Pentecost
+2048/5/31,Solemnity of Holy Trinity
+2048/6/4,Corpus Domini
+2048/6/29,Saints Peter and Paul's Day
+2048/8/14,Day Before Assumption of Mary
+2048/8/15,Assumption of Mary Day
+2048/8/16,Day After Assumption of Mary
+2048/9/17,Name Day of the Holy Father
+2048/11/1,All Saints' Day
+2048/11/2,All Souls' Day
+2048/12/8,Immaculate Conception
+2048/12/24,Christmas Eve
+2048/12/25,Christmas Day
+2048/12/26,Saint Stephen's Day
+2048/12/27,Saint John the Evangelist's Day
+2048/12/31,Last Day of the Year
+2049/1/1,Solemnity of Mary, Mother of God
+2049/1/6,Epiphany
+2049/2/11,Anniversary of the Foundation of Vatican City
+2049/3/19,Saint Joseph's Day
+2049/4/15,Maundy Thursday
+2049/4/16,Good Friday
+2049/4/17,Holy Saturday
+2049/4/18,Easter Sunday
+2049/4/19,Easter Monday
+2049/4/20,Easter Tuesday
+2049/5/1,Saint Joseph the Worker's Day
+2049/5/8,Anniversary of the Election of the Holy Father
+2049/5/27,Ascension Day
+2049/6/6,Solemnity of Pentecost
+2049/6/13,Solemnity of Holy Trinity
+2049/6/17,Corpus Domini
+2049/6/29,Saints Peter and Paul's Day
+2049/8/14,Day Before Assumption of Mary
+2049/8/15,Assumption of Mary Day
+2049/8/16,Day After Assumption of Mary
+2049/9/17,Name Day of the Holy Father
+2049/11/1,All Saints' Day
+2049/11/2,All Souls' Day
+2049/12/8,Immaculate Conception
+2049/12/24,Christmas Eve
+2049/12/25,Christmas Day
+2049/12/26,Saint Stephen's Day
+2049/12/27,Saint John the Evangelist's Day
+2049/12/31,Last Day of the Year
+2050/1/1,Solemnity of Mary, Mother of God
+2050/1/6,Epiphany
+2050/2/11,Anniversary of the Foundation of Vatican City
+2050/3/19,Saint Joseph's Day
+2050/4/7,Maundy Thursday
+2050/4/8,Good Friday
+2050/4/9,Holy Saturday
+2050/4/10,Easter Sunday
+2050/4/11,Easter Monday
+2050/4/12,Easter Tuesday
+2050/5/1,Saint Joseph the Worker's Day
+2050/5/8,Anniversary of the Election of the Holy Father
+2050/5/19,Ascension Day
+2050/5/29,Solemnity of Pentecost
+2050/6/5,Solemnity of Holy Trinity
+2050/6/9,Corpus Domini
+2050/6/29,Saints Peter and Paul's Day
+2050/8/14,Day Before Assumption of Mary
+2050/8/15,Assumption of Mary Day
+2050/8/16,Day After Assumption of Mary
+2050/9/17,Name Day of the Holy Father
+2050/11/1,All Saints' Day
+2050/11/2,All Souls' Day
+2050/12/8,Immaculate Conception
+2050/12/24,Christmas Eve
+2050/12/25,Christmas Day
+2050/12/26,Saint Stephen's Day
+2050/12/27,Saint John the Evangelist's Day
+2050/12/31,Last Day of the Year

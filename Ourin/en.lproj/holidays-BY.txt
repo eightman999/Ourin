@@ -1,0 +1,382 @@
+# BY holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/1/2,New Year's Day
+2020/1/6,Day off (substituted from 01/04/2020)
+2020/1/7,Orthodox Christmas Day
+2020/3/8,Women's Day
+2020/4/12,Catholic Easter
+2020/4/19,Orthodox Easter
+2020/4/27,Day off (substituted from 04/04/2020)
+2020/4/28,Radunitsa (Day of Rejoicing)
+2020/5/1,Labor Day
+2020/5/9,Victory Day
+2020/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2020/11/7,October Revolution Day
+2020/12/25,Catholic Christmas Day
+2021/1/1,New Year's Day
+2021/1/2,New Year's Day
+2021/1/7,Orthodox Christmas Day
+2021/1/8,Day off (substituted from 01/16/2021)
+2021/3/8,Women's Day
+2021/4/4,Catholic Easter
+2021/5/1,Labor Day
+2021/5/2,Orthodox Easter
+2021/5/9,Victory Day
+2021/5/10,Day off (substituted from 05/15/2021)
+2021/5/11,Radunitsa (Day of Rejoicing)
+2021/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2021/11/7,October Revolution Day
+2021/12/25,Catholic Christmas Day
+2022/1/1,New Year's Day
+2022/1/2,New Year's Day
+2022/1/7,Orthodox Christmas Day
+2022/3/7,Day off (substituted from 03/12/2022)
+2022/3/8,Women's Day
+2022/4/17,Catholic Easter
+2022/4/24,Orthodox Easter
+2022/5/1,Labor Day
+2022/5/2,Day off (substituted from 05/14/2022)
+2022/5/3,Radunitsa (Day of Rejoicing)
+2022/5/9,Victory Day
+2022/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2022/11/7,October Revolution Day
+2022/12/25,Catholic Christmas Day
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day
+2023/1/7,Orthodox Christmas Day
+2023/3/8,Women's Day
+2023/4/9,Catholic Easter
+2023/4/16,Orthodox Easter
+2023/4/24,Day off (substituted from 04/29/2023)
+2023/4/25,Radunitsa (Day of Rejoicing)
+2023/5/1,Labor Day
+2023/5/8,Day off (substituted from 05/13/2023)
+2023/5/9,Victory Day
+2023/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2023/11/6,Day off (substituted from 11/11/2023)
+2023/11/7,October Revolution Day
+2023/12/25,Catholic Christmas Day
+2024/1/1,New Year's Day
+2024/1/2,New Year's Day
+2024/1/7,Orthodox Christmas Day
+2024/3/8,Women's Day
+2024/3/31,Catholic Easter
+2024/5/1,Labor Day
+2024/5/5,Orthodox Easter
+2024/5/9,Victory Day
+2024/5/13,Day off (substituted from 05/18/2024)
+2024/5/14,Radunitsa (Day of Rejoicing)
+2024/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2024/11/7,October Revolution Day
+2024/11/8,Day off (substituted from 11/16/2024)
+2024/12/25,Catholic Christmas Day
+2025/1/1,New Year's Day
+2025/1/2,New Year's Day
+2025/1/6,Day off (substituted from 01/11/2025)
+2025/1/7,Orthodox Christmas Day
+2025/3/8,Women's Day
+2025/4/20,Catholic Easter; Orthodox Easter
+2025/4/28,Day off (substituted from 04/26/2025)
+2025/4/29,Radunitsa (Day of Rejoicing)
+2025/5/1,Labor Day
+2025/5/9,Victory Day
+2025/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2025/7/4,Day off (substituted from 07/12/2025)
+2025/11/7,October Revolution Day
+2025/12/25,Catholic Christmas Day
+2025/12/26,Day off (substituted from 12/20/2025)
+2026/1/1,New Year's Day
+2026/1/2,New Year's Day
+2026/1/7,Orthodox Christmas Day
+2026/3/8,Women's Day
+2026/4/5,Catholic Easter
+2026/4/12,Orthodox Easter
+2026/4/20,Day off (substituted from 04/25/2026)
+2026/4/21,Radunitsa (Day of Rejoicing)
+2026/5/1,Labor Day
+2026/5/9,Victory Day
+2026/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2026/11/7,October Revolution Day
+2026/12/25,Catholic Christmas Day
+2027/1/1,New Year's Day
+2027/1/2,New Year's Day
+2027/1/7,Orthodox Christmas Day
+2027/3/8,Women's Day
+2027/3/28,Catholic Easter
+2027/5/1,Labor Day
+2027/5/2,Orthodox Easter
+2027/5/9,Victory Day
+2027/5/11,Radunitsa (Day of Rejoicing)
+2027/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2027/11/7,October Revolution Day
+2027/12/25,Catholic Christmas Day
+2028/1/1,New Year's Day
+2028/1/2,New Year's Day
+2028/1/7,Orthodox Christmas Day
+2028/3/8,Women's Day
+2028/4/16,Catholic Easter; Orthodox Easter
+2028/4/25,Radunitsa (Day of Rejoicing)
+2028/5/1,Labor Day
+2028/5/9,Victory Day
+2028/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2028/11/7,October Revolution Day
+2028/12/25,Catholic Christmas Day
+2029/1/1,New Year's Day
+2029/1/2,New Year's Day
+2029/1/7,Orthodox Christmas Day
+2029/3/8,Women's Day
+2029/4/1,Catholic Easter
+2029/4/8,Orthodox Easter
+2029/4/17,Radunitsa (Day of Rejoicing)
+2029/5/1,Labor Day
+2029/5/9,Victory Day
+2029/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2029/11/7,October Revolution Day
+2029/12/25,Catholic Christmas Day
+2030/1/1,New Year's Day
+2030/1/2,New Year's Day
+2030/1/7,Orthodox Christmas Day
+2030/3/8,Women's Day
+2030/4/21,Catholic Easter
+2030/4/28,Orthodox Easter
+2030/5/1,Labor Day
+2030/5/7,Radunitsa (Day of Rejoicing)
+2030/5/9,Victory Day
+2030/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2030/11/7,October Revolution Day
+2030/12/25,Catholic Christmas Day
+2031/1/1,New Year's Day
+2031/1/2,New Year's Day
+2031/1/7,Orthodox Christmas Day
+2031/3/8,Women's Day
+2031/4/13,Catholic Easter; Orthodox Easter
+2031/4/22,Radunitsa (Day of Rejoicing)
+2031/5/1,Labor Day
+2031/5/9,Victory Day
+2031/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2031/11/7,October Revolution Day
+2031/12/25,Catholic Christmas Day
+2032/1/1,New Year's Day
+2032/1/2,New Year's Day
+2032/1/7,Orthodox Christmas Day
+2032/3/8,Women's Day
+2032/3/28,Catholic Easter
+2032/5/1,Labor Day
+2032/5/2,Orthodox Easter
+2032/5/9,Victory Day
+2032/5/11,Radunitsa (Day of Rejoicing)
+2032/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2032/11/7,October Revolution Day
+2032/12/25,Catholic Christmas Day
+2033/1/1,New Year's Day
+2033/1/2,New Year's Day
+2033/1/7,Orthodox Christmas Day
+2033/3/8,Women's Day
+2033/4/17,Catholic Easter
+2033/4/24,Orthodox Easter
+2033/5/1,Labor Day
+2033/5/3,Radunitsa (Day of Rejoicing)
+2033/5/9,Victory Day
+2033/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2033/11/7,October Revolution Day
+2033/12/25,Catholic Christmas Day
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day
+2034/1/7,Orthodox Christmas Day
+2034/3/8,Women's Day
+2034/4/9,Catholic Easter; Orthodox Easter
+2034/4/18,Radunitsa (Day of Rejoicing)
+2034/5/1,Labor Day
+2034/5/9,Victory Day
+2034/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2034/11/7,October Revolution Day
+2034/12/25,Catholic Christmas Day
+2035/1/1,New Year's Day
+2035/1/2,New Year's Day
+2035/1/7,Orthodox Christmas Day
+2035/3/8,Women's Day
+2035/3/25,Catholic Easter
+2035/4/29,Orthodox Easter
+2035/5/1,Labor Day
+2035/5/8,Radunitsa (Day of Rejoicing)
+2035/5/9,Victory Day
+2035/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2035/11/7,October Revolution Day
+2035/12/25,Catholic Christmas Day
+2036/1/1,New Year's Day
+2036/1/2,New Year's Day
+2036/1/7,Orthodox Christmas Day
+2036/3/8,Women's Day
+2036/4/13,Catholic Easter
+2036/4/20,Orthodox Easter
+2036/4/29,Radunitsa (Day of Rejoicing)
+2036/5/1,Labor Day
+2036/5/9,Victory Day
+2036/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2036/11/7,October Revolution Day
+2036/12/25,Catholic Christmas Day
+2037/1/1,New Year's Day
+2037/1/2,New Year's Day
+2037/1/7,Orthodox Christmas Day
+2037/3/8,Women's Day
+2037/4/5,Catholic Easter; Orthodox Easter
+2037/4/14,Radunitsa (Day of Rejoicing)
+2037/5/1,Labor Day
+2037/5/9,Victory Day
+2037/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2037/11/7,October Revolution Day
+2037/12/25,Catholic Christmas Day
+2038/1/1,New Year's Day
+2038/1/2,New Year's Day
+2038/1/7,Orthodox Christmas Day
+2038/3/8,Women's Day
+2038/4/25,Catholic Easter; Orthodox Easter
+2038/5/1,Labor Day
+2038/5/4,Radunitsa (Day of Rejoicing)
+2038/5/9,Victory Day
+2038/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2038/11/7,October Revolution Day
+2038/12/25,Catholic Christmas Day
+2039/1/1,New Year's Day
+2039/1/2,New Year's Day
+2039/1/7,Orthodox Christmas Day
+2039/3/8,Women's Day
+2039/4/10,Catholic Easter
+2039/4/17,Orthodox Easter
+2039/4/26,Radunitsa (Day of Rejoicing)
+2039/5/1,Labor Day
+2039/5/9,Victory Day
+2039/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2039/11/7,October Revolution Day
+2039/12/25,Catholic Christmas Day
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day
+2040/1/7,Orthodox Christmas Day
+2040/3/8,Women's Day
+2040/4/1,Catholic Easter
+2040/5/1,Labor Day
+2040/5/6,Orthodox Easter
+2040/5/9,Victory Day
+2040/5/15,Radunitsa (Day of Rejoicing)
+2040/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2040/11/7,October Revolution Day
+2040/12/25,Catholic Christmas Day
+2041/1/1,New Year's Day
+2041/1/2,New Year's Day
+2041/1/7,Orthodox Christmas Day
+2041/3/8,Women's Day
+2041/4/21,Catholic Easter; Orthodox Easter
+2041/4/30,Radunitsa (Day of Rejoicing)
+2041/5/1,Labor Day
+2041/5/9,Victory Day
+2041/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2041/11/7,October Revolution Day
+2041/12/25,Catholic Christmas Day
+2042/1/1,New Year's Day
+2042/1/2,New Year's Day
+2042/1/7,Orthodox Christmas Day
+2042/3/8,Women's Day
+2042/4/6,Catholic Easter
+2042/4/13,Orthodox Easter
+2042/4/22,Radunitsa (Day of Rejoicing)
+2042/5/1,Labor Day
+2042/5/9,Victory Day
+2042/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2042/11/7,October Revolution Day
+2042/12/25,Catholic Christmas Day
+2043/1/1,New Year's Day
+2043/1/2,New Year's Day
+2043/1/7,Orthodox Christmas Day
+2043/3/8,Women's Day
+2043/3/29,Catholic Easter
+2043/5/1,Labor Day
+2043/5/3,Orthodox Easter
+2043/5/9,Victory Day
+2043/5/12,Radunitsa (Day of Rejoicing)
+2043/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2043/11/7,October Revolution Day
+2043/12/25,Catholic Christmas Day
+2044/1/1,New Year's Day
+2044/1/2,New Year's Day
+2044/1/7,Orthodox Christmas Day
+2044/3/8,Women's Day
+2044/4/17,Catholic Easter
+2044/4/24,Orthodox Easter
+2044/5/1,Labor Day
+2044/5/3,Radunitsa (Day of Rejoicing)
+2044/5/9,Victory Day
+2044/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2044/11/7,October Revolution Day
+2044/12/25,Catholic Christmas Day
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day
+2045/1/7,Orthodox Christmas Day
+2045/3/8,Women's Day
+2045/4/9,Catholic Easter; Orthodox Easter
+2045/4/18,Radunitsa (Day of Rejoicing)
+2045/5/1,Labor Day
+2045/5/9,Victory Day
+2045/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2045/11/7,October Revolution Day
+2045/12/25,Catholic Christmas Day
+2046/1/1,New Year's Day
+2046/1/2,New Year's Day
+2046/1/7,Orthodox Christmas Day
+2046/3/8,Women's Day
+2046/3/25,Catholic Easter
+2046/4/29,Orthodox Easter
+2046/5/1,Labor Day
+2046/5/8,Radunitsa (Day of Rejoicing)
+2046/5/9,Victory Day
+2046/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2046/11/7,October Revolution Day
+2046/12/25,Catholic Christmas Day
+2047/1/1,New Year's Day
+2047/1/2,New Year's Day
+2047/1/7,Orthodox Christmas Day
+2047/3/8,Women's Day
+2047/4/14,Catholic Easter
+2047/4/21,Orthodox Easter
+2047/4/30,Radunitsa (Day of Rejoicing)
+2047/5/1,Labor Day
+2047/5/9,Victory Day
+2047/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2047/11/7,October Revolution Day
+2047/12/25,Catholic Christmas Day
+2048/1/1,New Year's Day
+2048/1/2,New Year's Day
+2048/1/7,Orthodox Christmas Day
+2048/3/8,Women's Day
+2048/4/5,Catholic Easter; Orthodox Easter
+2048/4/14,Radunitsa (Day of Rejoicing)
+2048/5/1,Labor Day
+2048/5/9,Victory Day
+2048/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2048/11/7,October Revolution Day
+2048/12/25,Catholic Christmas Day
+2049/1/1,New Year's Day
+2049/1/2,New Year's Day
+2049/1/7,Orthodox Christmas Day
+2049/3/8,Women's Day
+2049/4/18,Catholic Easter
+2049/4/25,Orthodox Easter
+2049/5/1,Labor Day
+2049/5/4,Radunitsa (Day of Rejoicing)
+2049/5/9,Victory Day
+2049/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2049/11/7,October Revolution Day
+2049/12/25,Catholic Christmas Day
+2050/1/1,New Year's Day
+2050/1/2,New Year's Day
+2050/1/7,Orthodox Christmas Day
+2050/3/8,Women's Day
+2050/4/10,Catholic Easter
+2050/4/17,Orthodox Easter
+2050/4/26,Radunitsa (Day of Rejoicing)
+2050/5/1,Labor Day
+2050/5/9,Victory Day
+2050/7/3,Independence Day of the Republic of Belarus (Day of the Republic)
+2050/11/7,October Revolution Day
+2050/12/25,Catholic Christmas Day

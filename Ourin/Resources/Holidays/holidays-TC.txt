@@ -1,0 +1,439 @@
+# TC の祝日（2020〜2050年、言語: en_TC）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/3/9,Commonwealth Day
+2020/4/10,Good Friday
+2020/4/13,Easter Monday
+2020/5/25,JAGS McCartney Day
+2020/6/8,Queen's Birthday
+2020/8/1,Emancipation Day
+2020/8/3,Emancipation Day (observed)
+2020/9/25,National Youth Day
+2020/10/12,National Heritage Day
+2020/11/27,National Day of Thanksgiving
+2020/12/25,Christmas Day
+2020/12/26,Boxing Day
+2020/12/28,Boxing Day (observed)
+2021/1/1,New Year's Day
+2021/3/8,Commonwealth Day
+2021/4/2,Good Friday
+2021/4/5,Easter Monday
+2021/5/31,JAGS McCartney Day
+2021/6/14,Queen's Birthday
+2021/8/1,Emancipation Day
+2021/8/2,Emancipation Day (observed)
+2021/9/24,National Youth Day
+2021/10/11,National Heritage Day
+2021/11/26,National Day of Thanksgiving
+2021/12/25,Christmas Day
+2021/12/26,Boxing Day
+2021/12/27,Christmas Day (observed)
+2021/12/28,Boxing Day (observed)
+2022/1/1,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/3/14,Commonwealth Day
+2022/4/15,Good Friday
+2022/4/18,Easter Monday
+2022/5/30,JAGS McCartney Day
+2022/6/3,Queen's Birthday
+2022/8/1,Emancipation Day
+2022/9/30,National Youth Day
+2022/10/10,National Heritage Day
+2022/11/25,National Day of Thanksgiving
+2022/12/25,Christmas Day
+2022/12/26,Boxing Day
+2022/12/27,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/3/13,Commonwealth Day
+2023/4/7,Good Friday
+2023/4/10,Easter Monday
+2023/5/29,JAGS McCartney Day
+2023/6/19,King's Birthday
+2023/8/1,Emancipation Day
+2023/9/29,National Youth Day
+2023/10/9,National Heritage Day
+2023/11/24,National Day of Thanksgiving
+2023/12/25,Christmas Day
+2023/12/26,Boxing Day
+2024/1/1,New Year's Day
+2024/3/11,Commonwealth Day
+2024/3/29,Good Friday
+2024/4/1,Easter Monday
+2024/5/27,JAGS McCartney Day
+2024/6/17,King's Birthday
+2024/8/1,Emancipation Day
+2024/9/27,National Youth Day
+2024/10/14,National Heritage Day
+2024/11/22,National Day of Thanksgiving
+2024/12/25,Christmas Day
+2024/12/26,Boxing Day
+2025/1/1,New Year's Day
+2025/3/10,Commonwealth Day
+2025/4/18,Good Friday
+2025/4/21,Easter Monday
+2025/5/26,JAGS McCartney Day
+2025/6/23,King's Birthday
+2025/8/1,Emancipation Day
+2025/9/26,National Youth Day
+2025/10/13,National Heritage Day
+2025/11/28,National Day of Thanksgiving
+2025/12/25,Christmas Day
+2025/12/26,Boxing Day
+2026/1/1,New Year's Day
+2026/3/9,Commonwealth Day
+2026/4/3,Good Friday
+2026/4/6,Easter Monday
+2026/5/25,JAGS McCartney Day
+2026/6/8,King's Birthday
+2026/8/1,Emancipation Day
+2026/8/3,Emancipation Day (observed)
+2026/8/30,National Day of Thanksgiving
+2026/8/31,Constitution Day
+2026/9/25,National Youth Day
+2026/10/12,National Heritage Day
+2026/12/25,Christmas Day
+2026/12/26,Boxing Day
+2026/12/28,Boxing Day (observed)
+2027/1/1,New Year's Day
+2027/3/8,Commonwealth Day
+2027/3/26,Good Friday
+2027/3/29,Easter Monday
+2027/5/31,JAGS McCartney Day
+2027/6/14,King's Birthday
+2027/8/1,Emancipation Day
+2027/8/2,Emancipation Day (observed)
+2027/8/29,National Day of Thanksgiving
+2027/8/30,Constitution Day
+2027/9/24,National Youth Day
+2027/10/11,National Heritage Day
+2027/12/25,Christmas Day
+2027/12/26,Boxing Day
+2027/12/27,Christmas Day (observed)
+2027/12/28,Boxing Day (observed)
+2028/1/1,New Year's Day
+2028/1/3,New Year's Day (observed)
+2028/3/13,Commonwealth Day
+2028/4/14,Good Friday
+2028/4/17,Easter Monday
+2028/5/29,JAGS McCartney Day
+2028/6/12,King's Birthday
+2028/8/1,Emancipation Day
+2028/8/27,National Day of Thanksgiving
+2028/8/28,Constitution Day
+2028/9/29,National Youth Day
+2028/10/9,National Heritage Day
+2028/12/25,Christmas Day
+2028/12/26,Boxing Day
+2029/1/1,New Year's Day
+2029/3/12,Commonwealth Day
+2029/3/30,Good Friday
+2029/4/2,Easter Monday
+2029/5/28,JAGS McCartney Day
+2029/6/11,King's Birthday
+2029/8/1,Emancipation Day
+2029/8/26,National Day of Thanksgiving
+2029/8/27,Constitution Day
+2029/9/28,National Youth Day
+2029/10/8,National Heritage Day
+2029/12/25,Christmas Day
+2029/12/26,Boxing Day
+2030/1/1,New Year's Day
+2030/3/11,Commonwealth Day
+2030/4/19,Good Friday
+2030/4/22,Easter Monday
+2030/5/27,JAGS McCartney Day
+2030/6/10,King's Birthday
+2030/8/1,Emancipation Day
+2030/8/25,National Day of Thanksgiving
+2030/8/26,Constitution Day
+2030/9/27,National Youth Day
+2030/10/14,National Heritage Day
+2030/12/25,Christmas Day
+2030/12/26,Boxing Day
+2031/1/1,New Year's Day
+2031/3/10,Commonwealth Day
+2031/4/11,Good Friday
+2031/4/14,Easter Monday
+2031/5/26,JAGS McCartney Day
+2031/6/9,King's Birthday
+2031/8/1,Emancipation Day
+2031/8/24,National Day of Thanksgiving
+2031/8/25,Constitution Day
+2031/9/26,National Youth Day
+2031/10/13,National Heritage Day
+2031/12/25,Christmas Day
+2031/12/26,Boxing Day
+2032/1/1,New Year's Day
+2032/3/8,Commonwealth Day
+2032/3/26,Good Friday
+2032/3/29,Easter Monday
+2032/5/31,JAGS McCartney Day
+2032/6/14,King's Birthday
+2032/8/1,Emancipation Day
+2032/8/2,Emancipation Day (observed)
+2032/8/29,National Day of Thanksgiving
+2032/8/30,Constitution Day
+2032/9/24,National Youth Day
+2032/10/11,National Heritage Day
+2032/12/25,Christmas Day
+2032/12/26,Boxing Day
+2032/12/27,Christmas Day (observed)
+2032/12/28,Boxing Day (observed)
+2033/1/1,New Year's Day
+2033/1/3,New Year's Day (observed)
+2033/3/14,Commonwealth Day
+2033/4/15,Good Friday
+2033/4/18,Easter Monday
+2033/5/30,JAGS McCartney Day
+2033/6/13,King's Birthday
+2033/8/1,Emancipation Day
+2033/8/28,National Day of Thanksgiving
+2033/8/29,Constitution Day
+2033/9/30,National Youth Day
+2033/10/10,National Heritage Day
+2033/12/25,Christmas Day
+2033/12/26,Boxing Day
+2033/12/27,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/3/13,Commonwealth Day
+2034/4/7,Good Friday
+2034/4/10,Easter Monday
+2034/5/29,JAGS McCartney Day
+2034/6/12,King's Birthday
+2034/8/1,Emancipation Day
+2034/8/27,National Day of Thanksgiving
+2034/8/28,Constitution Day
+2034/9/29,National Youth Day
+2034/10/9,National Heritage Day
+2034/12/25,Christmas Day
+2034/12/26,Boxing Day
+2035/1/1,New Year's Day
+2035/3/12,Commonwealth Day
+2035/3/23,Good Friday
+2035/3/26,Easter Monday
+2035/5/28,JAGS McCartney Day
+2035/6/11,King's Birthday
+2035/8/1,Emancipation Day
+2035/8/26,National Day of Thanksgiving
+2035/8/27,Constitution Day
+2035/9/28,National Youth Day
+2035/10/8,National Heritage Day
+2035/12/25,Christmas Day
+2035/12/26,Boxing Day
+2036/1/1,New Year's Day
+2036/3/10,Commonwealth Day
+2036/4/11,Good Friday
+2036/4/14,Easter Monday
+2036/5/26,JAGS McCartney Day
+2036/6/9,King's Birthday
+2036/8/1,Emancipation Day
+2036/8/24,National Day of Thanksgiving
+2036/8/25,Constitution Day
+2036/9/26,National Youth Day
+2036/10/13,National Heritage Day
+2036/12/25,Christmas Day
+2036/12/26,Boxing Day
+2037/1/1,New Year's Day
+2037/3/9,Commonwealth Day
+2037/4/3,Good Friday
+2037/4/6,Easter Monday
+2037/5/25,JAGS McCartney Day
+2037/6/8,King's Birthday
+2037/8/1,Emancipation Day
+2037/8/3,Emancipation Day (observed)
+2037/8/30,National Day of Thanksgiving
+2037/8/31,Constitution Day
+2037/9/25,National Youth Day
+2037/10/12,National Heritage Day
+2037/12/25,Christmas Day
+2037/12/26,Boxing Day
+2037/12/28,Boxing Day (observed)
+2038/1/1,New Year's Day
+2038/3/8,Commonwealth Day
+2038/4/23,Good Friday
+2038/4/26,Easter Monday
+2038/5/31,JAGS McCartney Day
+2038/6/14,King's Birthday
+2038/8/1,Emancipation Day
+2038/8/2,Emancipation Day (observed)
+2038/8/29,National Day of Thanksgiving
+2038/8/30,Constitution Day
+2038/9/24,National Youth Day
+2038/10/11,National Heritage Day
+2038/12/25,Christmas Day
+2038/12/26,Boxing Day
+2038/12/27,Christmas Day (observed)
+2038/12/28,Boxing Day (observed)
+2039/1/1,New Year's Day
+2039/1/3,New Year's Day (observed)
+2039/3/14,Commonwealth Day
+2039/4/8,Good Friday
+2039/4/11,Easter Monday
+2039/5/30,JAGS McCartney Day
+2039/6/13,King's Birthday
+2039/8/1,Emancipation Day
+2039/8/28,National Day of Thanksgiving
+2039/8/29,Constitution Day
+2039/9/30,National Youth Day
+2039/10/10,National Heritage Day
+2039/12/25,Christmas Day
+2039/12/26,Boxing Day
+2039/12/27,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/3/12,Commonwealth Day
+2040/3/30,Good Friday
+2040/4/2,Easter Monday
+2040/5/28,JAGS McCartney Day
+2040/6/11,King's Birthday
+2040/8/1,Emancipation Day
+2040/8/26,National Day of Thanksgiving
+2040/8/27,Constitution Day
+2040/9/28,National Youth Day
+2040/10/8,National Heritage Day
+2040/12/25,Christmas Day
+2040/12/26,Boxing Day
+2041/1/1,New Year's Day
+2041/3/11,Commonwealth Day
+2041/4/19,Good Friday
+2041/4/22,Easter Monday
+2041/5/27,JAGS McCartney Day
+2041/6/10,King's Birthday
+2041/8/1,Emancipation Day
+2041/8/25,National Day of Thanksgiving
+2041/8/26,Constitution Day
+2041/9/27,National Youth Day
+2041/10/14,National Heritage Day
+2041/12/25,Christmas Day
+2041/12/26,Boxing Day
+2042/1/1,New Year's Day
+2042/3/10,Commonwealth Day
+2042/4/4,Good Friday
+2042/4/7,Easter Monday
+2042/5/26,JAGS McCartney Day
+2042/6/9,King's Birthday
+2042/8/1,Emancipation Day
+2042/8/24,National Day of Thanksgiving
+2042/8/25,Constitution Day
+2042/9/26,National Youth Day
+2042/10/13,National Heritage Day
+2042/12/25,Christmas Day
+2042/12/26,Boxing Day
+2043/1/1,New Year's Day
+2043/3/9,Commonwealth Day
+2043/3/27,Good Friday
+2043/3/30,Easter Monday
+2043/5/25,JAGS McCartney Day
+2043/6/8,King's Birthday
+2043/8/1,Emancipation Day
+2043/8/3,Emancipation Day (observed)
+2043/8/30,National Day of Thanksgiving
+2043/8/31,Constitution Day
+2043/9/25,National Youth Day
+2043/10/12,National Heritage Day
+2043/12/25,Christmas Day
+2043/12/26,Boxing Day
+2043/12/28,Boxing Day (observed)
+2044/1/1,New Year's Day
+2044/3/14,Commonwealth Day
+2044/4/15,Good Friday
+2044/4/18,Easter Monday
+2044/5/30,JAGS McCartney Day
+2044/6/13,King's Birthday
+2044/8/1,Emancipation Day
+2044/8/28,National Day of Thanksgiving
+2044/8/29,Constitution Day
+2044/9/30,National Youth Day
+2044/10/10,National Heritage Day
+2044/12/25,Christmas Day
+2044/12/26,Boxing Day
+2044/12/27,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/3/13,Commonwealth Day
+2045/4/7,Good Friday
+2045/4/10,Easter Monday
+2045/5/29,JAGS McCartney Day
+2045/6/12,King's Birthday
+2045/8/1,Emancipation Day
+2045/8/27,National Day of Thanksgiving
+2045/8/28,Constitution Day
+2045/9/29,National Youth Day
+2045/10/9,National Heritage Day
+2045/12/25,Christmas Day
+2045/12/26,Boxing Day
+2046/1/1,New Year's Day
+2046/3/12,Commonwealth Day
+2046/3/23,Good Friday
+2046/3/26,Easter Monday
+2046/5/28,JAGS McCartney Day
+2046/6/11,King's Birthday
+2046/8/1,Emancipation Day
+2046/8/26,National Day of Thanksgiving
+2046/8/27,Constitution Day
+2046/9/28,National Youth Day
+2046/10/8,National Heritage Day
+2046/12/25,Christmas Day
+2046/12/26,Boxing Day
+2047/1/1,New Year's Day
+2047/3/11,Commonwealth Day
+2047/4/12,Good Friday
+2047/4/15,Easter Monday
+2047/5/27,JAGS McCartney Day
+2047/6/10,King's Birthday
+2047/8/1,Emancipation Day
+2047/8/25,National Day of Thanksgiving
+2047/8/26,Constitution Day
+2047/9/27,National Youth Day
+2047/10/14,National Heritage Day
+2047/12/25,Christmas Day
+2047/12/26,Boxing Day
+2048/1/1,New Year's Day
+2048/3/9,Commonwealth Day
+2048/4/3,Good Friday
+2048/4/6,Easter Monday
+2048/5/25,JAGS McCartney Day
+2048/6/8,King's Birthday
+2048/8/1,Emancipation Day
+2048/8/3,Emancipation Day (observed)
+2048/8/30,National Day of Thanksgiving
+2048/8/31,Constitution Day
+2048/9/25,National Youth Day
+2048/10/12,National Heritage Day
+2048/12/25,Christmas Day
+2048/12/26,Boxing Day
+2048/12/28,Boxing Day (observed)
+2049/1/1,New Year's Day
+2049/3/8,Commonwealth Day
+2049/4/16,Good Friday
+2049/4/19,Easter Monday
+2049/5/31,JAGS McCartney Day
+2049/6/14,King's Birthday
+2049/8/1,Emancipation Day
+2049/8/2,Emancipation Day (observed)
+2049/8/29,National Day of Thanksgiving
+2049/8/30,Constitution Day
+2049/9/24,National Youth Day
+2049/10/11,National Heritage Day
+2049/12/25,Christmas Day
+2049/12/26,Boxing Day
+2049/12/27,Christmas Day (observed)
+2049/12/28,Boxing Day (observed)
+2050/1/1,New Year's Day
+2050/1/3,New Year's Day (observed)
+2050/3/14,Commonwealth Day
+2050/4/8,Good Friday
+2050/4/11,Easter Monday
+2050/5/30,JAGS McCartney Day
+2050/6/13,King's Birthday
+2050/8/1,Emancipation Day
+2050/8/28,National Day of Thanksgiving
+2050/8/29,Constitution Day
+2050/9/30,National Youth Day
+2050/10/10,National Heritage Day
+2050/12/25,Christmas Day
+2050/12/26,Boxing Day
+2050/12/27,Christmas Day (observed)

@@ -1,0 +1,320 @@
+# FM の祝日（2020〜2050年、言語: en_FM）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/3/31,Micronesian Culture and Tradition Day
+2020/5/10,Federated States of Micronesia Day
+2020/5/11,Federated States of Micronesia Day (observed)
+2020/10/23,United Nations Day (observed)
+2020/10/24,United Nations Day
+2020/11/3,Independence Day
+2020/11/11,FSM Veterans of Foreign Wars Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/3/31,Micronesian Culture and Tradition Day
+2021/5/10,Federated States of Micronesia Day
+2021/10/24,United Nations Day
+2021/10/25,United Nations Day (observed)
+2021/11/3,Independence Day
+2021/11/11,FSM Veterans of Foreign Wars Day
+2021/11/23,Presidents Day
+2021/12/24,Christmas Day (observed)
+2021/12/25,Christmas Day
+2021/12/31,New Year's Day (observed)
+2022/1/1,New Year's Day
+2022/3/31,Micronesian Culture and Tradition Day
+2022/5/10,Federated States of Micronesia Day
+2022/10/24,United Nations Day
+2022/11/3,Independence Day
+2022/11/11,FSM Veterans of Foreign Wars Day
+2022/11/23,Presidents Day
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/3/31,Micronesian Culture and Tradition Day
+2023/5/10,Federated States of Micronesia Day
+2023/10/24,United Nations Day
+2023/11/3,Independence Day
+2023/11/10,FSM Veterans of Foreign Wars Day (observed)
+2023/11/11,FSM Veterans of Foreign Wars Day
+2023/11/23,Presidents Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/3/31,Micronesian Culture and Tradition Day
+2024/4/1,Micronesian Culture and Tradition Day (observed)
+2024/5/10,Federated States of Micronesia Day
+2024/10/24,United Nations Day
+2024/11/3,Independence Day
+2024/11/4,Independence Day (observed)
+2024/11/11,FSM Veterans of Foreign Wars Day
+2024/11/22,Presidents Day (observed)
+2024/11/23,Presidents Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/3/31,Micronesian Culture and Tradition Day
+2025/5/9,Federated States of Micronesia Day (observed)
+2025/5/10,Federated States of Micronesia Day
+2025/10/24,United Nations Day
+2025/11/3,Independence Day
+2025/11/11,FSM Veterans of Foreign Wars Day
+2025/11/23,Presidents Day
+2025/11/24,Presidents Day (observed)
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/3/31,Micronesian Culture and Tradition Day
+2026/5/10,Federated States of Micronesia Day
+2026/5/11,Federated States of Micronesia Day (observed)
+2026/10/23,United Nations Day (observed)
+2026/10/24,United Nations Day
+2026/11/3,Independence Day
+2026/11/11,FSM Veterans of Foreign Wars Day
+2026/11/23,Presidents Day
+2026/12/25,Christmas Day
+2027/1/1,New Year's Day
+2027/3/31,Micronesian Culture and Tradition Day
+2027/5/10,Federated States of Micronesia Day
+2027/10/24,United Nations Day
+2027/10/25,United Nations Day (observed)
+2027/11/3,Independence Day
+2027/11/11,FSM Veterans of Foreign Wars Day
+2027/11/23,Presidents Day
+2027/12/24,Christmas Day (observed)
+2027/12/25,Christmas Day
+2027/12/31,New Year's Day (observed)
+2028/1/1,New Year's Day
+2028/3/31,Micronesian Culture and Tradition Day
+2028/5/10,Federated States of Micronesia Day
+2028/10/24,United Nations Day
+2028/11/3,Independence Day
+2028/11/10,FSM Veterans of Foreign Wars Day (observed)
+2028/11/11,FSM Veterans of Foreign Wars Day
+2028/11/23,Presidents Day
+2028/12/25,Christmas Day
+2029/1/1,New Year's Day
+2029/3/30,Micronesian Culture and Tradition Day (observed)
+2029/3/31,Micronesian Culture and Tradition Day
+2029/5/10,Federated States of Micronesia Day
+2029/10/24,United Nations Day
+2029/11/2,Independence Day (observed)
+2029/11/3,Independence Day
+2029/11/11,FSM Veterans of Foreign Wars Day
+2029/11/12,FSM Veterans of Foreign Wars Day (observed)
+2029/11/23,Presidents Day
+2029/12/25,Christmas Day
+2030/1/1,New Year's Day
+2030/3/31,Micronesian Culture and Tradition Day
+2030/4/1,Micronesian Culture and Tradition Day (observed)
+2030/5/10,Federated States of Micronesia Day
+2030/10/24,United Nations Day
+2030/11/3,Independence Day
+2030/11/4,Independence Day (observed)
+2030/11/11,FSM Veterans of Foreign Wars Day
+2030/11/22,Presidents Day (observed)
+2030/11/23,Presidents Day
+2030/12/25,Christmas Day
+2031/1/1,New Year's Day
+2031/3/31,Micronesian Culture and Tradition Day
+2031/5/9,Federated States of Micronesia Day (observed)
+2031/5/10,Federated States of Micronesia Day
+2031/10/24,United Nations Day
+2031/11/3,Independence Day
+2031/11/11,FSM Veterans of Foreign Wars Day
+2031/11/23,Presidents Day
+2031/11/24,Presidents Day (observed)
+2031/12/25,Christmas Day
+2032/1/1,New Year's Day
+2032/3/31,Micronesian Culture and Tradition Day
+2032/5/10,Federated States of Micronesia Day
+2032/10/24,United Nations Day
+2032/10/25,United Nations Day (observed)
+2032/11/3,Independence Day
+2032/11/11,FSM Veterans of Foreign Wars Day
+2032/11/23,Presidents Day
+2032/12/24,Christmas Day (observed)
+2032/12/25,Christmas Day
+2032/12/31,New Year's Day (observed)
+2033/1/1,New Year's Day
+2033/3/31,Micronesian Culture and Tradition Day
+2033/5/10,Federated States of Micronesia Day
+2033/10/24,United Nations Day
+2033/11/3,Independence Day
+2033/11/11,FSM Veterans of Foreign Wars Day
+2033/11/23,Presidents Day
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day (observed)
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/3/31,Micronesian Culture and Tradition Day
+2034/5/10,Federated States of Micronesia Day
+2034/10/24,United Nations Day
+2034/11/3,Independence Day
+2034/11/10,FSM Veterans of Foreign Wars Day (observed)
+2034/11/11,FSM Veterans of Foreign Wars Day
+2034/11/23,Presidents Day
+2034/12/25,Christmas Day
+2035/1/1,New Year's Day
+2035/3/30,Micronesian Culture and Tradition Day (observed)
+2035/3/31,Micronesian Culture and Tradition Day
+2035/5/10,Federated States of Micronesia Day
+2035/10/24,United Nations Day
+2035/11/2,Independence Day (observed)
+2035/11/3,Independence Day
+2035/11/11,FSM Veterans of Foreign Wars Day
+2035/11/12,FSM Veterans of Foreign Wars Day (observed)
+2035/11/23,Presidents Day
+2035/12/25,Christmas Day
+2036/1/1,New Year's Day
+2036/3/31,Micronesian Culture and Tradition Day
+2036/5/9,Federated States of Micronesia Day (observed)
+2036/5/10,Federated States of Micronesia Day
+2036/10/24,United Nations Day
+2036/11/3,Independence Day
+2036/11/11,FSM Veterans of Foreign Wars Day
+2036/11/23,Presidents Day
+2036/11/24,Presidents Day (observed)
+2036/12/25,Christmas Day
+2037/1/1,New Year's Day
+2037/3/31,Micronesian Culture and Tradition Day
+2037/5/10,Federated States of Micronesia Day
+2037/5/11,Federated States of Micronesia Day (observed)
+2037/10/23,United Nations Day (observed)
+2037/10/24,United Nations Day
+2037/11/3,Independence Day
+2037/11/11,FSM Veterans of Foreign Wars Day
+2037/11/23,Presidents Day
+2037/12/25,Christmas Day
+2038/1/1,New Year's Day
+2038/3/31,Micronesian Culture and Tradition Day
+2038/5/10,Federated States of Micronesia Day
+2038/10/24,United Nations Day
+2038/10/25,United Nations Day (observed)
+2038/11/3,Independence Day
+2038/11/11,FSM Veterans of Foreign Wars Day
+2038/11/23,Presidents Day
+2038/12/24,Christmas Day (observed)
+2038/12/25,Christmas Day
+2038/12/31,New Year's Day (observed)
+2039/1/1,New Year's Day
+2039/3/31,Micronesian Culture and Tradition Day
+2039/5/10,Federated States of Micronesia Day
+2039/10/24,United Nations Day
+2039/11/3,Independence Day
+2039/11/11,FSM Veterans of Foreign Wars Day
+2039/11/23,Presidents Day
+2039/12/25,Christmas Day
+2039/12/26,Christmas Day (observed)
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/3/30,Micronesian Culture and Tradition Day (observed)
+2040/3/31,Micronesian Culture and Tradition Day
+2040/5/10,Federated States of Micronesia Day
+2040/10/24,United Nations Day
+2040/11/2,Independence Day (observed)
+2040/11/3,Independence Day
+2040/11/11,FSM Veterans of Foreign Wars Day
+2040/11/12,FSM Veterans of Foreign Wars Day (observed)
+2040/11/23,Presidents Day
+2040/12/25,Christmas Day
+2041/1/1,New Year's Day
+2041/3/31,Micronesian Culture and Tradition Day
+2041/4/1,Micronesian Culture and Tradition Day (observed)
+2041/5/10,Federated States of Micronesia Day
+2041/10/24,United Nations Day
+2041/11/3,Independence Day
+2041/11/4,Independence Day (observed)
+2041/11/11,FSM Veterans of Foreign Wars Day
+2041/11/22,Presidents Day (observed)
+2041/11/23,Presidents Day
+2041/12/25,Christmas Day
+2042/1/1,New Year's Day
+2042/3/31,Micronesian Culture and Tradition Day
+2042/5/9,Federated States of Micronesia Day (observed)
+2042/5/10,Federated States of Micronesia Day
+2042/10/24,United Nations Day
+2042/11/3,Independence Day
+2042/11/11,FSM Veterans of Foreign Wars Day
+2042/11/23,Presidents Day
+2042/11/24,Presidents Day (observed)
+2042/12/25,Christmas Day
+2043/1/1,New Year's Day
+2043/3/31,Micronesian Culture and Tradition Day
+2043/5/10,Federated States of Micronesia Day
+2043/5/11,Federated States of Micronesia Day (observed)
+2043/10/23,United Nations Day (observed)
+2043/10/24,United Nations Day
+2043/11/3,Independence Day
+2043/11/11,FSM Veterans of Foreign Wars Day
+2043/11/23,Presidents Day
+2043/12/25,Christmas Day
+2044/1/1,New Year's Day
+2044/3/31,Micronesian Culture and Tradition Day
+2044/5/10,Federated States of Micronesia Day
+2044/10/24,United Nations Day
+2044/11/3,Independence Day
+2044/11/11,FSM Veterans of Foreign Wars Day
+2044/11/23,Presidents Day
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed)
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/3/31,Micronesian Culture and Tradition Day
+2045/5/10,Federated States of Micronesia Day
+2045/10/24,United Nations Day
+2045/11/3,Independence Day
+2045/11/10,FSM Veterans of Foreign Wars Day (observed)
+2045/11/11,FSM Veterans of Foreign Wars Day
+2045/11/23,Presidents Day
+2045/12/25,Christmas Day
+2046/1/1,New Year's Day
+2046/3/30,Micronesian Culture and Tradition Day (observed)
+2046/3/31,Micronesian Culture and Tradition Day
+2046/5/10,Federated States of Micronesia Day
+2046/10/24,United Nations Day
+2046/11/2,Independence Day (observed)
+2046/11/3,Independence Day
+2046/11/11,FSM Veterans of Foreign Wars Day
+2046/11/12,FSM Veterans of Foreign Wars Day (observed)
+2046/11/23,Presidents Day
+2046/12/25,Christmas Day
+2047/1/1,New Year's Day
+2047/3/31,Micronesian Culture and Tradition Day
+2047/4/1,Micronesian Culture and Tradition Day (observed)
+2047/5/10,Federated States of Micronesia Day
+2047/10/24,United Nations Day
+2047/11/3,Independence Day
+2047/11/4,Independence Day (observed)
+2047/11/11,FSM Veterans of Foreign Wars Day
+2047/11/22,Presidents Day (observed)
+2047/11/23,Presidents Day
+2047/12/25,Christmas Day
+2048/1/1,New Year's Day
+2048/3/31,Micronesian Culture and Tradition Day
+2048/5/10,Federated States of Micronesia Day
+2048/5/11,Federated States of Micronesia Day (observed)
+2048/10/23,United Nations Day (observed)
+2048/10/24,United Nations Day
+2048/11/3,Independence Day
+2048/11/11,FSM Veterans of Foreign Wars Day
+2048/11/23,Presidents Day
+2048/12/25,Christmas Day
+2049/1/1,New Year's Day
+2049/3/31,Micronesian Culture and Tradition Day
+2049/5/10,Federated States of Micronesia Day
+2049/10/24,United Nations Day
+2049/10/25,United Nations Day (observed)
+2049/11/3,Independence Day
+2049/11/11,FSM Veterans of Foreign Wars Day
+2049/11/23,Presidents Day
+2049/12/24,Christmas Day (observed)
+2049/12/25,Christmas Day
+2049/12/31,New Year's Day (observed)
+2050/1/1,New Year's Day
+2050/3/31,Micronesian Culture and Tradition Day
+2050/5/10,Federated States of Micronesia Day
+2050/10/24,United Nations Day
+2050/11/3,Independence Day
+2050/11/11,FSM Veterans of Foreign Wars Day
+2050/11/23,Presidents Day
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed)

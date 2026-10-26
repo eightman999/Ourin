@@ -1,0 +1,466 @@
+# VN holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,New Year's Day
+2020/1/23,29 of Lunar New Year
+2020/1/24,Lunar New Year's Eve
+2020/1/25,Lunar New Year
+2020/1/26,Second Day of Lunar New Year
+2020/1/27,Third Day of Lunar New Year
+2020/1/28,Fourth Day of Lunar New Year
+2020/1/29,Fifth Day of Lunar New Year
+2020/4/2,Hung Kings' Commemoration Day
+2020/4/30,Liberation Day/Reunification Day
+2020/5/1,International Labor Day
+2020/9/2,National Day
+2021/1/1,New Year's Day
+2021/2/10,29 of Lunar New Year
+2021/2/11,Lunar New Year's Eve
+2021/2/12,Lunar New Year
+2021/2/13,Second Day of Lunar New Year
+2021/2/14,Third Day of Lunar New Year
+2021/2/15,Fourth Day of Lunar New Year
+2021/2/16,Fifth Day of Lunar New Year
+2021/4/21,Hung Kings' Commemoration Day
+2021/4/30,Liberation Day/Reunification Day
+2021/5/1,International Labor Day
+2021/5/3,International Labor Day (observed)
+2021/9/2,National Day
+2021/9/3,National Day
+2022/1/1,New Year's Day
+2022/1/3,New Year's Day (observed)
+2022/1/31,Lunar New Year's Eve
+2022/2/1,Lunar New Year
+2022/2/2,Second Day of Lunar New Year
+2022/2/3,Third Day of Lunar New Year
+2022/2/4,Fourth Day of Lunar New Year
+2022/4/10,Hung Kings' Commemoration Day
+2022/4/11,Hung Kings' Commemoration Day (observed)
+2022/4/30,Liberation Day/Reunification Day
+2022/5/1,International Labor Day
+2022/5/2,Liberation Day/Reunification Day (observed)
+2022/5/3,International Labor Day (observed)
+2022/9/1,National Day
+2022/9/2,National Day
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/1/20,29 of Lunar New Year
+2023/1/21,Lunar New Year's Eve
+2023/1/22,Lunar New Year
+2023/1/23,Second Day of Lunar New Year
+2023/1/24,Third Day of Lunar New Year
+2023/1/25,Fourth Day of Lunar New Year
+2023/1/26,Fifth Day of Lunar New Year
+2023/4/29,Hung Kings' Commemoration Day
+2023/4/30,Liberation Day/Reunification Day
+2023/5/1,International Labor Day
+2023/5/2,Hung Kings' Commemoration Day (observed)
+2023/5/3,Liberation Day/Reunification Day (observed)
+2023/9/1,National Day
+2023/9/2,National Day
+2023/9/4,National Day (observed)
+2024/1/1,New Year's Day
+2024/2/8,29 of Lunar New Year
+2024/2/9,Lunar New Year's Eve
+2024/2/10,Lunar New Year
+2024/2/11,Second Day of Lunar New Year
+2024/2/12,Third Day of Lunar New Year
+2024/2/13,Fourth Day of Lunar New Year
+2024/2/14,Fifth Day of Lunar New Year
+2024/4/18,Hung Kings' Commemoration Day
+2024/4/29,Day off (substituted from 05/04/2024)
+2024/4/30,Liberation Day/Reunification Day
+2024/5/1,International Labor Day
+2024/9/2,National Day
+2024/9/3,National Day
+2025/1/1,New Year's Day
+2025/1/27,29 of Lunar New Year
+2025/1/28,Lunar New Year's Eve
+2025/1/29,Lunar New Year
+2025/1/30,Second Day of Lunar New Year
+2025/1/31,Third Day of Lunar New Year
+2025/2/1,Fourth Day of Lunar New Year
+2025/4/7,Hung Kings' Commemoration Day
+2025/4/30,Liberation Day/Reunification Day
+2025/5/1,International Labor Day
+2025/5/2,Day off (substituted from 04/26/2025)
+2025/9/1,National Day
+2025/9/2,National Day
+2026/1/1,New Year's Day
+2026/2/16,Lunar New Year's Eve
+2026/2/17,Lunar New Year
+2026/2/18,Second Day of Lunar New Year
+2026/2/19,Third Day of Lunar New Year
+2026/2/20,Fourth Day of Lunar New Year
+2026/4/26,Hung Kings' Commemoration Day
+2026/4/27,Hung Kings' Commemoration Day (observed)
+2026/4/30,Liberation Day/Reunification Day
+2026/5/1,International Labor Day
+2026/8/31,Day off (substituted from 08/22/2026)
+2026/9/1,National Day
+2026/9/2,National Day
+2026/11/24,Vietnam Cultural Day
+2027/1/1,New Year's Day
+2027/2/4,29 of Lunar New Year
+2027/2/5,Lunar New Year's Eve
+2027/2/6,Lunar New Year
+2027/2/7,Second Day of Lunar New Year
+2027/2/8,Third Day of Lunar New Year
+2027/2/9,Fourth Day of Lunar New Year
+2027/2/10,Fifth Day of Lunar New Year
+2027/4/16,Hung Kings' Commemoration Day
+2027/4/30,Liberation Day/Reunification Day
+2027/5/1,International Labor Day
+2027/5/3,International Labor Day (observed)
+2027/9/2,National Day
+2027/9/3,National Day
+2027/11/24,Vietnam Cultural Day
+2028/1/1,New Year's Day
+2028/1/3,New Year's Day (observed)
+2028/1/24,29 of Lunar New Year
+2028/1/25,Lunar New Year's Eve
+2028/1/26,Lunar New Year
+2028/1/27,Second Day of Lunar New Year
+2028/1/28,Third Day of Lunar New Year
+2028/1/29,Fourth Day of Lunar New Year
+2028/4/4,Hung Kings' Commemoration Day
+2028/4/30,Liberation Day/Reunification Day
+2028/5/1,International Labor Day
+2028/5/2,Liberation Day/Reunification Day (observed)
+2028/9/1,National Day
+2028/9/2,National Day
+2028/9/4,National Day (observed)
+2028/11/24,Vietnam Cultural Day
+2029/1/1,New Year's Day
+2029/2/12,Lunar New Year's Eve
+2029/2/13,Lunar New Year
+2029/2/14,Second Day of Lunar New Year
+2029/2/15,Third Day of Lunar New Year
+2029/2/16,Fourth Day of Lunar New Year
+2029/4/23,Hung Kings' Commemoration Day
+2029/4/30,Liberation Day/Reunification Day
+2029/5/1,International Labor Day
+2029/9/2,National Day
+2029/9/3,National Day
+2029/9/4,National Day (observed)
+2029/11/24,Vietnam Cultural Day
+2029/11/26,Vietnam Cultural Day (observed)
+2030/1/1,New Year's Day
+2030/1/31,29 of Lunar New Year
+2030/2/1,Lunar New Year's Eve
+2030/2/2,Lunar New Year
+2030/2/3,Second Day of Lunar New Year
+2030/2/4,Third Day of Lunar New Year
+2030/2/5,Fourth Day of Lunar New Year
+2030/2/6,Fifth Day of Lunar New Year
+2030/4/12,Hung Kings' Commemoration Day
+2030/4/30,Liberation Day/Reunification Day
+2030/5/1,International Labor Day
+2030/9/2,National Day
+2030/9/3,National Day
+2030/11/24,Vietnam Cultural Day
+2030/11/25,Vietnam Cultural Day (observed)
+2031/1/1,New Year's Day
+2031/1/21,29 of Lunar New Year
+2031/1/22,Lunar New Year's Eve
+2031/1/23,Lunar New Year
+2031/1/24,Second Day of Lunar New Year
+2031/1/25,Third Day of Lunar New Year
+2031/1/26,Fourth Day of Lunar New Year
+2031/1/27,Fifth Day of Lunar New Year
+2031/4/1,Hung Kings' Commemoration Day
+2031/4/30,Liberation Day/Reunification Day
+2031/5/1,International Labor Day
+2031/9/1,National Day
+2031/9/2,National Day
+2031/11/24,Vietnam Cultural Day
+2032/1/1,New Year's Day
+2032/2/9,29 of Lunar New Year
+2032/2/10,Lunar New Year's Eve
+2032/2/11,Lunar New Year
+2032/2/12,Second Day of Lunar New Year
+2032/2/13,Third Day of Lunar New Year
+2032/2/14,Fourth Day of Lunar New Year
+2032/4/19,Hung Kings' Commemoration Day
+2032/4/30,Liberation Day/Reunification Day
+2032/5/1,International Labor Day
+2032/5/3,International Labor Day (observed)
+2032/9/2,National Day
+2032/9/3,National Day
+2032/11/24,Vietnam Cultural Day
+2033/1/1,New Year's Day
+2033/1/3,New Year's Day (observed)
+2033/1/30,Lunar New Year's Eve
+2033/1/31,Lunar New Year
+2033/2/1,Second Day of Lunar New Year
+2033/2/2,Third Day of Lunar New Year
+2033/2/3,Fourth Day of Lunar New Year
+2033/2/4,Fifth Day of Lunar New Year
+2033/4/9,Hung Kings' Commemoration Day
+2033/4/11,Hung Kings' Commemoration Day (observed)
+2033/4/30,Liberation Day/Reunification Day
+2033/5/1,International Labor Day
+2033/5/2,Liberation Day/Reunification Day (observed)
+2033/5/3,International Labor Day (observed)
+2033/9/1,National Day
+2033/9/2,National Day
+2033/11/24,Vietnam Cultural Day
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/2/17,29 of Lunar New Year
+2034/2/18,Lunar New Year's Eve
+2034/2/19,Lunar New Year
+2034/2/20,Second Day of Lunar New Year
+2034/2/21,Third Day of Lunar New Year
+2034/2/22,Fourth Day of Lunar New Year
+2034/2/23,Fifth Day of Lunar New Year
+2034/4/28,Hung Kings' Commemoration Day
+2034/4/30,Liberation Day/Reunification Day
+2034/5/1,International Labor Day
+2034/5/2,Liberation Day/Reunification Day (observed)
+2034/9/1,National Day
+2034/9/2,National Day
+2034/9/4,National Day (observed)
+2034/11/24,Vietnam Cultural Day
+2035/1/1,New Year's Day
+2035/2/6,29 of Lunar New Year
+2035/2/7,Lunar New Year's Eve
+2035/2/8,Lunar New Year
+2035/2/9,Second Day of Lunar New Year
+2035/2/10,Third Day of Lunar New Year
+2035/2/11,Fourth Day of Lunar New Year
+2035/2/12,Fifth Day of Lunar New Year
+2035/4/17,Hung Kings' Commemoration Day
+2035/4/30,Liberation Day/Reunification Day
+2035/5/1,International Labor Day
+2035/9/2,National Day
+2035/9/3,National Day
+2035/9/4,National Day (observed)
+2035/11/24,Vietnam Cultural Day
+2035/11/26,Vietnam Cultural Day (observed)
+2036/1/1,New Year's Day
+2036/1/27,Lunar New Year's Eve
+2036/1/28,Lunar New Year
+2036/1/29,Second Day of Lunar New Year
+2036/1/30,Third Day of Lunar New Year
+2036/1/31,Fourth Day of Lunar New Year
+2036/2/1,Fifth Day of Lunar New Year
+2036/4/6,Hung Kings' Commemoration Day
+2036/4/7,Hung Kings' Commemoration Day (observed)
+2036/4/30,Liberation Day/Reunification Day
+2036/5/1,International Labor Day
+2036/9/1,National Day
+2036/9/2,National Day
+2036/11/24,Vietnam Cultural Day
+2037/1/1,New Year's Day
+2037/2/13,29 of Lunar New Year
+2037/2/14,Lunar New Year's Eve
+2037/2/15,Lunar New Year
+2037/2/16,Second Day of Lunar New Year
+2037/2/17,Third Day of Lunar New Year
+2037/2/18,Fourth Day of Lunar New Year
+2037/2/19,Fifth Day of Lunar New Year
+2037/4/24,Hung Kings' Commemoration Day
+2037/4/30,Liberation Day/Reunification Day
+2037/5/1,International Labor Day
+2037/9/1,National Day
+2037/9/2,National Day
+2037/11/24,Vietnam Cultural Day
+2038/1/1,New Year's Day
+2038/2/2,29 of Lunar New Year
+2038/2/3,Lunar New Year's Eve
+2038/2/4,Lunar New Year
+2038/2/5,Second Day of Lunar New Year
+2038/2/6,Third Day of Lunar New Year
+2038/2/7,Fourth Day of Lunar New Year
+2038/2/8,Fifth Day of Lunar New Year
+2038/4/13,Hung Kings' Commemoration Day
+2038/4/30,Liberation Day/Reunification Day
+2038/5/1,International Labor Day
+2038/5/3,International Labor Day (observed)
+2038/9/2,National Day
+2038/9/3,National Day
+2038/11/24,Vietnam Cultural Day
+2039/1/1,New Year's Day
+2039/1/3,New Year's Day (observed)
+2039/1/23,Lunar New Year's Eve
+2039/1/24,Lunar New Year
+2039/1/25,Second Day of Lunar New Year
+2039/1/26,Third Day of Lunar New Year
+2039/1/27,Fourth Day of Lunar New Year
+2039/1/28,Fifth Day of Lunar New Year
+2039/4/3,Hung Kings' Commemoration Day
+2039/4/4,Hung Kings' Commemoration Day (observed)
+2039/4/30,Liberation Day/Reunification Day
+2039/5/1,International Labor Day
+2039/5/2,Liberation Day/Reunification Day (observed)
+2039/5/3,International Labor Day (observed)
+2039/9/1,National Day
+2039/9/2,National Day
+2039/11/24,Vietnam Cultural Day
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/2/10,29 of Lunar New Year
+2040/2/11,Lunar New Year's Eve
+2040/2/12,Lunar New Year
+2040/2/13,Second Day of Lunar New Year
+2040/2/14,Third Day of Lunar New Year
+2040/2/15,Fourth Day of Lunar New Year
+2040/2/16,Fifth Day of Lunar New Year
+2040/4/20,Hung Kings' Commemoration Day
+2040/4/30,Liberation Day/Reunification Day
+2040/5/1,International Labor Day
+2040/9/2,National Day
+2040/9/3,National Day
+2040/9/4,National Day (observed)
+2040/11/24,Vietnam Cultural Day
+2040/11/26,Vietnam Cultural Day (observed)
+2041/1/1,New Year's Day
+2041/1/30,29 of Lunar New Year
+2041/1/31,Lunar New Year's Eve
+2041/2/1,Lunar New Year
+2041/2/2,Second Day of Lunar New Year
+2041/2/3,Third Day of Lunar New Year
+2041/2/4,Fourth Day of Lunar New Year
+2041/2/5,Fifth Day of Lunar New Year
+2041/4/10,Hung Kings' Commemoration Day
+2041/4/30,Liberation Day/Reunification Day
+2041/5/1,International Labor Day
+2041/9/2,National Day
+2041/9/3,National Day
+2041/11/24,Vietnam Cultural Day
+2041/11/25,Vietnam Cultural Day (observed)
+2042/1/1,New Year's Day
+2042/1/20,29 of Lunar New Year
+2042/1/21,Lunar New Year's Eve
+2042/1/22,Lunar New Year
+2042/1/23,Second Day of Lunar New Year
+2042/1/24,Third Day of Lunar New Year
+2042/1/25,Fourth Day of Lunar New Year
+2042/4/29,Hung Kings' Commemoration Day
+2042/4/30,Liberation Day/Reunification Day
+2042/5/1,International Labor Day
+2042/9/1,National Day
+2042/9/2,National Day
+2042/11/24,Vietnam Cultural Day
+2043/1/1,New Year's Day
+2043/2/9,Lunar New Year's Eve
+2043/2/10,Lunar New Year
+2043/2/11,Second Day of Lunar New Year
+2043/2/12,Third Day of Lunar New Year
+2043/2/13,Fourth Day of Lunar New Year
+2043/4/19,Hung Kings' Commemoration Day
+2043/4/20,Hung Kings' Commemoration Day (observed)
+2043/4/30,Liberation Day/Reunification Day
+2043/5/1,International Labor Day
+2043/9/1,National Day
+2043/9/2,National Day
+2043/11/24,Vietnam Cultural Day
+2044/1/1,New Year's Day
+2044/1/28,29 of Lunar New Year
+2044/1/29,Lunar New Year's Eve
+2044/1/30,Lunar New Year
+2044/1/31,Second Day of Lunar New Year
+2044/2/1,Third Day of Lunar New Year
+2044/2/2,Fourth Day of Lunar New Year
+2044/2/3,Fifth Day of Lunar New Year
+2044/4/7,Hung Kings' Commemoration Day
+2044/4/30,Liberation Day/Reunification Day
+2044/5/1,International Labor Day
+2044/5/2,Liberation Day/Reunification Day (observed)
+2044/5/3,International Labor Day (observed)
+2044/9/1,National Day
+2044/9/2,National Day
+2044/11/24,Vietnam Cultural Day
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/2/15,29 of Lunar New Year
+2045/2/16,Lunar New Year's Eve
+2045/2/17,Lunar New Year
+2045/2/18,Second Day of Lunar New Year
+2045/2/19,Third Day of Lunar New Year
+2045/2/20,Fourth Day of Lunar New Year
+2045/2/21,Fifth Day of Lunar New Year
+2045/4/26,Hung Kings' Commemoration Day
+2045/4/30,Liberation Day/Reunification Day
+2045/5/1,International Labor Day
+2045/5/2,Liberation Day/Reunification Day (observed)
+2045/9/1,National Day
+2045/9/2,National Day
+2045/9/4,National Day (observed)
+2045/11/24,Vietnam Cultural Day
+2046/1/1,New Year's Day
+2046/2/5,Lunar New Year's Eve
+2046/2/6,Lunar New Year
+2046/2/7,Second Day of Lunar New Year
+2046/2/8,Third Day of Lunar New Year
+2046/2/9,Fourth Day of Lunar New Year
+2046/4/15,Hung Kings' Commemoration Day
+2046/4/16,Hung Kings' Commemoration Day (observed)
+2046/4/30,Liberation Day/Reunification Day
+2046/5/1,International Labor Day
+2046/9/2,National Day
+2046/9/3,National Day
+2046/9/4,National Day (observed)
+2046/11/24,Vietnam Cultural Day
+2046/11/26,Vietnam Cultural Day (observed)
+2047/1/1,New Year's Day
+2047/1/24,29 of Lunar New Year
+2047/1/25,Lunar New Year's Eve
+2047/1/26,Lunar New Year
+2047/1/27,Second Day of Lunar New Year
+2047/1/28,Third Day of Lunar New Year
+2047/1/29,Fourth Day of Lunar New Year
+2047/1/30,Fifth Day of Lunar New Year
+2047/4/4,Hung Kings' Commemoration Day
+2047/4/30,Liberation Day/Reunification Day
+2047/5/1,International Labor Day
+2047/9/2,National Day
+2047/9/3,National Day
+2047/11/24,Vietnam Cultural Day
+2047/11/25,Vietnam Cultural Day (observed)
+2048/1/1,New Year's Day
+2048/2/12,29 of Lunar New Year
+2048/2/13,Lunar New Year's Eve
+2048/2/14,Lunar New Year
+2048/2/15,Second Day of Lunar New Year
+2048/2/16,Third Day of Lunar New Year
+2048/2/17,Fourth Day of Lunar New Year
+2048/2/18,Fifth Day of Lunar New Year
+2048/4/22,Hung Kings' Commemoration Day
+2048/4/30,Liberation Day/Reunification Day
+2048/5/1,International Labor Day
+2048/9/1,National Day
+2048/9/2,National Day
+2048/11/24,Vietnam Cultural Day
+2049/1/1,New Year's Day
+2049/2/1,Lunar New Year's Eve
+2049/2/2,Lunar New Year
+2049/2/3,Second Day of Lunar New Year
+2049/2/4,Third Day of Lunar New Year
+2049/2/5,Fourth Day of Lunar New Year
+2049/4/11,Hung Kings' Commemoration Day
+2049/4/12,Hung Kings' Commemoration Day (observed)
+2049/4/30,Liberation Day/Reunification Day
+2049/5/1,International Labor Day
+2049/5/3,International Labor Day (observed)
+2049/9/2,National Day
+2049/9/3,National Day
+2049/11/24,Vietnam Cultural Day
+2050/1/1,New Year's Day
+2050/1/3,New Year's Day (observed)
+2050/1/21,29 of Lunar New Year
+2050/1/22,Lunar New Year's Eve
+2050/1/23,Lunar New Year
+2050/1/24,Second Day of Lunar New Year
+2050/1/25,Third Day of Lunar New Year
+2050/1/26,Fourth Day of Lunar New Year
+2050/1/27,Fifth Day of Lunar New Year
+2050/4/1,Hung Kings' Commemoration Day
+2050/4/30,Liberation Day/Reunification Day
+2050/5/1,International Labor Day
+2050/5/2,Liberation Day/Reunification Day (observed)
+2050/5/3,International Labor Day (observed)
+2050/9/1,National Day
+2050/9/2,National Day
+2050/11/24,Vietnam Cultural Day

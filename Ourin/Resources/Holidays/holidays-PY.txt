@@ -1,0 +1,431 @@
+# PY の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/3/1,Día de los Héroes de la Patria
+2020/4/9,Jueves Santo
+2020/4/10,Viernes Santo
+2020/4/12,Domingo de Resurrección
+2020/5/1,Día de los Trabajadores
+2020/5/14,Feriado Nacional
+2020/5/15,Día de la Independencia Nacional
+2020/6/12,Día de la Paz del Chaco
+2020/8/15,Día de la Fundación de Asunción
+2020/9/29,Día de la Batalla de Boquerón
+2020/12/8,Día de la Virgen de Caacupé
+2020/12/25,Día de la Navidad
+2021/1/1,Año Nuevo
+2021/3/1,Día de los Héroes de la Patria
+2021/4/1,Jueves Santo
+2021/4/2,Viernes Santo
+2021/4/4,Domingo de Resurrección
+2021/5/1,Día de los Trabajadores
+2021/5/14,Feriado Nacional
+2021/5/15,Día de la Independencia Nacional
+2021/6/12,Día de la Paz del Chaco
+2021/8/15,Día de la Fundación de Asunción
+2021/9/27,Día de la Batalla de Boquerón
+2021/12/8,Día de la Virgen de Caacupé
+2021/12/25,Día de la Navidad
+2022/1/1,Año Nuevo
+2022/2/28,Día de los Héroes de la Patria
+2022/4/14,Jueves Santo
+2022/4/15,Viernes Santo
+2022/4/17,Domingo de Resurrección
+2022/5/1,Día de los Trabajadores
+2022/5/14,Feriado Nacional
+2022/5/15,Día de la Independencia Nacional
+2022/6/12,Día de la Paz del Chaco
+2022/8/15,Día de la Fundación de Asunción
+2022/10/3,Día de la Batalla de Boquerón
+2022/12/8,Día de la Virgen de Caacupé
+2022/12/25,Día de la Navidad
+2023/1/1,Año Nuevo
+2023/2/27,Día de los Héroes de la Patria
+2023/4/6,Jueves Santo
+2023/4/7,Viernes Santo
+2023/4/9,Domingo de Resurrección
+2023/5/1,Día de los Trabajadores
+2023/5/14,Feriado Nacional
+2023/5/15,Día de la Independencia Nacional
+2023/6/12,Día de la Paz del Chaco
+2023/8/15,Día de la Fundación de Asunción
+2023/9/29,Día de la Batalla de Boquerón
+2023/12/8,Día de la Virgen de Caacupé
+2023/12/25,Día de la Navidad
+2024/1/1,Año Nuevo
+2024/3/1,Día de los Héroes de la Patria
+2024/3/28,Jueves Santo
+2024/3/29,Viernes Santo
+2024/3/31,Domingo de Resurrección
+2024/5/1,Día de los Trabajadores
+2024/5/14,Feriado Nacional
+2024/5/15,Día de la Independencia Nacional
+2024/6/10,Día de la Paz del Chaco
+2024/8/15,Día de la Fundación de Asunción
+2024/9/30,Día de la Batalla de Boquerón
+2024/12/8,Día de la Virgen de Caacupé
+2024/12/25,Día de la Navidad
+2025/1/1,Año Nuevo
+2025/3/3,Día de los Héroes de la Patria
+2025/4/17,Jueves Santo
+2025/4/18,Viernes Santo
+2025/4/20,Domingo de Resurrección
+2025/5/1,Día de los Trabajadores
+2025/5/14,Feriado Nacional
+2025/5/15,Día de la Independencia Nacional
+2025/6/16,Día de la Paz del Chaco
+2025/8/15,Día de la Fundación de Asunción
+2025/9/29,Día de la Batalla de Boquerón
+2025/12/8,Día de la Virgen de Caacupé
+2025/12/25,Día de la Navidad
+2026/1/1,Año Nuevo
+2026/3/1,Día de los Héroes de la Patria
+2026/4/2,Jueves Santo
+2026/4/3,Viernes Santo
+2026/4/5,Domingo de Resurrección
+2026/5/1,Día de los Trabajadores
+2026/5/14,Feriado Nacional
+2026/5/15,Día de la Independencia Nacional
+2026/6/12,Día de la Paz del Chaco
+2026/6/22,Día de la Jura de la Constitución Nacional
+2026/8/15,Día de la Fundación de Asunción
+2026/9/29,Día de la Batalla de Boquerón
+2026/12/8,Día de la Virgen de Caacupé
+2026/12/25,Día de la Navidad
+2027/1/1,Año Nuevo
+2027/3/1,Día de los Héroes de la Patria
+2027/3/25,Jueves Santo
+2027/3/26,Viernes Santo
+2027/3/28,Domingo de Resurrección
+2027/5/1,Día de los Trabajadores
+2027/5/14,Feriado Nacional
+2027/5/15,Día de la Independencia Nacional
+2027/6/12,Día de la Paz del Chaco
+2027/6/20,Día de la Jura de la Constitución Nacional
+2027/8/15,Día de la Fundación de Asunción
+2027/9/29,Día de la Batalla de Boquerón
+2027/12/8,Día de la Virgen de Caacupé
+2027/12/25,Día de la Navidad
+2028/1/1,Año Nuevo
+2028/3/1,Día de los Héroes de la Patria
+2028/4/13,Jueves Santo
+2028/4/14,Viernes Santo
+2028/4/16,Domingo de Resurrección
+2028/5/1,Día de los Trabajadores
+2028/5/14,Feriado Nacional
+2028/5/15,Día de la Independencia Nacional
+2028/6/12,Día de la Paz del Chaco
+2028/6/20,Día de la Jura de la Constitución Nacional
+2028/8/15,Día de la Fundación de Asunción
+2028/9/29,Día de la Batalla de Boquerón
+2028/12/8,Día de la Virgen de Caacupé
+2028/12/25,Día de la Navidad
+2029/1/1,Año Nuevo
+2029/3/1,Día de los Héroes de la Patria
+2029/3/29,Jueves Santo
+2029/3/30,Viernes Santo
+2029/4/1,Domingo de Resurrección
+2029/5/1,Día de los Trabajadores
+2029/5/14,Feriado Nacional
+2029/5/15,Día de la Independencia Nacional
+2029/6/12,Día de la Paz del Chaco
+2029/6/20,Día de la Jura de la Constitución Nacional
+2029/8/15,Día de la Fundación de Asunción
+2029/9/29,Día de la Batalla de Boquerón
+2029/12/8,Día de la Virgen de Caacupé
+2029/12/25,Día de la Navidad
+2030/1/1,Año Nuevo
+2030/3/1,Día de los Héroes de la Patria
+2030/4/18,Jueves Santo
+2030/4/19,Viernes Santo
+2030/4/21,Domingo de Resurrección
+2030/5/1,Día de los Trabajadores
+2030/5/14,Feriado Nacional
+2030/5/15,Día de la Independencia Nacional
+2030/6/12,Día de la Paz del Chaco
+2030/6/20,Día de la Jura de la Constitución Nacional
+2030/8/15,Día de la Fundación de Asunción
+2030/9/29,Día de la Batalla de Boquerón
+2030/12/8,Día de la Virgen de Caacupé
+2030/12/25,Día de la Navidad
+2031/1/1,Año Nuevo
+2031/3/1,Día de los Héroes de la Patria
+2031/4/10,Jueves Santo
+2031/4/11,Viernes Santo
+2031/4/13,Domingo de Resurrección
+2031/5/1,Día de los Trabajadores
+2031/5/14,Feriado Nacional
+2031/5/15,Día de la Independencia Nacional
+2031/6/12,Día de la Paz del Chaco
+2031/6/20,Día de la Jura de la Constitución Nacional
+2031/8/15,Día de la Fundación de Asunción
+2031/9/29,Día de la Batalla de Boquerón
+2031/12/8,Día de la Virgen de Caacupé
+2031/12/25,Día de la Navidad
+2032/1/1,Año Nuevo
+2032/3/1,Día de los Héroes de la Patria
+2032/3/25,Jueves Santo
+2032/3/26,Viernes Santo
+2032/3/28,Domingo de Resurrección
+2032/5/1,Día de los Trabajadores
+2032/5/14,Feriado Nacional
+2032/5/15,Día de la Independencia Nacional
+2032/6/12,Día de la Paz del Chaco
+2032/6/20,Día de la Jura de la Constitución Nacional
+2032/8/15,Día de la Fundación de Asunción
+2032/9/29,Día de la Batalla de Boquerón
+2032/12/8,Día de la Virgen de Caacupé
+2032/12/25,Día de la Navidad
+2033/1/1,Año Nuevo
+2033/3/1,Día de los Héroes de la Patria
+2033/4/14,Jueves Santo
+2033/4/15,Viernes Santo
+2033/4/17,Domingo de Resurrección
+2033/5/1,Día de los Trabajadores
+2033/5/14,Feriado Nacional
+2033/5/15,Día de la Independencia Nacional
+2033/6/12,Día de la Paz del Chaco
+2033/6/20,Día de la Jura de la Constitución Nacional
+2033/8/15,Día de la Fundación de Asunción
+2033/9/29,Día de la Batalla de Boquerón
+2033/12/8,Día de la Virgen de Caacupé
+2033/12/25,Día de la Navidad
+2034/1/1,Año Nuevo
+2034/3/1,Día de los Héroes de la Patria
+2034/4/6,Jueves Santo
+2034/4/7,Viernes Santo
+2034/4/9,Domingo de Resurrección
+2034/5/1,Día de los Trabajadores
+2034/5/14,Feriado Nacional
+2034/5/15,Día de la Independencia Nacional
+2034/6/12,Día de la Paz del Chaco
+2034/6/20,Día de la Jura de la Constitución Nacional
+2034/8/15,Día de la Fundación de Asunción
+2034/9/29,Día de la Batalla de Boquerón
+2034/12/8,Día de la Virgen de Caacupé
+2034/12/25,Día de la Navidad
+2035/1/1,Año Nuevo
+2035/3/1,Día de los Héroes de la Patria
+2035/3/22,Jueves Santo
+2035/3/23,Viernes Santo
+2035/3/25,Domingo de Resurrección
+2035/5/1,Día de los Trabajadores
+2035/5/14,Feriado Nacional
+2035/5/15,Día de la Independencia Nacional
+2035/6/12,Día de la Paz del Chaco
+2035/6/20,Día de la Jura de la Constitución Nacional
+2035/8/15,Día de la Fundación de Asunción
+2035/9/29,Día de la Batalla de Boquerón
+2035/12/8,Día de la Virgen de Caacupé
+2035/12/25,Día de la Navidad
+2036/1/1,Año Nuevo
+2036/3/1,Día de los Héroes de la Patria
+2036/4/10,Jueves Santo
+2036/4/11,Viernes Santo
+2036/4/13,Domingo de Resurrección
+2036/5/1,Día de los Trabajadores
+2036/5/14,Feriado Nacional
+2036/5/15,Día de la Independencia Nacional
+2036/6/12,Día de la Paz del Chaco
+2036/6/20,Día de la Jura de la Constitución Nacional
+2036/8/15,Día de la Fundación de Asunción
+2036/9/29,Día de la Batalla de Boquerón
+2036/12/8,Día de la Virgen de Caacupé
+2036/12/25,Día de la Navidad
+2037/1/1,Año Nuevo
+2037/3/1,Día de los Héroes de la Patria
+2037/4/2,Jueves Santo
+2037/4/3,Viernes Santo
+2037/4/5,Domingo de Resurrección
+2037/5/1,Día de los Trabajadores
+2037/5/14,Feriado Nacional
+2037/5/15,Día de la Independencia Nacional
+2037/6/12,Día de la Paz del Chaco
+2037/6/20,Día de la Jura de la Constitución Nacional
+2037/8/15,Día de la Fundación de Asunción
+2037/9/29,Día de la Batalla de Boquerón
+2037/12/8,Día de la Virgen de Caacupé
+2037/12/25,Día de la Navidad
+2038/1/1,Año Nuevo
+2038/3/1,Día de los Héroes de la Patria
+2038/4/22,Jueves Santo
+2038/4/23,Viernes Santo
+2038/4/25,Domingo de Resurrección
+2038/5/1,Día de los Trabajadores
+2038/5/14,Feriado Nacional
+2038/5/15,Día de la Independencia Nacional
+2038/6/12,Día de la Paz del Chaco
+2038/6/20,Día de la Jura de la Constitución Nacional
+2038/8/15,Día de la Fundación de Asunción
+2038/9/29,Día de la Batalla de Boquerón
+2038/12/8,Día de la Virgen de Caacupé
+2038/12/25,Día de la Navidad
+2039/1/1,Año Nuevo
+2039/3/1,Día de los Héroes de la Patria
+2039/4/7,Jueves Santo
+2039/4/8,Viernes Santo
+2039/4/10,Domingo de Resurrección
+2039/5/1,Día de los Trabajadores
+2039/5/14,Feriado Nacional
+2039/5/15,Día de la Independencia Nacional
+2039/6/12,Día de la Paz del Chaco
+2039/6/20,Día de la Jura de la Constitución Nacional
+2039/8/15,Día de la Fundación de Asunción
+2039/9/29,Día de la Batalla de Boquerón
+2039/12/8,Día de la Virgen de Caacupé
+2039/12/25,Día de la Navidad
+2040/1/1,Año Nuevo
+2040/3/1,Día de los Héroes de la Patria
+2040/3/29,Jueves Santo
+2040/3/30,Viernes Santo
+2040/4/1,Domingo de Resurrección
+2040/5/1,Día de los Trabajadores
+2040/5/14,Feriado Nacional
+2040/5/15,Día de la Independencia Nacional
+2040/6/12,Día de la Paz del Chaco
+2040/6/20,Día de la Jura de la Constitución Nacional
+2040/8/15,Día de la Fundación de Asunción
+2040/9/29,Día de la Batalla de Boquerón
+2040/12/8,Día de la Virgen de Caacupé
+2040/12/25,Día de la Navidad
+2041/1/1,Año Nuevo
+2041/3/1,Día de los Héroes de la Patria
+2041/4/18,Jueves Santo
+2041/4/19,Viernes Santo
+2041/4/21,Domingo de Resurrección
+2041/5/1,Día de los Trabajadores
+2041/5/14,Feriado Nacional
+2041/5/15,Día de la Independencia Nacional
+2041/6/12,Día de la Paz del Chaco
+2041/6/20,Día de la Jura de la Constitución Nacional
+2041/8/15,Día de la Fundación de Asunción
+2041/9/29,Día de la Batalla de Boquerón
+2041/12/8,Día de la Virgen de Caacupé
+2041/12/25,Día de la Navidad
+2042/1/1,Año Nuevo
+2042/3/1,Día de los Héroes de la Patria
+2042/4/3,Jueves Santo
+2042/4/4,Viernes Santo
+2042/4/6,Domingo de Resurrección
+2042/5/1,Día de los Trabajadores
+2042/5/14,Feriado Nacional
+2042/5/15,Día de la Independencia Nacional
+2042/6/12,Día de la Paz del Chaco
+2042/6/20,Día de la Jura de la Constitución Nacional
+2042/8/15,Día de la Fundación de Asunción
+2042/9/29,Día de la Batalla de Boquerón
+2042/12/8,Día de la Virgen de Caacupé
+2042/12/25,Día de la Navidad
+2043/1/1,Año Nuevo
+2043/3/1,Día de los Héroes de la Patria
+2043/3/26,Jueves Santo
+2043/3/27,Viernes Santo
+2043/3/29,Domingo de Resurrección
+2043/5/1,Día de los Trabajadores
+2043/5/14,Feriado Nacional
+2043/5/15,Día de la Independencia Nacional
+2043/6/12,Día de la Paz del Chaco
+2043/6/20,Día de la Jura de la Constitución Nacional
+2043/8/15,Día de la Fundación de Asunción
+2043/9/29,Día de la Batalla de Boquerón
+2043/12/8,Día de la Virgen de Caacupé
+2043/12/25,Día de la Navidad
+2044/1/1,Año Nuevo
+2044/3/1,Día de los Héroes de la Patria
+2044/4/14,Jueves Santo
+2044/4/15,Viernes Santo
+2044/4/17,Domingo de Resurrección
+2044/5/1,Día de los Trabajadores
+2044/5/14,Feriado Nacional
+2044/5/15,Día de la Independencia Nacional
+2044/6/12,Día de la Paz del Chaco
+2044/6/20,Día de la Jura de la Constitución Nacional
+2044/8/15,Día de la Fundación de Asunción
+2044/9/29,Día de la Batalla de Boquerón
+2044/12/8,Día de la Virgen de Caacupé
+2044/12/25,Día de la Navidad
+2045/1/1,Año Nuevo
+2045/3/1,Día de los Héroes de la Patria
+2045/4/6,Jueves Santo
+2045/4/7,Viernes Santo
+2045/4/9,Domingo de Resurrección
+2045/5/1,Día de los Trabajadores
+2045/5/14,Feriado Nacional
+2045/5/15,Día de la Independencia Nacional
+2045/6/12,Día de la Paz del Chaco
+2045/6/20,Día de la Jura de la Constitución Nacional
+2045/8/15,Día de la Fundación de Asunción
+2045/9/29,Día de la Batalla de Boquerón
+2045/12/8,Día de la Virgen de Caacupé
+2045/12/25,Día de la Navidad
+2046/1/1,Año Nuevo
+2046/3/1,Día de los Héroes de la Patria
+2046/3/22,Jueves Santo
+2046/3/23,Viernes Santo
+2046/3/25,Domingo de Resurrección
+2046/5/1,Día de los Trabajadores
+2046/5/14,Feriado Nacional
+2046/5/15,Día de la Independencia Nacional
+2046/6/12,Día de la Paz del Chaco
+2046/6/20,Día de la Jura de la Constitución Nacional
+2046/8/15,Día de la Fundación de Asunción
+2046/9/29,Día de la Batalla de Boquerón
+2046/12/8,Día de la Virgen de Caacupé
+2046/12/25,Día de la Navidad
+2047/1/1,Año Nuevo
+2047/3/1,Día de los Héroes de la Patria
+2047/4/11,Jueves Santo
+2047/4/12,Viernes Santo
+2047/4/14,Domingo de Resurrección
+2047/5/1,Día de los Trabajadores
+2047/5/14,Feriado Nacional
+2047/5/15,Día de la Independencia Nacional
+2047/6/12,Día de la Paz del Chaco
+2047/6/20,Día de la Jura de la Constitución Nacional
+2047/8/15,Día de la Fundación de Asunción
+2047/9/29,Día de la Batalla de Boquerón
+2047/12/8,Día de la Virgen de Caacupé
+2047/12/25,Día de la Navidad
+2048/1/1,Año Nuevo
+2048/3/1,Día de los Héroes de la Patria
+2048/4/2,Jueves Santo
+2048/4/3,Viernes Santo
+2048/4/5,Domingo de Resurrección
+2048/5/1,Día de los Trabajadores
+2048/5/14,Feriado Nacional
+2048/5/15,Día de la Independencia Nacional
+2048/6/12,Día de la Paz del Chaco
+2048/6/20,Día de la Jura de la Constitución Nacional
+2048/8/15,Día de la Fundación de Asunción
+2048/9/29,Día de la Batalla de Boquerón
+2048/12/8,Día de la Virgen de Caacupé
+2048/12/25,Día de la Navidad
+2049/1/1,Año Nuevo
+2049/3/1,Día de los Héroes de la Patria
+2049/4/15,Jueves Santo
+2049/4/16,Viernes Santo
+2049/4/18,Domingo de Resurrección
+2049/5/1,Día de los Trabajadores
+2049/5/14,Feriado Nacional
+2049/5/15,Día de la Independencia Nacional
+2049/6/12,Día de la Paz del Chaco
+2049/6/20,Día de la Jura de la Constitución Nacional
+2049/8/15,Día de la Fundación de Asunción
+2049/9/29,Día de la Batalla de Boquerón
+2049/12/8,Día de la Virgen de Caacupé
+2049/12/25,Día de la Navidad
+2050/1/1,Año Nuevo
+2050/3/1,Día de los Héroes de la Patria
+2050/4/7,Jueves Santo
+2050/4/8,Viernes Santo
+2050/4/10,Domingo de Resurrección
+2050/5/1,Día de los Trabajadores
+2050/5/14,Feriado Nacional
+2050/5/15,Día de la Independencia Nacional
+2050/6/12,Día de la Paz del Chaco
+2050/6/20,Día de la Jura de la Constitución Nacional
+2050/8/15,Día de la Fundación de Asunción
+2050/9/29,Día de la Batalla de Boquerón
+2050/12/8,Día de la Virgen de Caacupé
+2050/12/25,Día de la Navidad

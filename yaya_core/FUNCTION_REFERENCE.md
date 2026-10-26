@@ -79,7 +79,7 @@ compatibility limits.
 | Function | Description | Example |
 |----------|-------------|---------|
 | `IARRAY()` | Create empty array | `IARRAY()` → `[]` |
-| `ARRAYSIZE(arr)` | Get array size | `ARRAYSIZE(arr)` → `3` |
+| `ARRAYSIZE(arr)` | Get array size (a string counts its simple-array elements, using the variable's delimiter) | `ARRAYSIZE(arr)` → `3`, `ARRAYSIZE("a,b")` → `2` |
 | `SPLIT(str, delim)` | Split string to array | `SPLIT("a,b", ",")` → `["a","b"]` |
 | `ASEARCH(arr, value)` | Search array, return index | `ASEARCH(arr, "b")` → `1` |
 | `ASEARCHEX(arr, value, start)` | Search from position | `ASEARCHEX(arr, "b", 0)` → `1` |
@@ -267,8 +267,8 @@ Regex functions implemented via C++ `std::regex` (ECMAScript syntax).
 | `LSO()` | Last selected parallel option index | `LSO()` → index or `-1` |
 | `LICENSE()` | Get license info | `LICENSE()` → license text |
 | `TRANSLATE(str, from, to)` | tr-style character-set mapping (upstream-compatible: `-` ranges, `\` escapes, delete mode when `to` empty; real since 2026-07-05) | `TRANSLATE("abc","ab","xy")` → `"xyc"` |
-| `GETDELIM()` | Get the default array delimiter | `GETDELIM()` → `","` |
-| `SETDELIM(delim)` | Set the default array delimiter | `SETDELIM(",")` → `1` |
+| `GETDELIM(var)` | Get the simple-array delimiter of a variable (default `,`) | `GETDELIM(_s)` → `","` |
+| `SETDELIM(var, delim)` | Set the simple-array delimiter of a variable (used by `var[i]`, `var[i] = x`, `ARRAYSIZE(var)`) | `SETDELIM(_s, "#")` |
 | `GETSETTING(key)` | Get setting value | `GETSETTING("key")` → stored value |
 | `SETSETTING(key, val)` | Set setting | `SETSETTING("k", "v")` → `1` |
 | `GETLASTERROR()` | Get last error code | `GETLASTERROR()` → `0` |

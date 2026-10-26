@@ -1,0 +1,375 @@
+# ML の祝日（2020〜2050年、言語: fr）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Jour de l'An
+2020/1/20,Journée de l'Armée
+2020/3/26,Journée du 26 mars
+2020/4/13,Lundi de Pâques
+2020/5/1,Fête du Travail
+2020/5/23,Journée de la Fête du Ramadan
+2020/5/25,Journée de l'Afrique
+2020/7/31,Journée de la Tabaski
+2020/9/22,Fête Nationale de la République du Mali
+2020/10/29,Journée du Maouloud (Naissance du Prophète)
+2020/11/5,Journée du Maouloud (Baptême du Prophète)
+2020/12/25,Fête de Noël
+2021/1/1,Jour de l'An
+2021/1/20,Journée de l'Armée
+2021/3/26,Journée du 26 mars
+2021/4/5,Lundi de Pâques
+2021/5/1,Fête du Travail
+2021/5/12,Journée de la Fête du Ramadan
+2021/5/25,Journée de l'Afrique
+2021/7/21,Journée de la Tabaski
+2021/9/22,Fête Nationale de la République du Mali
+2021/10/19,Journée du Maouloud (Naissance du Prophète)
+2021/10/26,Journée du Maouloud (Baptême du Prophète)
+2021/12/25,Fête de Noël
+2022/1/1,Jour de l'An
+2022/1/20,Journée de l'Armée
+2022/3/26,Journée du 26 mars
+2022/4/18,Lundi de Pâques
+2022/5/1,Fête du Travail; Journée de la Fête du Ramadan
+2022/5/25,Journée de l'Afrique
+2022/7/9,Journée de la Tabaski
+2022/9/22,Fête Nationale de la République du Mali
+2022/10/9,Journée du Maouloud (Naissance du Prophète)
+2022/10/16,Journée du Maouloud (Baptême du Prophète)
+2022/12/25,Fête de Noël
+2023/1/1,Jour de l'An
+2023/1/20,Journée de l'Armée
+2023/3/26,Journée du 26 mars
+2023/4/10,Lundi de Pâques
+2023/4/21,Journée de la Fête du Ramadan
+2023/5/1,Fête du Travail
+2023/5/25,Journée de l'Afrique
+2023/6/28,Journée de la Tabaski
+2023/9/22,Fête Nationale de la République du Mali
+2023/9/28,Journée du Maouloud (Naissance du Prophète)
+2023/10/5,Journée du Maouloud (Baptême du Prophète)
+2023/12/25,Fête de Noël
+2024/1/1,Jour de l'An
+2024/1/20,Journée de l'Armée
+2024/3/26,Journée du 26 mars
+2024/4/1,Lundi de Pâques
+2024/4/9,Journée de la Fête du Ramadan
+2024/5/1,Fête du Travail
+2024/5/25,Journée de l'Afrique
+2024/6/17,Journée de la Tabaski
+2024/9/16,Journée du Maouloud (Naissance du Prophète)
+2024/9/22,Fête Nationale de la République du Mali
+2024/9/23,Journée du Maouloud (Baptême du Prophète)
+2024/12/25,Fête de Noël
+2025/1/1,Jour de l'An
+2025/1/20,Journée de l'Armée
+2025/3/26,Journée du 26 mars
+2025/3/30,Journée de la Fête du Ramadan
+2025/4/21,Lundi de Pâques
+2025/5/1,Fête du Travail
+2025/5/25,Journée de l'Afrique
+2025/6/7,Journée de la Tabaski
+2025/9/4,Journée du Maouloud (Naissance du Prophète) (estimé)
+2025/9/11,Journée du Maouloud (Baptême du Prophète) (estimé)
+2025/9/22,Fête Nationale de la République du Mali
+2025/12/25,Fête de Noël
+2026/1/1,Jour de l'An
+2026/1/20,Journée de l'Armée
+2026/3/20,Journée de la Fête du Ramadan (estimé)
+2026/3/26,Journée du 26 mars
+2026/4/6,Lundi de Pâques
+2026/5/1,Fête du Travail
+2026/5/25,Journée de l'Afrique
+2026/5/27,Journée de la Tabaski (estimé)
+2026/8/25,Journée du Maouloud (Naissance du Prophète) (estimé)
+2026/9/1,Journée du Maouloud (Baptême du Prophète) (estimé)
+2026/9/22,Fête Nationale de la République du Mali
+2026/12/25,Fête de Noël
+2027/1/1,Jour de l'An
+2027/1/20,Journée de l'Armée
+2027/3/9,Journée de la Fête du Ramadan (estimé)
+2027/3/26,Journée du 26 mars
+2027/3/29,Lundi de Pâques
+2027/5/1,Fête du Travail
+2027/5/16,Journée de la Tabaski (estimé)
+2027/5/25,Journée de l'Afrique
+2027/8/14,Journée du Maouloud (Naissance du Prophète) (estimé)
+2027/8/21,Journée du Maouloud (Baptême du Prophète) (estimé)
+2027/9/22,Fête Nationale de la République du Mali
+2027/12/25,Fête de Noël
+2028/1/1,Jour de l'An
+2028/1/20,Journée de l'Armée
+2028/2/26,Journée de la Fête du Ramadan (estimé)
+2028/3/26,Journée du 26 mars
+2028/4/17,Lundi de Pâques
+2028/5/1,Fête du Travail
+2028/5/5,Journée de la Tabaski (estimé)
+2028/5/25,Journée de l'Afrique
+2028/8/3,Journée du Maouloud (Naissance du Prophète) (estimé)
+2028/8/10,Journée du Maouloud (Baptême du Prophète) (estimé)
+2028/9/22,Fête Nationale de la République du Mali
+2028/12/25,Fête de Noël
+2029/1/1,Jour de l'An
+2029/1/20,Journée de l'Armée
+2029/2/14,Journée de la Fête du Ramadan (estimé)
+2029/3/26,Journée du 26 mars
+2029/4/2,Lundi de Pâques
+2029/4/24,Journée de la Tabaski (estimé)
+2029/5/1,Fête du Travail
+2029/5/25,Journée de l'Afrique
+2029/7/24,Journée du Maouloud (Naissance du Prophète) (estimé)
+2029/7/31,Journée du Maouloud (Baptême du Prophète) (estimé)
+2029/9/22,Fête Nationale de la République du Mali
+2029/12/25,Fête de Noël
+2030/1/1,Jour de l'An
+2030/1/20,Journée de l'Armée
+2030/2/4,Journée de la Fête du Ramadan (estimé)
+2030/3/26,Journée du 26 mars
+2030/4/13,Journée de la Tabaski (estimé)
+2030/4/22,Lundi de Pâques
+2030/5/1,Fête du Travail
+2030/5/25,Journée de l'Afrique
+2030/7/13,Journée du Maouloud (Naissance du Prophète) (estimé)
+2030/7/20,Journée du Maouloud (Baptême du Prophète) (estimé)
+2030/9/22,Fête Nationale de la République du Mali
+2030/12/25,Fête de Noël
+2031/1/1,Jour de l'An
+2031/1/20,Journée de l'Armée
+2031/1/24,Journée de la Fête du Ramadan (estimé)
+2031/3/26,Journée du 26 mars
+2031/4/2,Journée de la Tabaski (estimé)
+2031/4/14,Lundi de Pâques
+2031/5/1,Fête du Travail
+2031/5/25,Journée de l'Afrique
+2031/7/2,Journée du Maouloud (Naissance du Prophète) (estimé)
+2031/7/9,Journée du Maouloud (Baptême du Prophète) (estimé)
+2031/9/22,Fête Nationale de la République du Mali
+2031/12/25,Fête de Noël
+2032/1/1,Jour de l'An
+2032/1/14,Journée de la Fête du Ramadan (estimé)
+2032/1/20,Journée de l'Armée
+2032/3/22,Journée de la Tabaski (estimé)
+2032/3/26,Journée du 26 mars
+2032/3/29,Lundi de Pâques
+2032/5/1,Fête du Travail
+2032/5/25,Journée de l'Afrique
+2032/6/20,Journée du Maouloud (Naissance du Prophète) (estimé)
+2032/6/27,Journée du Maouloud (Baptême du Prophète) (estimé)
+2032/9/22,Fête Nationale de la République du Mali
+2032/12/25,Fête de Noël
+2033/1/1,Jour de l'An
+2033/1/2,Journée de la Fête du Ramadan (estimé)
+2033/1/20,Journée de l'Armée
+2033/3/11,Journée de la Tabaski (estimé)
+2033/3/26,Journée du 26 mars
+2033/4/18,Lundi de Pâques
+2033/5/1,Fête du Travail
+2033/5/25,Journée de l'Afrique
+2033/6/9,Journée du Maouloud (Naissance du Prophète) (estimé)
+2033/6/16,Journée du Maouloud (Baptême du Prophète) (estimé)
+2033/9/22,Fête Nationale de la République du Mali
+2033/12/23,Journée de la Fête du Ramadan (estimé)
+2033/12/25,Fête de Noël
+2034/1/1,Jour de l'An
+2034/1/20,Journée de l'Armée
+2034/3/1,Journée de la Tabaski (estimé)
+2034/3/26,Journée du 26 mars
+2034/4/10,Lundi de Pâques
+2034/5/1,Fête du Travail
+2034/5/25,Journée de l'Afrique
+2034/5/30,Journée du Maouloud (Naissance du Prophète) (estimé)
+2034/6/6,Journée du Maouloud (Baptême du Prophète) (estimé)
+2034/9/22,Fête Nationale de la République du Mali
+2034/12/12,Journée de la Fête du Ramadan (estimé)
+2034/12/25,Fête de Noël
+2035/1/1,Jour de l'An
+2035/1/20,Journée de l'Armée
+2035/2/18,Journée de la Tabaski (estimé)
+2035/3/26,Journée du 26 mars; Lundi de Pâques
+2035/5/1,Fête du Travail
+2035/5/20,Journée du Maouloud (Naissance du Prophète) (estimé)
+2035/5/25,Journée de l'Afrique
+2035/5/27,Journée du Maouloud (Baptême du Prophète) (estimé)
+2035/9/22,Fête Nationale de la République du Mali
+2035/12/1,Journée de la Fête du Ramadan (estimé)
+2035/12/25,Fête de Noël
+2036/1/1,Jour de l'An
+2036/1/20,Journée de l'Armée
+2036/2/7,Journée de la Tabaski (estimé)
+2036/3/26,Journée du 26 mars
+2036/4/14,Lundi de Pâques
+2036/5/1,Fête du Travail
+2036/5/8,Journée du Maouloud (Naissance du Prophète) (estimé)
+2036/5/15,Journée du Maouloud (Baptême du Prophète) (estimé)
+2036/5/25,Journée de l'Afrique
+2036/9/22,Fête Nationale de la République du Mali
+2036/11/19,Journée de la Fête du Ramadan (estimé)
+2036/12/25,Fête de Noël
+2037/1/1,Jour de l'An
+2037/1/20,Journée de l'Armée
+2037/1/26,Journée de la Tabaski (estimé)
+2037/3/26,Journée du 26 mars
+2037/4/6,Lundi de Pâques
+2037/4/28,Journée du Maouloud (Naissance du Prophète) (estimé)
+2037/5/1,Fête du Travail
+2037/5/5,Journée du Maouloud (Baptême du Prophète) (estimé)
+2037/5/25,Journée de l'Afrique
+2037/9/22,Fête Nationale de la République du Mali
+2037/11/8,Journée de la Fête du Ramadan (estimé)
+2037/12/25,Fête de Noël
+2038/1/1,Jour de l'An
+2038/1/16,Journée de la Tabaski (estimé)
+2038/1/20,Journée de l'Armée
+2038/3/26,Journée du 26 mars
+2038/4/17,Journée du Maouloud (Naissance du Prophète) (estimé)
+2038/4/24,Journée du Maouloud (Baptême du Prophète) (estimé)
+2038/4/26,Lundi de Pâques
+2038/5/1,Fête du Travail
+2038/5/25,Journée de l'Afrique
+2038/9/22,Fête Nationale de la République du Mali
+2038/10/29,Journée de la Fête du Ramadan (estimé)
+2038/12/25,Fête de Noël
+2039/1/1,Jour de l'An
+2039/1/5,Journée de la Tabaski (estimé)
+2039/1/20,Journée de l'Armée
+2039/3/26,Journée du 26 mars
+2039/4/6,Journée du Maouloud (Naissance du Prophète) (estimé)
+2039/4/11,Lundi de Pâques
+2039/4/13,Journée du Maouloud (Baptême du Prophète) (estimé)
+2039/5/1,Fête du Travail
+2039/5/25,Journée de l'Afrique
+2039/9/22,Fête Nationale de la République du Mali
+2039/10/19,Journée de la Fête du Ramadan (estimé)
+2039/12/25,Fête de Noël
+2039/12/26,Journée de la Tabaski (estimé)
+2040/1/1,Jour de l'An
+2040/1/20,Journée de l'Armée
+2040/3/25,Journée du Maouloud (Naissance du Prophète) (estimé)
+2040/3/26,Journée du 26 mars
+2040/4/1,Journée du Maouloud (Baptême du Prophète) (estimé)
+2040/4/2,Lundi de Pâques
+2040/5/1,Fête du Travail
+2040/5/25,Journée de l'Afrique
+2040/9/22,Fête Nationale de la République du Mali
+2040/10/7,Journée de la Fête du Ramadan (estimé)
+2040/12/14,Journée de la Tabaski (estimé)
+2040/12/25,Fête de Noël
+2041/1/1,Jour de l'An
+2041/1/20,Journée de l'Armée
+2041/3/15,Journée du Maouloud (Naissance du Prophète) (estimé)
+2041/3/22,Journée du Maouloud (Baptême du Prophète) (estimé)
+2041/3/26,Journée du 26 mars
+2041/4/22,Lundi de Pâques
+2041/5/1,Fête du Travail
+2041/5/25,Journée de l'Afrique
+2041/9/22,Fête Nationale de la République du Mali
+2041/9/26,Journée de la Fête du Ramadan (estimé)
+2041/12/4,Journée de la Tabaski (estimé)
+2041/12/25,Fête de Noël
+2042/1/1,Jour de l'An
+2042/1/20,Journée de l'Armée
+2042/3/4,Journée du Maouloud (Naissance du Prophète) (estimé)
+2042/3/11,Journée du Maouloud (Baptême du Prophète) (estimé)
+2042/3/26,Journée du 26 mars
+2042/4/7,Lundi de Pâques
+2042/5/1,Fête du Travail
+2042/5/25,Journée de l'Afrique
+2042/9/15,Journée de la Fête du Ramadan (estimé)
+2042/9/22,Fête Nationale de la République du Mali
+2042/11/23,Journée de la Tabaski (estimé)
+2042/12/25,Fête de Noël
+2043/1/1,Jour de l'An
+2043/1/20,Journée de l'Armée
+2043/2/22,Journée du Maouloud (Naissance du Prophète) (estimé)
+2043/3/1,Journée du Maouloud (Baptême du Prophète) (estimé)
+2043/3/26,Journée du 26 mars
+2043/3/30,Lundi de Pâques
+2043/5/1,Fête du Travail
+2043/5/25,Journée de l'Afrique
+2043/9/4,Journée de la Fête du Ramadan (estimé)
+2043/9/22,Fête Nationale de la République du Mali
+2043/11/12,Journée de la Tabaski (estimé)
+2043/12/25,Fête de Noël
+2044/1/1,Jour de l'An
+2044/1/20,Journée de l'Armée
+2044/2/11,Journée du Maouloud (Naissance du Prophète) (estimé)
+2044/2/18,Journée du Maouloud (Baptême du Prophète) (estimé)
+2044/3/26,Journée du 26 mars
+2044/4/18,Lundi de Pâques
+2044/5/1,Fête du Travail
+2044/5/25,Journée de l'Afrique
+2044/8/24,Journée de la Fête du Ramadan (estimé)
+2044/9/22,Fête Nationale de la République du Mali
+2044/10/31,Journée de la Tabaski (estimé)
+2044/12/25,Fête de Noël
+2045/1/1,Jour de l'An
+2045/1/20,Journée de l'Armée
+2045/1/30,Journée du Maouloud (Naissance du Prophète) (estimé)
+2045/2/6,Journée du Maouloud (Baptême du Prophète) (estimé)
+2045/3/26,Journée du 26 mars
+2045/4/10,Lundi de Pâques
+2045/5/1,Fête du Travail
+2045/5/25,Journée de l'Afrique
+2045/8/14,Journée de la Fête du Ramadan (estimé)
+2045/9/22,Fête Nationale de la République du Mali
+2045/10/21,Journée de la Tabaski (estimé)
+2045/12/25,Fête de Noël
+2046/1/1,Jour de l'An
+2046/1/19,Journée du Maouloud (Naissance du Prophète) (estimé)
+2046/1/20,Journée de l'Armée
+2046/1/26,Journée du Maouloud (Baptême du Prophète) (estimé)
+2046/3/26,Journée du 26 mars; Lundi de Pâques
+2046/5/1,Fête du Travail
+2046/5/25,Journée de l'Afrique
+2046/8/3,Journée de la Fête du Ramadan (estimé)
+2046/9/22,Fête Nationale de la République du Mali
+2046/10/10,Journée de la Tabaski (estimé)
+2046/12/25,Fête de Noël
+2047/1/1,Jour de l'An
+2047/1/8,Journée du Maouloud (Naissance du Prophète) (estimé)
+2047/1/15,Journée du Maouloud (Baptême du Prophète) (estimé)
+2047/1/20,Journée de l'Armée
+2047/3/26,Journée du 26 mars
+2047/4/15,Lundi de Pâques
+2047/5/1,Fête du Travail
+2047/5/25,Journée de l'Afrique
+2047/7/24,Journée de la Fête du Ramadan (estimé)
+2047/9/22,Fête Nationale de la République du Mali
+2047/9/30,Journée de la Tabaski (estimé)
+2047/12/25,Fête de Noël
+2047/12/29,Journée du Maouloud (Naissance du Prophète) (estimé)
+2048/1/1,Jour de l'An
+2048/1/5,Journée du Maouloud (Baptême du Prophète) (estimé)
+2048/1/20,Journée de l'Armée
+2048/3/26,Journée du 26 mars
+2048/4/6,Lundi de Pâques
+2048/5/1,Fête du Travail
+2048/5/25,Journée de l'Afrique
+2048/7/12,Journée de la Fête du Ramadan (estimé)
+2048/9/19,Journée de la Tabaski (estimé)
+2048/9/22,Fête Nationale de la République du Mali
+2048/12/18,Journée du Maouloud (Naissance du Prophète) (estimé)
+2048/12/25,Fête de Noël; Journée du Maouloud (Baptême du Prophète) (estimé)
+2049/1/1,Jour de l'An
+2049/1/20,Journée de l'Armée
+2049/3/26,Journée du 26 mars
+2049/4/19,Lundi de Pâques
+2049/5/1,Fête du Travail
+2049/5/25,Journée de l'Afrique
+2049/7/1,Journée de la Fête du Ramadan (estimé)
+2049/9/8,Journée de la Tabaski (estimé)
+2049/9/22,Fête Nationale de la République du Mali
+2049/12/7,Journée du Maouloud (Naissance du Prophète) (estimé)
+2049/12/14,Journée du Maouloud (Baptême du Prophète) (estimé)
+2049/12/25,Fête de Noël
+2050/1/1,Jour de l'An
+2050/1/20,Journée de l'Armée
+2050/3/26,Journée du 26 mars
+2050/4/11,Lundi de Pâques
+2050/5/1,Fête du Travail
+2050/5/25,Journée de l'Afrique
+2050/6/20,Journée de la Fête du Ramadan (estimé)
+2050/8/28,Journée de la Tabaski (estimé)
+2050/9/22,Fête Nationale de la République du Mali
+2050/11/26,Journée du Maouloud (Naissance du Prophète) (estimé)
+2050/12/3,Journée du Maouloud (Baptême du Prophète) (estimé)
+2050/12/25,Fête de Noël

@@ -5,6 +5,21 @@ import Foundation
 /// Tests for GhostConfiguration parsing and application
 struct GhostConfigurationTests {
 
+    @Test("Preserve Windows SHIORI and prefer an explicit macOS module")
+    func macOSShioriOverride() throws {
+        let config = try #require(GhostConfiguration.parse(from: [
+            "name": "native", "shiori": "misaka.dll", "shiori.macos": " native/libmisaka.dylib "
+        ]))
+        #expect(config.shiori == "misaka.dll")
+        #expect(config.shioriMacOS == "native/libmisaka.dylib")
+        #expect(ShioriRuntimeFactory.moduleName(for: config) == "native/libmisaka.dylib")
+        let empty = try #require(GhostConfiguration.parse(from: [
+            "name": "default", "shiori": "yaya.dll", "shiori.macos": "  "
+        ]))
+        #expect(empty.shioriMacOS == nil)
+        #expect(ShioriRuntimeFactory.moduleName(for: empty) == "yaya.dll")
+    }
+
     // MARK: - Basic Parsing Tests
 
     @Test("Parse basic ghost configuration")

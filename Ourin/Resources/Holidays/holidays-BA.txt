@@ -1,0 +1,312 @@
+# BA の祝日（2020〜2050年、言語: bs）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Nova godina
+2020/1/2,Nova godina
+2020/1/7,Božić (Pravoslavni)
+2020/4/13,Uskrsni ponedjeljak (Katolički)
+2020/4/17,Veliki petak (Pravoslavni)
+2020/5/1,Međunarodni praznik rada
+2020/5/2,Međunarodni praznik rada
+2020/5/24,Ramazanski Bajram
+2020/7/31,Kurban Bajram
+2020/12/25,Božić (Katolički)
+2021/1/1,Nova godina
+2021/1/2,Nova godina
+2021/1/7,Božić (Pravoslavni)
+2021/4/5,Uskrsni ponedjeljak (Katolički)
+2021/4/30,Veliki petak (Pravoslavni)
+2021/5/1,Međunarodni praznik rada
+2021/5/2,Međunarodni praznik rada
+2021/5/13,Ramazanski Bajram
+2021/7/20,Kurban Bajram
+2021/12/25,Božić (Katolički)
+2022/1/1,Nova godina
+2022/1/2,Nova godina
+2022/1/7,Božić (Pravoslavni)
+2022/4/18,Uskrsni ponedjeljak (Katolički)
+2022/4/22,Veliki petak (Pravoslavni)
+2022/5/1,Međunarodni praznik rada
+2022/5/2,Međunarodni praznik rada; Ramazanski Bajram
+2022/7/9,Kurban Bajram
+2022/12/25,Božić (Katolički)
+2023/1/1,Nova godina
+2023/1/2,Nova godina
+2023/1/7,Božić (Pravoslavni)
+2023/4/10,Uskrsni ponedjeljak (Katolički)
+2023/4/14,Veliki petak (Pravoslavni)
+2023/4/21,Ramazanski Bajram
+2023/5/1,Međunarodni praznik rada
+2023/5/2,Međunarodni praznik rada
+2023/6/28,Kurban Bajram
+2023/12/25,Božić (Katolički)
+2024/1/1,Nova godina
+2024/1/2,Nova godina
+2024/1/7,Božić (Pravoslavni)
+2024/4/1,Uskrsni ponedjeljak (Katolički)
+2024/4/10,Ramazanski Bajram
+2024/5/1,Međunarodni praznik rada
+2024/5/2,Međunarodni praznik rada
+2024/5/3,Veliki petak (Pravoslavni)
+2024/6/16,Kurban Bajram (procijenjeno)
+2024/12/25,Božić (Katolički)
+2025/1/1,Nova godina
+2025/1/2,Nova godina
+2025/1/7,Božić (Pravoslavni)
+2025/3/30,Ramazanski Bajram (procijenjeno)
+2025/4/18,Veliki petak (Pravoslavni)
+2025/4/21,Uskrsni ponedjeljak (Katolički)
+2025/5/1,Međunarodni praznik rada
+2025/5/2,Međunarodni praznik rada
+2025/6/6,Kurban Bajram (procijenjeno)
+2025/12/25,Božić (Katolički)
+2026/1/1,Nova godina
+2026/1/2,Nova godina
+2026/1/7,Božić (Pravoslavni)
+2026/3/20,Ramazanski Bajram (procijenjeno)
+2026/4/6,Uskrsni ponedjeljak (Katolički)
+2026/4/10,Veliki petak (Pravoslavni)
+2026/5/1,Međunarodni praznik rada
+2026/5/2,Međunarodni praznik rada
+2026/5/27,Kurban Bajram (procijenjeno)
+2026/12/25,Božić (Katolički)
+2027/1/1,Nova godina
+2027/1/2,Nova godina
+2027/1/7,Božić (Pravoslavni)
+2027/3/9,Ramazanski Bajram (procijenjeno)
+2027/3/29,Uskrsni ponedjeljak (Katolički)
+2027/4/30,Veliki petak (Pravoslavni)
+2027/5/1,Međunarodni praznik rada
+2027/5/2,Međunarodni praznik rada
+2027/5/16,Kurban Bajram (procijenjeno)
+2027/12/25,Božić (Katolički)
+2028/1/1,Nova godina
+2028/1/2,Nova godina
+2028/1/7,Božić (Pravoslavni)
+2028/2/26,Ramazanski Bajram (procijenjeno)
+2028/4/14,Veliki petak (Pravoslavni)
+2028/4/17,Uskrsni ponedjeljak (Katolički)
+2028/5/1,Međunarodni praznik rada
+2028/5/2,Međunarodni praznik rada
+2028/5/5,Kurban Bajram (procijenjeno)
+2028/12/25,Božić (Katolički)
+2029/1/1,Nova godina
+2029/1/2,Nova godina
+2029/1/7,Božić (Pravoslavni)
+2029/2/14,Ramazanski Bajram (procijenjeno)
+2029/4/2,Uskrsni ponedjeljak (Katolički)
+2029/4/6,Veliki petak (Pravoslavni)
+2029/4/24,Kurban Bajram (procijenjeno)
+2029/5/1,Međunarodni praznik rada
+2029/5/2,Međunarodni praznik rada
+2029/12/25,Božić (Katolički)
+2030/1/1,Nova godina
+2030/1/2,Nova godina
+2030/1/7,Božić (Pravoslavni)
+2030/2/4,Ramazanski Bajram (procijenjeno)
+2030/4/13,Kurban Bajram (procijenjeno)
+2030/4/22,Uskrsni ponedjeljak (Katolički)
+2030/4/26,Veliki petak (Pravoslavni)
+2030/5/1,Međunarodni praznik rada
+2030/5/2,Međunarodni praznik rada
+2030/12/25,Božić (Katolički)
+2031/1/1,Nova godina
+2031/1/2,Nova godina
+2031/1/7,Božić (Pravoslavni)
+2031/1/24,Ramazanski Bajram (procijenjeno)
+2031/4/2,Kurban Bajram (procijenjeno)
+2031/4/11,Veliki petak (Pravoslavni)
+2031/4/14,Uskrsni ponedjeljak (Katolički)
+2031/5/1,Međunarodni praznik rada
+2031/5/2,Međunarodni praznik rada
+2031/12/25,Božić (Katolički)
+2032/1/1,Nova godina
+2032/1/2,Nova godina
+2032/1/7,Božić (Pravoslavni)
+2032/1/14,Ramazanski Bajram (procijenjeno)
+2032/3/22,Kurban Bajram (procijenjeno)
+2032/3/29,Uskrsni ponedjeljak (Katolički)
+2032/4/30,Veliki petak (Pravoslavni)
+2032/5/1,Međunarodni praznik rada
+2032/5/2,Međunarodni praznik rada
+2032/12/25,Božić (Katolički)
+2033/1/1,Nova godina
+2033/1/2,Nova godina; Ramazanski Bajram (procijenjeno)
+2033/1/7,Božić (Pravoslavni)
+2033/3/11,Kurban Bajram (procijenjeno)
+2033/4/18,Uskrsni ponedjeljak (Katolički)
+2033/4/22,Veliki petak (Pravoslavni)
+2033/5/1,Međunarodni praznik rada
+2033/5/2,Međunarodni praznik rada
+2033/12/23,Ramazanski Bajram (procijenjeno)
+2033/12/25,Božić (Katolički)
+2034/1/1,Nova godina
+2034/1/2,Nova godina
+2034/1/7,Božić (Pravoslavni)
+2034/3/1,Kurban Bajram (procijenjeno)
+2034/4/7,Veliki petak (Pravoslavni)
+2034/4/10,Uskrsni ponedjeljak (Katolički)
+2034/5/1,Međunarodni praznik rada
+2034/5/2,Međunarodni praznik rada
+2034/12/12,Ramazanski Bajram (procijenjeno)
+2034/12/25,Božić (Katolički)
+2035/1/1,Nova godina
+2035/1/2,Nova godina
+2035/1/7,Božić (Pravoslavni)
+2035/2/18,Kurban Bajram (procijenjeno)
+2035/3/26,Uskrsni ponedjeljak (Katolički)
+2035/4/27,Veliki petak (Pravoslavni)
+2035/5/1,Međunarodni praznik rada
+2035/5/2,Međunarodni praznik rada
+2035/12/1,Ramazanski Bajram (procijenjeno)
+2035/12/25,Božić (Katolički)
+2036/1/1,Nova godina
+2036/1/2,Nova godina
+2036/1/7,Božić (Pravoslavni)
+2036/2/7,Kurban Bajram (procijenjeno)
+2036/4/14,Uskrsni ponedjeljak (Katolički)
+2036/4/18,Veliki petak (Pravoslavni)
+2036/5/1,Međunarodni praznik rada
+2036/5/2,Međunarodni praznik rada
+2036/11/19,Ramazanski Bajram (procijenjeno)
+2036/12/25,Božić (Katolički)
+2037/1/1,Nova godina
+2037/1/2,Nova godina
+2037/1/7,Božić (Pravoslavni)
+2037/1/26,Kurban Bajram (procijenjeno)
+2037/4/3,Veliki petak (Pravoslavni)
+2037/4/6,Uskrsni ponedjeljak (Katolički)
+2037/5/1,Međunarodni praznik rada
+2037/5/2,Međunarodni praznik rada
+2037/11/8,Ramazanski Bajram (procijenjeno)
+2037/12/25,Božić (Katolički)
+2038/1/1,Nova godina
+2038/1/2,Nova godina
+2038/1/7,Božić (Pravoslavni)
+2038/1/16,Kurban Bajram (procijenjeno)
+2038/4/23,Veliki petak (Pravoslavni)
+2038/4/26,Uskrsni ponedjeljak (Katolički)
+2038/5/1,Međunarodni praznik rada
+2038/5/2,Međunarodni praznik rada
+2038/10/29,Ramazanski Bajram (procijenjeno)
+2038/12/25,Božić (Katolički)
+2039/1/1,Nova godina
+2039/1/2,Nova godina
+2039/1/5,Kurban Bajram (procijenjeno)
+2039/1/7,Božić (Pravoslavni)
+2039/4/11,Uskrsni ponedjeljak (Katolički)
+2039/4/15,Veliki petak (Pravoslavni)
+2039/5/1,Međunarodni praznik rada
+2039/5/2,Međunarodni praznik rada
+2039/10/19,Ramazanski Bajram (procijenjeno)
+2039/12/25,Božić (Katolički)
+2039/12/26,Kurban Bajram (procijenjeno)
+2040/1/1,Nova godina
+2040/1/2,Nova godina
+2040/1/7,Božić (Pravoslavni)
+2040/4/2,Uskrsni ponedjeljak (Katolički)
+2040/5/1,Međunarodni praznik rada
+2040/5/2,Međunarodni praznik rada
+2040/5/4,Veliki petak (Pravoslavni)
+2040/10/7,Ramazanski Bajram (procijenjeno)
+2040/12/14,Kurban Bajram (procijenjeno)
+2040/12/25,Božić (Katolički)
+2041/1/1,Nova godina
+2041/1/2,Nova godina
+2041/1/7,Božić (Pravoslavni)
+2041/4/19,Veliki petak (Pravoslavni)
+2041/4/22,Uskrsni ponedjeljak (Katolički)
+2041/5/1,Međunarodni praznik rada
+2041/5/2,Međunarodni praznik rada
+2041/9/26,Ramazanski Bajram (procijenjeno)
+2041/12/4,Kurban Bajram (procijenjeno)
+2041/12/25,Božić (Katolički)
+2042/1/1,Nova godina
+2042/1/2,Nova godina
+2042/1/7,Božić (Pravoslavni)
+2042/4/7,Uskrsni ponedjeljak (Katolički)
+2042/4/11,Veliki petak (Pravoslavni)
+2042/5/1,Međunarodni praznik rada
+2042/5/2,Međunarodni praznik rada
+2042/9/15,Ramazanski Bajram (procijenjeno)
+2042/11/23,Kurban Bajram (procijenjeno)
+2042/12/25,Božić (Katolički)
+2043/1/1,Nova godina
+2043/1/2,Nova godina
+2043/1/7,Božić (Pravoslavni)
+2043/3/30,Uskrsni ponedjeljak (Katolički)
+2043/5/1,Međunarodni praznik rada; Veliki petak (Pravoslavni)
+2043/5/2,Međunarodni praznik rada
+2043/9/4,Ramazanski Bajram (procijenjeno)
+2043/11/12,Kurban Bajram (procijenjeno)
+2043/12/25,Božić (Katolički)
+2044/1/1,Nova godina
+2044/1/2,Nova godina
+2044/1/7,Božić (Pravoslavni)
+2044/4/18,Uskrsni ponedjeljak (Katolički)
+2044/4/22,Veliki petak (Pravoslavni)
+2044/5/1,Međunarodni praznik rada
+2044/5/2,Međunarodni praznik rada
+2044/8/24,Ramazanski Bajram (procijenjeno)
+2044/10/31,Kurban Bajram (procijenjeno)
+2044/12/25,Božić (Katolički)
+2045/1/1,Nova godina
+2045/1/2,Nova godina
+2045/1/7,Božić (Pravoslavni)
+2045/4/7,Veliki petak (Pravoslavni)
+2045/4/10,Uskrsni ponedjeljak (Katolički)
+2045/5/1,Međunarodni praznik rada
+2045/5/2,Međunarodni praznik rada
+2045/8/14,Ramazanski Bajram (procijenjeno)
+2045/10/21,Kurban Bajram (procijenjeno)
+2045/12/25,Božić (Katolički)
+2046/1/1,Nova godina
+2046/1/2,Nova godina
+2046/1/7,Božić (Pravoslavni)
+2046/3/26,Uskrsni ponedjeljak (Katolički)
+2046/4/27,Veliki petak (Pravoslavni)
+2046/5/1,Međunarodni praznik rada
+2046/5/2,Međunarodni praznik rada
+2046/8/3,Ramazanski Bajram (procijenjeno)
+2046/10/10,Kurban Bajram (procijenjeno)
+2046/12/25,Božić (Katolički)
+2047/1/1,Nova godina
+2047/1/2,Nova godina
+2047/1/7,Božić (Pravoslavni)
+2047/4/15,Uskrsni ponedjeljak (Katolički)
+2047/4/19,Veliki petak (Pravoslavni)
+2047/5/1,Međunarodni praznik rada
+2047/5/2,Međunarodni praznik rada
+2047/7/24,Ramazanski Bajram (procijenjeno)
+2047/9/30,Kurban Bajram (procijenjeno)
+2047/12/25,Božić (Katolički)
+2048/1/1,Nova godina
+2048/1/2,Nova godina
+2048/1/7,Božić (Pravoslavni)
+2048/4/3,Veliki petak (Pravoslavni)
+2048/4/6,Uskrsni ponedjeljak (Katolički)
+2048/5/1,Međunarodni praznik rada
+2048/5/2,Međunarodni praznik rada
+2048/7/12,Ramazanski Bajram (procijenjeno)
+2048/9/19,Kurban Bajram (procijenjeno)
+2048/12/25,Božić (Katolički)
+2049/1/1,Nova godina
+2049/1/2,Nova godina
+2049/1/7,Božić (Pravoslavni)
+2049/4/19,Uskrsni ponedjeljak (Katolički)
+2049/4/23,Veliki petak (Pravoslavni)
+2049/5/1,Međunarodni praznik rada
+2049/5/2,Međunarodni praznik rada
+2049/7/1,Ramazanski Bajram (procijenjeno)
+2049/9/8,Kurban Bajram (procijenjeno)
+2049/12/25,Božić (Katolički)
+2050/1/1,Nova godina
+2050/1/2,Nova godina
+2050/1/7,Božić (Pravoslavni)
+2050/4/11,Uskrsni ponedjeljak (Katolički)
+2050/4/15,Veliki petak (Pravoslavni)
+2050/5/1,Međunarodni praznik rada
+2050/5/2,Međunarodni praznik rada
+2050/6/20,Ramazanski Bajram (procijenjeno)
+2050/8/28,Kurban Bajram (procijenjeno)
+2050/12/25,Božić (Katolički)

@@ -1,0 +1,365 @@
+# TM の祝日（2020〜2050年、言語: tk）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Täze ýyl
+2020/3/8,Halkara zenanlar güni
+2020/3/9,Halkara zenanlar güni (dynç güni)
+2020/3/21,Milli bahar baýramy
+2020/3/22,Milli bahar baýramy
+2020/3/23,Milli bahar baýramy (dynç güni)
+2020/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2020/5/24,Oraza baýramy
+2020/5/25,Oraza baýramy (dynç güni)
+2020/7/31,Gurban baýramy
+2020/9/27,Türkmenistanyň Garaşsyzlyk güni
+2020/9/28,Türkmenistanyň Garaşsyzlyk güni (dynç güni)
+2020/10/6,Hatyra güni
+2020/12/12,Halkara Bitaraplyk güni
+2021/1/1,Täze ýyl
+2021/1/2,Iş güni däl
+2021/3/8,Halkara zenanlar güni
+2021/3/21,Milli bahar baýramy
+2021/3/22,Milli bahar baýramy
+2021/3/23,Milli bahar baýramy (dynç güni)
+2021/5/13,Oraza baýramy
+2021/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2021/7/20,Gurban baýramy
+2021/9/27,Türkmenistanyň Garaşsyzlyk güni
+2021/10/6,Hatyra güni
+2021/12/12,Halkara Bitaraplyk güni
+2021/12/13,Halkara Bitaraplyk güni (dynç güni)
+2022/1/1,Täze ýyl
+2022/3/8,Halkara zenanlar güni
+2022/3/21,Milli bahar baýramy
+2022/3/22,Milli bahar baýramy
+2022/5/2,Oraza baýramy
+2022/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2022/7/9,Gurban baýramy
+2022/9/27,Türkmenistanyň Garaşsyzlyk güni
+2022/10/6,Hatyra güni
+2022/12/12,Halkara Bitaraplyk güni
+2023/1/1,Täze ýyl
+2023/1/2,Täze ýyl (dynç güni)
+2023/3/8,Halkara zenanlar güni
+2023/3/21,Milli bahar baýramy
+2023/3/22,Milli bahar baýramy
+2023/4/21,Oraza baýramy
+2023/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2023/6/28,Gurban baýramy
+2023/9/27,Türkmenistanyň Garaşsyzlyk güni
+2023/10/6,Hatyra güni
+2023/12/12,Halkara Bitaraplyk güni
+2024/1/1,Täze ýyl
+2024/3/8,Halkara zenanlar güni
+2024/3/21,Milli bahar baýramy
+2024/3/22,Milli bahar baýramy
+2024/4/10,Oraza baýramy
+2024/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2024/6/16,Gurban baýramy
+2024/6/17,Gurban baýramy (dynç güni)
+2024/9/27,Türkmenistanyň Garaşsyzlyk güni
+2024/10/6,Hatyra güni
+2024/10/7,Hatyra güni (dynç güni)
+2024/12/12,Halkara Bitaraplyk güni
+2025/1/1,Täze ýyl
+2025/3/8,Halkara zenanlar güni
+2025/3/21,Milli bahar baýramy
+2025/3/22,Milli bahar baýramy
+2025/3/30,Oraza baýramy
+2025/3/31,Oraza baýramy (dynç güni)
+2025/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2025/5/19,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni (dynç güni)
+2025/6/6,Gurban baýramy
+2025/9/27,Türkmenistanyň Garaşsyzlyk güni
+2025/10/6,Hatyra güni
+2025/12/11,Iş güni däl
+2025/12/12,Halkara Bitaraplyk güni
+2025/12/13,Iş güni däl
+2026/1/1,Täze ýyl
+2026/3/8,Halkara zenanlar güni
+2026/3/9,Halkara zenanlar güni (dynç güni)
+2026/3/20,Oraza baýramy (çak edilýär)
+2026/3/21,Milli bahar baýramy
+2026/3/22,Milli bahar baýramy
+2026/3/23,Milli bahar baýramy (dynç güni)
+2026/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2026/5/27,Gurban baýramy (çak edilýär)
+2026/9/27,Türkmenistanyň Garaşsyzlyk güni
+2026/9/28,Iş güni däl
+2026/9/29,Türkmenistanyň Garaşsyzlyk güni (dynç güni)
+2026/10/6,Hatyra güni
+2026/12/12,Halkara Bitaraplyk güni
+2027/1/1,Täze ýyl
+2027/3/8,Halkara zenanlar güni
+2027/3/9,Oraza baýramy (çak edilýär)
+2027/3/21,Milli bahar baýramy
+2027/3/22,Milli bahar baýramy
+2027/3/23,Milli bahar baýramy (dynç güni)
+2027/5/16,Gurban baýramy (çak edilýär)
+2027/5/17,Gurban baýramy (dynç güni, çak edilýär)
+2027/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2027/9/27,Türkmenistanyň Garaşsyzlyk güni
+2027/10/6,Hatyra güni
+2027/12/12,Halkara Bitaraplyk güni
+2027/12/13,Halkara Bitaraplyk güni (dynç güni)
+2028/1/1,Täze ýyl
+2028/2/26,Oraza baýramy (çak edilýär)
+2028/3/8,Halkara zenanlar güni
+2028/3/21,Milli bahar baýramy
+2028/3/22,Milli bahar baýramy
+2028/5/5,Gurban baýramy (çak edilýär)
+2028/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2028/9/27,Türkmenistanyň Garaşsyzlyk güni
+2028/10/6,Hatyra güni
+2028/12/12,Halkara Bitaraplyk güni
+2029/1/1,Täze ýyl
+2029/2/14,Oraza baýramy (çak edilýär)
+2029/3/8,Halkara zenanlar güni
+2029/3/21,Milli bahar baýramy
+2029/3/22,Milli bahar baýramy
+2029/4/24,Gurban baýramy (çak edilýär)
+2029/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2029/9/27,Türkmenistanyň Garaşsyzlyk güni
+2029/10/6,Hatyra güni
+2029/12/12,Halkara Bitaraplyk güni
+2030/1/1,Täze ýyl
+2030/2/4,Oraza baýramy (çak edilýär)
+2030/3/8,Halkara zenanlar güni
+2030/3/21,Milli bahar baýramy
+2030/3/22,Milli bahar baýramy
+2030/4/13,Gurban baýramy (çak edilýär)
+2030/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2030/9/27,Türkmenistanyň Garaşsyzlyk güni
+2030/10/6,Hatyra güni
+2030/10/7,Hatyra güni (dynç güni)
+2030/12/12,Halkara Bitaraplyk güni
+2031/1/1,Täze ýyl
+2031/1/24,Oraza baýramy (çak edilýär)
+2031/3/8,Halkara zenanlar güni
+2031/3/21,Milli bahar baýramy
+2031/3/22,Milli bahar baýramy
+2031/4/2,Gurban baýramy (çak edilýär)
+2031/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2031/5/19,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni (dynç güni)
+2031/9/27,Türkmenistanyň Garaşsyzlyk güni
+2031/10/6,Hatyra güni
+2031/12/12,Halkara Bitaraplyk güni
+2032/1/1,Täze ýyl
+2032/1/14,Oraza baýramy (çak edilýär)
+2032/3/8,Halkara zenanlar güni
+2032/3/21,Milli bahar baýramy
+2032/3/22,Gurban baýramy (çak edilýär); Milli bahar baýramy
+2032/3/23,Milli bahar baýramy (dynç güni)
+2032/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2032/9/27,Türkmenistanyň Garaşsyzlyk güni
+2032/10/6,Hatyra güni
+2032/12/12,Halkara Bitaraplyk güni
+2032/12/13,Halkara Bitaraplyk güni (dynç güni)
+2033/1/1,Täze ýyl
+2033/1/2,Oraza baýramy (çak edilýär)
+2033/1/3,Oraza baýramy (dynç güni, çak edilýär)
+2033/3/8,Halkara zenanlar güni
+2033/3/11,Gurban baýramy (çak edilýär)
+2033/3/21,Milli bahar baýramy
+2033/3/22,Milli bahar baýramy
+2033/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2033/9/27,Türkmenistanyň Garaşsyzlyk güni
+2033/10/6,Hatyra güni
+2033/12/12,Halkara Bitaraplyk güni
+2033/12/23,Oraza baýramy (çak edilýär)
+2034/1/1,Täze ýyl
+2034/1/2,Täze ýyl (dynç güni)
+2034/3/1,Gurban baýramy (çak edilýär)
+2034/3/8,Halkara zenanlar güni
+2034/3/21,Milli bahar baýramy
+2034/3/22,Milli bahar baýramy
+2034/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2034/9/27,Türkmenistanyň Garaşsyzlyk güni
+2034/10/6,Hatyra güni
+2034/12/12,Halkara Bitaraplyk güni; Oraza baýramy (çak edilýär)
+2035/1/1,Täze ýyl
+2035/2/18,Gurban baýramy (çak edilýär)
+2035/2/19,Gurban baýramy (dynç güni, çak edilýär)
+2035/3/8,Halkara zenanlar güni
+2035/3/21,Milli bahar baýramy
+2035/3/22,Milli bahar baýramy
+2035/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2035/9/27,Türkmenistanyň Garaşsyzlyk güni
+2035/10/6,Hatyra güni
+2035/12/1,Oraza baýramy (çak edilýär)
+2035/12/12,Halkara Bitaraplyk güni
+2036/1/1,Täze ýyl
+2036/2/7,Gurban baýramy (çak edilýär)
+2036/3/8,Halkara zenanlar güni
+2036/3/21,Milli bahar baýramy
+2036/3/22,Milli bahar baýramy
+2036/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2036/5/19,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni (dynç güni)
+2036/9/27,Türkmenistanyň Garaşsyzlyk güni
+2036/10/6,Hatyra güni
+2036/11/19,Oraza baýramy (çak edilýär)
+2036/12/12,Halkara Bitaraplyk güni
+2037/1/1,Täze ýyl
+2037/1/26,Gurban baýramy (çak edilýär)
+2037/3/8,Halkara zenanlar güni
+2037/3/9,Halkara zenanlar güni (dynç güni)
+2037/3/21,Milli bahar baýramy
+2037/3/22,Milli bahar baýramy
+2037/3/23,Milli bahar baýramy (dynç güni)
+2037/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2037/9/27,Türkmenistanyň Garaşsyzlyk güni
+2037/9/28,Türkmenistanyň Garaşsyzlyk güni (dynç güni)
+2037/10/6,Hatyra güni
+2037/11/8,Oraza baýramy (çak edilýär)
+2037/11/9,Oraza baýramy (dynç güni, çak edilýär)
+2037/12/12,Halkara Bitaraplyk güni
+2038/1/1,Täze ýyl
+2038/1/16,Gurban baýramy (çak edilýär)
+2038/3/8,Halkara zenanlar güni
+2038/3/21,Milli bahar baýramy
+2038/3/22,Milli bahar baýramy
+2038/3/23,Milli bahar baýramy (dynç güni)
+2038/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2038/9/27,Türkmenistanyň Garaşsyzlyk güni
+2038/10/6,Hatyra güni
+2038/10/29,Oraza baýramy (çak edilýär)
+2038/12/12,Halkara Bitaraplyk güni
+2038/12/13,Halkara Bitaraplyk güni (dynç güni)
+2039/1/1,Täze ýyl
+2039/1/5,Gurban baýramy (çak edilýär)
+2039/3/8,Halkara zenanlar güni
+2039/3/21,Milli bahar baýramy
+2039/3/22,Milli bahar baýramy
+2039/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2039/9/27,Türkmenistanyň Garaşsyzlyk güni
+2039/10/6,Hatyra güni
+2039/10/19,Oraza baýramy (çak edilýär)
+2039/12/12,Halkara Bitaraplyk güni
+2039/12/26,Gurban baýramy (çak edilýär)
+2040/1/1,Täze ýyl
+2040/1/2,Täze ýyl (dynç güni)
+2040/3/8,Halkara zenanlar güni
+2040/3/21,Milli bahar baýramy
+2040/3/22,Milli bahar baýramy
+2040/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2040/9/27,Türkmenistanyň Garaşsyzlyk güni
+2040/10/6,Hatyra güni
+2040/10/7,Oraza baýramy (çak edilýär)
+2040/10/8,Oraza baýramy (dynç güni, çak edilýär)
+2040/12/12,Halkara Bitaraplyk güni
+2040/12/14,Gurban baýramy (çak edilýär)
+2041/1/1,Täze ýyl
+2041/3/8,Halkara zenanlar güni
+2041/3/21,Milli bahar baýramy
+2041/3/22,Milli bahar baýramy
+2041/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2041/9/26,Oraza baýramy (çak edilýär)
+2041/9/27,Türkmenistanyň Garaşsyzlyk güni
+2041/10/6,Hatyra güni
+2041/10/7,Hatyra güni (dynç güni)
+2041/12/4,Gurban baýramy (çak edilýär)
+2041/12/12,Halkara Bitaraplyk güni
+2042/1/1,Täze ýyl
+2042/3/8,Halkara zenanlar güni
+2042/3/21,Milli bahar baýramy
+2042/3/22,Milli bahar baýramy
+2042/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2042/5/19,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni (dynç güni)
+2042/9/15,Oraza baýramy (çak edilýär)
+2042/9/27,Türkmenistanyň Garaşsyzlyk güni
+2042/10/6,Hatyra güni
+2042/11/23,Gurban baýramy (çak edilýär)
+2042/11/24,Gurban baýramy (dynç güni, çak edilýär)
+2042/12/12,Halkara Bitaraplyk güni
+2043/1/1,Täze ýyl
+2043/3/8,Halkara zenanlar güni
+2043/3/9,Halkara zenanlar güni (dynç güni)
+2043/3/21,Milli bahar baýramy
+2043/3/22,Milli bahar baýramy
+2043/3/23,Milli bahar baýramy (dynç güni)
+2043/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2043/9/4,Oraza baýramy (çak edilýär)
+2043/9/27,Türkmenistanyň Garaşsyzlyk güni
+2043/9/28,Türkmenistanyň Garaşsyzlyk güni (dynç güni)
+2043/10/6,Hatyra güni
+2043/11/12,Gurban baýramy (çak edilýär)
+2043/12/12,Halkara Bitaraplyk güni
+2044/1/1,Täze ýyl
+2044/3/8,Halkara zenanlar güni
+2044/3/21,Milli bahar baýramy
+2044/3/22,Milli bahar baýramy
+2044/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2044/8/24,Oraza baýramy (çak edilýär)
+2044/9/27,Türkmenistanyň Garaşsyzlyk güni
+2044/10/6,Hatyra güni
+2044/10/31,Gurban baýramy (çak edilýär)
+2044/12/12,Halkara Bitaraplyk güni
+2045/1/1,Täze ýyl
+2045/1/2,Täze ýyl (dynç güni)
+2045/3/8,Halkara zenanlar güni
+2045/3/21,Milli bahar baýramy
+2045/3/22,Milli bahar baýramy
+2045/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2045/8/14,Oraza baýramy (çak edilýär)
+2045/9/27,Türkmenistanyň Garaşsyzlyk güni
+2045/10/6,Hatyra güni
+2045/10/21,Gurban baýramy (çak edilýär)
+2045/12/12,Halkara Bitaraplyk güni
+2046/1/1,Täze ýyl
+2046/3/8,Halkara zenanlar güni
+2046/3/21,Milli bahar baýramy
+2046/3/22,Milli bahar baýramy
+2046/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2046/8/3,Oraza baýramy (çak edilýär)
+2046/9/27,Türkmenistanyň Garaşsyzlyk güni
+2046/10/6,Hatyra güni
+2046/10/10,Gurban baýramy (çak edilýär)
+2046/12/12,Halkara Bitaraplyk güni
+2047/1/1,Täze ýyl
+2047/3/8,Halkara zenanlar güni
+2047/3/21,Milli bahar baýramy
+2047/3/22,Milli bahar baýramy
+2047/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2047/7/24,Oraza baýramy (çak edilýär)
+2047/9/27,Türkmenistanyň Garaşsyzlyk güni
+2047/9/30,Gurban baýramy (çak edilýär)
+2047/10/6,Hatyra güni
+2047/10/7,Hatyra güni (dynç güni)
+2047/12/12,Halkara Bitaraplyk güni
+2048/1/1,Täze ýyl
+2048/3/8,Halkara zenanlar güni
+2048/3/9,Halkara zenanlar güni (dynç güni)
+2048/3/21,Milli bahar baýramy
+2048/3/22,Milli bahar baýramy
+2048/3/23,Milli bahar baýramy (dynç güni)
+2048/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2048/7/12,Oraza baýramy (çak edilýär)
+2048/7/13,Oraza baýramy (dynç güni, çak edilýär)
+2048/9/19,Gurban baýramy (çak edilýär)
+2048/9/27,Türkmenistanyň Garaşsyzlyk güni
+2048/9/28,Türkmenistanyň Garaşsyzlyk güni (dynç güni)
+2048/10/6,Hatyra güni
+2048/12/12,Halkara Bitaraplyk güni
+2049/1/1,Täze ýyl
+2049/3/8,Halkara zenanlar güni
+2049/3/21,Milli bahar baýramy
+2049/3/22,Milli bahar baýramy
+2049/3/23,Milli bahar baýramy (dynç güni)
+2049/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2049/7/1,Oraza baýramy (çak edilýär)
+2049/9/8,Gurban baýramy (çak edilýär)
+2049/9/27,Türkmenistanyň Garaşsyzlyk güni
+2049/10/6,Hatyra güni
+2049/12/12,Halkara Bitaraplyk güni
+2049/12/13,Halkara Bitaraplyk güni (dynç güni)
+2050/1/1,Täze ýyl
+2050/3/8,Halkara zenanlar güni
+2050/3/21,Milli bahar baýramy
+2050/3/22,Milli bahar baýramy
+2050/5/18,Türkmenistanyň Konstitusiýasynyň we Döwlet baýdagynyň güni
+2050/6/20,Oraza baýramy (çak edilýär)
+2050/8/28,Gurban baýramy (çak edilýär)
+2050/8/29,Gurban baýramy (dynç güni, çak edilýär)
+2050/9/27,Türkmenistanyň Garaşsyzlyk güni
+2050/10/6,Hatyra güni
+2050/12/12,Halkara Bitaraplyk güni

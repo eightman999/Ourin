@@ -1,0 +1,671 @@
+# KH holidays (2020-2050, language: en_US)
+# Source: python-holidays 0.107 (MIT License, https://github.com/vacanza/holidays)
+# Format: year/month/day,name
+2020/1/1,International New Year Day
+2020/1/7,Day of Victory over the Genocidal Regime
+2020/3/8,International Women's Rights Day
+2020/5/1,International Labor Day
+2020/5/6,Visaka Bochea Day
+2020/5/10,Royal Ploughing Ceremony
+2020/5/11,Special Public Holiday
+2020/5/14,HM King Norodom Sihamoni's Birthday
+2020/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2020/8/17,Khmer New Year's Replacement Holiday
+2020/8/18,Khmer New Year's Replacement Holiday
+2020/8/19,Khmer New Year's Replacement Holiday
+2020/8/20,Khmer New Year's Replacement Holiday
+2020/8/21,Khmer New Year's Replacement Holiday
+2020/9/16,Pchum Ben Day
+2020/9/17,Pchum Ben Day
+2020/9/18,Pchum Ben Day
+2020/9/24,Constitution Day
+2020/10/15,HM King Norodom Sihanouk Mourning Day
+2020/10/29,HM King Norodom Sihamoni's Coronation Day
+2020/10/30,Water Festival
+2020/10/31,Water Festival
+2020/11/1,Water Festival
+2020/11/9,National Independence Day
+2021/1/1,International New Year Day
+2021/1/7,Day of Victory over the Genocidal Regime
+2021/3/8,International Women's Rights Day
+2021/4/14,Khmer New Year's Day
+2021/4/15,Khmer New Year's Day
+2021/4/16,Khmer New Year's Day
+2021/4/26,Visaka Bochea Day
+2021/4/30,Royal Ploughing Ceremony
+2021/5/1,International Labor Day
+2021/5/14,HM King Norodom Sihamoni's Birthday
+2021/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2021/9/24,Constitution Day
+2021/10/5,Pchum Ben Day
+2021/10/6,Pchum Ben Day
+2021/10/7,Pchum Ben Day
+2021/10/15,HM King Norodom Sihanouk Mourning Day
+2021/10/29,HM King Norodom Sihamoni's Coronation Day
+2021/11/9,National Independence Day
+2021/11/18,Water Festival
+2021/11/19,Water Festival
+2021/11/20,Water Festival
+2022/1/1,International New Year Day
+2022/1/7,Day of Victory over the Genocidal Regime
+2022/3/8,International Women's Rights Day
+2022/4/14,Khmer New Year's Day
+2022/4/15,Khmer New Year's Day
+2022/4/16,Khmer New Year's Day
+2022/5/1,International Labor Day
+2022/5/14,HM King Norodom Sihamoni's Birthday
+2022/5/15,Visaka Bochea Day
+2022/5/19,Royal Ploughing Ceremony
+2022/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2022/9/24,Constitution Day; Pchum Ben Day
+2022/9/25,Pchum Ben Day
+2022/9/26,Pchum Ben Day
+2022/10/15,HM King Norodom Sihanouk Mourning Day
+2022/10/29,HM King Norodom Sihamoni's Coronation Day
+2022/11/7,Water Festival
+2022/11/8,Water Festival
+2022/11/9,National Independence Day; Water Festival
+2023/1/1,International New Year Day
+2023/1/7,Day of Victory over the Genocidal Regime
+2023/3/8,International Women's Rights Day
+2023/4/14,Khmer New Year's Day
+2023/4/15,Khmer New Year's Day
+2023/4/16,Khmer New Year's Day
+2023/5/1,International Labor Day
+2023/5/4,Visaka Bochea Day
+2023/5/8,Royal Ploughing Ceremony
+2023/5/14,HM King Norodom Sihamoni's Birthday
+2023/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2023/9/24,Constitution Day
+2023/10/13,Pchum Ben Day
+2023/10/14,Pchum Ben Day
+2023/10/15,HM King Norodom Sihanouk Mourning Day; Pchum Ben Day
+2023/10/29,HM King Norodom Sihamoni's Coronation Day
+2023/11/9,National Independence Day
+2023/11/26,Water Festival
+2023/11/27,Water Festival
+2023/11/28,Water Festival
+2024/1/1,International New Year Day
+2024/1/7,Day of Victory over the Genocidal Regime
+2024/3/8,International Women's Rights Day
+2024/4/13,Khmer New Year's Day
+2024/4/14,Khmer New Year's Day
+2024/4/15,Khmer New Year's Day
+2024/4/16,Khmer New Year's Day
+2024/5/1,International Labor Day
+2024/5/14,HM King Norodom Sihamoni's Birthday
+2024/5/22,Visaka Bochea Day
+2024/5/26,Royal Ploughing Ceremony
+2024/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2024/9/24,Constitution Day
+2024/10/1,Pchum Ben Day
+2024/10/2,Pchum Ben Day
+2024/10/3,Pchum Ben Day
+2024/10/15,HM King Norodom Sihanouk Mourning Day
+2024/10/29,HM King Norodom Sihamoni's Coronation Day
+2024/11/9,National Independence Day
+2024/11/14,Water Festival
+2024/11/15,Water Festival
+2024/11/16,Water Festival
+2024/12/29,Peace Day in Cambodia
+2025/1/1,International New Year Day
+2025/1/7,Day of Victory over the Genocidal Regime
+2025/3/8,International Women's Rights Day
+2025/4/14,Khmer New Year's Day
+2025/4/15,Khmer New Year's Day
+2025/4/16,Khmer New Year's Day
+2025/5/1,International Labor Day
+2025/5/11,Visaka Bochea Day
+2025/5/14,HM King Norodom Sihamoni's Birthday
+2025/5/15,Royal Ploughing Ceremony
+2025/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2025/9/21,Pchum Ben Day
+2025/9/22,Pchum Ben Day
+2025/9/23,Pchum Ben Day
+2025/9/24,Constitution Day
+2025/10/15,HM King Norodom Sihanouk Mourning Day
+2025/10/29,HM King Norodom Sihamoni's Coronation Day
+2025/11/4,Water Festival
+2025/11/5,Water Festival
+2025/11/6,Water Festival
+2025/11/9,National Independence Day
+2025/12/29,Peace Day in Cambodia
+2026/1/1,International New Year Day
+2026/1/7,Day of Victory over the Genocidal Regime
+2026/3/8,International Women's Rights Day
+2026/4/14,Khmer New Year's Day
+2026/4/15,Khmer New Year's Day
+2026/4/16,Khmer New Year's Day
+2026/5/1,International Labor Day; Visaka Bochea Day
+2026/5/5,Royal Ploughing Ceremony
+2026/5/14,HM King Norodom Sihamoni's Birthday
+2026/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2026/9/24,Constitution Day
+2026/10/10,Pchum Ben Day
+2026/10/11,Pchum Ben Day
+2026/10/12,Pchum Ben Day
+2026/10/15,HM King Norodom Sihanouk Mourning Day
+2026/10/29,HM King Norodom Sihamoni's Coronation Day
+2026/11/9,National Independence Day
+2026/11/23,Water Festival
+2026/11/24,Water Festival
+2026/11/25,Water Festival
+2026/12/29,Peace Day in Cambodia
+2027/1/1,International New Year Day
+2027/1/7,Day of Victory over the Genocidal Regime
+2027/3/8,International Women's Rights Day
+2027/4/14,Khmer New Year's Day
+2027/4/15,Khmer New Year's Day
+2027/4/16,Khmer New Year's Day
+2027/5/1,International Labor Day
+2027/5/14,HM King Norodom Sihamoni's Birthday
+2027/5/20,Visaka Bochea Day
+2027/5/24,Royal Ploughing Ceremony
+2027/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2027/9/24,Constitution Day
+2027/9/29,Pchum Ben Day
+2027/9/30,Pchum Ben Day
+2027/10/1,Pchum Ben Day
+2027/10/15,HM King Norodom Sihanouk Mourning Day
+2027/10/29,HM King Norodom Sihamoni's Coronation Day
+2027/11/9,National Independence Day
+2027/11/12,Water Festival
+2027/11/13,Water Festival
+2027/11/14,Water Festival
+2027/12/29,Peace Day in Cambodia
+2028/1/1,International New Year Day
+2028/1/7,Day of Victory over the Genocidal Regime
+2028/3/8,International Women's Rights Day
+2028/4/13,Khmer New Year's Day
+2028/4/14,Khmer New Year's Day
+2028/4/15,Khmer New Year's Day
+2028/5/1,International Labor Day
+2028/5/8,Visaka Bochea Day
+2028/5/12,Royal Ploughing Ceremony
+2028/5/14,HM King Norodom Sihamoni's Birthday
+2028/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2028/9/17,Pchum Ben Day
+2028/9/18,Pchum Ben Day
+2028/9/19,Pchum Ben Day
+2028/9/24,Constitution Day
+2028/10/15,HM King Norodom Sihanouk Mourning Day
+2028/10/29,HM King Norodom Sihamoni's Coronation Day
+2028/10/31,Water Festival
+2028/11/1,Water Festival
+2028/11/2,Water Festival
+2028/11/9,National Independence Day
+2028/12/29,Peace Day in Cambodia
+2029/1/1,International New Year Day
+2029/1/7,Day of Victory over the Genocidal Regime
+2029/3/8,International Women's Rights Day
+2029/4/14,Khmer New Year's Day
+2029/4/15,Khmer New Year's Day
+2029/4/16,Khmer New Year's Day
+2029/4/27,Visaka Bochea Day
+2029/5/1,International Labor Day; Royal Ploughing Ceremony
+2029/5/14,HM King Norodom Sihamoni's Birthday
+2029/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2029/9/24,Constitution Day
+2029/10/6,Pchum Ben Day
+2029/10/7,Pchum Ben Day
+2029/10/8,Pchum Ben Day
+2029/10/15,HM King Norodom Sihanouk Mourning Day
+2029/10/29,HM King Norodom Sihamoni's Coronation Day
+2029/11/9,National Independence Day
+2029/11/19,Water Festival
+2029/11/20,Water Festival
+2029/11/21,Water Festival
+2029/12/29,Peace Day in Cambodia
+2030/1/1,International New Year Day
+2030/1/7,Day of Victory over the Genocidal Regime
+2030/3/8,International Women's Rights Day
+2030/4/14,Khmer New Year's Day
+2030/4/15,Khmer New Year's Day
+2030/4/16,Khmer New Year's Day
+2030/5/1,International Labor Day
+2030/5/14,HM King Norodom Sihamoni's Birthday
+2030/5/16,Visaka Bochea Day
+2030/5/20,Royal Ploughing Ceremony
+2030/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2030/9/24,Constitution Day
+2030/9/25,Pchum Ben Day
+2030/9/26,Pchum Ben Day
+2030/9/27,Pchum Ben Day
+2030/10/15,HM King Norodom Sihanouk Mourning Day
+2030/10/29,HM King Norodom Sihamoni's Coronation Day
+2030/11/8,Water Festival
+2030/11/9,National Independence Day; Water Festival
+2030/11/10,Water Festival
+2030/12/29,Peace Day in Cambodia
+2031/1/1,International New Year Day
+2031/1/7,Day of Victory over the Genocidal Regime
+2031/3/8,International Women's Rights Day
+2031/4/14,Khmer New Year's Day
+2031/4/15,Khmer New Year's Day
+2031/4/16,Khmer New Year's Day
+2031/5/1,International Labor Day
+2031/5/5,Visaka Bochea Day
+2031/5/9,Royal Ploughing Ceremony
+2031/5/14,HM King Norodom Sihamoni's Birthday
+2031/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2031/9/24,Constitution Day
+2031/10/14,Pchum Ben Day
+2031/10/15,HM King Norodom Sihanouk Mourning Day; Pchum Ben Day
+2031/10/16,Pchum Ben Day
+2031/10/29,HM King Norodom Sihamoni's Coronation Day
+2031/11/9,National Independence Day
+2031/11/27,Water Festival
+2031/11/28,Water Festival
+2031/11/29,Water Festival
+2031/12/29,Peace Day in Cambodia
+2032/1/1,International New Year Day
+2032/1/7,Day of Victory over the Genocidal Regime
+2032/3/8,International Women's Rights Day
+2032/4/13,Khmer New Year's Day
+2032/4/14,Khmer New Year's Day
+2032/4/15,Khmer New Year's Day
+2032/5/1,International Labor Day
+2032/5/14,HM King Norodom Sihamoni's Birthday
+2032/5/23,Visaka Bochea Day
+2032/5/27,Royal Ploughing Ceremony
+2032/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2032/9/24,Constitution Day
+2032/10/3,Pchum Ben Day
+2032/10/4,Pchum Ben Day
+2032/10/5,Pchum Ben Day
+2032/10/15,HM King Norodom Sihanouk Mourning Day
+2032/10/29,HM King Norodom Sihamoni's Coronation Day
+2032/11/9,National Independence Day
+2032/11/16,Water Festival
+2032/11/17,Water Festival
+2032/11/18,Water Festival
+2032/12/29,Peace Day in Cambodia
+2033/1/1,International New Year Day
+2033/1/7,Day of Victory over the Genocidal Regime
+2033/3/8,International Women's Rights Day
+2033/4/13,Khmer New Year's Day
+2033/4/14,Khmer New Year's Day
+2033/4/15,Khmer New Year's Day
+2033/5/1,International Labor Day
+2033/5/13,Visaka Bochea Day
+2033/5/14,HM King Norodom Sihamoni's Birthday
+2033/5/17,Royal Ploughing Ceremony
+2033/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2033/9/22,Pchum Ben Day
+2033/9/23,Pchum Ben Day
+2033/9/24,Constitution Day; Pchum Ben Day
+2033/10/15,HM King Norodom Sihanouk Mourning Day
+2033/10/29,HM King Norodom Sihamoni's Coronation Day
+2033/11/5,Water Festival
+2033/11/6,Water Festival
+2033/11/7,Water Festival
+2033/11/9,National Independence Day
+2033/12/29,Peace Day in Cambodia
+2034/1/1,International New Year Day
+2034/1/7,Day of Victory over the Genocidal Regime
+2034/3/8,International Women's Rights Day
+2034/4/13,Khmer New Year's Day
+2034/4/14,Khmer New Year's Day
+2034/4/15,Khmer New Year's Day
+2034/5/1,International Labor Day
+2034/5/2,Visaka Bochea Day
+2034/5/6,Royal Ploughing Ceremony
+2034/5/14,HM King Norodom Sihamoni's Birthday
+2034/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2034/9/24,Constitution Day
+2034/10/11,Pchum Ben Day
+2034/10/12,Pchum Ben Day
+2034/10/13,Pchum Ben Day
+2034/10/15,HM King Norodom Sihanouk Mourning Day
+2034/10/29,HM King Norodom Sihamoni's Coronation Day
+2034/11/9,National Independence Day
+2034/11/24,Water Festival
+2034/11/25,Water Festival
+2034/11/26,Water Festival
+2034/12/29,Peace Day in Cambodia
+2035/1/1,International New Year Day
+2035/1/7,Day of Victory over the Genocidal Regime
+2035/3/8,International Women's Rights Day
+2035/4/13,Khmer New Year's Day
+2035/4/14,Khmer New Year's Day
+2035/4/15,Khmer New Year's Day
+2035/5/1,International Labor Day
+2035/5/14,HM King Norodom Sihamoni's Birthday
+2035/5/21,Visaka Bochea Day
+2035/5/25,Royal Ploughing Ceremony
+2035/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2035/9/24,Constitution Day
+2035/10/1,Pchum Ben Day
+2035/10/2,Pchum Ben Day
+2035/10/3,Pchum Ben Day
+2035/10/15,HM King Norodom Sihanouk Mourning Day
+2035/10/29,HM King Norodom Sihamoni's Coronation Day
+2035/11/9,National Independence Day
+2035/11/14,Water Festival
+2035/11/15,Water Festival
+2035/11/16,Water Festival
+2035/12/29,Peace Day in Cambodia
+2036/1/1,International New Year Day
+2036/1/7,Day of Victory over the Genocidal Regime
+2036/3/8,International Women's Rights Day
+2036/4/13,Khmer New Year's Day
+2036/4/14,Khmer New Year's Day
+2036/4/15,Khmer New Year's Day
+2036/5/1,International Labor Day
+2036/5/10,Visaka Bochea Day
+2036/5/14,HM King Norodom Sihamoni's Birthday; Royal Ploughing Ceremony
+2036/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2036/9/19,Pchum Ben Day
+2036/9/20,Pchum Ben Day
+2036/9/21,Pchum Ben Day
+2036/9/24,Constitution Day
+2036/10/15,HM King Norodom Sihanouk Mourning Day
+2036/10/29,HM King Norodom Sihamoni's Coronation Day
+2036/11/2,Water Festival
+2036/11/3,Water Festival
+2036/11/4,Water Festival
+2036/11/9,National Independence Day
+2036/12/29,Peace Day in Cambodia
+2037/1/1,International New Year Day
+2037/1/7,Day of Victory over the Genocidal Regime
+2037/3/8,International Women's Rights Day
+2037/4/13,Khmer New Year's Day
+2037/4/14,Khmer New Year's Day
+2037/4/15,Khmer New Year's Day
+2037/4/29,Visaka Bochea Day
+2037/5/1,International Labor Day
+2037/5/3,Royal Ploughing Ceremony
+2037/5/14,HM King Norodom Sihamoni's Birthday
+2037/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2037/9/24,Constitution Day
+2037/10/8,Pchum Ben Day
+2037/10/9,Pchum Ben Day
+2037/10/10,Pchum Ben Day
+2037/10/15,HM King Norodom Sihanouk Mourning Day
+2037/10/29,HM King Norodom Sihamoni's Coronation Day
+2037/11/9,National Independence Day
+2037/11/21,Water Festival
+2037/11/22,Water Festival
+2037/11/23,Water Festival
+2037/12/29,Peace Day in Cambodia
+2038/1/1,International New Year Day
+2038/1/7,Day of Victory over the Genocidal Regime
+2038/3/8,International Women's Rights Day
+2038/4/13,Khmer New Year's Day
+2038/4/14,Khmer New Year's Day
+2038/4/15,Khmer New Year's Day
+2038/5/1,International Labor Day
+2038/5/14,HM King Norodom Sihamoni's Birthday
+2038/5/18,Visaka Bochea Day
+2038/5/22,Royal Ploughing Ceremony
+2038/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2038/9/24,Constitution Day
+2038/9/27,Pchum Ben Day
+2038/9/28,Pchum Ben Day
+2038/9/29,Pchum Ben Day
+2038/10/15,HM King Norodom Sihanouk Mourning Day
+2038/10/29,HM King Norodom Sihamoni's Coronation Day
+2038/11/9,National Independence Day
+2038/11/10,Water Festival
+2038/11/11,Water Festival
+2038/11/12,Water Festival
+2038/12/29,Peace Day in Cambodia
+2039/1/1,International New Year Day
+2039/1/7,Day of Victory over the Genocidal Regime
+2039/3/8,International Women's Rights Day
+2039/4/13,Khmer New Year's Day
+2039/4/14,Khmer New Year's Day
+2039/4/15,Khmer New Year's Day
+2039/5/1,International Labor Day
+2039/5/7,Visaka Bochea Day
+2039/5/11,Royal Ploughing Ceremony
+2039/5/14,HM King Norodom Sihamoni's Birthday
+2039/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2039/9/16,Pchum Ben Day
+2039/9/17,Pchum Ben Day
+2039/9/18,Pchum Ben Day
+2039/9/24,Constitution Day
+2039/10/15,HM King Norodom Sihanouk Mourning Day
+2039/10/29,HM King Norodom Sihamoni's Coronation Day
+2039/10/30,Water Festival
+2039/10/31,Water Festival
+2039/11/1,Water Festival
+2039/11/9,National Independence Day
+2039/12/29,Peace Day in Cambodia
+2040/1/1,International New Year Day
+2040/1/7,Day of Victory over the Genocidal Regime
+2040/3/8,International Women's Rights Day
+2040/4/13,Khmer New Year's Day
+2040/4/14,Khmer New Year's Day
+2040/4/15,Khmer New Year's Day
+2040/4/25,Visaka Bochea Day
+2040/4/29,Royal Ploughing Ceremony
+2040/5/1,International Labor Day
+2040/5/14,HM King Norodom Sihamoni's Birthday
+2040/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2040/9/24,Constitution Day
+2040/10/4,Pchum Ben Day
+2040/10/5,Pchum Ben Day
+2040/10/6,Pchum Ben Day
+2040/10/15,HM King Norodom Sihanouk Mourning Day
+2040/10/29,HM King Norodom Sihamoni's Coronation Day
+2040/11/9,National Independence Day
+2040/11/17,Water Festival
+2040/11/18,Water Festival
+2040/11/19,Water Festival
+2040/12/29,Peace Day in Cambodia
+2041/1/1,International New Year Day
+2041/1/7,Day of Victory over the Genocidal Regime
+2041/3/8,International Women's Rights Day
+2041/4/13,Khmer New Year's Day
+2041/4/14,Khmer New Year's Day
+2041/4/15,Khmer New Year's Day
+2041/5/1,International Labor Day
+2041/5/14,HM King Norodom Sihamoni's Birthday; Visaka Bochea Day
+2041/5/18,Royal Ploughing Ceremony
+2041/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2041/9/23,Pchum Ben Day
+2041/9/24,Constitution Day; Pchum Ben Day
+2041/9/25,Pchum Ben Day
+2041/10/15,HM King Norodom Sihanouk Mourning Day
+2041/10/29,HM King Norodom Sihamoni's Coronation Day
+2041/11/6,Water Festival
+2041/11/7,Water Festival
+2041/11/8,Water Festival
+2041/11/9,National Independence Day
+2041/12/29,Peace Day in Cambodia
+2042/1/1,International New Year Day
+2042/1/7,Day of Victory over the Genocidal Regime
+2042/3/8,International Women's Rights Day
+2042/4/13,Khmer New Year's Day
+2042/4/14,Khmer New Year's Day
+2042/4/15,Khmer New Year's Day
+2042/5/1,International Labor Day
+2042/5/3,Visaka Bochea Day
+2042/5/7,Royal Ploughing Ceremony
+2042/5/14,HM King Norodom Sihamoni's Birthday
+2042/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2042/9/24,Constitution Day
+2042/10/12,Pchum Ben Day
+2042/10/13,Pchum Ben Day
+2042/10/14,Pchum Ben Day
+2042/10/15,HM King Norodom Sihanouk Mourning Day
+2042/10/29,HM King Norodom Sihamoni's Coronation Day
+2042/11/9,National Independence Day
+2042/11/25,Water Festival
+2042/11/26,Water Festival
+2042/11/27,Water Festival
+2042/12/29,Peace Day in Cambodia
+2043/1/1,International New Year Day
+2043/1/7,Day of Victory over the Genocidal Regime
+2043/3/8,International Women's Rights Day
+2043/4/13,Khmer New Year's Day
+2043/4/14,Khmer New Year's Day
+2043/4/15,Khmer New Year's Day
+2043/5/1,International Labor Day
+2043/5/14,HM King Norodom Sihamoni's Birthday
+2043/5/22,Visaka Bochea Day
+2043/5/26,Royal Ploughing Ceremony
+2043/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2043/9/24,Constitution Day
+2043/10/2,Pchum Ben Day
+2043/10/3,Pchum Ben Day
+2043/10/4,Pchum Ben Day
+2043/10/15,HM King Norodom Sihanouk Mourning Day
+2043/10/29,HM King Norodom Sihamoni's Coronation Day
+2043/11/9,National Independence Day
+2043/11/15,Water Festival
+2043/11/16,Water Festival
+2043/11/17,Water Festival
+2043/12/29,Peace Day in Cambodia
+2044/1/1,International New Year Day
+2044/1/7,Day of Victory over the Genocidal Regime
+2044/3/8,International Women's Rights Day
+2044/4/13,Khmer New Year's Day
+2044/4/14,Khmer New Year's Day
+2044/4/15,Khmer New Year's Day
+2044/5/1,International Labor Day
+2044/5/11,Visaka Bochea Day
+2044/5/14,HM King Norodom Sihamoni's Birthday
+2044/5/15,Royal Ploughing Ceremony
+2044/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2044/9/20,Pchum Ben Day
+2044/9/21,Pchum Ben Day
+2044/9/22,Pchum Ben Day
+2044/9/24,Constitution Day
+2044/10/15,HM King Norodom Sihanouk Mourning Day
+2044/10/29,HM King Norodom Sihamoni's Coronation Day
+2044/11/3,Water Festival
+2044/11/4,Water Festival
+2044/11/5,Water Festival
+2044/11/9,National Independence Day
+2044/12/29,Peace Day in Cambodia
+2045/1/1,International New Year Day
+2045/1/7,Day of Victory over the Genocidal Regime
+2045/3/8,International Women's Rights Day
+2045/4/13,Khmer New Year's Day
+2045/4/14,Khmer New Year's Day
+2045/4/15,Khmer New Year's Day
+2045/4/30,Visaka Bochea Day
+2045/5/1,International Labor Day
+2045/5/4,Royal Ploughing Ceremony
+2045/5/14,HM King Norodom Sihamoni's Birthday
+2045/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2045/9/24,Constitution Day
+2045/10/9,Pchum Ben Day
+2045/10/10,Pchum Ben Day
+2045/10/11,Pchum Ben Day
+2045/10/15,HM King Norodom Sihanouk Mourning Day
+2045/10/29,HM King Norodom Sihamoni's Coronation Day
+2045/11/9,National Independence Day
+2045/11/22,Water Festival
+2045/11/23,Water Festival
+2045/11/24,Water Festival
+2045/12/29,Peace Day in Cambodia
+2046/1/1,International New Year Day
+2046/1/7,Day of Victory over the Genocidal Regime
+2046/3/8,International Women's Rights Day
+2046/4/13,Khmer New Year's Day
+2046/4/14,Khmer New Year's Day
+2046/4/15,Khmer New Year's Day
+2046/5/1,International Labor Day
+2046/5/14,HM King Norodom Sihamoni's Birthday
+2046/5/19,Visaka Bochea Day
+2046/5/23,Royal Ploughing Ceremony
+2046/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2046/9/24,Constitution Day
+2046/9/29,Pchum Ben Day
+2046/9/30,Pchum Ben Day
+2046/10/1,Pchum Ben Day
+2046/10/15,HM King Norodom Sihanouk Mourning Day
+2046/10/29,HM King Norodom Sihamoni's Coronation Day
+2046/11/9,National Independence Day
+2046/11/12,Water Festival
+2046/11/13,Water Festival
+2046/11/14,Water Festival
+2046/12/29,Peace Day in Cambodia
+2047/1/1,International New Year Day
+2047/1/7,Day of Victory over the Genocidal Regime
+2047/3/8,International Women's Rights Day
+2047/4/13,Khmer New Year's Day
+2047/4/14,Khmer New Year's Day
+2047/4/15,Khmer New Year's Day
+2047/5/1,International Labor Day
+2047/5/9,Visaka Bochea Day
+2047/5/13,Royal Ploughing Ceremony
+2047/5/14,HM King Norodom Sihamoni's Birthday
+2047/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2047/9/18,Pchum Ben Day
+2047/9/19,Pchum Ben Day
+2047/9/20,Pchum Ben Day
+2047/9/24,Constitution Day
+2047/10/15,HM King Norodom Sihanouk Mourning Day
+2047/10/29,HM King Norodom Sihamoni's Coronation Day
+2047/11/1,Water Festival
+2047/11/2,Water Festival
+2047/11/3,Water Festival
+2047/11/9,National Independence Day
+2047/12/29,Peace Day in Cambodia
+2048/1/1,International New Year Day
+2048/1/7,Day of Victory over the Genocidal Regime
+2048/3/8,International Women's Rights Day
+2048/4/13,Khmer New Year's Day
+2048/4/14,Khmer New Year's Day
+2048/4/15,Khmer New Year's Day
+2048/4/27,Visaka Bochea Day
+2048/5/1,International Labor Day; Royal Ploughing Ceremony
+2048/5/14,HM King Norodom Sihamoni's Birthday
+2048/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2048/9/24,Constitution Day
+2048/10/6,Pchum Ben Day
+2048/10/7,Pchum Ben Day
+2048/10/8,Pchum Ben Day
+2048/10/15,HM King Norodom Sihanouk Mourning Day
+2048/10/29,HM King Norodom Sihamoni's Coronation Day
+2048/11/9,National Independence Day
+2048/11/19,Water Festival
+2048/11/20,Water Festival
+2048/11/21,Water Festival
+2048/12/29,Peace Day in Cambodia
+2049/1/1,International New Year Day
+2049/1/7,Day of Victory over the Genocidal Regime
+2049/3/8,International Women's Rights Day
+2049/4/13,Khmer New Year's Day
+2049/4/14,Khmer New Year's Day
+2049/4/15,Khmer New Year's Day
+2049/5/1,International Labor Day
+2049/5/14,HM King Norodom Sihamoni's Birthday
+2049/5/16,Visaka Bochea Day
+2049/5/20,Royal Ploughing Ceremony
+2049/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2049/9/24,Constitution Day
+2049/9/25,Pchum Ben Day
+2049/9/26,Pchum Ben Day
+2049/9/27,Pchum Ben Day
+2049/10/15,HM King Norodom Sihanouk Mourning Day
+2049/10/29,HM King Norodom Sihamoni's Coronation Day
+2049/11/8,Water Festival
+2049/11/9,National Independence Day; Water Festival
+2049/11/10,Water Festival
+2049/12/29,Peace Day in Cambodia
+2050/1/1,International New Year Day
+2050/1/7,Day of Victory over the Genocidal Regime
+2050/3/8,International Women's Rights Day
+2050/4/13,Khmer New Year's Day
+2050/4/14,Khmer New Year's Day
+2050/4/15,Khmer New Year's Day
+2050/5/1,International Labor Day
+2050/5/5,Visaka Bochea Day
+2050/5/9,Royal Ploughing Ceremony
+2050/5/14,HM King Norodom Sihamoni's Birthday
+2050/6/18,HM Queen Norodom Monineath Sihanouk the Queen-Mother's Birthday
+2050/9/24,Constitution Day
+2050/10/14,Pchum Ben Day
+2050/10/15,HM King Norodom Sihanouk Mourning Day; Pchum Ben Day
+2050/10/16,Pchum Ben Day
+2050/10/29,HM King Norodom Sihamoni's Coronation Day
+2050/11/9,National Independence Day
+2050/11/27,Water Festival
+2050/11/28,Water Festival
+2050/11/29,Water Festival
+2050/12/29,Peace Day in Cambodia

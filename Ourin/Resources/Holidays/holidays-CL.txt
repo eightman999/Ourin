@@ -1,0 +1,516 @@
+# CL の祝日（2020〜2050年、言語: es）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Año Nuevo
+2020/4/10,Viernes Santo
+2020/4/11,Sábado Santo
+2020/5/1,Día Nacional del Trabajo
+2020/5/21,Día de las Glorias Navales
+2020/6/29,San Pedro y San Pablo
+2020/7/16,Virgen del Carmen
+2020/8/15,Asunción de la Virgen
+2020/9/18,Día de la Independencia
+2020/9/19,Día de las Glorias del Ejército
+2020/10/12,Día del Encuentro de dos Mundos
+2020/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2020/11/1,Día de Todos los Santos
+2020/12/8,La Inmaculada Concepción
+2020/12/25,Navidad
+2021/1/1,Año Nuevo
+2021/4/2,Viernes Santo
+2021/4/3,Sábado Santo
+2021/5/1,Día Nacional del Trabajo
+2021/5/21,Día de las Glorias Navales
+2021/6/21,Día Nacional de los Pueblos Indígenas
+2021/6/28,San Pedro y San Pablo
+2021/7/16,Virgen del Carmen
+2021/8/15,Asunción de la Virgen
+2021/9/17,Fiestas Patrias
+2021/9/18,Día de la Independencia
+2021/9/19,Día de las Glorias del Ejército
+2021/10/11,Día del Encuentro de dos Mundos
+2021/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2021/11/1,Día de Todos los Santos
+2021/12/8,La Inmaculada Concepción
+2021/12/25,Navidad
+2022/1/1,Año Nuevo
+2022/4/15,Viernes Santo
+2022/4/16,Sábado Santo
+2022/5/1,Día Nacional del Trabajo
+2022/5/21,Día de las Glorias Navales
+2022/6/21,Día Nacional de los Pueblos Indígenas
+2022/6/27,San Pedro y San Pablo
+2022/7/16,Virgen del Carmen
+2022/8/15,Asunción de la Virgen
+2022/9/16,Feriado nacional
+2022/9/18,Día de la Independencia
+2022/9/19,Día de las Glorias del Ejército
+2022/10/10,Día del Encuentro de dos Mundos
+2022/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2022/11/1,Día de Todos los Santos
+2022/12/8,La Inmaculada Concepción
+2022/12/25,Navidad
+2023/1/1,Año Nuevo
+2023/1/2,Feriado nacional
+2023/4/7,Viernes Santo
+2023/4/8,Sábado Santo
+2023/5/1,Día Nacional del Trabajo
+2023/5/21,Día de las Glorias Navales
+2023/6/21,Día Nacional de los Pueblos Indígenas
+2023/6/26,San Pedro y San Pablo
+2023/7/16,Virgen del Carmen
+2023/8/15,Asunción de la Virgen
+2023/9/18,Día de la Independencia
+2023/9/19,Día de las Glorias del Ejército
+2023/10/9,Día del Encuentro de dos Mundos
+2023/10/27,Día Nacional de las Iglesias Evangélicas y Protestantes
+2023/11/1,Día de Todos los Santos
+2023/12/8,La Inmaculada Concepción
+2023/12/25,Navidad
+2024/1/1,Año Nuevo
+2024/3/29,Viernes Santo
+2024/3/30,Sábado Santo
+2024/5/1,Día Nacional del Trabajo
+2024/5/21,Día de las Glorias Navales
+2024/6/20,Día Nacional de los Pueblos Indígenas
+2024/6/29,San Pedro y San Pablo
+2024/7/16,Virgen del Carmen
+2024/8/15,Asunción de la Virgen
+2024/9/18,Día de la Independencia
+2024/9/19,Día de las Glorias del Ejército
+2024/9/20,Fiestas Patrias
+2024/10/12,Día del Encuentro de dos Mundos
+2024/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2024/11/1,Día de Todos los Santos
+2024/12/8,La Inmaculada Concepción
+2024/12/25,Navidad
+2025/1/1,Año Nuevo
+2025/4/18,Viernes Santo
+2025/4/19,Sábado Santo
+2025/5/1,Día Nacional del Trabajo
+2025/5/21,Día de las Glorias Navales
+2025/6/20,Día Nacional de los Pueblos Indígenas
+2025/6/29,San Pedro y San Pablo
+2025/7/16,Virgen del Carmen
+2025/8/15,Asunción de la Virgen
+2025/9/18,Día de la Independencia
+2025/9/19,Día de las Glorias del Ejército
+2025/10/12,Día del Encuentro de dos Mundos
+2025/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2025/11/1,Día de Todos los Santos
+2025/12/8,La Inmaculada Concepción
+2025/12/25,Navidad
+2026/1/1,Año Nuevo
+2026/4/3,Viernes Santo
+2026/4/4,Sábado Santo
+2026/5/1,Día Nacional del Trabajo
+2026/5/21,Día de las Glorias Navales
+2026/6/21,Día Nacional de los Pueblos Indígenas
+2026/6/29,San Pedro y San Pablo
+2026/7/16,Virgen del Carmen
+2026/8/15,Asunción de la Virgen
+2026/9/18,Día de la Independencia
+2026/9/19,Día de las Glorias del Ejército
+2026/10/12,Día del Encuentro de dos Mundos
+2026/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2026/11/1,Día de Todos los Santos
+2026/12/8,La Inmaculada Concepción
+2026/12/25,Navidad
+2027/1/1,Año Nuevo
+2027/3/26,Viernes Santo
+2027/3/27,Sábado Santo
+2027/5/1,Día Nacional del Trabajo
+2027/5/21,Día de las Glorias Navales
+2027/6/21,Día Nacional de los Pueblos Indígenas
+2027/6/28,San Pedro y San Pablo
+2027/7/16,Virgen del Carmen
+2027/8/15,Asunción de la Virgen
+2027/9/17,Fiestas Patrias
+2027/9/18,Día de la Independencia
+2027/9/19,Día de las Glorias del Ejército
+2027/10/11,Día del Encuentro de dos Mundos
+2027/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2027/11/1,Día de Todos los Santos
+2027/12/8,La Inmaculada Concepción
+2027/12/25,Navidad
+2028/1/1,Año Nuevo
+2028/4/14,Viernes Santo
+2028/4/15,Sábado Santo
+2028/5/1,Día Nacional del Trabajo
+2028/5/21,Día de las Glorias Navales
+2028/6/20,Día Nacional de los Pueblos Indígenas
+2028/6/26,San Pedro y San Pablo
+2028/7/16,Virgen del Carmen
+2028/8/15,Asunción de la Virgen
+2028/9/18,Día de la Independencia
+2028/9/19,Día de las Glorias del Ejército
+2028/10/9,Día del Encuentro de dos Mundos
+2028/10/27,Día Nacional de las Iglesias Evangélicas y Protestantes
+2028/11/1,Día de Todos los Santos
+2028/12/8,La Inmaculada Concepción
+2028/12/25,Navidad
+2029/1/1,Año Nuevo
+2029/3/30,Viernes Santo
+2029/3/31,Sábado Santo
+2029/5/1,Día Nacional del Trabajo
+2029/5/21,Día de las Glorias Navales
+2029/6/20,Día Nacional de los Pueblos Indígenas
+2029/7/2,San Pedro y San Pablo
+2029/7/16,Virgen del Carmen
+2029/8/15,Asunción de la Virgen
+2029/9/17,Fiestas Patrias
+2029/9/18,Día de la Independencia
+2029/9/19,Día de las Glorias del Ejército
+2029/10/15,Día del Encuentro de dos Mundos
+2029/11/1,Día de Todos los Santos
+2029/11/2,Día Nacional de las Iglesias Evangélicas y Protestantes
+2029/12/8,La Inmaculada Concepción
+2029/12/25,Navidad
+2030/1/1,Año Nuevo
+2030/4/19,Viernes Santo
+2030/4/20,Sábado Santo
+2030/5/1,Día Nacional del Trabajo
+2030/5/21,Día de las Glorias Navales
+2030/6/21,Día Nacional de los Pueblos Indígenas
+2030/6/29,San Pedro y San Pablo
+2030/7/16,Virgen del Carmen
+2030/8/15,Asunción de la Virgen
+2030/9/18,Día de la Independencia
+2030/9/19,Día de las Glorias del Ejército
+2030/9/20,Fiestas Patrias
+2030/10/12,Día del Encuentro de dos Mundos
+2030/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2030/11/1,Día de Todos los Santos
+2030/12/8,La Inmaculada Concepción
+2030/12/25,Navidad
+2031/1/1,Año Nuevo
+2031/4/11,Viernes Santo
+2031/4/12,Sábado Santo
+2031/5/1,Día Nacional del Trabajo
+2031/5/21,Día de las Glorias Navales
+2031/6/21,Día Nacional de los Pueblos Indígenas
+2031/6/29,San Pedro y San Pablo
+2031/7/16,Virgen del Carmen
+2031/8/15,Asunción de la Virgen
+2031/9/18,Día de la Independencia
+2031/9/19,Día de las Glorias del Ejército
+2031/10/12,Día del Encuentro de dos Mundos
+2031/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2031/11/1,Día de Todos los Santos
+2031/12/8,La Inmaculada Concepción
+2031/12/25,Navidad
+2032/1/1,Año Nuevo
+2032/3/26,Viernes Santo
+2032/3/27,Sábado Santo
+2032/5/1,Día Nacional del Trabajo
+2032/5/21,Día de las Glorias Navales
+2032/6/20,Día Nacional de los Pueblos Indígenas
+2032/6/28,San Pedro y San Pablo
+2032/7/16,Virgen del Carmen
+2032/8/15,Asunción de la Virgen
+2032/9/17,Fiestas Patrias
+2032/9/18,Día de la Independencia
+2032/9/19,Día de las Glorias del Ejército
+2032/10/11,Día del Encuentro de dos Mundos
+2032/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2032/11/1,Día de Todos los Santos
+2032/12/8,La Inmaculada Concepción
+2032/12/25,Navidad
+2033/1/1,Año Nuevo
+2033/4/15,Viernes Santo
+2033/4/16,Sábado Santo
+2033/5/1,Día Nacional del Trabajo
+2033/5/21,Día de las Glorias Navales
+2033/6/20,Día Nacional de los Pueblos Indígenas
+2033/6/27,San Pedro y San Pablo
+2033/7/16,Virgen del Carmen
+2033/8/15,Asunción de la Virgen
+2033/9/18,Día de la Independencia
+2033/9/19,Día de las Glorias del Ejército
+2033/10/10,Día del Encuentro de dos Mundos
+2033/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2033/11/1,Día de Todos los Santos
+2033/12/8,La Inmaculada Concepción
+2033/12/25,Navidad
+2034/1/1,Año Nuevo
+2034/1/2,Feriado nacional
+2034/4/7,Viernes Santo
+2034/4/8,Sábado Santo
+2034/5/1,Día Nacional del Trabajo
+2034/5/21,Día de las Glorias Navales
+2034/6/21,Día Nacional de los Pueblos Indígenas
+2034/6/26,San Pedro y San Pablo
+2034/7/16,Virgen del Carmen
+2034/8/15,Asunción de la Virgen
+2034/9/18,Día de la Independencia
+2034/9/19,Día de las Glorias del Ejército
+2034/10/9,Día del Encuentro de dos Mundos
+2034/10/27,Día Nacional de las Iglesias Evangélicas y Protestantes
+2034/11/1,Día de Todos los Santos
+2034/12/8,La Inmaculada Concepción
+2034/12/25,Navidad
+2035/1/1,Año Nuevo
+2035/3/23,Viernes Santo
+2035/3/24,Sábado Santo
+2035/5/1,Día Nacional del Trabajo
+2035/5/21,Día de las Glorias Navales
+2035/6/21,Día Nacional de los Pueblos Indígenas
+2035/7/2,San Pedro y San Pablo
+2035/7/16,Virgen del Carmen
+2035/8/15,Asunción de la Virgen
+2035/9/17,Fiestas Patrias
+2035/9/18,Día de la Independencia
+2035/9/19,Día de las Glorias del Ejército
+2035/10/15,Día del Encuentro de dos Mundos
+2035/11/1,Día de Todos los Santos
+2035/11/2,Día Nacional de las Iglesias Evangélicas y Protestantes
+2035/12/8,La Inmaculada Concepción
+2035/12/25,Navidad
+2036/1/1,Año Nuevo
+2036/4/11,Viernes Santo
+2036/4/12,Sábado Santo
+2036/5/1,Día Nacional del Trabajo
+2036/5/21,Día de las Glorias Navales
+2036/6/20,Día Nacional de los Pueblos Indígenas
+2036/6/29,San Pedro y San Pablo
+2036/7/16,Virgen del Carmen
+2036/8/15,Asunción de la Virgen
+2036/9/18,Día de la Independencia
+2036/9/19,Día de las Glorias del Ejército
+2036/10/12,Día del Encuentro de dos Mundos
+2036/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2036/11/1,Día de Todos los Santos
+2036/12/8,La Inmaculada Concepción
+2036/12/25,Navidad
+2037/1/1,Año Nuevo
+2037/4/3,Viernes Santo
+2037/4/4,Sábado Santo
+2037/5/1,Día Nacional del Trabajo
+2037/5/21,Día de las Glorias Navales
+2037/6/20,Día Nacional de los Pueblos Indígenas
+2037/6/29,San Pedro y San Pablo
+2037/7/16,Virgen del Carmen
+2037/8/15,Asunción de la Virgen
+2037/9/18,Día de la Independencia
+2037/9/19,Día de las Glorias del Ejército
+2037/10/12,Día del Encuentro de dos Mundos
+2037/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2037/11/1,Día de Todos los Santos
+2037/12/8,La Inmaculada Concepción
+2037/12/25,Navidad
+2038/1/1,Año Nuevo
+2038/4/23,Viernes Santo
+2038/4/24,Sábado Santo
+2038/5/1,Día Nacional del Trabajo
+2038/5/21,Día de las Glorias Navales
+2038/6/21,Día Nacional de los Pueblos Indígenas
+2038/6/28,San Pedro y San Pablo
+2038/7/16,Virgen del Carmen
+2038/8/15,Asunción de la Virgen
+2038/9/17,Fiestas Patrias
+2038/9/18,Día de la Independencia
+2038/9/19,Día de las Glorias del Ejército
+2038/10/11,Día del Encuentro de dos Mundos
+2038/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2038/11/1,Día de Todos los Santos
+2038/12/8,La Inmaculada Concepción
+2038/12/25,Navidad
+2039/1/1,Año Nuevo
+2039/4/8,Viernes Santo
+2039/4/9,Sábado Santo
+2039/5/1,Día Nacional del Trabajo
+2039/5/21,Día de las Glorias Navales
+2039/6/21,Día Nacional de los Pueblos Indígenas
+2039/6/27,San Pedro y San Pablo
+2039/7/16,Virgen del Carmen
+2039/8/15,Asunción de la Virgen
+2039/9/18,Día de la Independencia
+2039/9/19,Día de las Glorias del Ejército
+2039/10/10,Día del Encuentro de dos Mundos
+2039/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2039/11/1,Día de Todos los Santos
+2039/12/8,La Inmaculada Concepción
+2039/12/25,Navidad
+2040/1/1,Año Nuevo
+2040/1/2,Feriado nacional
+2040/3/30,Viernes Santo
+2040/3/31,Sábado Santo
+2040/5/1,Día Nacional del Trabajo
+2040/5/21,Día de las Glorias Navales
+2040/6/20,Día Nacional de los Pueblos Indígenas
+2040/7/2,San Pedro y San Pablo
+2040/7/16,Virgen del Carmen
+2040/8/15,Asunción de la Virgen
+2040/9/17,Fiestas Patrias
+2040/9/18,Día de la Independencia
+2040/9/19,Día de las Glorias del Ejército
+2040/10/15,Día del Encuentro de dos Mundos
+2040/11/1,Día de Todos los Santos
+2040/11/2,Día Nacional de las Iglesias Evangélicas y Protestantes
+2040/12/8,La Inmaculada Concepción
+2040/12/25,Navidad
+2041/1/1,Año Nuevo
+2041/4/19,Viernes Santo
+2041/4/20,Sábado Santo
+2041/5/1,Día Nacional del Trabajo
+2041/5/21,Día de las Glorias Navales
+2041/6/20,Día Nacional de los Pueblos Indígenas
+2041/6/29,San Pedro y San Pablo
+2041/7/16,Virgen del Carmen
+2041/8/15,Asunción de la Virgen
+2041/9/18,Día de la Independencia
+2041/9/19,Día de las Glorias del Ejército
+2041/9/20,Fiestas Patrias
+2041/10/12,Día del Encuentro de dos Mundos
+2041/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2041/11/1,Día de Todos los Santos
+2041/12/8,La Inmaculada Concepción
+2041/12/25,Navidad
+2042/1/1,Año Nuevo
+2042/4/4,Viernes Santo
+2042/4/5,Sábado Santo
+2042/5/1,Día Nacional del Trabajo
+2042/5/21,Día de las Glorias Navales
+2042/6/21,Día Nacional de los Pueblos Indígenas
+2042/6/29,San Pedro y San Pablo
+2042/7/16,Virgen del Carmen
+2042/8/15,Asunción de la Virgen
+2042/9/18,Día de la Independencia
+2042/9/19,Día de las Glorias del Ejército
+2042/10/12,Día del Encuentro de dos Mundos
+2042/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2042/11/1,Día de Todos los Santos
+2042/12/8,La Inmaculada Concepción
+2042/12/25,Navidad
+2043/1/1,Año Nuevo
+2043/3/27,Viernes Santo
+2043/3/28,Sábado Santo
+2043/5/1,Día Nacional del Trabajo
+2043/5/21,Día de las Glorias Navales
+2043/6/21,Día Nacional de los Pueblos Indígenas
+2043/6/29,San Pedro y San Pablo
+2043/7/16,Virgen del Carmen
+2043/8/15,Asunción de la Virgen
+2043/9/18,Día de la Independencia
+2043/9/19,Día de las Glorias del Ejército
+2043/10/12,Día del Encuentro de dos Mundos
+2043/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2043/11/1,Día de Todos los Santos
+2043/12/8,La Inmaculada Concepción
+2043/12/25,Navidad
+2044/1/1,Año Nuevo
+2044/4/15,Viernes Santo
+2044/4/16,Sábado Santo
+2044/5/1,Día Nacional del Trabajo
+2044/5/21,Día de las Glorias Navales
+2044/6/20,Día Nacional de los Pueblos Indígenas
+2044/6/27,San Pedro y San Pablo
+2044/7/16,Virgen del Carmen
+2044/8/15,Asunción de la Virgen
+2044/9/18,Día de la Independencia
+2044/9/19,Día de las Glorias del Ejército
+2044/10/10,Día del Encuentro de dos Mundos
+2044/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2044/11/1,Día de Todos los Santos
+2044/12/8,La Inmaculada Concepción
+2044/12/25,Navidad
+2045/1/1,Año Nuevo
+2045/1/2,Feriado nacional
+2045/4/7,Viernes Santo
+2045/4/8,Sábado Santo
+2045/5/1,Día Nacional del Trabajo
+2045/5/21,Día de las Glorias Navales
+2045/6/20,Día Nacional de los Pueblos Indígenas
+2045/6/26,San Pedro y San Pablo
+2045/7/16,Virgen del Carmen
+2045/8/15,Asunción de la Virgen
+2045/9/18,Día de la Independencia
+2045/9/19,Día de las Glorias del Ejército
+2045/10/9,Día del Encuentro de dos Mundos
+2045/10/27,Día Nacional de las Iglesias Evangélicas y Protestantes
+2045/11/1,Día de Todos los Santos
+2045/12/8,La Inmaculada Concepción
+2045/12/25,Navidad
+2046/1/1,Año Nuevo
+2046/3/23,Viernes Santo
+2046/3/24,Sábado Santo
+2046/5/1,Día Nacional del Trabajo
+2046/5/21,Día de las Glorias Navales
+2046/6/21,Día Nacional de los Pueblos Indígenas
+2046/7/2,San Pedro y San Pablo
+2046/7/16,Virgen del Carmen
+2046/8/15,Asunción de la Virgen
+2046/9/17,Fiestas Patrias
+2046/9/18,Día de la Independencia
+2046/9/19,Día de las Glorias del Ejército
+2046/10/15,Día del Encuentro de dos Mundos
+2046/11/1,Día de Todos los Santos
+2046/11/2,Día Nacional de las Iglesias Evangélicas y Protestantes
+2046/12/8,La Inmaculada Concepción
+2046/12/25,Navidad
+2047/1/1,Año Nuevo
+2047/4/12,Viernes Santo
+2047/4/13,Sábado Santo
+2047/5/1,Día Nacional del Trabajo
+2047/5/21,Día de las Glorias Navales
+2047/6/21,Día Nacional de los Pueblos Indígenas
+2047/6/29,San Pedro y San Pablo
+2047/7/16,Virgen del Carmen
+2047/8/15,Asunción de la Virgen
+2047/9/18,Día de la Independencia
+2047/9/19,Día de las Glorias del Ejército
+2047/9/20,Fiestas Patrias
+2047/10/12,Día del Encuentro de dos Mundos
+2047/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2047/11/1,Día de Todos los Santos
+2047/12/8,La Inmaculada Concepción
+2047/12/25,Navidad
+2048/1/1,Año Nuevo
+2048/4/3,Viernes Santo
+2048/4/4,Sábado Santo
+2048/5/1,Día Nacional del Trabajo
+2048/5/21,Día de las Glorias Navales
+2048/6/20,Día Nacional de los Pueblos Indígenas
+2048/6/29,San Pedro y San Pablo
+2048/7/16,Virgen del Carmen
+2048/8/15,Asunción de la Virgen
+2048/9/18,Día de la Independencia
+2048/9/19,Día de las Glorias del Ejército
+2048/10/12,Día del Encuentro de dos Mundos
+2048/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2048/11/1,Día de Todos los Santos
+2048/12/8,La Inmaculada Concepción
+2048/12/25,Navidad
+2049/1/1,Año Nuevo
+2049/4/16,Viernes Santo
+2049/4/17,Sábado Santo
+2049/5/1,Día Nacional del Trabajo
+2049/5/21,Día de las Glorias Navales
+2049/6/20,Día Nacional de los Pueblos Indígenas
+2049/6/28,San Pedro y San Pablo
+2049/7/16,Virgen del Carmen
+2049/8/15,Asunción de la Virgen
+2049/9/17,Fiestas Patrias
+2049/9/18,Día de la Independencia
+2049/9/19,Día de las Glorias del Ejército
+2049/10/11,Día del Encuentro de dos Mundos
+2049/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2049/11/1,Día de Todos los Santos
+2049/12/8,La Inmaculada Concepción
+2049/12/25,Navidad
+2050/1/1,Año Nuevo
+2050/4/8,Viernes Santo
+2050/4/9,Sábado Santo
+2050/5/1,Día Nacional del Trabajo
+2050/5/21,Día de las Glorias Navales
+2050/6/20,Día Nacional de los Pueblos Indígenas
+2050/6/27,San Pedro y San Pablo
+2050/7/16,Virgen del Carmen
+2050/8/15,Asunción de la Virgen
+2050/9/18,Día de la Independencia
+2050/9/19,Día de las Glorias del Ejército
+2050/10/10,Día del Encuentro de dos Mundos
+2050/10/31,Día Nacional de las Iglesias Evangélicas y Protestantes
+2050/11/1,Día de Todos los Santos
+2050/12/8,La Inmaculada Concepción
+2050/12/25,Navidad

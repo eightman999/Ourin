@@ -3,7 +3,7 @@ import Testing
 @testable import Ourin
 
 @Suite(.serialized)
-struct KagariEngineTests {
+struct KawariKagariEngineTests {
     private func compileKagariFixture(into root: URL) throws -> URL {
         let source = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
             .appendingPathComponent("Fixtures/shiori/kagari_fixture.c")
@@ -38,6 +38,47 @@ struct KagariEngineTests {
         #expect(loader.request("GET SHIORI/3.0\r\n\r\n") == nil)
     }
 
+    @Test
+    func bundledResolverPrefersKawariMarkerForShioriDLL() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let ghostRoot = root.appendingPathComponent("ghost/master")
+        let shioriDir = ghostRoot.appendingPathComponent("shiori")
+        try FileManager.default.createDirectory(at: shioriDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        try "kawarirc".write(to: shioriDir.appendingPathComponent("kawarirc.kis"), atomically: true, encoding: .utf8)
+        let engine = try #require(BundledShioriEngine.recognize(moduleName: "shiori\\shiori.dll", ghostRoot: ghostRoot))
+        #expect(engine == .kawari)
+    }
+
+    @Test(arguments: [false, true])
+    func kawariEngineOnBootFromAppBundle(isolated: Bool) throws {
+        let fixtureSource = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .appendingPathComponent("Fixtures/kawari/minimal")
+        try #require(FileManager.default.fileExists(atPath: fixtureSource.appendingPathComponent("kawarirc.kis").path))
+
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let ghostRoot = root.appendingPathComponent("ghost/master")
+        let shioriDir = ghostRoot.appendingPathComponent("shiori")
+        try FileManager.default.createDirectory(at: shioriDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        try FileManager.default.copyItem(
+            at: fixtureSource.appendingPathComponent("kawarirc.kis"),
+            to: shioriDir.appendingPathComponent("kawarirc.kis")
+        )
+
+        let resolved = try #require(
+            BundledShioriEngine.resolveModuleURL(
+                moduleName: "shiori\\shiori.dll",
+                ghostURL: ghostRoot.deletingLastPathComponent(),
+                ghostRoot: ghostRoot
+            )
+        )
+        let loader = try #require(ShioriLoader(moduleURL: resolved, xpcServiceName: isolated ? "jp.ourin.shiori" : nil, loadDirectory: shioriDir))
+        let boot = loader.request("GET SHIORI/3.0\r\nCharset: UTF-8\r\nID: OnBoot\r\n\r\n")
+        #expect(boot?.contains("200 OK") == true)
+        loader.unload()
+    }
+
     @Test(arguments: [false, true])
     func kagariEngineLifecycleFromAppBundle(isolated: Bool) throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -64,28 +105,4 @@ struct KagariEngineTests {
         #expect(ShioriLoader(moduleURL: module,
             xpcServiceName: isolated ? "jp.ourin.shiori" : nil, loadDirectory: root) == nil)
     }
-    @Test
-    func productionFactoryResolvesBundledKagariAndUsesDictionaryDirectory() throws {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        let master = root.appendingPathComponent("ghost/master")
-        let directory = master.appendingPathComponent("engine")
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: root) }
-        let lua = """
-        return {
-          load = function(path) return true end,
-          unload = function() return true end,
-          request = function(r)
-            return 'SHIORI/3.0 200 OK\\r\\nCharset: UTF-8\\r\\nValue: factory-kagari\\r\\n\\r\\n'
-          end
-        }
-        """
-        try lua.write(to: directory.appendingPathComponent("index.lua"), atomically: true, encoding: .utf8)
-        let runtime = try #require(ShioriRuntimeFactory.makeRuntime(for: "engine\\kagari.dll"))
-        defer { runtime.unload() }
-        #expect(runtime.kind == .native)
-        #expect(runtime.load(context: .init(ghostURL: root, ghostRoot: master, moduleName: "engine\\kagari.dll")))
-        #expect(runtime.request(method: "GET", id: "OnBoot", timeout: 5)?.value == "factory-kagari")
-    }
-
 }

@@ -8,6 +8,7 @@
 
 | 項目 | 現在の範囲と影響 | 追跡・対応 |
 |---|---|---|
+| 追加栞7種の同時起動・互換範囲 | 灯・ese-shiori・偽栞・忍・翡翠・結奈・美坂の独立互換実装を同梱。同一ライブラリの同じprocessへの2回目のloadは失敗します。XPCは接続ごとの別PIDを保証しないため、同じ栞の複数ゴースト同時起動は対応済みではありません。全配布ゴースト・Windows保存形式との互換も未確認です。 | [追加栞ガイド](ADDITIONAL_SHIORI_ja-jp.md)。1つずつ終了・起動して利用。 |
 | Windows専用モジュール | Windows DLLをmacOSでそのまま実行する機能ではありません。栞・SAORIの対応はmacOS用モジュール、内蔵の互換実装、各ランタイムの対応範囲に依存します。拡張子だけの変更では動作しません。 | [#101](https://github.com/eightman999/Ourin/issues/101)、[Native ABI](NATIVE_SHIORI_ABI_ja-jp.md)。使用ゴーストの公開名・版・SHIORIを添えて報告。 |
 | 華和梨・KAGARIの網羅 | エンジンのビルドや最小辞書の成功は、全ゴースト・SAORI・Lua拡張の互換性を保証しません。KAGARIの実ゴーストは必要なネイティブLua拡張ごとの確認も必要です。 | [#101](https://github.com/eightman999/Ourin/issues/101)。エンジン資料と実測記録の対象・検証層を確認。 |
 | YAYAの保存形式・検証範囲 | 10月25日修正版ではTaromati2の定期イベント停止を解消し、Emily4 / Taromati2のOurin形式での保存・別process再loadを確認しました。Taromati2のOnDestroy400は辞書が未定義イベントへ返す期待応答です。上流テキスト/暗号化保存のimport/export、GUI・実SAORI連携は未確認または未対応です。 | [PR #191](https://github.com/eightman999/Ourin/pull/191)関連。[実ゴースト検証記録](REAL_GHOST_VERIFICATION_2026-10-25.md)を参照。上流バイナリとの同一入力比較は未実施。既存の未知形式のセーブは上書きしません。 |
@@ -28,3 +29,7 @@
 一覧にない症状や、修正版でも再現する症状は[バグ報告ガイド](BUG_REPORT_GUIDE_ja-jp.md)から報告してください。ログやゴーストデータがなくても、環境・再現手順・期待値・実際の結果だけで報告を始められます。
 
 翻訳: [英語版](KNOWN_ISSUES_en-us.md)と本文・表・リンク対象を照合（2026-10-25）。将来の修正時は両言語を同期します。
+
+## 追加の実配布物検証
+
+KAGARI実行失敗4件の[再検証](compatibility-corpus/kagari-fixes.md)と、15件の[プラグイン変換・機能別の制限](compatibility-corpus/plugin-ports.md)を掲載しています。生成bundleの存在、ロード成功、外部連携の成功は別々に記録しています。

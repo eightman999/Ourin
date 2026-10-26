@@ -1,10 +1,12 @@
 #include <cstdlib>
+#include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 #include <nlohmann/json.hpp>
 
@@ -221,6 +223,19 @@ json dispatch(const json& request) {
 } // namespace
 
 int main() {
+    // Engines/SAORIs may print diagnostics to fd 1. Reserve the original pipe
+    // for JSON, then route native stdout to stderr before loading any engine.
+    const int protocolFD = dup(STDOUT_FILENO);
+    if (protocolFD < 0) return EXIT_FAILURE;
+    FILE* protocol = fdopen(protocolFD, "w");
+    if (protocol == nullptr) {
+        close(protocolFD);
+        return EXIT_FAILURE;
+    }
+    if (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) {
+        fclose(protocol);
+        return EXIT_FAILURE;
+    }
     std::ios::sync_with_stdio(false);
     std::string line;
     while (std::getline(std::cin, line)) {
@@ -230,10 +245,14 @@ int main() {
         } catch (const std::exception& error) {
             response = {{"ok", false}, {"status", 500}, {"headers", json::object()}, {"value", error.what()}};
         }
-        std::cout << response.dump() << '\n' << std::flush;
+        const std::string wire = response.dump() + '\n';
+        if (fwrite(wire.data(), 1, wire.size(), protocol) != wire.size() || fflush(protocol) != 0) {
+            break;
+        }
     }
     if (runtimeId != 0) {
         satori_unload(runtimeId);
     }
+    fclose(protocol);
     return 0;
 }

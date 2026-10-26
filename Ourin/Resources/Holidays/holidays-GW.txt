@@ -1,0 +1,312 @@
+# GW の祝日（2023〜2050年、言語: pt_GW）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2023/1/1,Ano Novo
+2023/1/20,Dia dos Heróis Nacionais
+2023/1/23,Dia do Início da Luta Armada
+2023/3/8,Dia Internacional da Mulher
+2023/4/9,Páscoa
+2023/4/21,Korité
+2023/5/1,Dia do Trabalhador
+2023/6/28,Tabaski
+2023/8/3,Dia de Pidjiguiti
+2023/9/24,Dia da Independência
+2023/12/25,Dia de Natal
+2024/1/1,Ano Novo
+2024/1/20,Dia dos Heróis Nacionais
+2024/1/23,Dia do Início da Luta Armada
+2024/3/8,Dia Internacional da Mulher
+2024/3/31,Páscoa
+2024/4/10,Korité
+2024/5/1,Dia do Trabalhador
+2024/6/16,Tabaski
+2024/8/3,Dia de Pidjiguiti
+2024/9/24,Dia da Independência
+2024/12/25,Dia de Natal
+2025/1/1,Ano Novo
+2025/1/20,Dia dos Heróis Nacionais
+2025/1/23,Dia do Início da Luta Armada
+2025/3/8,Dia Internacional da Mulher
+2025/3/30,Korité
+2025/4/20,Páscoa
+2025/5/1,Dia do Trabalhador
+2025/6/6,Tabaski
+2025/8/3,Dia de Pidjiguiti
+2025/9/24,Dia da Independência
+2025/12/25,Dia de Natal
+2026/1/1,Ano Novo
+2026/1/20,Dia dos Heróis Nacionais
+2026/1/23,Dia do Início da Luta Armada
+2026/3/8,Dia Internacional da Mulher
+2026/3/20,Korité (prevista)
+2026/4/5,Páscoa
+2026/5/1,Dia do Trabalhador
+2026/5/27,Tabaski (prevista)
+2026/8/3,Dia de Pidjiguiti
+2026/9/24,Dia da Independência
+2026/12/25,Dia de Natal
+2027/1/1,Ano Novo
+2027/1/20,Dia dos Heróis Nacionais
+2027/1/23,Dia do Início da Luta Armada
+2027/3/8,Dia Internacional da Mulher
+2027/3/9,Korité (prevista)
+2027/3/28,Páscoa
+2027/5/1,Dia do Trabalhador
+2027/5/16,Tabaski (prevista)
+2027/8/3,Dia de Pidjiguiti
+2027/9/24,Dia da Independência
+2027/12/25,Dia de Natal
+2028/1/1,Ano Novo
+2028/1/20,Dia dos Heróis Nacionais
+2028/1/23,Dia do Início da Luta Armada
+2028/2/26,Korité (prevista)
+2028/3/8,Dia Internacional da Mulher
+2028/4/16,Páscoa
+2028/5/1,Dia do Trabalhador
+2028/5/5,Tabaski (prevista)
+2028/8/3,Dia de Pidjiguiti
+2028/9/24,Dia da Independência
+2028/12/25,Dia de Natal
+2029/1/1,Ano Novo
+2029/1/20,Dia dos Heróis Nacionais
+2029/1/23,Dia do Início da Luta Armada
+2029/2/14,Korité (prevista)
+2029/3/8,Dia Internacional da Mulher
+2029/4/1,Páscoa
+2029/4/24,Tabaski (prevista)
+2029/5/1,Dia do Trabalhador
+2029/8/3,Dia de Pidjiguiti
+2029/9/24,Dia da Independência
+2029/12/25,Dia de Natal
+2030/1/1,Ano Novo
+2030/1/20,Dia dos Heróis Nacionais
+2030/1/23,Dia do Início da Luta Armada
+2030/2/4,Korité (prevista)
+2030/3/8,Dia Internacional da Mulher
+2030/4/13,Tabaski (prevista)
+2030/4/21,Páscoa
+2030/5/1,Dia do Trabalhador
+2030/8/3,Dia de Pidjiguiti
+2030/9/24,Dia da Independência
+2030/12/25,Dia de Natal
+2031/1/1,Ano Novo
+2031/1/20,Dia dos Heróis Nacionais
+2031/1/23,Dia do Início da Luta Armada
+2031/1/24,Korité (prevista)
+2031/3/8,Dia Internacional da Mulher
+2031/4/2,Tabaski (prevista)
+2031/4/13,Páscoa
+2031/5/1,Dia do Trabalhador
+2031/8/3,Dia de Pidjiguiti
+2031/9/24,Dia da Independência
+2031/12/25,Dia de Natal
+2032/1/1,Ano Novo
+2032/1/14,Korité (prevista)
+2032/1/20,Dia dos Heróis Nacionais
+2032/1/23,Dia do Início da Luta Armada
+2032/3/8,Dia Internacional da Mulher
+2032/3/22,Tabaski (prevista)
+2032/3/28,Páscoa
+2032/5/1,Dia do Trabalhador
+2032/8/3,Dia de Pidjiguiti
+2032/9/24,Dia da Independência
+2032/12/25,Dia de Natal
+2033/1/1,Ano Novo
+2033/1/2,Korité (prevista)
+2033/1/20,Dia dos Heróis Nacionais
+2033/1/23,Dia do Início da Luta Armada
+2033/3/8,Dia Internacional da Mulher
+2033/3/11,Tabaski (prevista)
+2033/4/17,Páscoa
+2033/5/1,Dia do Trabalhador
+2033/8/3,Dia de Pidjiguiti
+2033/9/24,Dia da Independência
+2033/12/23,Korité (prevista)
+2033/12/25,Dia de Natal
+2034/1/1,Ano Novo
+2034/1/20,Dia dos Heróis Nacionais
+2034/1/23,Dia do Início da Luta Armada
+2034/3/1,Tabaski (prevista)
+2034/3/8,Dia Internacional da Mulher
+2034/4/9,Páscoa
+2034/5/1,Dia do Trabalhador
+2034/8/3,Dia de Pidjiguiti
+2034/9/24,Dia da Independência
+2034/12/12,Korité (prevista)
+2034/12/25,Dia de Natal
+2035/1/1,Ano Novo
+2035/1/20,Dia dos Heróis Nacionais
+2035/1/23,Dia do Início da Luta Armada
+2035/2/18,Tabaski (prevista)
+2035/3/8,Dia Internacional da Mulher
+2035/3/25,Páscoa
+2035/5/1,Dia do Trabalhador
+2035/8/3,Dia de Pidjiguiti
+2035/9/24,Dia da Independência
+2035/12/1,Korité (prevista)
+2035/12/25,Dia de Natal
+2036/1/1,Ano Novo
+2036/1/20,Dia dos Heróis Nacionais
+2036/1/23,Dia do Início da Luta Armada
+2036/2/7,Tabaski (prevista)
+2036/3/8,Dia Internacional da Mulher
+2036/4/13,Páscoa
+2036/5/1,Dia do Trabalhador
+2036/8/3,Dia de Pidjiguiti
+2036/9/24,Dia da Independência
+2036/11/19,Korité (prevista)
+2036/12/25,Dia de Natal
+2037/1/1,Ano Novo
+2037/1/20,Dia dos Heróis Nacionais
+2037/1/23,Dia do Início da Luta Armada
+2037/1/26,Tabaski (prevista)
+2037/3/8,Dia Internacional da Mulher
+2037/4/5,Páscoa
+2037/5/1,Dia do Trabalhador
+2037/8/3,Dia de Pidjiguiti
+2037/9/24,Dia da Independência
+2037/11/8,Korité (prevista)
+2037/12/25,Dia de Natal
+2038/1/1,Ano Novo
+2038/1/16,Tabaski (prevista)
+2038/1/20,Dia dos Heróis Nacionais
+2038/1/23,Dia do Início da Luta Armada
+2038/3/8,Dia Internacional da Mulher
+2038/4/25,Páscoa
+2038/5/1,Dia do Trabalhador
+2038/8/3,Dia de Pidjiguiti
+2038/9/24,Dia da Independência
+2038/10/29,Korité (prevista)
+2038/12/25,Dia de Natal
+2039/1/1,Ano Novo
+2039/1/5,Tabaski (prevista)
+2039/1/20,Dia dos Heróis Nacionais
+2039/1/23,Dia do Início da Luta Armada
+2039/3/8,Dia Internacional da Mulher
+2039/4/10,Páscoa
+2039/5/1,Dia do Trabalhador
+2039/8/3,Dia de Pidjiguiti
+2039/9/24,Dia da Independência
+2039/10/19,Korité (prevista)
+2039/12/25,Dia de Natal
+2039/12/26,Tabaski (prevista)
+2040/1/1,Ano Novo
+2040/1/20,Dia dos Heróis Nacionais
+2040/1/23,Dia do Início da Luta Armada
+2040/3/8,Dia Internacional da Mulher
+2040/4/1,Páscoa
+2040/5/1,Dia do Trabalhador
+2040/8/3,Dia de Pidjiguiti
+2040/9/24,Dia da Independência
+2040/10/7,Korité (prevista)
+2040/12/14,Tabaski (prevista)
+2040/12/25,Dia de Natal
+2041/1/1,Ano Novo
+2041/1/20,Dia dos Heróis Nacionais
+2041/1/23,Dia do Início da Luta Armada
+2041/3/8,Dia Internacional da Mulher
+2041/4/21,Páscoa
+2041/5/1,Dia do Trabalhador
+2041/8/3,Dia de Pidjiguiti
+2041/9/24,Dia da Independência
+2041/9/26,Korité (prevista)
+2041/12/4,Tabaski (prevista)
+2041/12/25,Dia de Natal
+2042/1/1,Ano Novo
+2042/1/20,Dia dos Heróis Nacionais
+2042/1/23,Dia do Início da Luta Armada
+2042/3/8,Dia Internacional da Mulher
+2042/4/6,Páscoa
+2042/5/1,Dia do Trabalhador
+2042/8/3,Dia de Pidjiguiti
+2042/9/15,Korité (prevista)
+2042/9/24,Dia da Independência
+2042/11/23,Tabaski (prevista)
+2042/12/25,Dia de Natal
+2043/1/1,Ano Novo
+2043/1/20,Dia dos Heróis Nacionais
+2043/1/23,Dia do Início da Luta Armada
+2043/3/8,Dia Internacional da Mulher
+2043/3/29,Páscoa
+2043/5/1,Dia do Trabalhador
+2043/8/3,Dia de Pidjiguiti
+2043/9/4,Korité (prevista)
+2043/9/24,Dia da Independência
+2043/11/12,Tabaski (prevista)
+2043/12/25,Dia de Natal
+2044/1/1,Ano Novo
+2044/1/20,Dia dos Heróis Nacionais
+2044/1/23,Dia do Início da Luta Armada
+2044/3/8,Dia Internacional da Mulher
+2044/4/17,Páscoa
+2044/5/1,Dia do Trabalhador
+2044/8/3,Dia de Pidjiguiti
+2044/8/24,Korité (prevista)
+2044/9/24,Dia da Independência
+2044/10/31,Tabaski (prevista)
+2044/12/25,Dia de Natal
+2045/1/1,Ano Novo
+2045/1/20,Dia dos Heróis Nacionais
+2045/1/23,Dia do Início da Luta Armada
+2045/3/8,Dia Internacional da Mulher
+2045/4/9,Páscoa
+2045/5/1,Dia do Trabalhador
+2045/8/3,Dia de Pidjiguiti
+2045/8/14,Korité (prevista)
+2045/9/24,Dia da Independência
+2045/10/21,Tabaski (prevista)
+2045/12/25,Dia de Natal
+2046/1/1,Ano Novo
+2046/1/20,Dia dos Heróis Nacionais
+2046/1/23,Dia do Início da Luta Armada
+2046/3/8,Dia Internacional da Mulher
+2046/3/25,Páscoa
+2046/5/1,Dia do Trabalhador
+2046/8/3,Dia de Pidjiguiti; Korité (prevista)
+2046/9/24,Dia da Independência
+2046/10/10,Tabaski (prevista)
+2046/12/25,Dia de Natal
+2047/1/1,Ano Novo
+2047/1/20,Dia dos Heróis Nacionais
+2047/1/23,Dia do Início da Luta Armada
+2047/3/8,Dia Internacional da Mulher
+2047/4/14,Páscoa
+2047/5/1,Dia do Trabalhador
+2047/7/24,Korité (prevista)
+2047/8/3,Dia de Pidjiguiti
+2047/9/24,Dia da Independência
+2047/9/30,Tabaski (prevista)
+2047/12/25,Dia de Natal
+2048/1/1,Ano Novo
+2048/1/20,Dia dos Heróis Nacionais
+2048/1/23,Dia do Início da Luta Armada
+2048/3/8,Dia Internacional da Mulher
+2048/4/5,Páscoa
+2048/5/1,Dia do Trabalhador
+2048/7/12,Korité (prevista)
+2048/8/3,Dia de Pidjiguiti
+2048/9/19,Tabaski (prevista)
+2048/9/24,Dia da Independência
+2048/12/25,Dia de Natal
+2049/1/1,Ano Novo
+2049/1/20,Dia dos Heróis Nacionais
+2049/1/23,Dia do Início da Luta Armada
+2049/3/8,Dia Internacional da Mulher
+2049/4/18,Páscoa
+2049/5/1,Dia do Trabalhador
+2049/7/1,Korité (prevista)
+2049/8/3,Dia de Pidjiguiti
+2049/9/8,Tabaski (prevista)
+2049/9/24,Dia da Independência
+2049/12/25,Dia de Natal
+2050/1/1,Ano Novo
+2050/1/20,Dia dos Heróis Nacionais
+2050/1/23,Dia do Início da Luta Armada
+2050/3/8,Dia Internacional da Mulher
+2050/4/10,Páscoa
+2050/5/1,Dia do Trabalhador
+2050/6/20,Korité (prevista)
+2050/8/3,Dia de Pidjiguiti
+2050/8/28,Tabaski (prevista)
+2050/9/24,Dia da Independência
+2050/12/25,Dia de Natal

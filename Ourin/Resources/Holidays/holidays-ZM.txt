@@ -1,0 +1,548 @@
+# ZM の祝日（2020〜2050年、言語: en）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,New Year's Day
+2020/3/8,International Women's Day
+2020/3/9,International Women's Day (observed)
+2020/3/12,Youth Day
+2020/4/10,Good Friday
+2020/4/11,Holy Saturday
+2020/4/12,Easter Sunday
+2020/4/13,Easter Monday
+2020/5/1,Labour Day
+2020/5/25,Africa Freedom Day
+2020/7/6,Heroes' Day
+2020/7/7,Unity Day
+2020/8/3,Farmers' Day
+2020/10/18,National Prayer Day
+2020/10/19,National Prayer Day (observed)
+2020/10/24,Independence Day
+2020/12/25,Christmas Day
+2021/1/1,New Year's Day
+2021/3/8,International Women's Day
+2021/3/12,Youth Day
+2021/4/2,Good Friday
+2021/4/3,Holy Saturday
+2021/4/4,Easter Sunday
+2021/4/5,Easter Monday
+2021/5/1,Labour Day
+2021/5/25,Africa Freedom Day
+2021/7/2,Memorial Service for Kenneth Kaunda
+2021/7/5,Heroes' Day
+2021/7/6,Unity Day
+2021/7/7,State Funeral of Kenneth Kaunda
+2021/8/2,Farmers' Day
+2021/8/12,General Election Day
+2021/8/13,Bridge Public Holiday
+2021/8/24,Inauguration Ceremony of President-elect and Vice-President-elect
+2021/10/18,National Prayer Day
+2021/10/24,Independence Day
+2021/10/25,Independence Day (observed)
+2021/12/25,Christmas Day
+2022/1/1,New Year's Day
+2022/3/8,International Women's Day
+2022/3/12,Youth Day
+2022/3/18,State Funeral of Rupiah Banda
+2022/4/15,Good Friday
+2022/4/16,Holy Saturday
+2022/4/17,Easter Sunday
+2022/4/18,Easter Monday
+2022/4/28,Kenneth Kaunda Day
+2022/5/1,Labour Day
+2022/5/2,Labour Day (observed)
+2022/5/25,Africa Freedom Day
+2022/7/4,Heroes' Day
+2022/7/5,Unity Day
+2022/8/1,Farmers' Day
+2022/10/18,National Prayer Day
+2022/10/24,Independence Day
+2022/12/25,Christmas Day
+2022/12/26,Christmas Day (observed)
+2023/1/1,New Year's Day
+2023/1/2,New Year's Day (observed)
+2023/3/8,International Women's Day
+2023/3/12,Youth Day
+2023/3/13,Youth Day (observed)
+2023/4/7,Good Friday
+2023/4/8,Holy Saturday
+2023/4/9,Easter Sunday
+2023/4/10,Easter Monday
+2023/4/28,Kenneth Kaunda Day
+2023/5/1,Labour Day
+2023/5/25,Africa Freedom Day
+2023/7/3,Heroes' Day
+2023/7/4,Unity Day
+2023/8/7,Farmers' Day
+2023/10/18,National Prayer Day
+2023/10/24,Independence Day
+2023/12/25,Christmas Day
+2024/1/1,New Year's Day
+2024/3/8,International Women's Day
+2024/3/12,Youth Day
+2024/3/29,Good Friday
+2024/3/30,Holy Saturday
+2024/3/31,Easter Sunday
+2024/4/1,Easter Monday
+2024/4/28,Kenneth Kaunda Day
+2024/4/29,Kenneth Kaunda Day (observed)
+2024/5/1,Labour Day
+2024/5/25,Africa Freedom Day
+2024/7/1,Heroes' Day
+2024/7/2,Unity Day
+2024/8/5,Farmers' Day
+2024/10/18,National Prayer Day
+2024/10/24,Independence Day
+2024/12/25,Christmas Day
+2025/1/1,New Year's Day
+2025/3/8,International Women's Day
+2025/3/12,Youth Day
+2025/4/18,Good Friday
+2025/4/19,Holy Saturday
+2025/4/20,Easter Sunday
+2025/4/21,Easter Monday
+2025/4/28,Kenneth Kaunda Day
+2025/5/1,Labour Day
+2025/5/25,Africa Freedom Day
+2025/5/26,Africa Freedom Day (observed)
+2025/7/7,Heroes' Day
+2025/7/8,Unity Day
+2025/8/4,Farmers' Day
+2025/10/18,National Prayer Day
+2025/10/24,Independence Day
+2025/12/25,Christmas Day
+2026/1/1,New Year's Day
+2026/3/8,International Women's Day
+2026/3/9,International Women's Day (observed)
+2026/3/12,Youth Day
+2026/4/3,Good Friday
+2026/4/4,Holy Saturday
+2026/4/5,Easter Sunday
+2026/4/6,Easter Monday
+2026/4/28,Kenneth Kaunda Day
+2026/5/1,Labour Day
+2026/5/25,Africa Freedom Day
+2026/7/6,Heroes' Day
+2026/7/7,Unity Day
+2026/8/3,Farmers' Day
+2026/8/13,General Election Day
+2026/10/24,Independence Day
+2026/12/25,Christmas Day
+2026/12/29,National Day of Prayer and Christian Heritage
+2027/1/1,New Year's Day
+2027/3/8,International Women's Day
+2027/3/12,Youth Day
+2027/3/26,Good Friday
+2027/3/27,Holy Saturday
+2027/3/28,Easter Sunday
+2027/3/29,Easter Monday
+2027/4/28,Kenneth Kaunda Day
+2027/5/1,Labour Day
+2027/5/25,Africa Freedom Day
+2027/7/5,Heroes' Day
+2027/7/6,Unity Day
+2027/8/2,Farmers' Day
+2027/10/24,Independence Day
+2027/10/25,Independence Day (observed)
+2027/12/25,Christmas Day
+2027/12/29,National Day of Prayer and Christian Heritage
+2028/1/1,New Year's Day
+2028/3/8,International Women's Day
+2028/3/12,Youth Day
+2028/3/13,Youth Day (observed)
+2028/4/14,Good Friday
+2028/4/15,Holy Saturday
+2028/4/16,Easter Sunday
+2028/4/17,Easter Monday
+2028/4/28,Kenneth Kaunda Day
+2028/5/1,Labour Day
+2028/5/25,Africa Freedom Day
+2028/7/3,Heroes' Day
+2028/7/4,Unity Day
+2028/8/7,Farmers' Day
+2028/10/24,Independence Day
+2028/12/25,Christmas Day
+2028/12/29,National Day of Prayer and Christian Heritage
+2029/1/1,New Year's Day
+2029/3/8,International Women's Day
+2029/3/12,Youth Day
+2029/3/30,Good Friday
+2029/3/31,Holy Saturday
+2029/4/1,Easter Sunday
+2029/4/2,Easter Monday
+2029/4/28,Kenneth Kaunda Day
+2029/5/1,Labour Day
+2029/5/25,Africa Freedom Day
+2029/7/2,Heroes' Day
+2029/7/3,Unity Day
+2029/8/6,Farmers' Day
+2029/10/24,Independence Day
+2029/12/25,Christmas Day
+2029/12/29,National Day of Prayer and Christian Heritage
+2030/1/1,New Year's Day
+2030/3/8,International Women's Day
+2030/3/12,Youth Day
+2030/4/19,Good Friday
+2030/4/20,Holy Saturday
+2030/4/21,Easter Sunday
+2030/4/22,Easter Monday
+2030/4/28,Kenneth Kaunda Day
+2030/4/29,Kenneth Kaunda Day (observed)
+2030/5/1,Labour Day
+2030/5/25,Africa Freedom Day
+2030/7/1,Heroes' Day
+2030/7/2,Unity Day
+2030/8/5,Farmers' Day
+2030/10/24,Independence Day
+2030/12/25,Christmas Day
+2030/12/29,National Day of Prayer and Christian Heritage
+2030/12/30,National Day of Prayer and Christian Heritage (observed)
+2031/1/1,New Year's Day
+2031/3/8,International Women's Day
+2031/3/12,Youth Day
+2031/4/11,Good Friday
+2031/4/12,Holy Saturday
+2031/4/13,Easter Sunday
+2031/4/14,Easter Monday
+2031/4/28,Kenneth Kaunda Day
+2031/5/1,Labour Day
+2031/5/25,Africa Freedom Day
+2031/5/26,Africa Freedom Day (observed)
+2031/7/7,Heroes' Day
+2031/7/8,Unity Day
+2031/8/4,Farmers' Day
+2031/8/14,General Election Day
+2031/10/24,Independence Day
+2031/12/25,Christmas Day
+2031/12/29,National Day of Prayer and Christian Heritage
+2032/1/1,New Year's Day
+2032/3/8,International Women's Day
+2032/3/12,Youth Day
+2032/3/26,Good Friday
+2032/3/27,Holy Saturday
+2032/3/28,Easter Sunday
+2032/3/29,Easter Monday
+2032/4/28,Kenneth Kaunda Day
+2032/5/1,Labour Day
+2032/5/25,Africa Freedom Day
+2032/7/5,Heroes' Day
+2032/7/6,Unity Day
+2032/8/2,Farmers' Day
+2032/10/24,Independence Day
+2032/10/25,Independence Day (observed)
+2032/12/25,Christmas Day
+2032/12/29,National Day of Prayer and Christian Heritage
+2033/1/1,New Year's Day
+2033/3/8,International Women's Day
+2033/3/12,Youth Day
+2033/4/15,Good Friday
+2033/4/16,Holy Saturday
+2033/4/17,Easter Sunday
+2033/4/18,Easter Monday
+2033/4/28,Kenneth Kaunda Day
+2033/5/1,Labour Day
+2033/5/2,Labour Day (observed)
+2033/5/25,Africa Freedom Day
+2033/7/4,Heroes' Day
+2033/7/5,Unity Day
+2033/8/1,Farmers' Day
+2033/10/24,Independence Day
+2033/12/25,Christmas Day
+2033/12/26,Christmas Day (observed)
+2033/12/29,National Day of Prayer and Christian Heritage
+2034/1/1,New Year's Day
+2034/1/2,New Year's Day (observed)
+2034/3/8,International Women's Day
+2034/3/12,Youth Day
+2034/3/13,Youth Day (observed)
+2034/4/7,Good Friday
+2034/4/8,Holy Saturday
+2034/4/9,Easter Sunday
+2034/4/10,Easter Monday
+2034/4/28,Kenneth Kaunda Day
+2034/5/1,Labour Day
+2034/5/25,Africa Freedom Day
+2034/7/3,Heroes' Day
+2034/7/4,Unity Day
+2034/8/7,Farmers' Day
+2034/10/24,Independence Day
+2034/12/25,Christmas Day
+2034/12/29,National Day of Prayer and Christian Heritage
+2035/1/1,New Year's Day
+2035/3/8,International Women's Day
+2035/3/12,Youth Day
+2035/3/23,Good Friday
+2035/3/24,Holy Saturday
+2035/3/25,Easter Sunday
+2035/3/26,Easter Monday
+2035/4/28,Kenneth Kaunda Day
+2035/5/1,Labour Day
+2035/5/25,Africa Freedom Day
+2035/7/2,Heroes' Day
+2035/7/3,Unity Day
+2035/8/6,Farmers' Day
+2035/10/24,Independence Day
+2035/12/25,Christmas Day
+2035/12/29,National Day of Prayer and Christian Heritage
+2036/1/1,New Year's Day
+2036/3/8,International Women's Day
+2036/3/12,Youth Day
+2036/4/11,Good Friday
+2036/4/12,Holy Saturday
+2036/4/13,Easter Sunday
+2036/4/14,Easter Monday
+2036/4/28,Kenneth Kaunda Day
+2036/5/1,Labour Day
+2036/5/25,Africa Freedom Day
+2036/5/26,Africa Freedom Day (observed)
+2036/7/7,Heroes' Day
+2036/7/8,Unity Day
+2036/8/4,Farmers' Day
+2036/8/14,General Election Day
+2036/10/24,Independence Day
+2036/12/25,Christmas Day
+2036/12/29,National Day of Prayer and Christian Heritage
+2037/1/1,New Year's Day
+2037/3/8,International Women's Day
+2037/3/9,International Women's Day (observed)
+2037/3/12,Youth Day
+2037/4/3,Good Friday
+2037/4/4,Holy Saturday
+2037/4/5,Easter Sunday
+2037/4/6,Easter Monday
+2037/4/28,Kenneth Kaunda Day
+2037/5/1,Labour Day
+2037/5/25,Africa Freedom Day
+2037/7/6,Heroes' Day
+2037/7/7,Unity Day
+2037/8/3,Farmers' Day
+2037/10/24,Independence Day
+2037/12/25,Christmas Day
+2037/12/29,National Day of Prayer and Christian Heritage
+2038/1/1,New Year's Day
+2038/3/8,International Women's Day
+2038/3/12,Youth Day
+2038/4/23,Good Friday
+2038/4/24,Holy Saturday
+2038/4/25,Easter Sunday
+2038/4/26,Easter Monday
+2038/4/28,Kenneth Kaunda Day
+2038/5/1,Labour Day
+2038/5/25,Africa Freedom Day
+2038/7/5,Heroes' Day
+2038/7/6,Unity Day
+2038/8/2,Farmers' Day
+2038/10/24,Independence Day
+2038/10/25,Independence Day (observed)
+2038/12/25,Christmas Day
+2038/12/29,National Day of Prayer and Christian Heritage
+2039/1/1,New Year's Day
+2039/3/8,International Women's Day
+2039/3/12,Youth Day
+2039/4/8,Good Friday
+2039/4/9,Holy Saturday
+2039/4/10,Easter Sunday
+2039/4/11,Easter Monday
+2039/4/28,Kenneth Kaunda Day
+2039/5/1,Labour Day
+2039/5/2,Labour Day (observed)
+2039/5/25,Africa Freedom Day
+2039/7/4,Heroes' Day
+2039/7/5,Unity Day
+2039/8/1,Farmers' Day
+2039/10/24,Independence Day
+2039/12/25,Christmas Day
+2039/12/26,Christmas Day (observed)
+2039/12/29,National Day of Prayer and Christian Heritage
+2040/1/1,New Year's Day
+2040/1/2,New Year's Day (observed)
+2040/3/8,International Women's Day
+2040/3/12,Youth Day
+2040/3/30,Good Friday
+2040/3/31,Holy Saturday
+2040/4/1,Easter Sunday
+2040/4/2,Easter Monday
+2040/4/28,Kenneth Kaunda Day
+2040/5/1,Labour Day
+2040/5/25,Africa Freedom Day
+2040/7/2,Heroes' Day
+2040/7/3,Unity Day
+2040/8/6,Farmers' Day
+2040/10/24,Independence Day
+2040/12/25,Christmas Day
+2040/12/29,National Day of Prayer and Christian Heritage
+2041/1/1,New Year's Day
+2041/3/8,International Women's Day
+2041/3/12,Youth Day
+2041/4/19,Good Friday
+2041/4/20,Holy Saturday
+2041/4/21,Easter Sunday
+2041/4/22,Easter Monday
+2041/4/28,Kenneth Kaunda Day
+2041/4/29,Kenneth Kaunda Day (observed)
+2041/5/1,Labour Day
+2041/5/25,Africa Freedom Day
+2041/7/1,Heroes' Day
+2041/7/2,Unity Day
+2041/8/5,Farmers' Day
+2041/8/8,General Election Day
+2041/10/24,Independence Day
+2041/12/25,Christmas Day
+2041/12/29,National Day of Prayer and Christian Heritage
+2041/12/30,National Day of Prayer and Christian Heritage (observed)
+2042/1/1,New Year's Day
+2042/3/8,International Women's Day
+2042/3/12,Youth Day
+2042/4/4,Good Friday
+2042/4/5,Holy Saturday
+2042/4/6,Easter Sunday
+2042/4/7,Easter Monday
+2042/4/28,Kenneth Kaunda Day
+2042/5/1,Labour Day
+2042/5/25,Africa Freedom Day
+2042/5/26,Africa Freedom Day (observed)
+2042/7/7,Heroes' Day
+2042/7/8,Unity Day
+2042/8/4,Farmers' Day
+2042/10/24,Independence Day
+2042/12/25,Christmas Day
+2042/12/29,National Day of Prayer and Christian Heritage
+2043/1/1,New Year's Day
+2043/3/8,International Women's Day
+2043/3/9,International Women's Day (observed)
+2043/3/12,Youth Day
+2043/3/27,Good Friday
+2043/3/28,Holy Saturday
+2043/3/29,Easter Sunday
+2043/3/30,Easter Monday
+2043/4/28,Kenneth Kaunda Day
+2043/5/1,Labour Day
+2043/5/25,Africa Freedom Day
+2043/7/6,Heroes' Day
+2043/7/7,Unity Day
+2043/8/3,Farmers' Day
+2043/10/24,Independence Day
+2043/12/25,Christmas Day
+2043/12/29,National Day of Prayer and Christian Heritage
+2044/1/1,New Year's Day
+2044/3/8,International Women's Day
+2044/3/12,Youth Day
+2044/4/15,Good Friday
+2044/4/16,Holy Saturday
+2044/4/17,Easter Sunday
+2044/4/18,Easter Monday
+2044/4/28,Kenneth Kaunda Day
+2044/5/1,Labour Day
+2044/5/2,Labour Day (observed)
+2044/5/25,Africa Freedom Day
+2044/7/4,Heroes' Day
+2044/7/5,Unity Day
+2044/8/1,Farmers' Day
+2044/10/24,Independence Day
+2044/12/25,Christmas Day
+2044/12/26,Christmas Day (observed)
+2044/12/29,National Day of Prayer and Christian Heritage
+2045/1/1,New Year's Day
+2045/1/2,New Year's Day (observed)
+2045/3/8,International Women's Day
+2045/3/12,Youth Day
+2045/3/13,Youth Day (observed)
+2045/4/7,Good Friday
+2045/4/8,Holy Saturday
+2045/4/9,Easter Sunday
+2045/4/10,Easter Monday
+2045/4/28,Kenneth Kaunda Day
+2045/5/1,Labour Day
+2045/5/25,Africa Freedom Day
+2045/7/3,Heroes' Day
+2045/7/4,Unity Day
+2045/8/7,Farmers' Day
+2045/10/24,Independence Day
+2045/12/25,Christmas Day
+2045/12/29,National Day of Prayer and Christian Heritage
+2046/1/1,New Year's Day
+2046/3/8,International Women's Day
+2046/3/12,Youth Day
+2046/3/23,Good Friday
+2046/3/24,Holy Saturday
+2046/3/25,Easter Sunday
+2046/3/26,Easter Monday
+2046/4/28,Kenneth Kaunda Day
+2046/5/1,Labour Day
+2046/5/25,Africa Freedom Day
+2046/7/2,Heroes' Day
+2046/7/3,Unity Day
+2046/8/6,Farmers' Day
+2046/8/9,General Election Day
+2046/10/24,Independence Day
+2046/12/25,Christmas Day
+2046/12/29,National Day of Prayer and Christian Heritage
+2047/1/1,New Year's Day
+2047/3/8,International Women's Day
+2047/3/12,Youth Day
+2047/4/12,Good Friday
+2047/4/13,Holy Saturday
+2047/4/14,Easter Sunday
+2047/4/15,Easter Monday
+2047/4/28,Kenneth Kaunda Day
+2047/4/29,Kenneth Kaunda Day (observed)
+2047/5/1,Labour Day
+2047/5/25,Africa Freedom Day
+2047/7/1,Heroes' Day
+2047/7/2,Unity Day
+2047/8/5,Farmers' Day
+2047/10/24,Independence Day
+2047/12/25,Christmas Day
+2047/12/29,National Day of Prayer and Christian Heritage
+2047/12/30,National Day of Prayer and Christian Heritage (observed)
+2048/1/1,New Year's Day
+2048/3/8,International Women's Day
+2048/3/9,International Women's Day (observed)
+2048/3/12,Youth Day
+2048/4/3,Good Friday
+2048/4/4,Holy Saturday
+2048/4/5,Easter Sunday
+2048/4/6,Easter Monday
+2048/4/28,Kenneth Kaunda Day
+2048/5/1,Labour Day
+2048/5/25,Africa Freedom Day
+2048/7/6,Heroes' Day
+2048/7/7,Unity Day
+2048/8/3,Farmers' Day
+2048/10/24,Independence Day
+2048/12/25,Christmas Day
+2048/12/29,National Day of Prayer and Christian Heritage
+2049/1/1,New Year's Day
+2049/3/8,International Women's Day
+2049/3/12,Youth Day
+2049/4/16,Good Friday
+2049/4/17,Holy Saturday
+2049/4/18,Easter Sunday
+2049/4/19,Easter Monday
+2049/4/28,Kenneth Kaunda Day
+2049/5/1,Labour Day
+2049/5/25,Africa Freedom Day
+2049/7/5,Heroes' Day
+2049/7/6,Unity Day
+2049/8/2,Farmers' Day
+2049/10/24,Independence Day
+2049/10/25,Independence Day (observed)
+2049/12/25,Christmas Day
+2049/12/29,National Day of Prayer and Christian Heritage
+2050/1/1,New Year's Day
+2050/3/8,International Women's Day
+2050/3/12,Youth Day
+2050/4/8,Good Friday
+2050/4/9,Holy Saturday
+2050/4/10,Easter Sunday
+2050/4/11,Easter Monday
+2050/4/28,Kenneth Kaunda Day
+2050/5/1,Labour Day
+2050/5/2,Labour Day (observed)
+2050/5/25,Africa Freedom Day
+2050/7/4,Heroes' Day
+2050/7/5,Unity Day
+2050/8/1,Farmers' Day
+2050/10/24,Independence Day
+2050/12/25,Christmas Day
+2050/12/26,Christmas Day (observed)
+2050/12/29,National Day of Prayer and Christian Heritage

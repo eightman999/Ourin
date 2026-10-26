@@ -92,20 +92,19 @@ struct ModernDevToolsCommands: Commands {
     }
     
     private func openDevToolsHelp() {
-        if let url = URL(string: "https://github.com/eightman999/Ourin/wiki/DevTools") {
+        if let url = URL(string: "https://furinlab.com/ourin/docs/") {
             NSWorkspace.shared.open(url)
         }
     }
     
     private func openShioriSpecs() {
-        let docsPath = Bundle.main.bundlePath.appending("/Contents/Resources/docs")
-        if let url = URL(string: "file://\(docsPath)") {
+        if let url = URL(string: "https://furinlab.com/ourin/docs/library/shiori-3-0m-spec/ja/") {
             NSWorkspace.shared.open(url)
         }
     }
     
     private func openPluginGuide() {
-        if let url = URL(string: "https://github.com/eightman999/Ourin/wiki/Plugin-Development") {
+        if let url = URL(string: "https://furinlab.com/ourin/docs/library/spec-plugin-2-0m/ja/") {
             NSWorkspace.shared.open(url)
         }
     }

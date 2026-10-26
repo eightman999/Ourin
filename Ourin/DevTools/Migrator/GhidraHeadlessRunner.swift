@@ -111,7 +111,7 @@ final class GhidraHeadlessRunner {
         do {
             try fm.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
         } catch {
-            handlers.onFinish(.failure(message: "出力ディレクトリ作成失敗: \(error.localizedDescription)",
+            handlers.onFinish(.failure(message: String(format: NSLocalizedString("出力ディレクトリ作成失敗: %@", comment: "Ghidra error"), error.localizedDescription),
                                       durationSeconds: Date().timeIntervalSince(start)))
             return
         }
@@ -124,13 +124,13 @@ final class GhidraHeadlessRunner {
             try fm.createDirectory(at: configuration.workDirectory, withIntermediateDirectories: true)
             try fm.createDirectory(at: projectDir, withIntermediateDirectories: true)
         } catch {
-            handlers.onFinish(.failure(message: "作業ディレクトリ作成失敗: \(error.localizedDescription)",
+            handlers.onFinish(.failure(message: String(format: NSLocalizedString("作業ディレクトリ作成失敗: %@", comment: "Ghidra error"), error.localizedDescription),
                                       durationSeconds: Date().timeIntervalSince(start)))
             return
         }
 
         guard let scriptDir = GhidraHeadlessRunner.resolveScript() else {
-            handlers.onFinish(.failure(message: "DecompileAll.java が見つかりません",
+            handlers.onFinish(.failure(message: NSLocalizedString("DecompileAll.java が見つかりません", comment: "Ghidra error"),
                                       durationSeconds: Date().timeIntervalSince(start)))
             return
         }
@@ -183,7 +183,7 @@ final class GhidraHeadlessRunner {
             } else {
                 self.logger.warning("Ghidra analysis failed (status \(p.terminationStatus))")
                 self.handlers.onFinish(.failure(
-                    message: "analyzeHeadless 終了コード \(p.terminationStatus)",
+                    message: String(format: NSLocalizedString("analyzeHeadless 終了コード %d", comment: "Ghidra error"), p.terminationStatus),
                     durationSeconds: duration
                 ))
             }
@@ -194,7 +194,7 @@ final class GhidraHeadlessRunner {
         do {
             try proc.run()
         } catch {
-            handlers.onFinish(.failure(message: "analyzeHeadless 起動失敗: \(error.localizedDescription)",
+            handlers.onFinish(.failure(message: String(format: NSLocalizedString("analyzeHeadless 起動失敗: %@", comment: "Ghidra error"), error.localizedDescription),
                                       durationSeconds: Date().timeIntervalSince(start)))
         }
 

@@ -1,0 +1,343 @@
+# LU の祝日（2020〜2050年、言語: lb）
+# 出典: python-holidays 0.107（MIT ライセンス。https://github.com/vacanza/holidays）
+# 形式: 年/月/日,名称
+2020/1/1,Neijoerschdag
+2020/4/13,Ouschterméindeg
+2020/5/1,Dag vun der Aarbecht
+2020/5/9,Europadag
+2020/5/21,Christi Himmelfaart
+2020/6/1,Péngschtméindeg
+2020/6/23,Nationalfeierdag
+2020/8/15,Léiffrawëschdag
+2020/11/1,Allerhellgen
+2020/12/25,Chrëschtdag
+2020/12/26,Stiefesdag
+2021/1/1,Neijoerschdag
+2021/4/5,Ouschterméindeg
+2021/5/1,Dag vun der Aarbecht
+2021/5/9,Europadag
+2021/5/13,Christi Himmelfaart
+2021/5/24,Péngschtméindeg
+2021/6/23,Nationalfeierdag
+2021/8/15,Léiffrawëschdag
+2021/11/1,Allerhellgen
+2021/12/25,Chrëschtdag
+2021/12/26,Stiefesdag
+2022/1/1,Neijoerschdag
+2022/4/18,Ouschterméindeg
+2022/5/1,Dag vun der Aarbecht
+2022/5/9,Europadag
+2022/5/26,Christi Himmelfaart
+2022/6/6,Péngschtméindeg
+2022/6/23,Nationalfeierdag
+2022/8/15,Léiffrawëschdag
+2022/11/1,Allerhellgen
+2022/12/25,Chrëschtdag
+2022/12/26,Stiefesdag
+2023/1/1,Neijoerschdag
+2023/4/10,Ouschterméindeg
+2023/5/1,Dag vun der Aarbecht
+2023/5/9,Europadag
+2023/5/18,Christi Himmelfaart
+2023/5/29,Péngschtméindeg
+2023/6/23,Nationalfeierdag
+2023/8/15,Léiffrawëschdag
+2023/11/1,Allerhellgen
+2023/12/25,Chrëschtdag
+2023/12/26,Stiefesdag
+2024/1/1,Neijoerschdag
+2024/4/1,Ouschterméindeg
+2024/5/1,Dag vun der Aarbecht
+2024/5/9,Christi Himmelfaart; Europadag
+2024/5/20,Péngschtméindeg
+2024/6/23,Nationalfeierdag
+2024/8/15,Léiffrawëschdag
+2024/11/1,Allerhellgen
+2024/12/25,Chrëschtdag
+2024/12/26,Stiefesdag
+2025/1/1,Neijoerschdag
+2025/4/21,Ouschterméindeg
+2025/5/1,Dag vun der Aarbecht
+2025/5/9,Europadag
+2025/5/29,Christi Himmelfaart
+2025/6/9,Péngschtméindeg
+2025/6/23,Nationalfeierdag
+2025/8/15,Léiffrawëschdag
+2025/11/1,Allerhellgen
+2025/12/25,Chrëschtdag
+2025/12/26,Stiefesdag
+2026/1/1,Neijoerschdag
+2026/4/6,Ouschterméindeg
+2026/5/1,Dag vun der Aarbecht
+2026/5/9,Europadag
+2026/5/14,Christi Himmelfaart
+2026/5/25,Péngschtméindeg
+2026/6/23,Nationalfeierdag
+2026/8/15,Léiffrawëschdag
+2026/11/1,Allerhellgen
+2026/12/25,Chrëschtdag
+2026/12/26,Stiefesdag
+2027/1/1,Neijoerschdag
+2027/3/29,Ouschterméindeg
+2027/5/1,Dag vun der Aarbecht
+2027/5/6,Christi Himmelfaart
+2027/5/9,Europadag
+2027/5/17,Péngschtméindeg
+2027/6/23,Nationalfeierdag
+2027/8/15,Léiffrawëschdag
+2027/11/1,Allerhellgen
+2027/12/25,Chrëschtdag
+2027/12/26,Stiefesdag
+2028/1/1,Neijoerschdag
+2028/4/17,Ouschterméindeg
+2028/5/1,Dag vun der Aarbecht
+2028/5/9,Europadag
+2028/5/25,Christi Himmelfaart
+2028/6/5,Péngschtméindeg
+2028/6/23,Nationalfeierdag
+2028/8/15,Léiffrawëschdag
+2028/11/1,Allerhellgen
+2028/12/25,Chrëschtdag
+2028/12/26,Stiefesdag
+2029/1/1,Neijoerschdag
+2029/4/2,Ouschterméindeg
+2029/5/1,Dag vun der Aarbecht
+2029/5/9,Europadag
+2029/5/10,Christi Himmelfaart
+2029/5/21,Péngschtméindeg
+2029/6/23,Nationalfeierdag
+2029/8/15,Léiffrawëschdag
+2029/11/1,Allerhellgen
+2029/12/25,Chrëschtdag
+2029/12/26,Stiefesdag
+2030/1/1,Neijoerschdag
+2030/4/22,Ouschterméindeg
+2030/5/1,Dag vun der Aarbecht
+2030/5/9,Europadag
+2030/5/30,Christi Himmelfaart
+2030/6/10,Péngschtméindeg
+2030/6/23,Nationalfeierdag
+2030/8/15,Léiffrawëschdag
+2030/11/1,Allerhellgen
+2030/12/25,Chrëschtdag
+2030/12/26,Stiefesdag
+2031/1/1,Neijoerschdag
+2031/4/14,Ouschterméindeg
+2031/5/1,Dag vun der Aarbecht
+2031/5/9,Europadag
+2031/5/22,Christi Himmelfaart
+2031/6/2,Péngschtméindeg
+2031/6/23,Nationalfeierdag
+2031/8/15,Léiffrawëschdag
+2031/11/1,Allerhellgen
+2031/12/25,Chrëschtdag
+2031/12/26,Stiefesdag
+2032/1/1,Neijoerschdag
+2032/3/29,Ouschterméindeg
+2032/5/1,Dag vun der Aarbecht
+2032/5/6,Christi Himmelfaart
+2032/5/9,Europadag
+2032/5/17,Péngschtméindeg
+2032/6/23,Nationalfeierdag
+2032/8/15,Léiffrawëschdag
+2032/11/1,Allerhellgen
+2032/12/25,Chrëschtdag
+2032/12/26,Stiefesdag
+2033/1/1,Neijoerschdag
+2033/4/18,Ouschterméindeg
+2033/5/1,Dag vun der Aarbecht
+2033/5/9,Europadag
+2033/5/26,Christi Himmelfaart
+2033/6/6,Péngschtméindeg
+2033/6/23,Nationalfeierdag
+2033/8/15,Léiffrawëschdag
+2033/11/1,Allerhellgen
+2033/12/25,Chrëschtdag
+2033/12/26,Stiefesdag
+2034/1/1,Neijoerschdag
+2034/4/10,Ouschterméindeg
+2034/5/1,Dag vun der Aarbecht
+2034/5/9,Europadag
+2034/5/18,Christi Himmelfaart
+2034/5/29,Péngschtméindeg
+2034/6/23,Nationalfeierdag
+2034/8/15,Léiffrawëschdag
+2034/11/1,Allerhellgen
+2034/12/25,Chrëschtdag
+2034/12/26,Stiefesdag
+2035/1/1,Neijoerschdag
+2035/3/26,Ouschterméindeg
+2035/5/1,Dag vun der Aarbecht
+2035/5/3,Christi Himmelfaart
+2035/5/9,Europadag
+2035/5/14,Péngschtméindeg
+2035/6/23,Nationalfeierdag
+2035/8/15,Léiffrawëschdag
+2035/11/1,Allerhellgen
+2035/12/25,Chrëschtdag
+2035/12/26,Stiefesdag
+2036/1/1,Neijoerschdag
+2036/4/14,Ouschterméindeg
+2036/5/1,Dag vun der Aarbecht
+2036/5/9,Europadag
+2036/5/22,Christi Himmelfaart
+2036/6/2,Péngschtméindeg
+2036/6/23,Nationalfeierdag
+2036/8/15,Léiffrawëschdag
+2036/11/1,Allerhellgen
+2036/12/25,Chrëschtdag
+2036/12/26,Stiefesdag
+2037/1/1,Neijoerschdag
+2037/4/6,Ouschterméindeg
+2037/5/1,Dag vun der Aarbecht
+2037/5/9,Europadag
+2037/5/14,Christi Himmelfaart
+2037/5/25,Péngschtméindeg
+2037/6/23,Nationalfeierdag
+2037/8/15,Léiffrawëschdag
+2037/11/1,Allerhellgen
+2037/12/25,Chrëschtdag
+2037/12/26,Stiefesdag
+2038/1/1,Neijoerschdag
+2038/4/26,Ouschterméindeg
+2038/5/1,Dag vun der Aarbecht
+2038/5/9,Europadag
+2038/6/3,Christi Himmelfaart
+2038/6/14,Péngschtméindeg
+2038/6/23,Nationalfeierdag
+2038/8/15,Léiffrawëschdag
+2038/11/1,Allerhellgen
+2038/12/25,Chrëschtdag
+2038/12/26,Stiefesdag
+2039/1/1,Neijoerschdag
+2039/4/11,Ouschterméindeg
+2039/5/1,Dag vun der Aarbecht
+2039/5/9,Europadag
+2039/5/19,Christi Himmelfaart
+2039/5/30,Péngschtméindeg
+2039/6/23,Nationalfeierdag
+2039/8/15,Léiffrawëschdag
+2039/11/1,Allerhellgen
+2039/12/25,Chrëschtdag
+2039/12/26,Stiefesdag
+2040/1/1,Neijoerschdag
+2040/4/2,Ouschterméindeg
+2040/5/1,Dag vun der Aarbecht
+2040/5/9,Europadag
+2040/5/10,Christi Himmelfaart
+2040/5/21,Péngschtméindeg
+2040/6/23,Nationalfeierdag
+2040/8/15,Léiffrawëschdag
+2040/11/1,Allerhellgen
+2040/12/25,Chrëschtdag
+2040/12/26,Stiefesdag
+2041/1/1,Neijoerschdag
+2041/4/22,Ouschterméindeg
+2041/5/1,Dag vun der Aarbecht
+2041/5/9,Europadag
+2041/5/30,Christi Himmelfaart
+2041/6/10,Péngschtméindeg
+2041/6/23,Nationalfeierdag
+2041/8/15,Léiffrawëschdag
+2041/11/1,Allerhellgen
+2041/12/25,Chrëschtdag
+2041/12/26,Stiefesdag
+2042/1/1,Neijoerschdag
+2042/4/7,Ouschterméindeg
+2042/5/1,Dag vun der Aarbecht
+2042/5/9,Europadag
+2042/5/15,Christi Himmelfaart
+2042/5/26,Péngschtméindeg
+2042/6/23,Nationalfeierdag
+2042/8/15,Léiffrawëschdag
+2042/11/1,Allerhellgen
+2042/12/25,Chrëschtdag
+2042/12/26,Stiefesdag
+2043/1/1,Neijoerschdag
+2043/3/30,Ouschterméindeg
+2043/5/1,Dag vun der Aarbecht
+2043/5/7,Christi Himmelfaart
+2043/5/9,Europadag
+2043/5/18,Péngschtméindeg
+2043/6/23,Nationalfeierdag
+2043/8/15,Léiffrawëschdag
+2043/11/1,Allerhellgen
+2043/12/25,Chrëschtdag
+2043/12/26,Stiefesdag
+2044/1/1,Neijoerschdag
+2044/4/18,Ouschterméindeg
+2044/5/1,Dag vun der Aarbecht
+2044/5/9,Europadag
+2044/5/26,Christi Himmelfaart
+2044/6/6,Péngschtméindeg
+2044/6/23,Nationalfeierdag
+2044/8/15,Léiffrawëschdag
+2044/11/1,Allerhellgen
+2044/12/25,Chrëschtdag
+2044/12/26,Stiefesdag
+2045/1/1,Neijoerschdag
+2045/4/10,Ouschterméindeg
+2045/5/1,Dag vun der Aarbecht
+2045/5/9,Europadag
+2045/5/18,Christi Himmelfaart
+2045/5/29,Péngschtméindeg
+2045/6/23,Nationalfeierdag
+2045/8/15,Léiffrawëschdag
+2045/11/1,Allerhellgen
+2045/12/25,Chrëschtdag
+2045/12/26,Stiefesdag
+2046/1/1,Neijoerschdag
+2046/3/26,Ouschterméindeg
+2046/5/1,Dag vun der Aarbecht
+2046/5/3,Christi Himmelfaart
+2046/5/9,Europadag
+2046/5/14,Péngschtméindeg
+2046/6/23,Nationalfeierdag
+2046/8/15,Léiffrawëschdag
+2046/11/1,Allerhellgen
+2046/12/25,Chrëschtdag
+2046/12/26,Stiefesdag
+2047/1/1,Neijoerschdag
+2047/4/15,Ouschterméindeg
+2047/5/1,Dag vun der Aarbecht
+2047/5/9,Europadag
+2047/5/23,Christi Himmelfaart
+2047/6/3,Péngschtméindeg
+2047/6/23,Nationalfeierdag
+2047/8/15,Léiffrawëschdag
+2047/11/1,Allerhellgen
+2047/12/25,Chrëschtdag
+2047/12/26,Stiefesdag
+2048/1/1,Neijoerschdag
+2048/4/6,Ouschterméindeg
+2048/5/1,Dag vun der Aarbecht
+2048/5/9,Europadag
+2048/5/14,Christi Himmelfaart
+2048/5/25,Péngschtméindeg
+2048/6/23,Nationalfeierdag
+2048/8/15,Léiffrawëschdag
+2048/11/1,Allerhellgen
+2048/12/25,Chrëschtdag
+2048/12/26,Stiefesdag
+2049/1/1,Neijoerschdag
+2049/4/19,Ouschterméindeg
+2049/5/1,Dag vun der Aarbecht
+2049/5/9,Europadag
+2049/5/27,Christi Himmelfaart
+2049/6/7,Péngschtméindeg
+2049/6/23,Nationalfeierdag
+2049/8/15,Léiffrawëschdag
+2049/11/1,Allerhellgen
+2049/12/25,Chrëschtdag
+2049/12/26,Stiefesdag
+2050/1/1,Neijoerschdag
+2050/4/11,Ouschterméindeg
+2050/5/1,Dag vun der Aarbecht
+2050/5/9,Europadag
+2050/5/19,Christi Himmelfaart
+2050/5/30,Péngschtméindeg
+2050/6/23,Nationalfeierdag
+2050/8/15,Léiffrawëschdag
+2050/11/1,Allerhellgen
+2050/12/25,Chrëschtdag
+2050/12/26,Stiefesdag

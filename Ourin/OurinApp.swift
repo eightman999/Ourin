@@ -213,7 +213,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     ) {
         let work = { [weak self] in
             guard let self else {
-                completion("実行対象: なし（アプリデリゲート未接続）")
+                completion(NSLocalizedString("実行対象: なし（アプリデリゲート未接続）", comment: "DevTools script target missing"))
                 return
             }
 
@@ -221,18 +221,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             if let target = self.devToolsGhostManager(named: requestedName) {
                 target.runScript(script)
-                completion("実行対象: \(self.devToolsDisplayName(for: target))")
+                completion(String(format: NSLocalizedString("実行対象: %@", comment: "DevTools script target"), self.devToolsDisplayName(for: target)))
                 return
             }
 
             guard !requestedName.isEmpty else {
-                completion("実行対象: なし（ゴースト未起動）")
+                completion(NSLocalizedString("実行対象: なし（ゴースト未起動）", comment: "DevTools script target missing"))
                 return
             }
 
             guard let item = NarRegistry.shared.installedItems(ofType: "ghost")
                 .first(where: { $0.name.caseInsensitiveCompare(requestedName) == .orderedSame }) else {
-                completion("実行対象: なし（ゴースト \(requestedName) が見つかりません）")
+                completion(String(format: NSLocalizedString("実行対象: なし（ゴースト %@ が見つかりません）", comment: "DevTools script target missing"), requestedName))
                 return
             }
 
@@ -240,11 +240,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 let finish = {
                     guard result.succeeded else {
                         self?.terminateAdditionalGhost(target)
-                        completion("実行対象: なし（ゴースト \(requestedName) の起動に失敗）")
+                        completion(String(format: NSLocalizedString("実行対象: なし（ゴースト %@ の起動に失敗）", comment: "DevTools script target failed"), requestedName))
                         return
                     }
                     target.runScript(script)
-                    completion("実行対象: \(self?.devToolsDisplayName(for: target) ?? requestedName)")
+                    completion(String(format: NSLocalizedString("実行対象: %@", comment: "DevTools script target"), self?.devToolsDisplayName(for: target) ?? requestedName))
                 }
                 if Thread.isMainThread {
                     finish()

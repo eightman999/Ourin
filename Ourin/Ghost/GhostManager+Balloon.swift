@@ -47,6 +47,8 @@ extension GhostManager {
         vm.scope = scope
         // アンカー装飾の既定値をバルーン設定（descript.txt の anchor.pen.color / anchor.font.color）から取る。
         vm.applyBalloonConfigAnchorDefaults(config: balloonConfig)
+        // 本文の既定（descript.txt の font.color / font.height）も表示の最初から使う。
+        applyBalloonFontDefaults(vm: vm)
         // Initialize balloon ID from character view model
         if let charVM = characterViewModels[scope] {
             vm.balloonID = charVM.currentBalloonID
@@ -176,6 +178,7 @@ extension GhostManager {
                 if !part.isEmpty { vm.text += String(part) }
             }
             scheduleBalloonTimeout(for: currentScope)
+            noteTalkShownForSurfaceRestore()
             let characterCount = s.reduce(into: 0) { count, character in
                 if character != "\n" { count += 1 }
             }
@@ -188,6 +191,7 @@ extension GhostManager {
         let vm = getBalloonVM(for: currentScope)
         vm.appendNewline(advance: advance)
         scheduleBalloonTimeout(for: currentScope)
+        noteTalkShownForSurfaceRestore()
         // 改行は表示位置を進めるイベントであり、talk,N の文字数には含めない。
         // 引数 0 でも talk（パラメータなし）のイベント通知は従来どおり維持する。
         triggerSerikoTalkAnimationIfEnabled(characterCount: 0)
@@ -470,6 +474,7 @@ extension GhostManager {
             ],
             to: self
         )
+        scheduleSurfaceRestoreIfTalkEnded()
     }
 
     /// `\_a` 範囲アンカーがクリックされたときの処理。
@@ -596,6 +601,8 @@ extension GhostManager {
                 to: self
             )
             self.localEventTimers.removeValue(forKey: key)
+            // 喋りタイムアウトでバルーンが閉じた時点から OnSurfaceRestore までの時間を数える。
+            self.scheduleSurfaceRestoreIfTalkEnded()
         }
         localEventTimers[key] = timer
     }
@@ -604,6 +611,14 @@ extension GhostManager {
         let key = "balloon-timeout-\(scope)"
         localEventTimers[key]?.invalidate()
         localEventTimers.removeValue(forKey: key)
+    }
+
+    /// 喋りタイムアウトで閉じる予定のまま、トークを表示しているバルーンがあるか。
+    func hasTalkBalloonAwaitingTimeout() -> Bool {
+        balloonViewModels.contains { scope, vm in
+            (!vm.text.isEmpty || !vm.balloonImages.isEmpty)
+                && localEventTimers["balloon-timeout-\(scope)"] != nil
+        }
     }
     // MARK: - Balloon Positioning
 
@@ -1254,18 +1269,37 @@ extension GhostManager {
         }
     }
 
+    /// 本文の既定スタイル（バルーンの descript.txt の font.height・font.color。UKADOC の既定値は 12・0,0,0）。
+    /// バルーン設定が無いときは 12・`.textColor`。
+    func applyBalloonFontDefaults(vm: BalloonViewModel) {
+        let config = balloonConfig
+        vm.fontSize = CGFloat(config?.fontHeight ?? 12)
+        vm.fontColor = config?.fontColor ?? .textColor
+    }
+
+    /// バルーン設定の切り替え後、作成済みのバルーンにも新しい設定の既定（本文・アンカー・カーソル）を入れる。
+    func applyBalloonConfigDefaultsToBalloonViewModels() {
+        let apply = { [weak self] in
+            guard let self else { return }
+            for vm in self.balloonViewModels.values {
+                vm.applyBalloonConfigAnchorDefaults(config: self.balloonConfig)
+                self.applyBalloonFontDefaults(vm: vm)
+            }
+        }
+        if Thread.isMainThread { apply() } else { DispatchQueue.main.async(execute: apply) }
+    }
+
     /// Reset font to default values
     func resetFontDefaults(vm: BalloonViewModel) {
         let config = balloonConfig
         vm.fontName = ""
-        vm.fontSize = CGFloat(config?.fontHeight ?? 12)
         vm.fontWeight = .regular
         vm.fontItalic = false
         vm.fontUnderline = false
         vm.fontStrike = false
         vm.fontSubscript = false
         vm.fontSuperscript = false
-        vm.fontColor = config?.fontColor ?? .textColor
+        applyBalloonFontDefaults(vm: vm)
         vm.setTextAlignment(.left)
         vm.setVerticalTextAlignment(.top)
         vm.shadowColor = .clear

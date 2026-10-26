@@ -49,7 +49,7 @@ struct AttachedComponent {
 
 enum TextEncodingDetector {
     /// Windows 互換 Shift_JIS (CP932)
-    static let shiftJIS = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.shiftJIS.rawValue)))
+    static let shiftJIS = String.Encoding.shiftJIS
 
     static func decode(_ data: Data) -> String? {
         if let s = String(data: data, encoding: .utf8) { return s }
@@ -58,18 +58,10 @@ enum TextEncodingDetector {
         return nil
     }
 
-    /// `charset,<value>` / `charset:<value>` の宣言値（小文字）を String.Encoding へ写像する。
+    /// `charset,<value>` / `charset:<value>` の宣言値を String.Encoding へ写像する（中国語・韓国語・欧文なども）。
     /// 未対応・不明な値は nil を返す。
     static func encoding(forCharset declared: String) -> String.Encoding? {
-        let v = declared.lowercased().trimmingCharacters(in: .whitespaces)
-        switch v {
-        case "utf-8", "utf8":
-            return .utf8
-        case "shift_jis", "shift-jis", "shiftjis", "sjis", "cp932", "windows-31j", "ms932":
-            return shiftJIS
-        default:
-            return nil
-        }
+        EncodingAdapter.knownEncoding(for: declared)
     }
 
     /// install.txt 等の生バイト列の先頭行を走査し、`charset` 宣言を探す。

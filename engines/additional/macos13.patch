@@ -1,0 +1,11 @@
+--- a/native/Package.swift
++++ b/native/Package.swift
+@@ -3,7 +3,7 @@
+ 
+ let package = Package(
+     name: "UtataneModules",
+-    platforms: [.macOS(.v14)],
++    platforms: [.macOS(.v13)],
+     products: [.library(name: "misaka", type: .dynamic, targets: ["MisakaModule"]),
+         .library(name: "niseshiori", type: .dynamic, targets: ["NiseShioriModule"]),
+         .library(name: "ese-shiori", type: .dynamic, targets: ["EseShioriModule"]),

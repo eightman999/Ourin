@@ -10,23 +10,6 @@ struct ShiolinkConfiguration {
 
     enum Failure: Error { case missing, invalid, unsupportedCharset, executableMissing }
 
-    /// This line protocol only permits encodings whose CR/LF bytes are ASCII.
-    static func encoding(for charset: String) -> String.Encoding? {
-        switch charset.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-            .replacingOccurrences(of: "_", with: "-") {
-        case "utf-8", "utf8": return .utf8
-        case "shift-jis", "shiftjis", "sjis", "x-sjis", "cp932", "ms932", "windows-31j": return .shiftJIS
-        default: return nil
-        }
-    }
-
-    private static func decodeConfiguration(_ data: Data) -> String? {
-        if data.starts(with: [0xEF, 0xBB, 0xBF]) {
-            return String(data: data.dropFirst(3), encoding: .utf8)
-        }
-        return String(data: data, encoding: .utf8) ?? String(data: data, encoding: .shiftJIS)
-    }
-
     static func load(context: ShioriRuntimeLoadContext) throws -> Self {
         let module = context.moduleName.replacingOccurrences(of: "\\", with: "/")
         guard !module.hasPrefix("/"), !module.split(separator: "/").contains("..") else { throw Failure.invalid }
@@ -42,7 +25,7 @@ struct ShiolinkConfiguration {
         let handle = try FileHandle(forReadingFrom: config)
         defer { try? handle.close() }
         let data = try handle.read(upToCount: 65537) ?? Data()
-        guard data.count <= 65536, let text = decodeConfiguration(data) else { throw Failure.invalid }
+        guard data.count <= 65536, let text = EncodingAdapter.decodeTextDefinition(data) else { throw Failure.invalid }
         var values: [String: String] = [:]
         var inSection = true
         for raw in text.components(separatedBy: .newlines) {
@@ -59,7 +42,7 @@ struct ShiolinkConfiguration {
         }
         let charset = values["charmode"] ?? "UTF-8"
         // Framing uses ASCII CRLF. UTF-16/32 and unknown encodings cannot use this transport.
-        guard let encoding = ShiolinkConfiguration.encoding(for: charset),
+        guard let encoding = EncodingAdapter.knownEncoding(for: charset),
               encoding == .utf8 || encoding == .shiftJIS else { throw Failure.unsupportedCharset }
         let executableName: String
         let arguments: [String]
@@ -87,7 +70,7 @@ struct ShiolinkConfiguration {
                 ["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin"].map { URL(fileURLWithPath: $0).appendingPathComponent(executableName) }
         }
         guard let executable = candidates.first(where: { FileManager.default.isExecutableFile(atPath: $0.path) }) else { throw Failure.executableMissing }
-        return Self(executable: executable, arguments: arguments, directory: directory, charset: encoding == .utf8 ? "UTF-8" : "Shift_JIS")
+        return Self(executable: executable, arguments: arguments, directory: directory, charset: EncodingAdapter.charsetName(for: encoding))
     }
 
     /// Quotes group arguments; shell substitutions/operators are never evaluated.
@@ -196,7 +179,7 @@ final class ShiolinkAdapter: GhostShioriRuntime {
         guard write("*S:\(serial)\r\n", deadline: deadline),
               readLine(deadline: deadline) == Data("*S:\(serial)".utf8) else { return nil }
         let charset = communication.forceEncoding ?? communication.encoding ?? configuration.charset
-        guard let encoding = ShiolinkConfiguration.encoding(for: charset), encoding == .utf8 || encoding == .shiftJIS else { return nil }
+        guard let encoding = EncodingAdapter.knownEncoding(for: charset), encoding == .utf8 || encoding == .shiftJIS else { return nil }
         let wire = ShioriWireCodec.makeRequest(method: method, id: id, headers: headers, refs: refs,
                                               protocolVersion: communication.version ?? "SHIORI/3.0", charset: charset)
         guard write(wire, charset: charset, deadline: deadline) else { return nil }
@@ -206,8 +189,7 @@ final class ShiolinkAdapter: GhostShioriRuntime {
             response.append(line); response.append(contentsOf: [13, 10])
             if line.isEmpty {
                 let responseCharset = communication.forceEncoding ?? EncodingAdapter.detectCharset(in: response, default: charset)
-                guard let encoding = ShiolinkConfiguration.encoding(for: responseCharset),
-                      let text = String(data: response, encoding: encoding) else { return nil }
+                guard let text = EncodingAdapter.decode(response, charset: responseCharset) else { return nil }
                 return ShioriWireCodec.parseResponse(communication.escapeUnknown ? EncodingAdapter.restoreEscapedUnicode(in: text) : text)
             }
         }
@@ -232,7 +214,7 @@ final class ShiolinkAdapter: GhostShioriRuntime {
     }
 
     private func write(_ text: String, charset: String? = nil, deadline: TimeInterval) -> Bool {
-        guard let input, let encoding = ShiolinkConfiguration.encoding(for: charset ?? configuration?.charset ?? "UTF-8"),
+        guard let input, let encoding = EncodingAdapter.knownEncoding(for: charset ?? configuration?.charset ?? "UTF-8"),
               let data = text.data(using: encoding), data.count <= maximumBytes else { return false }
         let fd = input.fileHandleForWriting.fileDescriptor
         return data.withUnsafeBytes { buffer in

@@ -4,6 +4,19 @@
 
 更新: 2026-10-25。開発版の実装契約。公開済みバイナリの対応を示すものではありません。
 
+## macOS用モジュールの選択
+
+`descript.txt` でWindows用の `shiori` を維持したまま、macOS用モジュールを明示できます。
+
+```text
+shiori,yaya.dll
+shiori.macos,native/libyaya.dylib
+```
+
+空でない `shiori.macos` を通常起動・再ロードの両方で優先します。パスは `ghost/master` からの相対指定で、Windowsの `\` 区切りも受け付けます。`yaya` などの名前でも明示選択したファイルをNative経路で読み、同梱helperへ置換しません。空欄は従来の `shiori` へ戻り、指定ファイルが無い場合はロード失敗になります。辞書ディレクトリは選択したモジュールの親フォルダです。下記ABI宣言も必要です。
+
+同梱互換エンジンを自動選択する場合は `shiori.macos` を追加せず、元の `shiori` を使います。[追加栞の手順と制約](ADDITIONAL_SHIORI_ja-jp.md)を参照してください。
+
 ## 宣言
 
 macOS の `.bundle` / `.plugin` は `Contents/Info.plist`、単体ライブラリはファイル名に `.plist` を追加した隣接ファイル（例: `engine.dylib.plist`）に `OurinShioriABI` を指定します。
@@ -19,10 +32,13 @@ macOS の `.bundle` / `.plugin` は `Contents/Info.plist`、単体ライブラ�
 | `ukagaka-long` | `int32_t(void *, long)` | `void *(void *, long *)` | `int32_t(void)` |
 | `ukagaka-int32` | `int32_t(void *, int32_t)` | `void *(void *, int32_t *)` | `int32_t(void)` |
 | `kagari` | `int32_t(void *, long)` → instance ID | `void *(int32_t id, void *, long *)` | `int32_t(int32_t id)` |
+| `aosora` | `long(void *, long)` → instance ID | `void *(long id, void *, long *)` | `int32_t(long id)` |
 
 `ukagaka-long` の `long` は macOS の64bit整数です。`kagari` は [KAGARI POSIX ビルド](KAWARI_KAGARI_ENGINES_ja-jp.md) の `kagari_load` / `kagari_request` / `kagari_unload` 専用で、標準 2 引数 `request` とは別契約です。Windows由来の32bit長さを使用する移植版には `ukagaka-int32` を使用します。これは SHIORI 用のキーであり、SAORI等の `OurinModuleABI` とは別の契約です。
 
 宣言がない場合は、既存の `shiori_request` を持つ Ourin 独自ABIのみ受け付けます。無印の `request` は署名を推測せず拒否します。不明な宣言値もロードエラーになります。
+
+`aosora` は `aosora_load` / `aosora_request` / `aosora_unload` 専用です。インスタンスIDも64bitで、ロード失敗は0です。入力と応答の所有権は `ukagaka-*` と同じです。[任意導入・実ゴースト検証](compatibility-corpus/aosora.md)を参照。通常配布には同梱しません。
 
 ## シンボルと所有権
 
