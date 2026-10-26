@@ -111,8 +111,10 @@ Token Lexer::readString() {
     if (current() == quote) {
         advance(); // Skip closing quote
     }
-    
-    return Token(TokenType::String, value, startLine, startCol);
+
+    Token token(TokenType::String, value, startLine, startCol);
+    token.plainString = quote == '\'';
+    return token;
 }
 
 Token Lexer::readNumber() {
@@ -497,5 +499,7 @@ Token Lexer::readHereDoc(char quote) {
         }
     }
 
-    return Token(TokenType::String, value, startLine, startCol);
+    Token token(TokenType::String, value, startLine, startCol);
+    token.plainString = quote == '\'';
+    return token;
 }

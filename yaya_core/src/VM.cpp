@@ -1000,6 +1000,8 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
         case AST::NodeType::Literal: {
             auto* lit = dynamic_cast<AST::LiteralNode*>(node.get());
             if (lit->isString) {
+                // シングルクォートの文字列は YAYA でも埋め込み要素を持たない（F_TAG_STRING_PLAIN）。
+                if (lit->plainString) return Value(lit->value);
                 // Interpolate embedded expressions in string literals
                 std::string interpolated = interpolateString(lit->value);
                 return Value(interpolated);
@@ -4622,7 +4624,8 @@ void VM::registerBuiltins() {
         return Value(lastOutputNum_);
     };
     
-    // EmBeD_HiStOrY - `%[n]` の実行時参照。n=0 は直前の埋め込み値。
+    // EmBeD_HiStOrY - 本家で `%[n]` の変換先になるシステム関数。引数は直前の括弧なしの埋め込みから
+    // さかのぼった位置（0 が直前）。文字列中の `%[n]` は interpolateString が先頭からの番号で直接引く。
     builtins_["EmBeD_HiStOrY"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
         const auto offset = args[0].asInt64();
@@ -4634,10 +4637,33 @@ void VM::registerBuiltins() {
     };
 }
 
-// Interpolate embedded expressions in strings like %(_varname) or %(funcname()).
-// %[n] refers to the n-th preceding embedded value in this same string.
-// YAYA 本家（CParser0::ConvertEmbedStringToFormula）は %(…) を名前に関係なく TOSTR(…) として評価する。
-// SSP の環境変数は括弧なしの %username 形式なので、ここでは手を付けずベースウェアに残す。
+namespace {
+
+// map のキーのうち s の接頭辞になっている最も長い名前の長さ（無ければ 0）。
+// 接頭辞は s 以下で先頭の文字が同じなので、その範囲のキーだけを調べる。
+template <typename Map, typename Usable>
+size_t longestNamePrefix(const Map& names, const std::string& s, Usable usable) {
+    if (s.empty()) return 0;
+    size_t longest = 0;
+    const auto last = names.upper_bound(s);
+    for (auto it = names.lower_bound(s.substr(0, 1)); it != last; ++it) {
+        const std::string& name = it->first;
+        if (name.size() > longest && s.compare(0, name.size(), name) == 0 && usable(it->second)) {
+            longest = name.size();
+        }
+    }
+    return longest;
+}
+
+} // namespace
+
+// 文字列中の埋め込み要素を YAYA 本家と同じ規則で展開する（既定の embed.lazy on の動き）。
+// - %(式): 名前に関係なく式として評価する（CParser0::ConvertEmbedStringToFormula で TOSTR(式)）。
+// - %名前: 次の % までを対象に、実行時にある変数・関数・システム関数の名前の最長一致で展開する
+//   （CFunction::SolveEmbedCell）。一致しなければ % を含めて残すので、SSP の %username などは
+//   YAYA に同じ名前が無ければベースウェアへそのまま渡る。
+// - %[n]: この文字列の括弧なしの埋め込みのうち、先頭から 0 始まりで n 番目の展開結果。
+//   %(式) の結果は数えない（本家の nindex と CFunction::ExecHistoryP2）。
 std::string VM::interpolateString(const std::string& str) {
     std::string result;
     size_t pos = 0;
@@ -4672,21 +4698,76 @@ std::string VM::interpolateString(const std::string& str) {
         }
     };
 
-    while (pos < str.length()) {
-        const size_t expressionStart = str.find("%(", pos);
-        const size_t historyStart = str.find("%[", pos);
-        size_t start = std::string::npos;
-        bool isHistoryReference = false;
-        if (expressionStart == std::string::npos) {
-            start = historyStart;
-            isHistoryReference = true;
-        } else if (historyStart == std::string::npos || expressionStart < historyStart) {
-            start = expressionStart;
-        } else {
-            start = historyStart;
-            isHistoryReference = true;
-        }
+    // 括弧なしの埋め込み。segment は % の次から次の % の手前まで。
+    // 戻り値は {文字列に入るもの, %[n] で参照されるもの}。
+    auto expandNamedEmbed = [&](const std::string& segment) -> std::pair<std::string, std::string> {
+        const std::string unmatched = "%" + segment;
+        const auto hasValue = [](const Value& value) { return !value.isVoid(); };
 
+        size_t nameLength = 0;
+        bool isFunction = false;
+        if (segment[0] == '_') {
+            // ローカル変数だけを探す。
+            if (!localScopes_.empty()) nameLength = longestNamePrefix(localScopes_.back(), segment, hasValue);
+        } else {
+            // 変数、それより長ければユーザー関数、さらに長ければシステム関数。
+            nameLength = longestNamePrefix(variables_, segment, hasValue);
+            // reference は変数表とは別に持っている。
+            static const std::string referenceName = "reference";
+            if (!references_.empty() && segment.compare(0, referenceName.size(), referenceName) == 0) {
+                nameLength = std::max(nameLength, referenceName.size());
+            }
+            const size_t functionLength = longestNamePrefix(functions_, segment,
+                [](const std::vector<FunctionDecl>& decls) {
+                    return std::any_of(decls.begin(), decls.end(), [](const FunctionDecl& d) { return d.enabled; });
+                });
+            if (functionLength > nameLength) {
+                nameLength = functionLength;
+                isFunction = true;
+            }
+            const size_t builtinLength = longestNamePrefix(builtins_, segment, [](const auto&) { return true; });
+            if (builtinLength > nameLength) {
+                nameLength = builtinLength;
+                isFunction = true;
+            }
+        }
+        if (nameLength == 0) return {unmatched, unmatched};
+
+        // 関数なら続く (…) を引数に、さらに続く […] を添字に含める。本家は名前の直後の文字を
+        // 確かめずに数えるため、直後が開き括弧でないのに閉じ括弧で深さが 0 になった範囲は
+        // 括弧の釣り合わない式になり、式として読めず全体が文字列のまま残る。
+        bool unbalanced = false;
+        int depth = 1;
+        size_t i = 0;
+        if (isFunction) {
+            for (i = nameLength + 1; i < segment.size(); ++i) {
+                depth += (segment[i] == '(') - (segment[i] == ')');
+                if (depth == 0) break;
+            }
+            if (depth == 0) {
+                unbalanced = segment[nameLength] != '(';
+                nameLength = i + 1;
+            }
+        }
+        depth = 1;
+        for (i = nameLength + 1; i < segment.size(); ++i) {
+            if (depth == 0 && segment[i] != '[') break;
+            depth += (segment[i] == '[') - (segment[i] == ']');
+        }
+        if (depth == 0) {
+            unbalanced = unbalanced || segment[nameLength] != '[';
+            nameLength = i;
+        }
+        if (unbalanced) return {unmatched, unmatched};
+
+        const auto value = evaluateEmbeddedExpression(segment.substr(0, nameLength));
+        if (!value) return {unmatched, unmatched};
+        const std::string text = value->asString();
+        return {text + segment.substr(nameLength), text};
+    };
+
+    while (pos < str.length()) {
+        const size_t start = str.find('%', pos);
         if (start == std::string::npos) {
             result += str.substr(pos);
             break;
@@ -4694,7 +4775,23 @@ std::string VM::interpolateString(const std::string& str) {
 
         result += str.substr(pos, start - pos);
 
-        if (isHistoryReference) {
+        const char next = start + 1 < str.length() ? str[start + 1] : '\0';
+        if (next != '(' && next != '[') {
+            const size_t segmentEnd = std::min(str.find('%', start + 1), str.length());
+            const std::string segment = str.substr(start + 1, segmentEnd - start - 1);
+            if (segment.empty()) {
+                // 末尾や %% の % は文字のまま。
+                result += '%';
+            } else {
+                auto [expansion, embedded] = expandNamedEmbed(segment);
+                result += expansion;
+                embeddedHistory_.push_back(std::move(embedded));
+            }
+            pos = segmentEnd;
+            continue;
+        }
+
+        if (next == '[') {
             // Find matching ] while allowing nested brackets and quoted strings.
             int depth = 1;
             char quote = '\0';
@@ -4724,11 +4821,10 @@ std::string VM::interpolateString(const std::string& str) {
             bool substituted = false;
             if (!expression.empty()) {
                 if (const auto offsetValue = evaluateEmbeddedExpression(expression)) {
-                    const auto offset = offsetValue->asInt64();
-                    if (offset >= 0 &&
-                        static_cast<std::uint64_t>(offset) < embeddedHistory_.size()) {
-                        const auto index = embeddedHistory_.size() - 1 - static_cast<size_t>(offset);
-                        result += embeddedHistory_[index];
+                    const auto index = offsetValue->asInt64();
+                    if (index >= 0 &&
+                        static_cast<std::uint64_t>(index) < embeddedHistory_.size()) {
+                        result += embeddedHistory_[static_cast<size_t>(index)];
                         substituted = true;
                     }
                 }
@@ -4763,7 +4859,6 @@ std::string VM::interpolateString(const std::string& str) {
         }
 
         result += expansion;
-        embeddedHistory_.push_back(expansion);
         pos = end + 1;
     }
 

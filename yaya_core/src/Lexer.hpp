@@ -81,7 +81,9 @@ struct Token {
     std::string value;
     int line;
     int column;
-    
+    // シングルクォートの文字列（`'…'`、`<<'…'>>`）。YAYA では埋め込み要素を展開しない。
+    bool plainString = false;
+
     Token(TokenType t, const std::string& v = "", int l = 0, int c = 0)
         : type(t), value(v), line(l), column(c) {}
 };
