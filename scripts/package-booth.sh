@@ -34,9 +34,13 @@ ditto "$INSTALLER" "$STAGE/Ourin Installer.app"
 ditto "$APP" "$STAGE/Ourin.app"
 sed "s/{{VERSION}}/$VERSION/g" "$ROOT/docs/booth/README_ja-jp.txt" > "$STAGE/はじめにお読みください.txt"
 cp "$ROOT/LICENSE" "$STAGE/ライセンス/LICENSE.txt"
-for license in "$ROOT"/LICENSES/*.txt; do
+for license in "$ROOT"/LICENSES/*.txt "$ROOT"/Ourin/Resources/Licenses/*.txt; do
     cp "$license" "$STAGE/ライセンス/"
 done
+# 同梱エンジン（KAGARI・Lua 等）のライセンスはアプリ内のものをそのまま添える。
+if [ -d "$APP/Contents/Resources/EngineLicenses" ]; then
+    ditto "$APP/Contents/Resources/EngineLicenses" "$STAGE/ライセンス/エンジン"
+fi
 
 ZIP="$OUT_DIR/Ourin-$VERSION-booth.zip"
 rm -f "$ZIP"
