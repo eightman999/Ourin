@@ -53,6 +53,9 @@ struct OurinApp: App {
                 Button("About Ourin") {
                     appDelegate.showAboutWindow()
                 }
+                Button(NSLocalizedString("アップデートを確認…", comment: "App update menu")) {
+                    AppUpdater.shared.checkForUpdates(userInitiated: true)
+                }
             }
         }
 
@@ -403,6 +406,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
         // 起動時に設定画面を出さない（SSP と同様、設定はメニューから開く）。
         suppressLaunchSettingsWindows()
+
+        // 配布版の自動アップデート確認（設定「自動アップデート確認」、既定オン）。
+        AppUpdater.shared.startAutomaticChecks()
 
         // Register handler for x-ukagaka-link scheme early
         WebHandler.shared.register()
