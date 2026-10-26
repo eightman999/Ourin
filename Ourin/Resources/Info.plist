@@ -2,46 +2,71 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleName</key>
-	<string>Ourin</string>
-	<key>CFBundleIdentifier</key>
-	<string>furin-lab.Ourin</string>
+	<key>AppReleaseDate</key>
+	<string>2026-10-26</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>Ourin.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Ukagaka NAR</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>jp.ourin.nar</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
+	<key>CFBundleIdentifier</key>
+	<string>furin-lab.Ourin</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
-	<key>CFBundleVersion</key>
-	<string>21</string>
+	<key>CFBundleName</key>
+	<string>Ourin</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.0.1.21</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>13.0</string>
+	<string>0.1.0</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
 			<key>CFBundleURLName</key>
 			<string>org.ukagaka.link</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>x-ukagaka-link</string>
 			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
 		</dict>
 	</array>
+	<key>CFBundleVersion</key>
+	<string>22</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Ourin はゴースト・バルーン・プラグインなどのデータを「書類」フォルダ内の Ourin フォルダに保存・読み込みします。</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2025 Furin Lab and contributors</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Ourin は音声認識イベントを発火するためにマイク入力を使用します。</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Ourin は音声認識イベントをゴーストへ通知するために音声認識を使用します。</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
-			<key>UTTypeIdentifier</key>
-			<string>jp.ourin.nar</string>
-			<key>UTTypeDescription</key>
-			<string>Ukagaka NAR</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.zip-archive</string>
 			</array>
+			<key>UTTypeDescription</key>
+			<string>Ukagaka NAR</string>
+			<key>UTTypeIdentifier</key>
+			<string>jp.ourin.nar</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -57,30 +82,5 @@
 			</dict>
 		</dict>
 	</array>
-	<key>CFBundleDocumentTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeName</key>
-			<string>Ukagaka NAR</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>jp.ourin.nar</string>
-			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleTypeIconFile</key>
-			<string>Ourin.icns</string>
-		</dict>
-	</array>
-    <key>NSDocumentsFolderUsageDescription</key>
-    <string>Ourin はゴースト・バルーン・プラグインなどのデータを「書類」フォルダ内の Ourin フォルダに保存・読み込みします。</string>
-    <key>NSSpeechRecognitionUsageDescription</key>
-    <string>Ourin は音声認識イベントをゴーストへ通知するために音声認識を使用します。</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Ourin は音声認識イベントを発火するためにマイク入力を使用します。</string>
-    <key>NSHumanReadableCopyright</key>
-    <string>© 2025 Furin Lab and contributors</string>
-    <key>AppReleaseDate</key>
-    <string>2026-10-25</string>
 </dict>
 </plist>

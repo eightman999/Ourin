@@ -20,22 +20,24 @@ struct AppUpdateRelease: Equatable {
     /// GitHub Releases API（`/releases/latest`）の応答を読む。アプリ本体の zip が無ければ nil。
     static func parseGitHubRelease(_ data: Data) -> AppUpdateRelease? {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let tag = json["tag_name"] as? String,
               (json["draft"] as? Bool) != true,
               (json["prerelease"] as? Bool) != true else { return nil }
-        let version = tag.hasPrefix("v") ? String(tag.dropFirst()) : tag
         let assets = (json["assets"] as? [[String: Any]]) ?? []
         func asset(named name: String) -> URL? {
             assets.first { ($0["name"] as? String) == name }
                 .flatMap { $0["browser_download_url"] as? String }
                 .flatMap(URL.init(string:))
         }
-        guard let archive = asset(named: "Ourin-\(version).zip") else { return nil }
+        // 版数はタグ（v0.1.0-beta.1 等）ではなく、アプリ本体の zip 名 `Ourin-<CFBundleShortVersionString>.zip` から読む。
+        let names = assets.compactMap { $0["name"] as? String }
+        guard let archiveName = names.first(where: { $0.range(of: #"^Ourin-[0-9]+(\.[0-9]+)*\.zip$"#, options: .regularExpression) != nil }),
+              let archive = asset(named: archiveName) else { return nil }
+        let version = String(archiveName.dropFirst("Ourin-".count).dropLast(".zip".count))
         return AppUpdateRelease(
             version: version,
             notes: (json["body"] as? String) ?? "",
             archiveURL: archive,
-            checksumURL: asset(named: "Ourin-\(version).zip.sha256"),
+            checksumURL: asset(named: archiveName + ".sha256"),
             pageURL: (json["html_url"] as? String).flatMap(URL.init(string:))
         )
     }

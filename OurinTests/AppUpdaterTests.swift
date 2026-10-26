@@ -15,14 +15,14 @@ struct AppUpdaterTests {
     @Test
     func githubReleaseSelectsAppArchiveAndChecksum() throws {
         let json = """
-        {"tag_name":"v0.0.2.0","draft":false,"prerelease":false,"body":"notes","html_url":"https://example.com/r",
+        {"tag_name":"v0.1.0-beta.1","draft":false,"prerelease":false,"body":"notes","html_url":"https://example.com/r",
          "assets":[
-           {"name":"Ourin-Installer-0.0.2.0.zip","browser_download_url":"https://example.com/installer.zip"},
-           {"name":"Ourin-0.0.2.0.zip","browser_download_url":"https://example.com/app.zip"},
-           {"name":"Ourin-0.0.2.0.zip.sha256","browser_download_url":"https://example.com/app.zip.sha256"}]}
+           {"name":"Ourin-Installer-0.1.0.zip","browser_download_url":"https://example.com/installer.zip"},
+           {"name":"Ourin-0.1.0.zip","browser_download_url":"https://example.com/app.zip"},
+           {"name":"Ourin-0.1.0.zip.sha256","browser_download_url":"https://example.com/app.zip.sha256"}]}
         """
         let release = try #require(AppUpdateRelease.parseGitHubRelease(Data(json.utf8)))
-        #expect(release.version == "0.0.2.0")
+        #expect(release.version == "0.1.0")
         #expect(release.archiveURL.absoluteString == "https://example.com/app.zip")
         #expect(release.checksumURL?.absoluteString == "https://example.com/app.zip.sha256")
         #expect(release.notes == "notes")
