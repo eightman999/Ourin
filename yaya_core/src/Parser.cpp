@@ -1343,6 +1343,8 @@ std::shared_ptr<AST::Node> Parser::parsePrimary() {
     // and '+', and skipping newlines/semicolons, until reaching a ',' or ')' delimiter.
     if (check(TokenType::Slash)) {
         std::string accum;
+        // 1 つのリテラルにまとめるので、ダブルクォートの部分が 1 つでもあれば埋め込みを展開する。
+        bool plainString = true;
         while (!check(TokenType::EndOfFile) && !check(TokenType::Comma) && !check(TokenType::RightParen)) {
             if (match(TokenType::Slash)) {
                 continue; // ignore marker
@@ -1362,20 +1364,24 @@ std::shared_ptr<AST::Node> Parser::parsePrimary() {
             }
             if (check(TokenType::String)) {
                 accum += current().value;
+                plainString = plainString && current().plainString;
                 advance();
                 continue;
             }
             // Any other token likely indicates end of this pseudo-literal
             break;
         }
-        return std::make_shared<AST::LiteralNode>(accum, true);
+        auto literal = std::make_shared<AST::LiteralNode>(accum, true);
+        literal->plainString = plainString;
+        return literal;
     }
     // String literal
     if (check(TokenType::String)) {
-        auto value = current().value;
+        auto literal = std::make_shared<AST::LiteralNode>(current().value, true);
+        literal->plainString = current().plainString;
         advance();
         // YAYA は文字列リテラルにも添字を付けられる（`'否,是'[_flag]` は簡易配列の要素）。
-        return parseIndexSuffixes(std::make_shared<AST::LiteralNode>(value, true));
+        return parseIndexSuffixes(literal);
     }
     
     // Integer literal

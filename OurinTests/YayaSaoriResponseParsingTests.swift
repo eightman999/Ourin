@@ -105,13 +105,13 @@ final class YayaCoreLineHarness {
         ])
     }
 
-    func request(id: String) throws -> [String: Any] {
+    func request(id: String, references: [String] = []) throws -> [String: Any] {
         try exchange("request", [
             "cmd": "request",
             "method": "GET",
             "id": id,
             "headers": ["Charset": "UTF-8"],
-            "ref": []
+            "ref": references
         ])
     }
 
