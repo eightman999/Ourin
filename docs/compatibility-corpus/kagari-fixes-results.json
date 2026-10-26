@@ -1,0 +1,349 @@
+{
+  "date": "2026-10-25",
+  "scope": "native KAGARI runtime lifecycle and generic body double click; no GUI or game/AI completion claim",
+  "results": [
+    {
+      "id": "knowledgeable-kernel",
+      "download_url": "https://github.com/Tatakinov/knowledgeable_kernel/releases/download/v2.0.0/knowledgeable_kernel.nar",
+      "archive_sha256": "d7773466273b27e5e9feffcd4ae692e51057a17665e834b627f610c3a5fc9b45",
+      "network_allowed": false,
+      "ghost_lua_unchanged": true,
+      "exit": 0,
+      "failure": null,
+      "events": [
+        {
+          "cycle": 1,
+          "event": "load",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        },
+        {
+          "cycle": 1,
+          "event": "OnBoot",
+          "ok": true,
+          "status": 200,
+          "value_length": 393
+        },
+        {
+          "cycle": 1,
+          "event": "OnMouseDoubleClick",
+          "ok": true,
+          "status": 200,
+          "value_length": 223
+        },
+        {
+          "cycle": 1,
+          "event": "OnClose",
+          "ok": true,
+          "status": 200,
+          "value_length": 444
+        },
+        {
+          "cycle": 1,
+          "event": "unload",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        },
+        {
+          "cycle": 2,
+          "event": "load",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        },
+        {
+          "cycle": 2,
+          "event": "OnBoot",
+          "ok": true,
+          "status": 200,
+          "value_length": 393
+        },
+        {
+          "cycle": 2,
+          "event": "OnMouseDoubleClick",
+          "ok": true,
+          "status": 200,
+          "value_length": 223
+        },
+        {
+          "cycle": 2,
+          "event": "OnClose",
+          "ok": true,
+          "status": 200,
+          "value_length": 444
+        },
+        {
+          "cycle": 2,
+          "event": "unload",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        }
+      ],
+      "stderr_bytes": 72
+    },
+    {
+      "id": "banjou-no-sumikko-de",
+      "download_url": "https://github.com/Tatakinov/banjou_no_sumikko_de/releases/download/1.0.0/banjou_no_sumikko_de.nar",
+      "archive_sha256": "7f619f3267b8a92172234822f5d405fce1fd2d96c276828e8497165c6c9c03a4",
+      "network_allowed": false,
+      "ghost_lua_unchanged": true,
+      "exit": 0,
+      "failure": null,
+      "events": [
+        {
+          "cycle": 1,
+          "event": "load",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        },
+        {
+          "cycle": 1,
+          "event": "OnBoot",
+          "ok": true,
+          "status": 200,
+          "value_length": 139
+        },
+        {
+          "cycle": 1,
+          "event": "OnMouseDoubleClick",
+          "ok": true,
+          "status": 200,
+          "value_length": 205
+        },
+        {
+          "cycle": 1,
+          "event": "OnClose",
+          "ok": true,
+          "status": 200,
+          "value_length": 204
+        },
+        {
+          "cycle": 1,
+          "event": "unload",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        },
+        {
+          "cycle": 2,
+          "event": "load",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        },
+        {
+          "cycle": 2,
+          "event": "OnBoot",
+          "ok": true,
+          "status": 200,
+          "value_length": 139
+        },
+        {
+          "cycle": 2,
+          "event": "OnMouseDoubleClick",
+          "ok": true,
+          "status": 200,
+          "value_length": 205
+        },
+        {
+          "cycle": 2,
+          "event": "OnClose",
+          "ok": true,
+          "status": 200,
+          "value_length": 204
+        },
+        {
+          "cycle": 2,
+          "event": "unload",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        }
+      ],
+      "stderr_bytes": 462
+    },
+    {
+      "id": "yomibito-minarai",
+      "download_url": "https://github.com/Tatakinov/yomibito_minarai/releases/download/v1.1.0/yomibito_minarai.nar",
+      "archive_sha256": "bd8bf5333db86d1e34ca28dc65a78e74c514e07a7555dbe4fb832236fa00bf93",
+      "network_allowed": false,
+      "ghost_lua_unchanged": true,
+      "exit": 0,
+      "failure": null,
+      "events": [
+        {
+          "cycle": 1,
+          "event": "load",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        },
+        {
+          "cycle": 1,
+          "event": "OnBoot",
+          "ok": true,
+          "status": 200,
+          "value_length": 39
+        },
+        {
+          "cycle": 1,
+          "event": "OnMouseDoubleClick",
+          "ok": true,
+          "status": 200,
+          "value_length": 16
+        },
+        {
+          "cycle": 1,
+          "event": "OnClose",
+          "ok": true,
+          "status": 200,
+          "value_length": 385
+        },
+        {
+          "cycle": 1,
+          "event": "unload",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        },
+        {
+          "cycle": 2,
+          "event": "load",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        },
+        {
+          "cycle": 2,
+          "event": "OnBoot",
+          "ok": true,
+          "status": 200,
+          "value_length": 39
+        },
+        {
+          "cycle": 2,
+          "event": "OnMouseDoubleClick",
+          "ok": true,
+          "status": 200,
+          "value_length": 16
+        },
+        {
+          "cycle": 2,
+          "event": "OnClose",
+          "ok": true,
+          "status": 200,
+          "value_length": 385
+        },
+        {
+          "cycle": 2,
+          "event": "unload",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        }
+      ],
+      "stderr_bytes": 122
+    },
+    {
+      "id": "desktop-tempter",
+      "download_url": "https://github.com/Tatakinov/desktop_tempter/releases/download/1.0.0/desktop_tempter.nar",
+      "archive_sha256": "29d294cd515aa3a8c4abca9d7a4ad56c89df2753cbcffd57cfed1e0ae731f322",
+      "network_allowed": false,
+      "ghost_lua_unchanged": true,
+      "exit": 0,
+      "failure": null,
+      "events": [
+        {
+          "cycle": 1,
+          "event": "load",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        },
+        {
+          "cycle": 1,
+          "event": "OnBoot",
+          "ok": true,
+          "status": 200,
+          "value_length": 17
+        },
+        {
+          "cycle": 1,
+          "event": "OnMouseDoubleClick",
+          "ok": true,
+          "status": 200,
+          "value_length": 229
+        },
+        {
+          "cycle": 1,
+          "event": "OnClose",
+          "ok": true,
+          "status": 200,
+          "value_length": 4
+        },
+        {
+          "cycle": 1,
+          "event": "unload",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        },
+        {
+          "cycle": 2,
+          "event": "load",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        },
+        {
+          "cycle": 2,
+          "event": "OnBoot",
+          "ok": true,
+          "status": 200,
+          "value_length": 17
+        },
+        {
+          "cycle": 2,
+          "event": "OnMouseDoubleClick",
+          "ok": true,
+          "status": 200,
+          "value_length": 229
+        },
+        {
+          "cycle": 2,
+          "event": "OnClose",
+          "ok": true,
+          "status": 200,
+          "value_length": 4
+        },
+        {
+          "cycle": 2,
+          "event": "unload",
+          "ok": true,
+          "status": 200,
+          "value_length": 0
+        }
+      ],
+      "stderr_bytes": 14
+    }
+  ],
+  "engine": {
+    "artifact": "libkagari.dylib",
+    "sha256": "80246d9358e2c51fe4f72e0ab4203e9ac73e24fda5ba6f483ad17ba2c5f0c97e",
+    "architectures": [
+      "arm64",
+      "x86_64"
+    ],
+    "executed_architecture": "arm64"
+  },
+  "cleanup": {
+    "downloaded_archives": "removed",
+    "extracted_ghosts": "removed",
+    "raw_diagnostic_logs": "removed",
+    "user_installed_ghosts": "not_modified"
+  }
+}

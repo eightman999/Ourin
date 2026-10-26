@@ -1,0 +1,3 @@
+
+# Unified patches use a single-space prefix for blank context lines.
+engines/**/*.patch whitespace=-blank-at-eol

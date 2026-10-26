@@ -32,10 +32,13 @@ For macOS `.bundle` / `.plugin` modules, set `OurinShioriABI` in `Contents/Info.
 | `ukagaka-long` | `int32_t(void *, long)` | `void *(void *, long *)` | `int32_t(void)` |
 | `ukagaka-int32` | `int32_t(void *, int32_t)` | `void *(void *, int32_t *)` | `int32_t(void)` |
 | `kagari` | `int32_t(void *, long)` → instance ID | `void *(int32_t id, void *, long *)` | `int32_t(int32_t id)` |
+| `aosora` | `long(void *, long)` → instance ID | `void *(long id, void *, long *)` | `int32_t(long id)` |
 
 The `long` in `ukagaka-long` is a 64-bit integer on macOS. `kagari` is the KAGARI POSIX export set; see [KAWARI/KAGARI engines](KAWARI_KAGARI_ENGINES_ja-jp.md). Ports that retain Windows-style 32-bit lengths must use `ukagaka-int32`. This SHIORI-specific key is separate from the `OurinModuleABI` contract used by SAORI and other modules.
 
 Without a declaration, only the existing Ourin ABI exporting `shiori_request` is accepted. An unprefixed `request` is rejected rather than having its signature guessed. Unknown declaration values also cause a load error.
+
+`aosora` uses `aosora_load` / `aosora_request` / `aosora_unload`. Instance IDs are 64-bit; zero means load failure. Input/response ownership matches `ukagaka-*`. See [optional setup and real-ghost verification (Japanese)](compatibility-corpus/aosora.md). Source-derived Aosora is not bundled in the standard release.
 
 ## Symbols and ownership
 

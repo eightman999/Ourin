@@ -70,6 +70,8 @@ public struct PluginMeta {
     public let executablePath: String
     /// install.txt 付き package directory のパス（無い場合は nil）。
     public let packagePath: String?
+    /// descript.txt `othersurfacechange`（SSP 本体のキー）。他ゴーストのサーフェス変更を OnOtherSurfaceChange で受け取る。
+    public var otherSurfaceChange: Bool = false
 
     /// 従来の `path`。`compatibilityPath` の alias。
     public var path: String { compatibilityPath }
@@ -244,6 +246,7 @@ public final class PluginRegistry {
     /// 2. 直置き native `.plugin`
     /// 3. legacy metadata-only directory
     public func discoverAndLoad() {
+        unloadAll()
         // 全検索パスから候補を収集し、ID ごとに優先順位の高いものを選ぶ。
         var candidates: [String: [PluginCandidate]] = [:]  // id -> candidates (descending priority)
         for dir in PluginRegistry.searchPaths() {
@@ -265,7 +268,7 @@ public final class PluginRegistry {
 
     /// Unload all loaded plugins
     public func unloadAll() {
-        for p in plugins { p.unload?() }
+        for p in plugins { p.unload() }
         plugins.removeAll()
         metas.removeAll()
         legacyMetas.removeAll()
@@ -392,7 +395,8 @@ public final class PluginRegistry {
             case .nativePackage(_, let pkg, _):
                 return PluginRegistry.peekID(at: pkg) ?? ""
             case .nativeDirect(let bundleURL):
-                return PluginRegistry.peekID(at: bundleURL.deletingLastPathComponent()) ?? ""
+                return PluginRegistry.peekID(at: bundleURL)
+                    ?? PluginRegistry.peekID(at: bundleURL.deletingLastPathComponent()) ?? ""
             case .legacy(let record):
                 return record.meta.id
             }
@@ -414,7 +418,8 @@ public final class PluginRegistry {
                 NSLog("Plugin skipped (migration record has no executable): \(item.path)")
                 return
             }
-            let id = PluginRegistry.peekID(at: item.deletingLastPathComponent()) ?? ""
+            let id = PluginRegistry.peekID(at: item)
+                ?? PluginRegistry.peekID(at: item.deletingLastPathComponent()) ?? ""
             candidates[id, default: []].append(.nativeDirect(bundleURL: item))
             return
         }
@@ -427,6 +432,7 @@ public final class PluginRegistry {
             // package directory (install.txt 付き)
             if let installManifest = PluginRegistry.readInstallManifest(from: item),
                installManifest.type.lowercased() == "plugin" {
+                PluginRegistry.convertWindowsModule(in: item)
                 let bundles = PluginRegistry.nativePluginModules(in: item)
                 if !bundles.isEmpty {
                     for bundleURL in bundles {
@@ -453,6 +459,7 @@ public final class PluginRegistry {
             // install.txt 無しの設置済みディレクトリ（SSP の plugin/<name>/ と同形）。
             // descript.txt の filename に対応する macOS ネイティブ実体があれば実行対象にする。
             if let id = PluginRegistry.peekID(at: item) {
+                PluginRegistry.convertWindowsModule(in: item)
                 let modules = PluginRegistry.nativePluginModules(in: item)
                 if !modules.isEmpty {
                     for moduleURL in modules {
@@ -494,6 +501,26 @@ public final class PluginRegistry {
         }
     }
 
+    /// 変換結果（UI・診断用）。キーはプラグインフォルダのパス。
+    private(set) static var conversionReports: [String: DLLPluginConverter.Report] = [:]
+    private static let conversionLock = NSLock()
+
+    /// Windows DLL のプラグインを、内蔵エンジンで動く `.plugin` へ変換する（変換できない DLL は記録だけ残す）。
+    private static func convertWindowsModule(in directoryURL: URL) {
+        guard let report = DLLPluginConverter.convert(pluginDirectory: directoryURL) else { return }
+        conversionLock.lock()
+        conversionReports[directoryURL.standardizedFileURL.path] = report
+        conversionLock.unlock()
+        switch report.outcome {
+        case .converted(let bundleURL, let engine):
+            NSLog("Plugin DLL converted: \(report.moduleName) -> \(bundleURL.lastPathComponent) (engine=\(engine.rawValue))")
+        case .nativeModuleExists:
+            break
+        case .unsupported(let reason):
+            NSLog("Plugin DLL not convertible: \(directoryURL.lastPathComponent): \(reason)")
+        }
+    }
+
     /// descript.txt から ID だけ読み取る（候補ソート用・軽量）。
     private static func peekID(at directoryURL: URL) -> String? {
         let descript = LegacyDescriptor.readDictionary(from: directoryURL.appendingPathComponent("descript.txt"))
@@ -513,8 +540,17 @@ public final class PluginRegistry {
                                   loadPathURL: URL) {
         do {
             let plug = try Plugin(url: bundleURL)
-            if !plug.load(directoryURL: loadPathURL) {
+            guard plug.load(directoryURL: loadPathURL) else {
                 NSLog("Plugin load() returned failure: \(bundleURL.lastPathComponent)")
+                if let meta = PluginRegistry.readMeta(from: plug,
+                                                       metadataRootURL: metadataRootURL,
+                                                       installManifest: installManifest,
+                                                       isNative: false) {
+                    appendLegacyMeta(LegacyPluginRecord(meta: meta,
+                        directoryURL: metadataRootURL ?? bundleURL,
+                        packageURL: metadataRootURL))
+                }
+                return
             }
             plugins.append(plug)
             if let meta = PluginRegistry.readMeta(from: plug,
@@ -542,10 +578,10 @@ public final class PluginRegistry {
         if !legacy.meta.id.isEmpty {
             loadedIDs.insert(legacy.meta.id)
         }
-        NSLog("Legacy Windows plugin registered as metadata only: \(legacy.meta.name) (\(legacy.meta.filename))")
+        NSLog("Plugin registered as metadata only: \(legacy.meta.name) (\(legacy.meta.filename))")
     }
 
-    private static func searchPaths() -> [URL] {
+    static func searchPaths() -> [URL] {
         var urls: [URL] = []
         if let builtIn = Bundle.main.builtInPlugInsURL {
             urls.append(builtIn)
@@ -562,7 +598,8 @@ public final class PluginRegistry {
 
     private static func readMeta(from plugin: Plugin,
                                  metadataRootURL: URL?,
-                                 installManifest: InstallManifest?) -> PluginMeta? {
+                                 installManifest: InstallManifest?,
+                                 isNative: Bool = true) -> PluginMeta? {
         let bundle = plugin.bundle
         let descriptorURL = metadataRootURL?.appendingPathComponent("descript.txt")
             ?? bundle?.url(forResource: "descript", withExtension: "txt")
@@ -571,7 +608,7 @@ public final class PluginRegistry {
         return readMetaDictionary(
             LegacyDescriptor.readDictionary(from: descriptorURL),
             directoryURL: directoryURL,
-            isNative: true,
+            isNative: isNative,
             installManifest: installManifest,
             localizedMessages: readMessages(from: metadataRootURL) ?? readMessages(from: bundle?.resourceURL),
             executableURL: plugin.url,
@@ -604,7 +641,8 @@ public final class PluginRegistry {
                                            localizedMessages: [String: [String: String]]?,
                                            executableURL: URL? = nil,
                                            packageURL: URL? = nil) -> PluginMeta? {
-        guard let dict else { return nil }
+        guard let rawDict = dict else { return nil }
+        let dict = rawDict.compactMapValues(LegacyDescriptor.literalValue)
         let name = dict["name"] ?? ""
         let id = dict["id"] ?? ""
         let filename = dict["filename"] ?? dict["dllname"] ?? ""
@@ -612,12 +650,12 @@ public final class PluginRegistry {
         let moduleURL = directoryURL.appendingPathComponent(filename)
         let otherGhostTalk = parseOtherGhostTalk(dict["otherghosttalk"])
         let messages = localizedMessages ?? [:]
-        return PluginMeta(
+        var meta = PluginMeta(
             name: name,
             id: id,
             filename: filename,
             charset: dict["charset"],
-            secondChangeInterval: dict["secondchangeinterval"].flatMap(Int.init),
+            secondChangeInterval: dict["secondchangeinterval"].flatMap { Int($0.trimmingCharacters(in: .whitespaces)) },
             otherGhostTalk: otherGhostTalk.enabled,
             otherGhostTalkTiming: otherGhostTalk.timing,
             craftman: dict["craftman"] ?? dict["craftmanw"],
@@ -631,6 +669,8 @@ public final class PluginRegistry {
             executablePath: (executableURL ?? moduleURL).path,
             packagePath: packageURL?.path
         )
+        meta.otherSurfaceChange = parseOtherGhostTalk(dict["othersurfacechange"]).enabled ?? false
+        return meta
     }
 
     private static func parseOtherGhostTalk(_ raw: String?) -> (enabled: Bool?, timing: PluginOtherGhostTalkTiming?) {

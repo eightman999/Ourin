@@ -640,8 +640,13 @@ fileprivate struct GeneralSettingsView: View {
                             .foregroundColor(.secondary)
                             .padding(.leading, 100)
                     }
-                    Toggle("自動アップデート確認", isOn: $autoUpdate)
-                    Text("（現在この設定は未使用）")
+                    HStack {
+                        Toggle("自動アップデート確認", isOn: $autoUpdate)
+                        Button("今すぐ確認") {
+                            AppUpdater.shared.checkForUpdates(userInitiated: true)
+                        }
+                    }
+                    Text("1日1回、新しい版を確認します。署名を確かめてから置き換えて再起動します。")
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .padding(.leading, 100)

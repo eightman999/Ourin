@@ -493,3 +493,26 @@
 "Menu" = "Menu";
 "Colors" = "Colors";
 "Update" = "Update";
+
+/* App update */
+"アップデートを確認…" = "Check for Updates…";
+"アップデートを確認..." = "Check for Updates...";
+"今すぐ確認" = "Check Now";
+"1日1回、新しい版を確認します。署名を確かめてから置き換えて再起動します。" = "Checks for a new version once a day, verifies its signature, then replaces Ourin and relaunches.";
+"アップデートを確認できませんでした" = "Could not check for updates";
+"Ourin は最新です" = "Ourin is up to date";
+"現在のバージョン: %@" = "Current version: %@";
+"Ourin %@ が利用できます" = "Ourin %@ is available";
+"アップデートして再起動" = "Update and Relaunch";
+"あとで" = "Later";
+"このバージョンをスキップ" = "Skip This Version";
+"Ourin %@ をダウンロードしています…" = "Downloading Ourin %@…";
+"アップデートできませんでした" = "Update failed";
+"ダウンロードページを開く" = "Open Download Page";
+"%@ に書き込めません" = "Cannot write to %@";
+"ダウンロードしたファイルのチェックサムが一致しません" = "The downloaded file's checksum does not match";
+"ダウンロードしたファイルに Ourin.app がありません" = "Ourin.app was not found in the download";
+"別のアプリが含まれています: %@" = "The download contains a different app: %@";
+"版数が想定と違います: %@" = "Unexpected version: %@";
+"署名を確認できません: %@" = "Could not verify the signature: %@";
+"このビルドは配布版として署名されていないため、自動アップデートできません" = "This build is not signed for distribution and cannot update itself";

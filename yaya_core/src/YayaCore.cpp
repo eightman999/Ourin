@@ -79,9 +79,14 @@ json YayaCore::fileOperation(const std::string& op, const json& params) {
 }
 
 json YayaCore::executeCommand(const std::string& command, bool wait) {
+    return executeCommandWithArguments(command, wait, "");
+}
+
+json YayaCore::executeCommandWithArguments(const std::string& command, bool wait, const std::string& arguments) {
     json req;
     req["command"] = command;
     req["wait"] = wait;
+    req["arguments"] = arguments;
     
     std::string response = requestHostOperation("execute", req);
     try {
@@ -176,6 +181,7 @@ std::string YayaCore::processCommand(const std::string &line) {
                 response["error"] = "message_path required";
             }
         } else if (cmd == "load") {
+            hostExecution_ = req.value("host_execute", false);
             std::string ghostRoot = req.value("ghost_root", "");
             std::string encoding = req.value("encoding", "auto");
 
@@ -234,6 +240,36 @@ std::string YayaCore::processCommand(const std::string &line) {
                     }
                     std::cerr << "[YayaCore] Calling YAYA framework load() with path: " << ghostPath << std::endl;
                     dictManager.execute("load", {ghostPath});
+                }
+            }
+        } else if (cmd == "plugin_request") {
+            // PLUGIN has its own framework and response headers. Preserve the
+            // complete wire text; never route through SHIORI fallback dispatch.
+            const std::string wire = req.value("wire", "");
+            const auto firstEnd = wire.find("\r\n");
+            const std::string first = wire.substr(0, firstEnd);
+            const bool validFirst = first == "GET PLUGIN/2.0" || first == "NOTIFY PLUGIN/2.0" ||
+                                    first == "GET PLUGIN/2.0M" || first == "NOTIFY PLUGIN/2.0M";
+            if (!validFirst || wire.size() > 1024 * 1024 || wire.find('\0') != std::string::npos ||
+                wire.find("\r\n\r\n") == std::string::npos) {
+                response = {{"ok", false}, {"status", 400}, {"error", "invalid PLUGIN request framing"}};
+            } else if (!dictManager.hasFunction("request")) {
+                response = {{"ok", false}, {"status", 501}, {"error", "PLUGIN request framework missing"}};
+            } else {
+                const std::string raw = dictManager.execute("request", {wire});
+                const auto space = raw.find(' ');
+                const std::string protocol = raw.substr(0, space);
+                int status = 0;
+                if (space != std::string::npos) {
+                    const std::string code = raw.substr(space + 1, 3);
+                    if (code.size() == 3 && std::all_of(code.begin(), code.end(), [](unsigned char c) { return std::isdigit(c); }))
+                        status = std::stoi(code);
+                }
+                if ((protocol != "PLUGIN/2.0" && protocol != "PLUGIN/2.0M") || status < 100 || status > 599 ||
+                    raw.size() > 1024 * 1024 || raw.find("\r\n\r\n") == std::string::npos) {
+                    response = {{"ok", false}, {"status", 502}, {"error", "invalid PLUGIN framework response"}};
+                } else {
+                    response = {{"ok", true}, {"status", status}, {"wire", raw}};
                 }
             }
         } else if (cmd == "request") {
@@ -439,6 +475,19 @@ std::string YayaCore::processCommand(const std::string &line) {
             response["ok"] = true;
             response["status"] = 200;
             response["loaded_dics"] = loadedFiles;
+        } else if (cmd == "raw_request") {
+            // PLUGIN/2.0 等、SHIORI 以外のプロトコルで YAYA を使うモジュール（yaya.dll をプラグインとして
+            // 使う形）向け。受け取った要求文をそのまま辞書の `request` に渡し、戻り値を加工せず返す。
+            std::string raw = req.value("raw", "");
+            if (!dictManager.hasFunction("request")) {
+                response["ok"] = false;
+                response["status"] = 500;
+                response["error"] = "request function not found";
+            } else {
+                response["ok"] = true;
+                response["status"] = 200;
+                response["value"] = dictManager.execute("request", {raw});
+            }
         } else if (cmd == "unload") {
             // Call YAYA framework's `unload` function before teardown
             if (dictManager.hasFunction("unload")) {

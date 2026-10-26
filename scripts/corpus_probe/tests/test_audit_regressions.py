@@ -19,6 +19,22 @@ from corpus_probe.ghost import BoundedSession, _summarize_event, _yaya_config_pa
 from corpus_probe.io_util import bounded_tree_digest, MAX_FILE_DIGEST_BYTES
 
 class AuditRegressions(unittest.TestCase):
+    def test_aosora_200_runtime_error_is_not_success(self):
+        from corpus_probe.native_shiori_worker import parse_aosora_response
+        for levels in (b'error', b'warning\x01error'):
+            response = b'SHIORI/3.0 200 OK\r\nErrorLevel: ' + levels + b'\r\nValue: diagnostic\r\n\r\n'
+            result = parse_aosora_response(response)
+            self.assertFalse(result['ok'])
+            self.assertEqual(result['value'], '')
+            self.assertEqual(result['error'], 'aosora_runtime_error')
+
+    def test_aosora_warning_does_not_discard_response(self):
+        from corpus_probe.native_shiori_worker import parse_aosora_response
+        response = b'SHIORI/3.0 200 OK\r\nErrorLevel: warning\r\nValue: authored-marker\r\n\r\n'
+        result = parse_aosora_response(response)
+        self.assertTrue(result['ok'])
+        self.assertEqual(result['value'], 'authored-marker')
+
     def test_downloaded_native_with_claimed_abi_is_never_executed(self):
         import plistlib
         with tempfile.TemporaryDirectory() as tmp:

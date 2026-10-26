@@ -384,7 +384,9 @@ def probe_ghost(
             from .engine import BUNDLED_ENGINES, search_engine_dirs
 
             _, names = BUNDLED_ENGINES[bundled]
-            search = list(engine_dirs) + [repo / "build/engines/additional", repo / "build/engines/kawari", repo / "engines"]
+            search = list(engine_dirs)
+            if bundled != "aosora":
+                search += [repo / "build/engines/additional", repo / "build/engines/kawari", repo / "engines"]
             native_library = search_engine_dirs(search, names)
 
     try:

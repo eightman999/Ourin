@@ -1,0 +1,222 @@
+{
+  "schema": 1,
+  "reviewed_on": "2026-10-25",
+  "backend": "irodori-mlx",
+  "mode": "explicit local_tts_backend opt-in",
+  "standard_port_baseline": {
+    "loaded": 13,
+    "total": 15,
+    "unchanged": true
+  },
+  "optional_local_tts_result": {
+    "loaded": 2,
+    "total": 2,
+    "commercial_voice_equivalence_verified": false
+  },
+  "model": {
+    "repo": "mlx-community/Irodori-TTS-v4.1-Small-MF-fp16",
+    "revision": "db0263236d010d4beb6ca67c529f410a6f71d755",
+    "upstream": "Aratako/Irodori-TTS-v4.1-Small-MF",
+    "license_url": "https://huggingface.co/Aratako/Irodori-TTS-v4.1-Small-MF#-license--ethical-restrictions",
+    "files": {
+      "config.json": {
+        "bytes": 5209,
+        "sha256": "d181702b6c6977cd4d5cfa23462abbd26b2122e3d4306971bbec563073f7d2ce"
+      },
+      "model.safetensors": {
+        "bytes": 1546609131,
+        "sha256": "19bd887050cb3a6e799f4043aa2e20c11c1783f3af04e6c4d8ee0f172d24e483"
+      },
+      "dacvae/config.json": {
+        "bytes": 300,
+        "sha256": "86aeeace595882a046d50c010971d79ed2e6bf1215a6b51b18e99b50b3fadeac"
+      },
+      "dacvae/model.safetensors": {
+        "bytes": 429504222,
+        "sha256": "7366646af3d250ec0162c2b2717a64f7dbd5b8bfaebbf9ed69ad79db4944b8b9"
+      },
+      "tokenizer/tokenizer.json": {
+        "bytes": 6718495,
+        "sha256": "6a0734cf21c802169defaffe719bc2ef12bb9d0be37e54b61ed27aa89394723d"
+      },
+      "tokenizer/tokenizer_config.json": {
+        "bytes": 668,
+        "sha256": "d229a271c64de1a7939d20d3665498e873fa91d5ee2edf135d73ec752cb9c9d3"
+      }
+    }
+  },
+  "runtime": {
+    "python": "3.13.11",
+    "requirements": "requirements-lock.txt",
+    "platform": "macOS arm64",
+    "mlx-audio": "0.6.1",
+    "mlx": "0.32.4",
+    "hardware": "Apple M2 Max",
+    "memory_gb": 32,
+    "model_snapshot_bytes": 1982838025,
+    "virtual_environment_mib": 461
+  },
+  "validation": {
+    "local_tts_adapter_tests": 9,
+    "yaya_core_tests": 38,
+    "existing_yaya_adapter_tests": 11,
+    "bouyomi_adapter_tests": 10,
+    "irodori_worker_tests": 13,
+    "tts_server_tests": 6,
+    "xcode_aggregate_tests": 19,
+    "failures": 0,
+    "worker_inflight_cancel_seconds": 0.43007629198837094,
+    "worker_reused_after_cancel": true,
+    "actual_app_sstp_to_plugin_to_mlx_to_afplay_verified": true,
+    "manual_gui_exhaustively_verified": false
+  },
+  "limitations": [
+    "Irodori synthetic voices; commercial product voices and proprietary APIs are not reproduced",
+    "Alpha, ToneScale, PitchRange and emotion control are prompt-based approximations; perceptual equivalence unverified",
+    "Full GUI manual operation and exhaustive ghost conversation coverage not verified",
+    "Only the two listed original plugin versions verified; CeVIO-Talker V2 and direct product-API ghosts excluded",
+    "Apple Silicon tested; Intel runtime not verified",
+    "Assigning both speech plugins to the same ghost may duplicate speech and add waiting time",
+    "Model and inference service are optional and not bundled with the application",
+    "Legacy commercial-product settings are not automatically migrated"
+  ],
+  "adapter_test_temporary_copies_deleted": true,
+  "items": [
+    {
+      "id": "ukagakaplugin-cevio-talker",
+      "name": "ukagakaPlugin_CeVIO-Talker",
+      "author": "ambergon",
+      "source_url": "https://github.com/ambergon/ukagakaPlugin_CeVIO-Talker/releases/tag/version1.0.7",
+      "download_url": "https://github.com/ambergon/ukagakaPlugin_CeVIO-Talker/releases/download/version1.0.7/ukagakaPlugin_CeVIO-Talker.nar",
+      "upstream_revision": "eb7a36d30ef329da97e6c8a6e9f41ad14af25044",
+      "archive_sha256": "f159a80c16105d04841368325ad7e1b4562fd10dc91f73af239dc36e1f4c0c6d",
+      "product": "cevio",
+      "voice": "IrodoriAkari",
+      "payload_hashes_unchanged": true,
+      "dictionary_sha256": {
+        "main.uka": "4bcbe37cd4306a78bcdce095ca6c65ee166f61988967621aae97f1562ff7e147",
+        "System_yaya/yaya_plugin2.dic": "978328d490c0e7dfbde29893552efa2dd1f9f520d8e8a2aa92cad3258b2ebaa5",
+        "System_yaya/yaya_optional.dic": "d110c46cb98e51aaa51c545e48558a7697a60f896b5d2f6840579019d1677d3d"
+      },
+      "replacement_verified": true,
+      "unload_stops_playback": true,
+      "unload_stop_seconds": 0.003423499991185963,
+      "actual_app_sstp_path_verified": true,
+      "commercial_voice_verified": false,
+      "first_uncached_probe_audio_ready_seconds": 3.0965178339974955,
+      "final_cycles_audio_mode": "cache reuse permitted; initial uncached synthesis recorded separately",
+      "cycles": [
+        {
+          "cycle": 1,
+          "loaded": true,
+          "menu": true,
+          "playback_completed": true,
+          "playback_enabled": true,
+          "elapsed_seconds": 6.037783208012115,
+          "audio_segments": [
+            {
+              "duration_seconds": 1.2524166666666667,
+              "pause_ms": 370
+            },
+            {
+              "duration_seconds": 2.307125,
+              "pause_ms": 370
+            }
+          ]
+        },
+        {
+          "cycle": 2,
+          "loaded": true,
+          "menu": true,
+          "playback_completed": true,
+          "playback_enabled": true,
+          "elapsed_seconds": 5.972187584004132,
+          "audio_segments": [
+            {
+              "duration_seconds": 1.2524166666666667,
+              "pause_ms": 370
+            },
+            {
+              "duration_seconds": 2.307125,
+              "pause_ms": 370
+            }
+          ]
+        }
+      ],
+      "replacement": {
+        "old_request_cancelled": true,
+        "new_request_completed": true
+      },
+      "loaded": true,
+      "playback_verified": true
+    },
+    {
+      "id": "ssp-aivoice",
+      "name": "SSP-AIVOICE",
+      "author": "wamo / opera7133",
+      "source_url": "https://github.com/opera7133/SSP-AIVOICE/releases/tag/v1.0.2",
+      "download_url": "https://github.com/opera7133/SSP-AIVOICE/releases/download/v1.0.2/AIVOICE.nar",
+      "upstream_revision": "9b9911f07e5143c98d19dbd5d8cbc08a54dff86b",
+      "archive_sha256": "78452dba3f7090147355cb76308e1f5d60b2ea099ebe081c74bef0b0f8d636be",
+      "product": "aivoice",
+      "voice": "IrodoriAoi",
+      "payload_hashes_unchanged": true,
+      "dictionary_sha256": {
+        "main.uka": "c93cc027bfc3e2862c4516cd1f167c6351530d5e6a937204bddb3700aac7aeca",
+        "System_yaya/yaya_plugin2.dic": "c467d486d1582f4e85f43fb5c1e26846e4cfa4ec62919ae9df871b7e8bd84a9a",
+        "System_yaya/yaya_optional.dic": "e4e7fdfede281f51fe28fd736b81812fa1f2c417a4382389b5b6ba03a226264a"
+      },
+      "replacement_verified": true,
+      "unload_stops_playback": true,
+      "unload_stop_seconds": 0.005941458017332479,
+      "actual_app_sstp_path_verified": true,
+      "commercial_voice_verified": false,
+      "first_uncached_probe_audio_ready_seconds": 1.3538083329913206,
+      "final_cycles_audio_mode": "cache reuse permitted; initial uncached synthesis recorded separately",
+      "cycles": [
+        {
+          "cycle": 1,
+          "loaded": true,
+          "menu": true,
+          "playback_completed": true,
+          "playback_enabled": true,
+          "elapsed_seconds": 5.071337750006933,
+          "audio_segments": [
+            {
+              "duration_seconds": 0.9570625,
+              "pause_ms": 370.0
+            },
+            {
+              "duration_seconds": 1.9690833333333333,
+              "pause_ms": 370.0
+            }
+          ]
+        },
+        {
+          "cycle": 2,
+          "loaded": true,
+          "menu": true,
+          "playback_completed": true,
+          "playback_enabled": true,
+          "elapsed_seconds": 5.576288582989946,
+          "audio_segments": [
+            {
+              "duration_seconds": 0.9570625,
+              "pause_ms": 370.0
+            },
+            {
+              "duration_seconds": 1.9690833333333333,
+              "pause_ms": 370.0
+            }
+          ]
+        }
+      ],
+      "replacement": {
+        "old_request_cancelled": true,
+        "new_request_completed": true
+      },
+      "loaded": true,
+      "playback_verified": true
+    }
+  ]
+}

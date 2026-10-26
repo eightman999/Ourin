@@ -26,7 +26,7 @@ struct PluginEventDispatchMatrixTests {
     /// PluginEventDispatcher.onGhostBoot / onMenuExec / onGhostExit / onGhostInfoUpdate は
     /// `windows: [NSWindow]` を受け取り `WindowIDMapper.ids(for:)` で CGWindowID 列に変換する。
     /// テストでは実 NSWindow を生成せず、空配列（未構築 = "0" 相当なし = 空文字列）を用いる。
-    /// `WindowIDMapper.ids(for: [])` は `[].map{}.joined(separator: ",")` により空文字列 "" を返す。
+    /// `WindowIDMapper.ids(for: [])` は 0x01 区切りの空リスト = 空文字列 "" を返す。
     private func windowIDsForEmptyWindows() -> String {
         WindowIDMapper.ids(for: [])
     }
@@ -45,28 +45,37 @@ struct PluginEventDispatchMatrixTests {
         #expect(wire.contains("ID: version"))
         #expect(!wire.contains("Reference0"))
         // GET メソッドである（version は無印 = GET/NOTIFY 実装上は GET 相当）
-        #expect(wire.hasPrefix("GET PLUGIN/2.0M"))
+        #expect(wire.hasPrefix("GET PLUGIN/2.0\r\n"))
     }
 
     // MARK: - 2. installedplugin [NOTIFY]
 
-    /// 仕様 §4.2: Ref* = 0x01 区切り「プラグイン名,プラグインID」
-    /// 実装: `notifyInstalledPlugin()` は
-    /// `registry.allMetas.map { "\($0.name),\($0.id)" }` を `ListDelimiter.join` して Reference0 に格納。
+    /// 仕様 §4.2 / ukadoc: Reference* はプラグインごとに「プラグイン名 0x01 プラグインID」。
+    /// 実装: `PluginEventDispatcher.installedPluginReferences(_:)`。
     @Test
-    func installedPluginReference0IsNameIDPairsJoinedByUnitSeparator() async throws {
-        let names = [("PluginA", "id.a"), ("PluginB", "id.b")]
-        let list = names.map { "\($0.0),\($0.1)" }
-        let ref0 = ListDelimiter.join(list)
+    func installedPluginReferencesAreOnePluginPerReference() async throws {
+        let refs = PluginEventDispatcher.installedPluginReferences([
+            makeMeta(name: "PluginA", id: "id.a"),
+            makeMeta(name: "PluginB", id: "id.b")
+        ])
 
-        let frame = PluginFrame(id: "installedplugin", references: [ref0], notify: true)
+        let frame = PluginFrame(id: "installedplugin", references: refs, notify: true)
         let wire = frame.build()
 
-        #expect(wire.hasPrefix("NOTIFY PLUGIN/2.0M"))
+        #expect(wire.hasPrefix("NOTIFY PLUGIN/2.0\r\n"))
         #expect(wire.contains("ID: installedplugin"))
-        #expect(wire.contains("Reference0: PluginA,id.a\u{1}PluginB,id.b"))
-        // 0x01 区切りで2要素に戻せること
-        #expect(ListDelimiter.split(ref0) == list)
+        #expect(wire.contains("Reference0: PluginA\u{1}id.a\r\n"))
+        #expect(wire.contains("Reference1: PluginB\u{1}id.b\r\n"))
+    }
+
+    private func makeMeta(name: String, id: String) -> PluginMeta {
+        PluginMeta(
+            name: name, id: id, filename: "\(name).dll", charset: nil,
+            secondChangeInterval: nil, otherGhostTalk: nil, otherGhostTalkTiming: nil,
+            craftman: nil, craftmanURL: nil, isNative: true, installType: nil, installDirectory: nil,
+            localizedMessages: [:], menuDefinitions: [],
+            compatibilityPath: "/tmp/\(name).dll", executablePath: "/tmp/\(name).dylib", packagePath: nil
+        )
     }
 
     // MARK: - 3. installedghostname [NOTIFY]
@@ -115,12 +124,12 @@ struct PluginEventDispatchMatrixTests {
     func pathListEventsNormalizeToPosixAndPreserveOrder() async throws {
         let ids = ["ghostpathlist", "balloonpathlist", "headlinepathlist", "pluginpathlist"]
         let paths = ["/Users/tester/Ghosts/Satori", "/Users/tester/Ghosts/Emily"]
-        let normalized = paths.map { PathNormalizer.posix($0) }
+        let normalized = paths.map { PathNormalizer.directory($0) }
 
         for id in ids {
             let frame = PluginFrame(id: id, references: normalized, notify: true)
             let wire = frame.build()
-            #expect(wire.hasPrefix("NOTIFY PLUGIN/2.0M"), "\(id) は NOTIFY であるべき")
+            #expect(wire.hasPrefix("NOTIFY PLUGIN/2.0\r\n"), "\(id) は NOTIFY であるべき")
             #expect(wire.contains("Reference0: /Users/tester/Ghosts/Satori"), "\(id) Reference0")
             #expect(wire.contains("Reference1: /Users/tester/Ghosts/Emily"), "\(id) Reference1")
         }
@@ -137,7 +146,7 @@ struct PluginEventDispatchMatrixTests {
     /// 仕様上 Ref0 のみが規定されていることを検証する。
     @Test
     func balloonPathListAcceptsSingleOrMultiplePaths() async throws {
-        let single = [PathNormalizer.posix("/Users/tester/Balloon/default")]
+        let single = [PathNormalizer.directory("/Users/tester/Balloon/default")]
         let frame = PluginFrame(id: "balloonpathlist", references: single, notify: true)
         let wire = frame.build()
         #expect(wire.contains("Reference0: /Users/tester/Balloon/default"))
@@ -222,7 +231,7 @@ struct PluginEventDispatchMatrixTests {
         let shellName = "default.shell"
         let ghostID = "ourin-ghost-uuid"
         let path = "/Users/you/Library/Application Support/Ourin/Ghosts/Satori"
-        let pathPosix = PathNormalizer.posix(path)
+        let pathPosix = PathNormalizer.directory(path)
 
         let frame = PluginFrame(id: "OnGhostBoot", references: [ref0, ghostName, shellName, ghostID, pathPosix])
         let wire = frame.build()
@@ -233,7 +242,7 @@ struct PluginEventDispatchMatrixTests {
         #expect(wire.contains("Reference2: default.shell"))
         #expect(wire.contains("Reference3: ourin-ghost-uuid"))
         #expect(wire.contains("Reference4: \(pathPosix)"))
-        #expect(wire.hasPrefix("GET PLUGIN/2.0M"))
+        #expect(wire.hasPrefix("GET PLUGIN/2.0\r\n"))
     }
 
     // MARK: - 12. OnGhostExit [NOTIFY]
@@ -243,11 +252,11 @@ struct PluginEventDispatchMatrixTests {
     @Test
     func onGhostExitReferenceOrderMatchesSpecAndIsNotify() async throws {
         let ref0 = windowIDsForEmptyWindows()
-        let refs = [ref0, "さくら", "default.shell", "id-1", PathNormalizer.posix("/Users/t/Ghosts/Sakura")]
+        let refs = [ref0, "さくら", "default.shell", "id-1", PathNormalizer.directory("/Users/t/Ghosts/Sakura")]
         let frame = PluginFrame(id: "OnGhostExit", references: refs, notify: true)
         let wire = frame.build()
 
-        #expect(wire.hasPrefix("NOTIFY PLUGIN/2.0M"))
+        #expect(wire.hasPrefix("NOTIFY PLUGIN/2.0\r\n"))
         #expect(wire.contains("Reference1: さくら"))
         #expect(wire.contains("Reference2: default.shell"))
         #expect(wire.contains("Reference3: id-1"))
@@ -260,11 +269,11 @@ struct PluginEventDispatchMatrixTests {
     @Test
     func onGhostInfoUpdateReferenceOrderMatchesSpecAndIsNotify() async throws {
         let ref0 = windowIDsForEmptyWindows()
-        let refs = [ref0, "うにゅう", "emily4.shell", "id-2", PathNormalizer.posix("/Users/t/Ghosts/Emily")]
+        let refs = [ref0, "うにゅう", "emily4.shell", "id-2", PathNormalizer.directory("/Users/t/Ghosts/Emily")]
         let frame = PluginFrame(id: "OnGhostInfoUpdate", references: refs, notify: true)
         let wire = frame.build()
 
-        #expect(wire.hasPrefix("NOTIFY PLUGIN/2.0M"))
+        #expect(wire.hasPrefix("NOTIFY PLUGIN/2.0\r\n"))
         #expect(wire.contains("Reference1: うにゅう"))
         #expect(wire.contains("Reference2: emily4.shell"))
         #expect(wire.contains("Reference3: id-2"))
@@ -278,11 +287,11 @@ struct PluginEventDispatchMatrixTests {
     @Test
     func onMenuExecReferenceOrderMatchesSpec() async throws {
         let ref0 = windowIDsForEmptyWindows()
-        let refs = [ref0, "さくら", "default.shell", "id-3", PathNormalizer.posix("/Users/t/Ghosts/Sakura")]
+        let refs = [ref0, "さくら", "default.shell", "id-3", PathNormalizer.directory("/Users/t/Ghosts/Sakura")]
         let frame = PluginFrame(id: "OnMenuExec", references: refs)
         let wire = frame.build()
 
-        #expect(wire.hasPrefix("GET PLUGIN/2.0M"))
+        #expect(wire.hasPrefix("GET PLUGIN/2.0\r\n"))
         #expect(wire.contains("Reference1: さくら"))
         #expect(wire.contains("Reference2: default.shell"))
         #expect(wire.contains("Reference3: id-3"))
@@ -300,12 +309,12 @@ struct PluginEventDispatchMatrixTests {
         let type = "ghost"
         let name = "さくら"
         let path = "/Users/t/Ghosts/Sakura"
-        let pathPosix = PathNormalizer.posix(path)
+        let pathPosix = PathNormalizer.directory(path)
 
         let frameSingle = PluginFrame(id: "OnInstallComplete", references: [type, name, pathPosix])
         let wireSingle = frameSingle.build()
 
-        #expect(wireSingle.hasPrefix("GET PLUGIN/2.0M"))
+        #expect(wireSingle.hasPrefix("GET PLUGIN/2.0\r\n"))
         #expect(wireSingle.contains("Reference0: ghost"))
         #expect(wireSingle.contains("Reference1: さくら"))
         #expect(wireSingle.contains("Reference2: \(pathPosix)"))
@@ -323,7 +332,7 @@ struct PluginEventDispatchMatrixTests {
         // 実装の onInstallComplete(types:names:paths:) と同一ロジック
         let r0 = ListDelimiter.join(types)
         let r1 = ListDelimiter.join(names)
-        let r2 = ListDelimiter.join(paths.map { PathNormalizer.posix($0) })
+        let r2 = ListDelimiter.join(paths.map { PathNormalizer.directory($0) })
 
         let frame = PluginFrame(id: "OnInstallComplete", references: [r0, r1, r2])
         let wire = frame.build()
@@ -424,12 +433,12 @@ struct PluginEventDispatchMatrixTests {
         let frame = PluginFrame(id: "notifyplugin-event", references: ["arg0", "arg1"], notify: true)
         let wire = frame.build()
 
-        #expect(wire.hasPrefix("NOTIFY PLUGIN/2.0M"))
+        #expect(wire.hasPrefix("NOTIFY PLUGIN/2.0\r\n"))
         #expect(wire.contains("ID: notifyplugin-event"))
         #expect(wire.contains("Reference0: arg0"))
         #expect(wire.contains("Reference1: arg1"))
         // GET 行にはならないこと
-        #expect(!wire.hasPrefix("GET PLUGIN/2.0M"))
+        #expect(!wire.hasPrefix("GET PLUGIN/2.0\r\n"))
     }
 
     // MARK: - フレーム基本構造（全イベント共通のヘッダ形式）
@@ -442,12 +451,13 @@ struct PluginEventDispatchMatrixTests {
         let wire = frame.build()
         let lines = wire.components(separatedBy: "\r\n")
 
-        #expect(lines[0] == "GET PLUGIN/2.0M")
+        #expect(lines[0] == "GET PLUGIN/2.0")
         #expect(lines[1] == "Charset: UTF-8")
         #expect(lines[2] == "ID: OnGhostBoot")
         #expect(lines[3] == "Sender: Ourin")
         #expect(lines[4] == "SecurityLevel: local")
-        #expect(lines[5] == "Reference0: 12345")
+        #expect(lines[5].hasPrefix("Language: "))
+        #expect(lines[6] == "Reference0: 12345")
         // CRLF 終端であること（末尾は空行 + CRLF）
         #expect(wire.hasSuffix("\r\n"))
     }

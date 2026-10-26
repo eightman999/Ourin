@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include "Digest.hpp"
 #include "Base64.hpp"
+#include "JsonValue.hpp"
 #include <unistd.h>
 #if defined(__APPLE__)
 #include <mach/mach.h>
@@ -540,6 +541,25 @@ static void yayaElementSet(Value& container, std::int64_t index, const Value& va
     }
 }
 
+// String-key hashes retain numeric array indexing on the existing path.
+static Value yayaIndexedGet(const Value& container, const Value& key, const std::string& delimiter) {
+    if (container.getType() != Value::Type::Dictionary)
+        return yayaElementGet(container, key.asInt64(), delimiter);
+    const auto& values = container.asDict();
+    const auto found = values.find(key.asString());
+    return found == values.end() ? Value() : found->second;
+}
+static void yayaIndexedSet(Value& container, const Value& key, const Value& value,
+                           const std::string& delimiter, bool spread) {
+    if (container.getType() != Value::Type::Dictionary) {
+        yayaElementSet(container, key.asInt64(), value, delimiter, spread);
+        return;
+    }
+    auto values = container.asDict();
+    values[key.asString()] = value;
+    container = Value(values);
+}
+
 // These AST calls mutate a variable and are statement-like in YAYA. Their
 // return value is useful when nested inside an expression, but must not become
 // an output candidate when the call is a standalone statement.
@@ -571,7 +591,7 @@ static bool isOutputSuppressedNode(const std::shared_ptr<AST::Node>& node) {
         "CLEARERRORLOG", "DICLOAD", "DICUNLOAD",
         "ERASEVAR", "EXECUTE", "EXECUTE_WAIT",
         "FCLOSE", "FCOPY", "FDEL", "FOPEN", "FRENAME",
-        "FSEEK", "FWRITE", "FWRITE2", "FWRITEBIN", "FWRITEDECODE",
+        "FSEEK", "FWRITE", "FWRITE2", "FWRITEBIN", "FWRITEDECODE", "FWRITEJSON",
         "FUNCDECL_ERASE", "FUNCDECL_WRITE",
         "LETTONAME", "LOADLIB", "LOGGING", "MKDIR", "RMDIR",
         "REGISTERTEMPVAR", "RESTOREVAR", "SAVEVAR", "SETDELIM",
@@ -793,13 +813,29 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
         }
     } callFrameGuard{*this};
 
-    // Set _argv / _argc for this function call (now goes to local scope)
+    // User functions receive one-level-expanded array arguments (YAYA's
+    // ExecFunctionWithArgs). Builtins above retain individual Value arguments,
+    // e.g. FWRITEJSON(path, array) must not turn the array into extra arguments.
+    // Record each original argument's span for &argument writeback.
+    struct ArgumentSpan { size_t offset; size_t width; bool isArray; };
+    std::vector<ArgumentSpan> argumentSpans;
+    if (!referenceArguments.empty()) argumentSpans.reserve(args.size());
     std::vector<Value> argArray;
     for (const auto& a : args) {
-        argArray.push_back(a);
+        const size_t offset = argArray.size();
+        const bool isArray = a.getType() == Value::Type::Array;
+        if (isArray) {
+            const auto& elements = a.asArray();
+            argArray.insert(argArray.end(), elements.begin(), elements.end());
+        } else {
+            argArray.push_back(a);
+        }
+        if (!referenceArguments.empty()) {
+            argumentSpans.push_back({offset, argArray.size() - offset, isArray});
+        }
     }
     setVariable("_argv", Value(argArray));
-    setVariable("_argc", Value(static_cast<int>(args.size())));
+    setVariable("_argc", Value(static_cast<std::int64_t>(argArray.size())));
 
     // Dispatch: nonoverload (or single declaration) runs only the first enabled
     // declaration. Otherwise (YAYA overload default) every declaration runs in
@@ -849,11 +885,21 @@ Value VM::execute(const std::string& functionName, const std::vector<Value>& arg
         const Value calleeArguments = getVariable("_argv");
         for (const auto& reference : referenceArguments) {
             if (calleeArguments.getType() != Value::Type::Array ||
-                reference.argumentIndex >= calleeArguments.asArray().size()) {
+                reference.argumentIndex >= argumentSpans.size()) {
                 continue;
             }
-            writeReference(reference.target, calleeArguments.arrayGet(
-                static_cast<int>(reference.argumentIndex)));
+            const auto& span = argumentSpans[reference.argumentIndex];
+            const auto& values = calleeArguments.asArray();
+            if (span.isArray) {
+                // Reassemble only this argument's original span. If _argv was
+                // shortened, return the surviving elements (possibly empty).
+                const size_t begin = std::min(span.offset, values.size());
+                const size_t end = std::min(span.offset + span.width, values.size());
+                writeReference(reference.target, Value(std::vector<Value>(
+                    values.begin() + begin, values.begin() + end)));
+            } else if (span.offset < values.size()) {
+                writeReference(reference.target, values[span.offset]);
+            }
         }
     }
 
@@ -1154,19 +1200,29 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
                 }
                 arrayVal = Value(parts);
             }
-            if (arrayVal.getType() == Value::Type::Array) {
+            // YAYA 600 snapshots the source before entering the loop. Hashes yield
+            // values in the one-variable form and key/value in the two-variable
+            // form; arrays and pseudo-arrays use a zero-based integer index.
+            std::vector<std::pair<Value, Value>> entries;
+            if (arrayVal.getType() == Value::Type::Dictionary) {
+                for (const auto& [key, value] : arrayVal.asDict()) {
+                    entries.emplace_back(Value(key), value);
+                }
+            } else if (arrayVal.getType() == Value::Type::Array) {
                 const auto& arr = arrayVal.asArray();
-                // Snapshot elements so mutation of the source array mid-loop is safe.
-                std::vector<Value> elems(arr.begin(), arr.end());
-                for (const auto& elem : elems) {
-                    setVariable(feNode->varName, elem);
-                    try {
-                        result = executeBlock(feNode->body);
-                    } catch (const ContinueException&) {
-                        continue;
-                    } catch (const BreakException&) {
-                        break;
-                    }
+                for (size_t index = 0; index < arr.size(); ++index) {
+                    entries.emplace_back(Value(static_cast<std::int64_t>(index)), arr[index]);
+                }
+            }
+            for (const auto& [key, value] : entries) {
+                if (!feNode->keyName.empty()) setVariable(feNode->keyName, key);
+                setVariable(feNode->varName, value);
+                try {
+                    result = executeBlock(feNode->body);
+                } catch (const ContinueException&) {
+                    continue;
+                } catch (const BreakException&) {
+                    break;
                 }
             }
             return result;
@@ -1295,8 +1351,9 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
 
                     // 変数でない項（文字列リテラル、多次元の手前の要素など）の簡易配列は既定の区切り ","。
                     if (base.getType() == Value::Type::Array || base.getType() == Value::Type::String ||
-                        base.getType() == Value::Type::Integer || base.getType() == Value::Type::Real) {
-                        return yayaElementGet(base, idxV.asInt64(), ",");
+                        base.getType() == Value::Type::Integer || base.getType() == Value::Type::Real ||
+                        base.getType() == Value::Type::Dictionary) {
+                        return yayaIndexedGet(base, idxV, ",");
                     }
 
                     // Special handling if base was a variable named 'reference'
@@ -1500,8 +1557,8 @@ Value VM::executeNode(std::shared_ptr<AST::Node> node) {
             }
             // 文字列は簡易配列（変数の区切りで分けた要素）、整数・実数は [0] だけその値（YAYA）。
             if (arrayVar.getType() == Value::Type::String || arrayVar.getType() == Value::Type::Integer ||
-                arrayVar.getType() == Value::Type::Real) {
-                return yayaElementGet(arrayVar, indexVal.asInt64(), variableDelimiter(access->arrayName));
+                arrayVar.getType() == Value::Type::Real || arrayVar.getType() == Value::Type::Dictionary) {
+                return yayaIndexedGet(arrayVar, indexVal, variableDelimiter(access->arrayName));
             }
 
             if (access->arrayName == "reference" &&
@@ -1849,7 +1906,7 @@ std::optional<VM::ElementLvalue> VM::resolveElementLvalue(const std::shared_ptr<
     ElementLvalue target;
     target.varName = access->arrayName;
     for (auto it = indexNodes.rbegin(); it != indexNodes.rend(); ++it) {
-        target.indices.push_back(executeNode(*it).asInt64());
+        target.indices.push_back(executeNode(*it));
     }
     return target;
 }
@@ -1860,7 +1917,7 @@ Value VM::readElementLvalue(const ElementLvalue& target) {
     for (size_t level = 0; level < target.indices.size(); ++level) {
         // 簡易配列の区切りは、変数に直接付けた添字だけがその変数の区切りを使う。
         const std::string delimiter = level == 0 ? variableDelimiter(target.varName) : ",";
-        value = yayaElementGet(value, target.indices[level], delimiter);
+        value = yayaIndexedGet(value, target.indices[level], delimiter);
     }
     return value;
 }
@@ -1875,12 +1932,12 @@ void VM::writeElementLvalue(const ElementLvalue& target, const Value& value) {
     std::vector<Value> containers{ getVariable(target.varName) };
     for (size_t level = 0; level + 1 < target.indices.size(); ++level) {
         const std::string delimiter = level == 0 ? variableDelimiter(target.varName) : ",";
-        containers.push_back(yayaElementGet(containers[level], target.indices[level], delimiter));
+        containers.push_back(yayaIndexedGet(containers[level], target.indices[level], delimiter));
     }
     for (size_t level = target.indices.size(); level-- > 0;) {
         const std::string delimiter = level == 0 ? variableDelimiter(target.varName) : ",";
         const bool innermost = level + 1 == target.indices.size();
-        yayaElementSet(containers[level], target.indices[level],
+        yayaIndexedSet(containers[level], target.indices[level],
                        innermost ? value : containers[level + 1], delimiter, innermost);
     }
     setVariable(target.varName, containers[0]);
@@ -2147,6 +2204,35 @@ void VM::registerBuiltins() {
         return Value(std::vector<Value>());
     };
     
+    // YAYA 600 string-key hashes. IHASH keeps the first duplicate key.
+    builtins_["IHASH"] = [this](const std::vector<Value>& args) -> Value {
+        std::map<std::string, Value> values;
+        for (size_t i = 0; i < args.size(); i += 2)
+            values.emplace(args[i].asString(), i + 1 < args.size() ? args[i + 1] : Value());
+        if (args.size() % 2) lastError_ = 20;
+        return Value(values);
+    };
+    builtins_["HASH_EXIST"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) { lastError_ = 8; return Value(); }
+        if (args[1].getType() != Value::Type::Dictionary) { lastError_ = 9; return Value(); }
+        return Value(args[1].asDict().count(args[0].asString()) ? 1 : 0);
+    };
+    builtins_["HASH_SIZE"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) { lastError_ = 8; return Value(); }
+        if (args[0].getType() != Value::Type::Dictionary) { lastError_ = 9; return Value(); }
+        return Value(static_cast<std::int64_t>(args[0].asDict().size()));
+    };
+    for (const std::string name : {"HASH_KEYS", "HASH_VALUES"}) {
+        builtins_[name] = [this, name](const std::vector<Value>& args) -> Value {
+            if (args.empty()) { lastError_ = 8; return Value(); }
+            if (args[0].getType() != Value::Type::Dictionary) { lastError_ = 9; return Value(); }
+            std::vector<Value> result;
+            for (const auto& pair : args[0].asDict())
+                result.push_back(name == "HASH_KEYS" ? Value(pair.first) : pair.second);
+            return Value(result);
+        };
+    }
+
     // ===== Type Conversion Functions =====
     
     // TOINT(value) - Convert to integer
@@ -2909,6 +2995,103 @@ void VM::registerBuiltins() {
         return (fs::path(ghostRootPath_) / candidate).lexically_normal().string();
     };
 
+    // JSON whole-file operations use their own charset (UTF-8 by default),
+    // independently of FCHARSET and the open filename registry.
+    auto jsonCharset = [this](const Value& value, bool allowEmpty) -> std::string {
+        if (allowEmpty && (value.isVoid() || (value.getType() == Value::Type::String && value.asString().empty())))
+            return "UTF-8";
+        if (value.getType() == Value::Type::Integer || value.getType() == Value::Type::Real) {
+            switch (value.asInt64()) {
+                case 0: return "CP932";
+                case 1: case 126: case 127: return "UTF-8";
+                case 2: return "EUC-JP";
+                case 3: return "CP950";
+                case 4: return "CP936";
+                case 5: return "CP949";
+                case 6: return "ISO-2022-JP";
+            }
+        } else if (value.getType() == Value::Type::String) {
+            auto name = value.asString();
+            std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) { return std::tolower(c); });
+            name.erase(std::remove_if(name.begin(), name.end(), [](char c) { return c == '-' || c == '_' || c == ' '; }), name.end());
+            if (name == "binary" || name == "default" || name == "utf8n" || name == "cp65001") return "UTF-8";
+            if (name == "eucjp") return "EUC-JP";
+            if (name == "jis" || name == "iso2022jp") return "ISO-2022-JP";
+            const auto normalized = normalizeEncodingNameVM(name);
+            if (normalized != "AUTO") return normalized;
+        } else { lastError_ = 9; return ""; }
+        lastError_ = 12;
+        return "";
+    };
+    auto jsonPath = [this, isPathSafe, resolveGhostPath](const std::string& path) -> std::string {
+        if (!isPathSafe(path) || path.find('\0') != std::string::npos || ghostRootPath_.empty()) return "";
+        namespace fs = std::filesystem;
+        std::error_code ec;
+        const auto root = fs::weakly_canonical(ghostRootPath_, ec);
+        if (ec) return "";
+        const auto full = fs::weakly_canonical(resolveGhostPath(path), ec);
+        if (ec) return "";
+        const auto relative = full.lexically_relative(root);
+        if (relative.empty() || relative == "." || *relative.begin() == "..") return "";
+        return full.string();
+    };
+    builtins_["PARSEJSON"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) { lastError_ = 8; return Value(); }
+        if (args[0].getType() != Value::Type::String) { lastError_ = 9; return Value(); }
+        try { return YayaJson::parse(args[0].asString()); }
+        catch (...) { lastError_ = 26; return Value(); }
+    };
+    builtins_["DUMPJSON"] = [this](const std::vector<Value>& args) -> Value {
+        if (args.empty()) { lastError_ = 8; return Value(std::string()); }
+        try { return Value(YayaJson::encode(args[0]).dump(args.size() > 1 && args[1].asInt64() != 0 ? 4 : -1)); }
+        catch (...) { lastError_ = 27; return Value(std::string()); }
+    };
+    builtins_["FREADJSON"] = [this, jsonPath, jsonCharset](const std::vector<Value>& args) -> Value {
+        if (args.empty()) { lastError_ = 8; return Value(); }
+        if (args[0].getType() != Value::Type::String) { lastError_ = 9; return Value(); }
+        const auto charset = args.size() > 1 ? jsonCharset(args[1], false) : "UTF-8";
+        if (charset.empty()) return Value();
+        const auto path = jsonPath(args[0].asString());
+        std::ifstream file(path, std::ios::binary);
+        if (path.empty() || !file.is_open()) { lastError_ = 25; return Value(); }
+        std::string bytes((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        if (file.bad()) { lastError_ = 25; return Value(); }
+        if (charset != "UTF-8") {
+            std::string converted;
+            if (!convertEncodingVM(bytes, charset.c_str(), "UTF-8", converted)) { lastError_ = 26; return Value(); }
+            bytes = std::move(converted);
+        }
+        try { return YayaJson::parse(bytes); }
+        catch (...) { lastError_ = 26; return Value(); }
+    };
+    builtins_["FWRITEJSON"] = [this, jsonPath, jsonCharset](const std::vector<Value>& args) -> Value {
+        if (args.size() < 2) { lastError_ = 8; return Value(0); }
+        if (args[0].getType() != Value::Type::String) { lastError_ = 9; return Value(0); }
+        const auto charset = args.size() > 2 ? jsonCharset(args[2], true) : "UTF-8";
+        if (charset.empty()) return Value(0);
+        const auto path = jsonPath(args[0].asString());
+        if (path.empty()) { lastError_ = 25; return Value(0); }
+        std::string bytes;
+        try {
+            const bool pretty = args.size() < 4 || args[3].asInt64() != 0;
+            // Escaping all non-ASCII codepoints for legacy encodings preserves
+            // even characters the requested charset cannot represent.
+            bytes = YayaJson::encode(args[1]).dump(pretty ? 4 : -1, ' ', charset != "UTF-8");
+            if (pretty) bytes += '\n';
+            if (charset != "UTF-8") {
+                std::string encoded;
+                if (!convertEncodingVM(bytes, "UTF-8", charset.c_str(), encoded)) throw std::runtime_error("JSON charset conversion");
+                bytes = std::move(encoded);
+            }
+        } catch (...) { lastError_ = 27; return Value(0); }
+        std::ofstream file(path, std::ios::binary | std::ios::trunc);
+        if (!file.is_open()) { lastError_ = 25; return Value(0); }
+        file.write(bytes.data(), bytes.size());
+        file.close();
+        if (!file) { lastError_ = 13; return Value(0); }
+        return Value(1);
+    };
+
     // FCOPY / FMOVE のコピー先が既存のフォルダなら、その中に同じ名前で置く
     // （YAYA 本体の Windows 版は常にコピー先をフォルダとして扱い、POSIX 版はこの形）。
     auto placeInExistingDirectory = [](const std::string& src, const std::string& dst) -> std::string {
@@ -2924,7 +3107,15 @@ void VM::registerBuiltins() {
         if (args.size() < 2 || !isPathSafe(args[0].asString())) return Value(0);
         const auto filename = resolveGhostPath(args[0].asString());
         if (fileHandles_.count(filename)) return Value(2);
-        const std::string mode = args[1].asString();
+        // YAYA CFile::ProcessOpenMode: read/write/append[_binary][_random] を fopen 形式へ読み替える。
+        static const std::map<std::string, std::string> modeAliases = {
+            {"read", "r"}, {"write", "w"}, {"append", "a"},
+            {"read_binary", "rb"}, {"write_binary", "wb"}, {"append_binary", "ab"},
+            {"read_random", "r+"}, {"write_random", "w+"}, {"append_random", "a+"},
+            {"read_binary_random", "rb+"}, {"write_binary_random", "wb+"}, {"append_binary_random", "ab+"}
+        };
+        std::string mode = args[1].asString();
+        if (auto alias = modeAliases.find(mode); alias != modeAliases.end()) mode = alias->second;
         if (mode.empty() || (mode[0] != 'r' && mode[0] != 'w' && mode[0] != 'a')) return Value(0);
         if (mode.find_first_not_of("rwa+bt") != std::string::npos) return Value(0);
         std::ios_base::openmode flags = std::ios::binary;
@@ -2972,10 +3163,21 @@ void VM::registerBuiltins() {
     };
 
     // FWRITE2(filename, data) - Write to file directly
-    builtins_["FWRITE2"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
+    builtins_["FWRITE2"] = [this, resolveGhostPath](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value(0);
         std::string filename = args[0].asString();
         std::string data = args[1].asString();
+        // YAYA: FOPEN 済みのファイルへ改行なしで書く。開いていないときだけ従来どおり直接書き込む。
+        if (auto open = fileHandles_.find(resolveGhostPath(filename)); open != fileHandles_.end()) {
+            if (fileCharset_ == 0) {
+                std::string encoded;
+                if (!convertEncodingVM(data, "UTF-8", "CP932", encoded)) return Value();
+                data = encoded;
+            }
+            open->second->write(data.data(), static_cast<std::streamsize>(data.size()));
+            open->second->flush();
+            return Value();
+        }
         
         // Security check
         if (filename.empty() || filename[0] == '/' || filename.find("..") != std::string::npos) {
@@ -3016,27 +3218,33 @@ void VM::registerBuiltins() {
     
     // FENUM(path, pattern) - Enumerate files (simple substring match)
     builtins_["FENUM"] = [resolveGhostPath](const std::vector<Value>& args) -> Value {
-        std::vector<Value> out;
-        if (args.size() < 2) return Value(out);
+        // YAYA 互換: ファイルとフォルダを delimiter（既定 ","）で連結した文字列。フォルダは先頭に `\` を付ける。
+        // 絶対パスも可（他ゴーストのフォルダを列挙するプラグインがある）。親階層への .. 抜けのみ禁止。
+        if (args.empty()) return Value("");
+        std::string delimiter = ",";
+        if (args.size() >= 2) {
+            if (args[1].asString().empty()) return Value("");
+            delimiter = args[1].asString();
+        }
         std::string dir = args[0].asString();
-        std::string pat = args[1].asString();
-        // YAYA ゴーストは自分の絶対パス配下を列挙するため絶対パスを許可する
-        // （macOS コンテナのサンドボックスが実境界）。親階層への .. 抜けのみ禁止。
-        if (dir.empty() || dir.find("..") != std::string::npos) return Value(out);
+        if (dir.find("..") != std::string::npos) return Value("");
         dir = resolveGhostPath(dir);
+        std::vector<std::string> names;
         try {
-            std::string needle;
-            for (char c : pat) if (c != '*') needle += c;
             namespace fs = std::filesystem;
             for (const auto& entry : fs::directory_iterator(dir)) {
-                if (!entry.is_regular_file()) continue;
                 std::string name = entry.path().filename().string();
-                if (needle.empty() || name.find(needle) != std::string::npos) {
-                    out.emplace_back(name);
-                }
+                if (name == ".DS_Store") continue;
+                names.push_back(entry.is_directory() ? "\\" + name : name);
             }
         } catch (...) {}
-        return Value(out);
+        std::sort(names.begin(), names.end());
+        std::string result;
+        for (size_t i = 0; i < names.size(); ++i) {
+            if (i) result += delimiter;
+            result += names[i];
+        }
+        return Value(result);
     };
     
     // FCOPY(src, dst) - Copy file
@@ -3740,13 +3948,13 @@ void VM::registerBuiltins() {
         for (const auto& v : root) {
             if (!v.is_object() || !v.contains("t") || !v["t"].is_string()) return false;
             const auto t = v["t"].get<std::string>();
-            if (t != "s" && t != "i" && t != "r" && t != "a" && t != "v") return false;
+            if (t != "s" && t != "i" && t != "r" && t != "a" && t != "d" && t != "v") return false;
         }
         return true;
     };
 
     // SAVEVAR(filename) - グローバル変数を JSON で指定ファイルへ保存する。
-    // 型情報（s=文字列, i=整数, r=実数, a=配列, v=void）を保持し RESTOREVAR で復元可能にする。
+    // 型情報（s=文字列, i=整数, r=実数, a=配列, d=hash, v=void）を保持する。
     // Phase 7: relative paths anchor under the ghost root; temp vars are excluded.
     builtins_["SAVEVAR"] = [this, persistencePath, isSaveObject](const std::vector<Value>& args) -> Value {
         const std::string full = persistencePath(args);
@@ -3762,6 +3970,13 @@ void VM::registerBuiltins() {
                     nlohmann::json a = nlohmann::json::array();
                     for (const auto& e : v.asArray()) a.push_back(toJson(e));
                     j["v"] = a;
+                    break;
+                }
+                case Value::Type::Dictionary: {
+                    j["t"] = "d";
+                    auto object = nlohmann::json::object();
+                    for (const auto& [key, value] : v.asDict()) object[key] = toJson(value);
+                    j["v"] = object;
                     break;
                 }
                 default: j["t"] = "v"; break;
@@ -3809,6 +4024,12 @@ void VM::registerBuiltins() {
                     for (const auto& e : j["v"]) arr.push_back(fromJson(e));
                 }
                 return Value(arr);
+            }
+            if (t == "d") {
+                std::map<std::string, Value> object;
+                if (j.contains("v") && j["v"].is_object())
+                    for (auto it = j["v"].begin(); it != j["v"].end(); ++it) object[it.key()] = fromJson(it.value());
+                return Value(object);
             }
             return Value();
         };
@@ -3948,8 +4169,14 @@ void VM::registerBuiltins() {
     // ===== Additional System/Utility Functions =====
     
     // EXECUTE(command) - Execute system command (non-blocking)
-    builtins_["EXECUTE"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["EXECUTE"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
+        if (callback_ && callback_->requiresHostExecution()) {
+            const auto response = callback_->executeCommandWithArguments(args[0].asString(), false,
+                args.size() > 1 ? args[1].asString() : "");
+            if (!response.value("ok", false)) { lastError_ = response.value("status", 501); return Value(0); }
+            return Value(1);
+        }
         std::string command = args[0].asString();
         
         // Execute in background (non-blocking)
@@ -3959,8 +4186,14 @@ void VM::registerBuiltins() {
     };
     
     // EXECUTE_WAIT(command) - Execute and wait (blocking)
-    builtins_["EXECUTE_WAIT"] = [](const std::vector<Value>& args) -> Value {
+    builtins_["EXECUTE_WAIT"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
+        if (callback_ && callback_->requiresHostExecution()) {
+            const auto response = callback_->executeCommandWithArguments(args[0].asString(), true,
+                args.size() > 1 ? args[1].asString() : "");
+            if (!response.value("ok", false)) { lastError_ = response.value("status", 501); return Value(-1); }
+            return Value(response.value("exit_code", 0));
+        }
         std::string command = args[0].asString();
         
         // Execute and wait for completion
@@ -4192,6 +4425,12 @@ void VM::registerBuiltins() {
     builtins_["GETSETTING"] = [this, persistencePath](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value("");
         if (args[0].asString() == "coreinfo.savefile") return Value(persistencePath({}));
+        if (args[0].asString() == "coreinfo.path") {
+            // YAYA: モジュール（ゴースト／プラグイン）のフォルダ。末尾区切り付き。
+            std::string root = ghostRootPath_;
+            if (!root.empty() && root.back() != '/') root += '/';
+            return Value(root);
+        }
         auto it = settings_.find(args[0].asString());
         return (it != settings_.end()) ? it->second : Value("");
     };
@@ -4311,6 +4550,15 @@ void VM::registerBuiltins() {
         } else if (result.contains("result") && result["result"].is_string()) {
             responseText = result["result"].get<std::string>();
         }
+
+        // Ourin's parsed SAORI shim must keep a 204 response as no value.
+        // Unlike an intentional empty Result on 200, it is not an empty-string
+        // output candidate. This also matches the plugin framework's FUNCTIONEX
+        // wrapper, which emits no result when a command produces no content.
+        std::istringstream statusLine(responseText.substr(0, responseText.find("\r\n")));
+        std::string protocol, statusCode;
+        statusLine >> protocol >> statusCode;
+        if (protocol == "SAORI/1.0" && statusCode == "204") return Value();
 
         // The host may return a pre-parsed Result directly; prefer it when present.
         if (result.contains("result") && result["result"].is_string()) {
@@ -4522,6 +4770,41 @@ void VM::registerBuiltins() {
     builtins_["TOAUTOEX"] = [autoConvert](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value();
         return autoConvert(args[0], true);
+    };
+
+    // YAYA 600 PARSEHEADER: preserve header spelling/order and raw body;
+    // repeated headers remain in arrays while the header hash is last-wins.
+    builtins_["PARSEHEADER"] = [this, autoConvert](const std::vector<Value>& args) -> Value {
+        if (args.empty()) { lastError_ = 8; return Value(); }
+        if (args[0].getType() != Value::Type::String) { lastError_ = 9; return Value(); }
+        const auto text = args[0].asString();
+        const bool convert = args.size() > 1 && args[1].asInt64() != 0;
+        std::map<std::string, Value> headers;
+        std::vector<Value> keys, values, raw;
+        std::string start, body;
+        size_t offset = 0, lineNumber = 0;
+        while (offset < text.size()) {
+            const auto end = text.find('\n', offset);
+            auto line = text.substr(offset, end == std::string::npos ? end : end - offset);
+            offset = end == std::string::npos ? text.size() : end + 1;
+            if (!line.empty() && line.back() == '\r') line.pop_back();
+            if (line.empty()) { body = text.substr(offset); break; }
+            const auto colon = line.find(':');
+            const auto whitespace = line.find_first_of(" \t");
+            if (colon != std::string::npos && colon > 0 &&
+                (whitespace == std::string::npos || whitespace > colon)) {
+                const auto key = line.substr(0, colon);
+                size_t valueStart = colon + 1;
+                if (valueStart < line.size() && (line[valueStart] == ' ' || line[valueStart] == '\t')) ++valueStart;
+                const auto original = Value(line.substr(valueStart));
+                const auto value = convert ? autoConvert(original, true) : original;
+                headers[key] = value;
+                keys.emplace_back(key); values.push_back(value); raw.push_back(original);
+            } else if (lineNumber == 0) start = line;
+            ++lineNumber;
+        }
+        return Value(std::map<std::string, Value>{{"start", Value(start)}, {"header", Value(headers)},
+            {"key", Value(keys)}, {"value", Value(values)}, {"rawvalue", Value(raw)}, {"body", Value(body)}});
     };
 
     // CVAUTO, CVAUTOEX は VM の値渡し API では代入先参照を受け取れないため、

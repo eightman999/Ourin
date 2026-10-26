@@ -35,6 +35,8 @@ ACTUAL="$(shasum -a 256 "$ARCHIVE" | cut -d ' ' -f 1)"
 mkdir -p "$SOURCE"
 tar -xf "$ARCHIVE" -C "$SOURCE"
 patch -d "$SOURCE" -p1 < "$ROOT/engines/additional/macos13.patch"
+patch -d "$SOURCE" -p1 < "$ROOT/engines/additional/akari-plugin.patch"
+patch -d "$SOURCE" -p1 < "$ROOT/engines/additional/akari-values.patch"
 for product in akari ese-shiori niseshiori shino hisui yuhna misaka; do
   "${SWIFT_BUILD[@]}" --package-path "$SOURCE/native" --scratch-path "$SCRATCH" \
     -c release --arch arm64 --arch x86_64 --product "$product"
@@ -57,7 +59,7 @@ Copyright (c) 2026 opera7133. Licensed under MIT; see LICENSE-utatane-modules.tx
 Source: https://github.com/opera7133/utatane-modules
 Revision: $REV
 Source archive (git archive REV native LICENSE) SHA-256: $EXPECTED
-Ourin modification: native/Package.swift minimum macOS target changed from 14 to 13.
+Ourin modifications: minimum macOS target 13; expose the upstream Akari PLUGIN request path and preserve its response protocol; preserve typed declaration initializers and event dictionary dispatch without duplicate empty-response execution.
 Original Windows engines are separate works. Full original-engine compatibility is not claimed.
 NOTICE
 (cd "$OUT" && shasum -a 256 libakari.dylib libese-shiori.dylib libniseshiori.dylib libshino.dylib libhisui.dylib libyuhna.dylib libmisaka.dylib > SHA256SUMS)

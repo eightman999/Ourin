@@ -1901,6 +1901,63 @@ struct ShioriLoaderTests {
         #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) == "123456789012")
     }
 
+    /// 本家 YAYA のファイル関数（ファイル名で識別、FREAD は EOF で -1、FWRITE は改行付き）、
+    /// `\` 区切りのパス、FENUM のフォルダ表記、行末 `/` の行継続を検証する。
+    @Test
+    func yayaCoreFileFunctionsFollowUpstreamYaya() throws {
+        guard let exe = Self.locateYayaCore() else {
+            print("[skip] yaya_core not found; skipping file function integration test")
+            return
+        }
+        let ghost = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: ghost.appendingPathComponent("data/sub"), withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: ghost) }
+
+        let dic = """
+        FileFunctions {
+            FCHARSET(1)
+            _o1 = FOPEN('.\\data\\log.txt', 'write')
+            _o2 = FOPEN('data/log.txt', 'write')
+            FWRITE('data\\log.txt', 'a')
+            FWRITE('data/log.txt', 'b')
+            FCLOSE('data/log.txt')
+            FOPEN('data/log.txt', 'read')
+            _lines = ''
+            while 1 {
+                _line = FREAD('data/log.txt')
+                if _line == -1
+                    break
+                _lines += _line + ';'
+            }
+            FCLOSE('data/log.txt')
+            _missing = FOPEN('data/none.txt', 'read')
+            _enum = FENUM('data')
+            _joined = 'x' + /
+                'y'
+            "o1=%(_o1),o2=%(_o2),lines=%(_lines),missing=%(_missing),enum=%(_enum),joined=%(_joined)"
+        }
+        """
+        try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
+
+        let loadReq: [String: Any] = [
+            "cmd": "load", "ghost_root": ghost.path, "encoding": "UTF-8",
+            "dic_entries": [["path": "t.dic", "encoding": "UTF-8"]]
+        ]
+        let request: [String: Any] = [
+            "cmd": "request", "method": "GET", "id": "FileFunctions",
+            "ref": [], "headers": ["Charset": "UTF-8"]
+        ]
+
+        let value = Self.runYayaCore(exe: exe, requests: [loadReq, request], currentDirectory: ghost) ?? ""
+        #expect(value.contains("o1=1,o2=2"))
+        #expect(value.contains("lines=a;b;"))
+        #expect(value.contains("missing=0"))
+        #expect(value.contains("enum=\\sub,log.txt"))
+        #expect(value.contains("joined=xy"))
+        let written = try String(contentsOf: ghost.appendingPathComponent("data/log.txt"), encoding: .utf8)
+        #expect(written == "a\nb\n")
+    }
+
     /// FCHARSET の CP932 テキスト入出力と、FATTRIB の POSIX 属性変換を検証する。
     @Test
     func yayaCoreFileCharsetAndAttributesAreImplemented() throws {

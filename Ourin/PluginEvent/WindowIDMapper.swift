@@ -3,10 +3,9 @@ import CoreGraphics
 
 /// NSWindow から CGWindowID 列を生成するユーティリティ
 enum WindowIDMapper {
-    /// 複数ウィンドウの ID をカンマ区切りで取得
+    /// 複数ウィンドウの ID を取得する。Windows の HWND 列と同じくバイト値 1 区切り（ukadoc plugin-event: OnGhostBoot）。
     static func ids(for windows: [NSWindow]) -> String {
-        let ids = windows.map { id(for: $0) }
-        return ids.joined(separator: ",")
+        ListDelimiter.join(windows.map { id(for: $0) })
     }
 
     /// 単一ウィンドウの CGWindowID を取得（存在しない場合は "0"）

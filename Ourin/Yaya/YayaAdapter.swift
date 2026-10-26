@@ -18,18 +18,21 @@ struct YayaRequest: Codable {
     /// YAYA の設定の fncdepth（関数の呼び出しの深さの上限。0 は無制限）。nil なら yaya_core の既定。
     let fncdepth: Int?
     let save_file: String?
+    /// `raw_request` 用。辞書の `request` へそのまま渡す要求文。
+    let raw: String?
 
     // Convenience initializer that keeps existing call sites simple.
     init(cmd: String, ghost_root: String? = nil, dic: [String]? = nil, dic_entries: [[String: String]]? = nil,
          encoding: String? = nil, env: [String:String]? = nil, method: String? = nil,
          id: String? = nil, headers: [String:String]? = nil, ref: [String]? = nil,
-         messagePath: String? = nil, fncdepth: Int? = nil, saveFile: String? = nil) {
+         messagePath: String? = nil, fncdepth: Int? = nil, saveFile: String? = nil, raw: String? = nil) {
         self.cmd = cmd; self.ghost_root = ghost_root; self.dic = dic; self.dic_entries = dic_entries
         self.encoding = encoding; self.env = env; self.method = method; self.id = id
         self.headers = headers; self.ref = ref
         self.message_path = messagePath
         self.fncdepth = fncdepth
         self.save_file = saveFile
+        self.raw = raw
     }
 }
 
@@ -220,7 +223,7 @@ final class YayaAdapter: GhostShioriRuntime {
     /// Load dictionaries for a ghost and perform capability handshake.
     /// - Parameter encoding: yaya.txt の charset 指定（"Shift_JIS" 等）。"auto" は自動判定（UTF-8妥当→UTF-8、それ以外はCP932変換）。
     @discardableResult
-    func load(ghostRoot: URL, dicEntries: [DicEntry], encoding: String = "auto", functionDepthLimit: Int? = nil, saveFile: String? = nil) -> Bool {
+    func load(ghostRoot: URL, dicEntries: [DicEntry], encoding: String = "auto", functionDepthLimit: Int? = nil, saveFile: String? = nil, shioriHandshake: Bool = true) -> Bool {
         isLoaded = false
         guard proc.isRunning else {
             NSLog("[YayaAdapter] load() rejected because yaya_core is not running")
@@ -289,6 +292,8 @@ final class YayaAdapter: GhostShioriRuntime {
         }
 
         isLoaded = true
+        // SHIORI 以外（PLUGIN として使う yaya.dll 等）には SHIORI の capability 要求を送らない。
+        guard shioriHandshake else { return true }
         guard capability() != nil else {
             NSLog("[YayaAdapter] capability handshake failed; tearing down helper")
             forceTerminate()
@@ -418,6 +423,38 @@ final class YayaAdapter: GhostShioriRuntime {
         // Normal SHIORI request to YAYA
         let req = YayaRequest(cmd: "request", ghost_root: nil, dic: nil, encoding: nil, env: nil, method: method, id: id, headers: headers, ref: refs)
         return exchange(req, timeout: timeout)
+    }
+
+    /// yaya.dll をプラグイン等の SHIORI 以外の形で使うモジュールとして辞書を読み込む。
+    /// 設定ファイルは DLL と同名の `.txt`（yaya.dll → yaya.txt）。SAORI はモジュールのフォルダから探す。
+    func loadModule(root: URL, configName: String) -> Bool {
+        saoriManager.addSearchPath(root.appendingPathComponent("saori", isDirectory: true))
+        saoriManager.addSearchPath(root, prioritized: true)
+        var collector = DicCollector()
+        let configURL = root.appendingPathComponent(configName)
+        if let content = (try? String(contentsOf: configURL, encoding: .utf8))
+            ?? (try? String(contentsOf: configURL, encoding: .shiftJIS)) {
+            collectDicEntries(content: content, baseURL: root, sourceName: configName, collector: &collector, visited: [])
+        } else {
+            let contents = (try? FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)) ?? []
+            collector.entries = contents
+                .filter { $0.pathExtension.lowercased() == "dic" }
+                .map { DicEntry(path: $0.lastPathComponent, encoding: nil, sourceConfig: "(fallback)", sourceLine: 0) }
+        }
+        return load(
+            ghostRoot: root,
+            dicEntries: collector.entries,
+            encoding: collector.globalCharset ?? "auto",
+            shioriHandshake: false
+        )
+    }
+
+    /// 要求文を辞書の `request` へそのまま渡し、戻り値の文字列を返す（PLUGIN/2.0 等）。
+    func rawRequest(_ text: String, timeout: TimeInterval = 10.0) -> String? {
+        guard recoverIfNeeded() else { return nil }
+        guard let response = exchange(YayaRequest(cmd: "raw_request", raw: text), timeout: timeout),
+              response.ok else { return nil }
+        return response.value
     }
 
     /// Query adapter capability using SHIORI GET.

@@ -5,6 +5,64 @@ import Testing
 @Suite(.serialized)
 @MainActor
 struct PluginBridgeIntegrationTests {
+
+    @Test
+    func directBundlesKeepDistinctIDsAndRediscoveryDoesNotDuplicate() throws {
+        let base = PluginFixtureBuilder.temporaryBaseURL(prefix: "OurinDirectPlugins")
+        OurinPaths.testBaseOverride = base
+        let registry = PluginRegistry()
+        defer {
+            registry.unloadAll()
+            OurinPaths.testBaseOverride = nil
+            try? FileManager.default.removeItem(at: base)
+        }
+        let pluginRoot = try OurinPaths.subdirectory("plugin")
+        for kind in [PluginFixtureKind.utf8Echo, .target] {
+            let fixture = try PluginFixtureBuilder.build(kind, inPluginRoot: pluginRoot)
+            try FileManager.default.moveItem(at: fixture.bundleURL,
+                to: pluginRoot.appendingPathComponent(fixture.bundleURL.lastPathComponent))
+            try FileManager.default.removeItem(at: fixture.packageURL)
+        }
+        for _ in 0..<2 {
+            registry.discoverAndLoad()
+            for id in [PluginFixtureKind.utf8Echo.pluginID, PluginFixtureKind.target.pluginID] {
+                #expect(registry.compatibilityEntries.filter { $0.id == id && $0.canDispatchRequests }.count == 1)
+            }
+        }
+    }
+
+    @Test
+    func failedNativeLoadRemainsMetadataOnlyAndNeverDispatches() throws {
+        let base = PluginFixtureBuilder.temporaryBaseURL(prefix: "OurinFailedPlugin")
+        OurinPaths.testBaseOverride = base
+        let registry = PluginRegistry()
+        defer {
+            registry.unloadAll()
+            OurinPaths.testBaseOverride = nil
+            try? FileManager.default.removeItem(at: base)
+        }
+        let fixture = try PluginFixtureBuilder.build(.target, inPluginRoot: try OurinPaths.subdirectory("plugin"))
+        let source = base.appendingPathComponent("fail-load.c")
+        try """
+        #include <stdlib.h>
+        #include <stddef.h>
+        int load(char *owned, size_t n) { free(owned); return 0; }
+        const unsigned char *request(const unsigned char *p, size_t n, size_t *out) { abort(); }
+        void unload(void) { abort(); }
+        """.write(to: source, atomically: true, encoding: .utf8)
+        let compiler = Process()
+        compiler.executableURL = URL(fileURLWithPath: "/usr/bin/clang")
+        compiler.arguments = ["-dynamiclib", source.path, "-o",
+            fixture.bundleURL.appendingPathComponent("Contents/MacOS/\(PluginFixtureKind.target.bundleName)").path]
+        try compiler.run(); compiler.waitUntilExit()
+        #expect(compiler.terminationStatus == 0)
+        registry.discoverAndLoad()
+        let entry = try #require(registry.compatibilityEntries.first { $0.id == PluginFixtureKind.target.pluginID })
+        #expect(!entry.canDispatchRequests)
+        #expect(entry.executionState == .metadataOnly)
+        #expect(!registry.metas.values.contains { $0.id == entry.id })
+        #expect(registry.dispatchGet(id: "OnAnything").isEmpty)
+    }
     @Test @MainActor
     func dispatcherReportsMissingPluginTarget() {
         let dispatcher = PluginEventDispatcher(registry: PluginRegistry())

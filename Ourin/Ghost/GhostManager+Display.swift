@@ -786,26 +786,36 @@ extension GhostManager {
             return
         }
 
-        // Preserve an explicitly supplied scheme (mailto:, ftp:, custom schemes, ...).
-        // Bare host names are interpreted as HTTPS URLs.
-        let finalURL: String
-        if let schemeEnd = trimmed.firstIndex(of: ":"),
-           schemeEnd > trimmed.startIndex,
-           trimmed[..<schemeEnd].allSatisfy({ $0.isLetter || $0.isNumber || $0 == "+" || $0 == "-" || $0 == "." }) {
-            finalURL = trimmed
-        } else {
-            finalURL = "https://" + trimmed
-        }
-        
-        guard let url = URL(string: finalURL) else {
+        guard let url = Self.browserURL(for: trimmed) else {
             Log.info("[GhostManager] Invalid URL: \(urlString)")
             return
         }
-        
+        let finalURL = url.absoluteString
+
         DispatchQueue.main.async {
             NSWorkspace.shared.open(url)
             Log.debug("[GhostManager] Opened URL: \(finalURL)")
         }
+    }
+
+    /// `\![open,browser,…]` の対象を URL にする。
+    /// 明示されたスキーム（mailto:, ftp: 等）は保持し、ホスト名だけなら HTTPS とみなす。
+    /// Windows 向けのゴースト・プラグインが作る `file:///C:\…` や `file:///<path>html\a.html` の `\` は
+    /// macOS のパス区切りへ直し、空白や日本語を含むパスも開けるようにする。
+    static func browserURL(for target: String) -> URL? {
+        if target.lowercased().hasPrefix("file:") {
+            var path = String(target.dropFirst("file:".count)).replacingOccurrences(of: "\\", with: "/")
+            while path.hasPrefix("//") { path.removeFirst() }
+            path = path.removingPercentEncoding ?? path
+            guard path.hasPrefix("/") else { return nil }
+            return URL(fileURLWithPath: path)
+        }
+        if let schemeEnd = target.firstIndex(of: ":"),
+           schemeEnd > target.startIndex,
+           target[..<schemeEnd].allSatisfy({ $0.isLetter || $0.isNumber || $0 == "+" || $0 == "-" || $0 == "." }) {
+            return URL(string: target)
+        }
+        return URL(string: "https://" + target)
     }
 
     // MARK: - Help and Readme

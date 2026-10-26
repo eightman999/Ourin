@@ -22,6 +22,12 @@ public:
     
     // Execute system command
     virtual nlohmann::json executeCommand(const std::string& command, bool wait) = 0;
+    // Plugin packages must delegate execution to the host's explicit mapping.
+    virtual bool requiresHostExecution() const { return false; }
+    virtual nlohmann::json executeCommandWithArguments(const std::string& command, bool wait, const std::string& arguments) {
+        if (!arguments.empty()) return {{"ok", false}, {"status", 501}};
+        return executeCommand(command, wait);
+    }
     
     // Plugin/SAORI operations
     virtual nlohmann::json pluginOperation(const std::string& op, const nlohmann::json& params) = 0;
@@ -236,7 +242,7 @@ private:
     // 代入の左辺になる変数の要素（`a[i]`、`a[i][j]` ...）。添字は解決時に評価する。
     struct ElementLvalue {
         std::string varName;
-        std::vector<std::int64_t> indices;
+        std::vector<Value> indices;
     };
     std::optional<ElementLvalue> resolveElementLvalue(const std::shared_ptr<AST::Node>& node);
     Value readElementLvalue(const ElementLvalue& target);

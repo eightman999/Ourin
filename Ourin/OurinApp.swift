@@ -53,6 +53,9 @@ struct OurinApp: App {
                 Button("About Ourin") {
                     appDelegate.showAboutWindow()
                 }
+                Button(NSLocalizedString("アップデートを確認…", comment: "App update menu")) {
+                    AppUpdater.shared.checkForUpdates(userInitiated: true)
+                }
             }
         }
 
@@ -404,6 +407,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // 起動時に設定画面を出さない（SSP と同様、設定はメニューから開く）。
         suppressLaunchSettingsWindows()
 
+        // 配布版の自動アップデート確認（設定「自動アップデート確認」、既定オン）。
+        AppUpdater.shared.startAutomaticChecks()
+
         // Register handler for x-ukagaka-link scheme early
         WebHandler.shared.register()
         NotificationCenter.default.addObserver(
@@ -584,6 +590,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         defer { completionHandler() }
         let info = response.notification.request.content.userInfo
         guard (info["ourinTrayBalloon"] as? String) == "1" else { return }
+        if let pluginOrigin = info["ourinPluginOrigin"] as? String,
+           pluginDispatcher?.forwardSelection(
+               id: "OnTrayBalloonClick",
+               refs: [response.notification.request.identifier, (info["title"] as? String) ?? "", (info["message"] as? String) ?? ""],
+               notify: false,
+               toPluginID: pluginOrigin,
+               sender: (info["ourinGhostName"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+           ) == true {
+            return
+        }
         EventBridge.shared.notify(.OnTrayBalloonClick, refs: [
             "identifier": response.notification.request.identifier,
             "title": (info["title"] as? String) ?? "",
@@ -761,7 +777,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     private func notifyPluginCatalogs() {
         guard let dispatcher = pluginDispatcher else { return }
         dispatcher.notifyInstalledPlugin()
-        dispatcher.notifyPluginPathList(paths: pluginRegistry?.allMetas.map { $0.packagePath ?? $0.executablePath } ?? [])
+        // *pathlist は SSP の「フォルダ設定」と同じく格納フォルダ（個々の設置物ではない）の絶対パスを送る。
+        let storageFolder = { (name: String) -> [String] in
+            (try? OurinPaths.subdirectory(name)).map { [$0.path] } ?? []
+        }
+        var pluginFolders: [String] = []
+        for path in storageFolder("plugin") + PluginRegistry.searchPaths().map({ $0.standardizedFileURL.path })
+        where FileManager.default.fileExists(atPath: path) && !pluginFolders.contains(path) {
+            pluginFolders.append(path)
+        }
+        dispatcher.notifyPluginPathList(paths: pluginFolders)
         dispatcher.notifyCalendarSkinPathList(paths: CalendarRegistry.shared.installedSkins().map { $0.path.path })
         dispatcher.notifyCalendarPluginPathList(paths: CalendarRegistry.shared.installedPlugins().map { $0.path.path })
 
@@ -781,14 +806,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             }
         }
         dispatcher.notifyInstalledGhostName(names0: ghostNames, names1: sakuraNames, names2: keroNames)
-        dispatcher.notifyGhostPathList(paths: ghosts.map { $0.path.path })
+        dispatcher.notifyGhostPathList(paths: storageFolder("ghost"))
 
         let balloons = NarRegistry.shared.installedItems(ofType: "balloon")
         dispatcher.notifyInstalledBalloonName(names: balloons.map { $0.name })
-        dispatcher.notifyBalloonPathList(paths: balloons.map { $0.path.path })
+        dispatcher.notifyBalloonPathList(paths: storageFolder("balloon"))
 
-        let headlinePaths = headlineRegistry?.modules.map { $0.url.path } ?? []
-        dispatcher.notifyHeadlinePathList(paths: headlinePaths)
+        dispatcher.notifyHeadlinePathList(paths: storageFolder("headline"))
     }
 
     private func notifyInstallComplete(for result: NarInstallResult) {

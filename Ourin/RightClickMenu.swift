@@ -60,6 +60,10 @@ struct RightClickMenu: View {
                 AppDelegate.resolve()?.showDevTools()
             }
 
+            Button("アップデートを確認...") {
+                AppUpdater.shared.checkForUpdates(userInitiated: true)
+            }
+
             Divider()
 
             Button("終了(Q)") { NSApplication.shared.terminate(nil) }

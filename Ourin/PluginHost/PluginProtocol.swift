@@ -21,7 +21,7 @@ public struct PluginRequest {
 
     public init(
         method: PluginMethod,
-        version: String = "PLUGIN/2.0M",
+        version: String = "PLUGIN/2.0",
         id: String,
         charset: String = "UTF-8",
         sender: String? = nil,

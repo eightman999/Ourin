@@ -1113,6 +1113,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var pendingPluginTalkAfter: PluginTalkNotificationContext?
     var isEmittingPluginTalk = false
     var currentScriptIsPluginOrigin = false
+    /// 直近にスクリプトを送ってきたプラグインの ID（選択肢・アンカーの横流し先。不明なら全プラグイン）。
+    var pluginScriptOriginID: String?
 
     // 終了シーケンス管理（OnClose 応答再生 → \- → 終了確定）
     var isShuttingDown: Bool = false
@@ -1925,7 +1927,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 windows: characterWindows.sorted(by: { $0.key < $1.key }).map { $0.value },
                 ghostName: config.name,
                 shellName: activeShellName,
-                ghostID: config.id ?? ghostURL.lastPathComponent,
+                ghostID: fmoID,
                 path: ghostURL.path
             )
         }
@@ -2417,7 +2419,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         startPlaybackIfNeeded()
     }
 
-    func runPluginScript(_ script: String, options: Set<String>) {
+    func runPluginScript(_ script: String, options: Set<String>, originPluginID: String? = nil) {
         var reasons = options.intersection(["plugin-script", "plugin-event", "notranslate"])
         if reasons.isEmpty {
             reasons.insert("plugin-script")
@@ -2427,6 +2429,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         guard !trimmed.isEmpty else { return }
         choiceSourceScript = trimmed
         recordBacklog(from: trimmed)
+        pluginScriptOriginID = originPluginID
         if options.contains("nobreak") {
             beginPluginTalkNotification(script: trimmed, reasons: reasons)
             let previousPluginOrigin = currentScriptIsPluginOrigin
@@ -3919,8 +3922,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         case "trayballoon":
                             // \![set,trayballoon,options...]
                             let options = Array(args.dropFirst(2))
+                            // プラグインが出したバルーンのクリック・タイムアウトはそのプラグインへ返す（SSP 互換）。
+                            let pluginOrigin = currentScriptIsPluginOrigin ? pluginScriptOriginID : nil
                             playbackQueue.append(.deferredCommand { [weak self] in
-                                self?.setTrayBalloon(options: options)
+                                self?.setTrayBalloon(options: options, pluginOrigin: pluginOrigin)
                             })
                         case "otherghosttalk":
                             // \![set,otherghosttalk,true/false/before/after]
@@ -5440,14 +5445,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 windows: windows,
                 ghostName: config.name,
                 shellName: shellName,
-                ghostID: config.id ?? ghostURL.lastPathComponent,
+                ghostID: fmoID,
                 path: ghostURL.path
             )
             dispatcher.onGhostInfoUpdate(
                 windows: windows,
                 ghostName: config.name,
                 shellName: shellName,
-                ghostID: config.id ?? ghostURL.lastPathComponent,
+                ghostID: fmoID,
                 path: ghostURL.path
             )
         }
@@ -5558,7 +5563,7 @@ extension GhostManager {
             windows: characterWindows.sorted(by: { $0.key < $1.key }).map { $0.value },
             ghostName: config.name,
             shellName: activeShellName,
-            ghostID: config.id ?? ghostURL.lastPathComponent,
+            ghostID: fmoID,
             path: ghostURL.path,
             callerGhost: self
         )

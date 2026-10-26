@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "model": {
+    "repo": "mlx-community/Irodori-TTS-v4.1-Small-MF-fp16",
+    "revision": "db0263236d010d4beb6ca67c529f410a6f71d755",
+    "upstream": "Aratako/Irodori-TTS-v4.1-Small-MF",
+    "license_url": "https://huggingface.co/Aratako/Irodori-TTS-v4.1-Small-MF#-license--ethical-restrictions",
+    "files": {
+      "config.json": {
+        "bytes": 5209,
+        "sha256": "d181702b6c6977cd4d5cfa23462abbd26b2122e3d4306971bbec563073f7d2ce"
+      },
+      "model.safetensors": {
+        "bytes": 1546609131,
+        "sha256": "19bd887050cb3a6e799f4043aa2e20c11c1783f3af04e6c4d8ee0f172d24e483"
+      },
+      "dacvae/config.json": {
+        "bytes": 300,
+        "sha256": "86aeeace595882a046d50c010971d79ed2e6bf1215a6b51b18e99b50b3fadeac"
+      },
+      "dacvae/model.safetensors": {
+        "bytes": 429504222,
+        "sha256": "7366646af3d250ec0162c2b2717a64f7dbd5b8bfaebbf9ed69ad79db4944b8b9"
+      },
+      "tokenizer/tokenizer.json": {
+        "bytes": 6718495,
+        "sha256": "6a0734cf21c802169defaffe719bc2ef12bb9d0be37e54b61ed27aa89394723d"
+      },
+      "tokenizer/tokenizer_config.json": {
+        "bytes": 668,
+        "sha256": "d229a271c64de1a7939d20d3665498e873fa91d5ee2edf135d73ec752cb9c9d3"
+      }
+    }
+  },
+  "runtime": {
+    "python": "3.13.11",
+    "requirements": "requirements-lock.txt",
+    "platform": "macOS arm64",
+    "mlx-audio": "0.6.1",
+    "mlx": "0.32.4"
+  }
+}

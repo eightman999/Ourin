@@ -123,7 +123,7 @@ PLUGIN request の `Target` 解決では、native としてロード済みの pl
 - **メモリ管理**：既定は **呼び出し側（ホスト）でコピー/破棄**。必要なら `plugin_free()` を任意提供。
   ホストは応答を複製するだけで `plugin_free()` を自動では呼ばない（静的バッファを返す実装と両立させるため）。
 - **load の引数**：ホストは `malloc` 確保・NUL 終端・**末尾 `/` 付き**のディレクトリを `load(ptr, len)` 形式で渡す。
-  所有権はモジュールへ移るので `free()` してよい。`int load(const char*)` の実装もそのまま受け取れる。戻り値 0 はログに残すがロードは継続する。
+  所有権はモジュールへ移るので `free()` してよい。`int load(const char*)` の実装もそのまま受け取れる。戻り値 0 はロード失敗として記録し、実行対象から除外する。メタデータは一覧に残すが request / unload は呼び出さない。
 - **Windows DLL 互換 ABI（任意）**：DLL のソースを変えずに移植する場合、Windows と同じ
   ```c
   int   load(void *h, long len);      // h は free する
@@ -272,16 +272,18 @@ Charset: UTF-8
 - `Ourin/PluginHost/PluginProtocol.swift`: PLUGIN/2.0M プロトコルの型定義、パーサー、ビルダー
 
 ## 13. 適合チェックリスト
-- [x] `PLUGIN/2.0M` 行で 2.0 と同構文のワイヤを話せる（実装済み - `PluginProtocol.swift`）
-- [x] 既定 `Charset` は **UTF‑8**、`Shift_JIS`/`Windows‑31J` を受理（実装済み）
+- [x] 要求行は SSP 本体と同じ `GET PLUGIN/2.0` / `NOTIFY PLUGIN/2.0`（2026-10-26 変更。要求行を完全一致で判定するプラグインがあるため `2.0M` を付けない）。応答の版表記は問わない
+- [x] 送信文字コードは descript.txt の `charset`、未指定なら Shift_JIS。`version` 応答の `Charset` で以後を切り替え、ヘッダが無ければ Shift_JIS（ukadoc plugin-event）
 - [x] CRLF/空行終端などの 2.0 仕様に従う（実装済み - `PluginProtocolParser/Builder`）
 - [x] 実体は **.plugin/.bundle**（CFBundle）で Universal 2 を配布（対応済み）
 - [x] 最小 OS は **10.15+**（対応済み）
 
 ## 14. 既知の差分（Windows 前提語彙）
-- `HWND` 相当のフィールドは macOS では **未使用/0** とする（必要なら将来の UI 連携拡張で定義）。
-- Windows DLL/PE plugin は直接ロードしない。Ourin 上では metadata-only の互換ビューに登録し、実行には
-  Mach-O `.plugin` / `.bundle` への移植が必要。
+- `HWND` 相当（OnGhostBoot 等の Reference0）は各キャラクターウィンドウの `CGWindowID` を **バイト値 1 区切り**で渡す（未構築は `0`）。
+- Windows DLL/PE plugin の機械語は実行しない（配布 DLL の大半は 32bit x86 で、Apple silicon の Rosetta でも動かない）。
+  本体 DLL が汎用エンジン（`yaya.dll` / `aya.dll` / `kagari.dll`）なら、探索時に DLL の隣へ `<DLL名>.plugin` を生成し、
+  Ourin 内蔵エンジンで同梱辞書を動かす（§19）。独自コードの DLL は metadata-only のまま、macOS 向けに作り直した
+  `.dylib` / `.plugin` を置けば読み込む。
 - パスは POSIX パスで公開する。`path` は SSP 互換上の元モジュール位置、`executablePath` は macOS native 実体、
   `packagePath` は package directory を指す。
 
@@ -362,3 +364,78 @@ private extension Bundle { var _cfBundle: CFBundle { CFBundleGetBundleWithIdenti
 - WHATWG/MDN: Encoding labels（Shift_JIS / Windows‑31J 等の同義ラベル集合）
 
 > 注: 本文中の例・定数は説明用。実装では例外処理・境界チェック・SJIS→UTF‑8 変換のエラー処理等を追加すること。
+
+## 19. SSP 実互換と DLL → .plugin 変換（2026-10-26）
+
+### 19.1 根拠
+- ukadoc: `list/plugin-event`、`descript/plugin`、`spec/plugin`。
+- SSP 本体のシンボルマップ（Taromati2 同梱 `ssp/ssp.map` の `sp_plugin.obj`）に残る文字列リテラル:
+  `GET PLUGIN/2.0\r\n`、`NOTIFY PLUGIN/2.0\r\n`、`Language: `、`othersurfacechange`、`otherghosttalk`、`secondchangeinterval`、
+  横流し対象の `OnChoiceSelect(Ex)` / `OnAnchorSelect(Ex)` / `OnChoiceDoubleClick` / `OnAnchorDoubleClick`。
+- GitHub 上の実プラグイン約 25 件（yaya_plugin2.dic 系、ambergon、apxxxxxxe、nikolat、ukatech/csaori 等）のソース。
+
+### 19.2 ホスト送信の規則
+| 項目 | 規則 |
+|---|---|
+| 要求行 | `GET PLUGIN/2.0` / `NOTIFY PLUGIN/2.0` |
+| Sender | ホスト発は `Ourin`。ゴーストの `\![raiseplugin]` / `\![notifyplugin]`、ゴーストのメニューからの `OnMenuExec`、プラグインが出したトレイバルーンのクリックはゴースト名（descript の name） |
+| Language | `Japanese` / `English` / `Chinese-Simplified` / `Chinese-Traditional` / `Hangeoul`（OS の優先言語から） |
+| 文字コード | descript `charset` → 未指定は Shift_JIS。`version` 応答の Charset（無ければ Shift_JIS）で以後を決める。要求は送信直前に組み立てるので、version 直後のイベントにも反映される |
+| secondchangeinterval | 未指定は 1 秒、0 で送らない |
+| installedplugin | Reference ごとに 1 プラグイン、`名前 0x01 ID` |
+| *pathlist | 格納フォルダ（`ghost/`・`balloon/`・`headline/`・`plugin/`）の絶対パス、末尾 `/` 付き |
+| OnGhostBoot 等 | Ref0 = CGWindowID の 0x01 区切り、Ref3 = Owned SSTP と同じセッション ID、Ref4 = ゴーストフォルダ（末尾 `/`） |
+| 選択肢・アンカー横流し | そのスクリプトを返したプラグインだけへ送る（応答元が不明な旧経路は全プラグイン） |
+| othersurfacechange | descript で有効なら、他ゴーストのサーフェス変更を `OnOtherSurfaceChange`（SHIORI と同じ Reference）で送る |
+| descript 値 | 先頭が `\` / `%` の値は破棄、`\\` / `\%` は文字へ戻す |
+
+### 19.3 DLL → .plugin 変換
+- `PluginRegistry` は `plugin/<name>/` を走査するとき `DLLPluginConverter.convert` を呼ぶ。
+- DLL は PE ヘッダ（CPU 種別、エクスポート、インポート DLL）だけを読み、実行しない。
+- `filename` が `yaya.dll` / `aya.dll` / `aya5.dll` / `kagari.dll`（または本体にエンジン名が残る DLL）で、`load` / `request` をエクスポートしていれば、
+  DLL の隣に `<DLL名>.plugin/Contents/Info.plist` を作る。キー: `OurinPluginEngine`（`yaya` / `kagari`）、`OurinOriginalModule`、
+  `OurinOriginalMachine`、`OurinOriginalExports`、`OurinOriginalImports`、`OurinConverterVersion`。実行体は持たない。
+- 読み込み時、`OurinPluginEngine` 付きの `.plugin` は `PluginEngineHost` が処理する。
+  - YAYA: yaya_core を別プロセスで起動し、`<DLL名>.txt`（yaya.dll → yaya.txt）の辞書を読み、辞書の `load` に DLL のフォルダ（末尾 `/`）を渡す。
+    要求文は新しい IPC コマンド `raw_request` で辞書の `request` へそのまま渡し、応答はその Charset で書き戻す。
+  - KAGARI: 同梱の `libkagari.dylib` を `NativeShioriModule` でプラグインのフォルダを指定して開く。
+- 元の DLL・descript.txt・辞書は変更しない。変換結果は `PluginRegistry.conversionReports` とログに残る。
+- 変換しないもの: 独自コードの DLL（`main.dll`、`ghost_speaker.dll`、csaori 系など）、`akari.dll`（内蔵エンジン無し）。
+  理由とインポート DLL を記録する。ソースがあれば macOS 向けに `.dylib` / `.plugin` を作って置けば、既存の名前解決で読み込まれる。
+
+### 19.4 Windows 固有機能の扱い（現状）
+| Windows 側 | macOS 側 |
+|---|---|
+| HWND（Reference0） | CGWindowID（0x01 区切り） |
+| `C:\...\` パス | POSIX パス、フォルダは末尾 `/` |
+| Direct SSTP（WM_COPYDATA） | ローカル SSTP（TCP 9801 / XPC）。移植モジュールはこちらへ送る |
+| FMO（共有メモリ "Sakura"） | Ourin の FMO（POSIX 共有メモリ）と YAYA の READFMO |
+| 32bit x86 DLL | 実行不可。汎用エンジン DLL は内蔵エンジンへ、独自コードは再ビルド |
+
+### 19.5 汎用 SAORI と Windows 前提の小物
+- `proxy_ex.dll`: 内蔵実装（`BuiltinSaori` / `ProxyExSaori`）。`foo.exe` は DLL のフォルダ基準で macOS 版の `foo`（拡張子なし）・`foo.command`・`foo.sh` に読み替えて起動し、標準出力を Result で返す。`/delim`・`/charset`・`hwnd` も本家（ukatech/csaori impl_saori/proxy_ex）どおり。見つからなければ 400。
+- `\![open,browser,file:///…\a.html]`: file URL の `\` を `/` に直して開く。
+- `\![set,trayballoon,…]` をプラグインのスクリプトが出した場合、クリック（`OnTrayBalloonClick`）とタイムアウトはそのプラグインへ返す。
+
+### 19.6 yaya_core の互換修正（YAYA 製プラグインの実物で判明）
+- 行末 `/` による行継続を文字列の外でも受け付ける（CharameLNetwork）。
+- FOPEN / FREAD / FWRITE / FWRITE2 / FCLOSE / FSEEK / FTELL / FREADBIN / FWRITEBIN / FREADENCODE / FWRITEDECODE を本家 YAYA と同じ「ファイル名で識別」に変更。FOPEN は 1 / 2 / 0、FREAD は EOF で -1、FWRITE は改行付き。モード名 `read` / `write` / `append` を正しく解釈する（従来は `write` の `r` を読み込み指定と誤認していた）。`\` 区切りのパスを受け付ける。
+- FENUM(dir[, delimiter]) を本家どおり「フォルダは先頭 `\`、delimiter 区切りの文字列」に変更。
+- GETVARLIST(prefix) の先頭一致絞り込み、GETSETTING('coreinfo.path' 等)。
+
+### 19.7 実プラグインでの確認（2026-10-26）
+yaya_core を直接起動し、Ourin と同じ PLUGIN/2.0 要求を流した結果（Ourin 本体での表示確認は未実施）。
+
+| プラグイン | 読込 | version | OnMenuExec |
+|---|---|---|---|
+| BalloonSelector | OK | BalloonSelector/2.4 | メニュー Script |
+| Wallet of Unyu | OK | WalletOfUnyu/1.2 | 所持金表示 + Event |
+| Inventory | OK | origin/1.0 | 所持品一覧 |
+| DBdiary | OK | origin/1.0 | 204（ゴースト側から呼ぶ型） |
+| stampcollection | OK | StampCollection/1.4.1 | スタンプ帳 |
+| CharameLNetwork | OK | CharameLNetwork/0.5 | HTML 生成 + open,browser |
+| Spectre / recentghosts / daumaker / RadioMidnight / GhostWardrobe | OK | 各版 | メニュー Script（GhostWardrobe は proxy_ex 経由の hashing を使う） |
+
+未対応: Win32 API 直叩き（EnumWindows、レジストリ、COM、名前付きパイプ等）は、
+該当 DLL を macOS 向けに作り直さない限り動かない。
+

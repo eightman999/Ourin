@@ -32,6 +32,7 @@
 | SHIOLINK / MiyoJS | 外部processアダプターを通常factoryへ接続、Node.jsは別途必要 | 実子process fixture、MiyoJS 2.0.3実エンジン＋最小辞書の起動・日本語/絵文字・終了 | MiyoPreview NARは配布元timeoutで未入手。実配布ゴースト・追加フィルタ・画面操作は未確認 |
 | 灯 / ese-shiori / 偽栞 / 忍 / 翡翠 / 結奈 / 美坂 | MITの独立したmacOS互換実装を固定ソースからUniversal 2同梱、結奈は実験的 | 7製品のarm64/x86_64・最低OS13.0を確認。実同梱dylibのin-process/XPC/通常factory・保存再load成功。6種は別process再loadを両CPUで確認 | 全配布ゴースト・全構文・Windows保存形式の移行は未検証。同一栞の複数同時起動に制限 |
 | 里珠 (Rishu/Proxy) | `rishu_proxy.dll` から隣接する `rishu_remote.pl` をPerlで起動し、loopback TCPで接続 | 公式1.1.32未改変サンプル＋実adapterでLOAD/GET/NOTIFY/UNLOAD/EXIT・日本語・子process回収 | Perlと依存モジュールは別途必要。人格ゴースト・画面操作は未確認 |
+| Aosora（任意導入） | 利用者が用意したmacOSライブラリを `OURIN_AOSORA_ENGINE` で指定。通常配布へは非同梱 | 64bit instance ABI、実ライブラリのin-process/XPC/通常factory・保存再load。実配布2件の詳細は[個別記録](compatibility-corpus/aosora.md) | 会話・ゲーム・GUI全体、Intel実機、ソース由来ライブラリの再配布許諾 |
 
 KAGARIのLuaSocket／luautf8／luachild／lua-iconvは検証用にmacOSビルドしたが、配布ゴースト固有の追加依存まで同梱したものではない。Windows DLLやLinux ELFはmacOSで直接実行しない。
 

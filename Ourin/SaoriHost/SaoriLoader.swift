@@ -42,6 +42,14 @@ public final class SaoriLoader {
     private var loadFn: SaoriLoadFn?
     private var unloadFn: SaoriUnloadFn?
     private var requestFn: SaoriRequestFn?
+    /// Ourin 内蔵の互換 SAORI（`BuiltinSaori`）。dlopen せず要求文を直接処理する。
+    private var builtinHandler: ((String) -> String)?
+
+    /// Windows 専用 SAORI の代わりに内蔵実装で応答するローダー。
+    init(builtinModuleURL url: URL, handler: @escaping (String) -> String) {
+        self.moduleURL = url
+        self.builtinHandler = handler
+    }
 
     public init(url: URL) throws {
         self.moduleURL = url
@@ -100,6 +108,9 @@ public final class SaoriLoader {
     }
 
     public func send(_ requestText: String, charset: String = "UTF-8") throws -> String {
+        if let builtinHandler {
+            return builtinHandler(requestText)
+        }
         guard let requestFn else {
             throw SaoriLoaderError.requestFailed
         }
@@ -128,6 +139,7 @@ public final class SaoriLoader {
         loadFn = nil
         unloadFn = nil
         requestFn = nil
+        builtinHandler = nil
     }
 
     private func closeHandle() {

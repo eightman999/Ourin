@@ -32,10 +32,13 @@ macOS の `.bundle` / `.plugin` は `Contents/Info.plist`、単体ライブラ�
 | `ukagaka-long` | `int32_t(void *, long)` | `void *(void *, long *)` | `int32_t(void)` |
 | `ukagaka-int32` | `int32_t(void *, int32_t)` | `void *(void *, int32_t *)` | `int32_t(void)` |
 | `kagari` | `int32_t(void *, long)` → instance ID | `void *(int32_t id, void *, long *)` | `int32_t(int32_t id)` |
+| `aosora` | `long(void *, long)` → instance ID | `void *(long id, void *, long *)` | `int32_t(long id)` |
 
 `ukagaka-long` の `long` は macOS の64bit整数です。`kagari` は [KAGARI POSIX ビルド](KAWARI_KAGARI_ENGINES_ja-jp.md) の `kagari_load` / `kagari_request` / `kagari_unload` 専用で、標準 2 引数 `request` とは別契約です。Windows由来の32bit長さを使用する移植版には `ukagaka-int32` を使用します。これは SHIORI 用のキーであり、SAORI等の `OurinModuleABI` とは別の契約です。
 
 宣言がない場合は、既存の `shiori_request` を持つ Ourin 独自ABIのみ受け付けます。無印の `request` は署名を推測せず拒否します。不明な宣言値もロードエラーになります。
+
+`aosora` は `aosora_load` / `aosora_request` / `aosora_unload` 専用です。インスタンスIDも64bitで、ロード失敗は0です。入力と応答の所有権は `ukagaka-*` と同じです。[任意導入・実ゴースト検証](compatibility-corpus/aosora.md)を参照。通常配布には同梱しません。
 
 ## シンボルと所有権
 

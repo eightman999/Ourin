@@ -1,7 +1,7 @@
 # TODO・GitHub issue照合 / TODO and GitHub Issue Reconciliation
 
 **確認日 / Checked:** 2026-10-25 (JST)<br>
-**対象 / Scope:** 栞拡張PR #216までマージ済みの `master c3809b90f7fbee895a8076f402c61fd9676a3b5c`。
+**対象 / Scope:** 実配布物検証PR #217までマージ済みの `master 7e2adb02c962643e61e800efff7c046e0115c909`。追加プラグイン/KAGARI修正は開発ブランチの検証結果として以下に分離。
 
 Claude PR 33件、統合PR #214、CI修正PR #215はmasterへマージ済み。元のPR headもmasterの祖先として確認した。GitHub issueの状態と実装・検証の状態は区別し、下表を2026-10-25の全issue一覧と照合した。[PR引継ぎ記録](PR_TAKEOVER_2026-10-25.md)を参照。
 
@@ -14,6 +14,16 @@ All 33 original PRs and integration/CI PRs #214/#215 are merged into master. The
 優先順と実行モデル・認証待ちは[委譲記録](DELEGATION_2026-10-25.md)、実ゴーストの判定は[検証結果](REAL_GHOST_VERIFICATION_2026-10-25.md)を参照。
 
 **最新ローカル検証:** 追加栞対応後のOurinTests 1,589実行 / 1,535集計テスト、失敗0（2026-10-25、arm64・直列）。関連6 suiteは59テスト/99実行PASS。実辞書の追加回帰15件（Emily4 11件＋標準ゴースト4件）もPASS。[栞拡張検証](SHIORI_EXPANSION_VERIFICATION_2026-10-25.md)を参照。master `88b8172` のCI全5ジョブも成功（[実行記録](https://github.com/eightman999/Ourin/actions/runs/40149056400)）。追加栞PR #216の最終head `a567943` も[remote CI全5項目成功](https://github.com/eightman999/Ourin/actions/runs/40164170664)、masterへマージ済み。GUIの網羅、クリーンMac・最低OS/Intel実機はこの結果と区別する。 / Latest development unit run: 1,589 executions / 1,535 aggregate tests, zero failures; PR #216 remote CI passed all five checks and is merged. Broader device/release gates remain separate.
+
+
+## 追加の対応実装（開発ブランチ）
+
+- 15件のネイティブ`.plugin`を生成。UGMのhash/JSON/配列引数/loopback HTTP対応を追加し、元辞書11件無改変で保存・再ロードまで確認。Bouyomiの限定TCP連携を追加し、標準port条件でのロード成功は13/15。元辞書のメニュー・音声設定保存再読込・実socket送信を確認（CeVIO/AIVOICEはローカルTTSを指定しない標準条件ではWindows起動依存で拒否）。[個別結果と配布元](compatibility-corpus/plugin-ports.md)を参照。元のWindows DLLは実行せず、辞書adapterまたはネイティブ連携実装を利用。
+- CeVIO-Talker・SSP-AIVOICEの任意Irodori接続を追加。元辞書無改変の2/2でロード・メニュー・設定再読込・実MLX音声生成・再生・発話置換・unload停止を確認。実OurinのSSTP通常発話経路も両プラグインで再生完了。worker 13・音声サービス6・Xcode関連19集計テストが成功（失敗0）。製品固有の声・全GUI手操作・聴感同等性は未確認。[導入手順と範囲](compatibility-corpus/local-tts.md)・[検証メタデータ](compatibility-corpus/local-tts-results.json)。
+- Aosoraの任意導入に対応。上流VMの未初期化を固定ソースのビルド時に修正し、実ゴースト2件で元辞書のまま起動・終了・再ロード成功。[検証と入手先](compatibility-corpus/aosora.md)。通常配布には非同梱、会話・ゲーム・GUI全体は未検証。
+- 失敗していたKAGARIゴースト4件の起動・会話応答・終了・再ロードを確認。[再検証](compatibility-corpus/kagari-fixes.md)。ゲームAI/Windows SAORI/GUI全機能は残件。
+- 複数の直置きbundleのID衝突と、load失敗後も要求を送るPluginHostの動作を修正。灯系は専用helperへ分離。関連18 suite・192テスト/226実行PASS、失敗0・SKIP 0。全体試行はAudioQueue出力タイムアウトで中断したため全体PASSとは区別する。
+- Windows音声API、SNS/外部サービス、AXによる実画面タイトル取得など、未検証または未対応の依存は成功数に含めない。
 
 ## Issue全件の照合 / Issue reconciliation
 

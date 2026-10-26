@@ -1,0 +1,177 @@
+--- a/native/Sources/AkariCore/AkariAZR.swift
++++ b/native/Sources/AkariCore/AkariAZR.swift
+@@ -14,9 +14,9 @@
+ }
+ 
+ enum AkariAZRParser {
+-    static func globalDeclarations(in source: String) -> [(name: String, expression: String?)] {
++    static func globalDeclarations(in source: String) -> [(name: String, type: String, expression: String?)] {
+         let source = removingComments(from: source)
+-        var declarations: [(String, String?)] = []
++        var declarations: [(String, String, String?)] = []
+         var start = source.startIndex
+         var braceDepth = 0
+         var quoted = false
+@@ -45,7 +45,7 @@
+         return declarations
+     }
+ 
+-    private static func trailingDeclarationList(_ source: String) -> [(name: String, expression: String?)] {
++    private static func trailingDeclarationList(_ source: String) -> [(name: String, type: String, expression: String?)] {
+         let pattern = #"(?:^|\s)(?:static\s+)?(?:string|int|long|double|array|dict)\s+"#
+         guard let expression = try? NSRegularExpression(pattern: pattern) else { return [] }
+         let matches = expression.matches(in: source, range: NSRange(source.startIndex..., in: source))
+@@ -60,7 +60,7 @@
+         return []
+     }
+ 
+-    static func declarationList(_ source: String) -> [(name: String, expression: String?)] {
++    static func declarationList(_ source: String) -> [(name: String, type: String, expression: String?)] {
+         let types = ["string", "int", "long", "double", "array", "dict"]
+         var source = source.trimmingCharacters(in: .whitespacesAndNewlines)
+         if source.hasPrefix("static ") {
+@@ -71,7 +71,7 @@
+             let item = item.trimmingCharacters(in: .whitespacesAndNewlines)
+             if let separator = topLevelEquals(item) {
+                 let name = item[..<separator].trimmingCharacters(in: .whitespaces)
+-                return name.isEmpty ? nil : (name, String(item[item.index(after: separator)...]))
++                return name.isEmpty ? nil : (name, type, String(item[item.index(after: separator)...]))
+             }
+             let defaultValue = switch type {
+             case "array": "{}"
+@@ -79,7 +79,7 @@
+             case "string": "\"\""
+             default: "0"
+             }
+-            return item.isEmpty ? nil : (item, defaultValue)
++            return item.isEmpty ? nil : (item, type, defaultValue)
+         }
+     }
+ 
+--- a/native/Sources/AkariCore/AkariSession.swift
++++ b/native/Sources/AkariCore/AkariSession.swift
+@@ -16,7 +16,7 @@
+ 
+ private struct AkariProgram: Sendable {
+     var events: [String: [AkariEntry]] = [:]
+-    var variables: [String: AkariValue] = [:]
++    var variables: [String: AkariValue] = ["_eventdict": .dictionary([:])]
+     var words: [String: [String]] = [:]
+     var functions: [String: AkariFunction] = [:]
+ }
+@@ -183,37 +183,8 @@
+                     + [ShioriHeader(name: "Value", value: version)]
+             )
+         }
+-        if request.method.caseInsensitiveCompare("GET") == .orderedSame,
+-           response.headers["Script"]?.isEmpty != false,
+-           let id = request.id,
+-           id.caseInsensitiveCompare("version") != .orderedSame,
+-           let script = executeAZR(
+-               function: id,
+-               arguments: [.dictionary(values)],
+-               request: request,
+-               depth: 0
+-           )?.stringValue,
+-           !script.isEmpty
+-        {
+-            var headers = response.headers.entries.filter {
+-                $0.name.caseInsensitiveCompare("Script") != .orderedSame
+-            }
+-            headers.append(ShioriHeader(name: "Script", value: script))
+-            if case let .dictionary(optional)? = program.variables["dictOptionalHeader"] {
+-                for (key, headerName) in [
+-                    "target": "Target", "event": "Event", "event_option": "EventOption",
+-                    "script_option": "ScriptOption", "marker": "Marker"
+-                ] where optional[key]?.stringValue.isEmpty == false {
+-                    headers.append(ShioriHeader(name: headerName, value: optional[key]?.stringValue ?? ""))
+-                }
+-                if case let .array(references)? = optional["reference"] {
+-                    for (index, value) in references.enumerated() {
+-                        headers.append(ShioriHeader(name: "Reference\(index)", value: value.stringValue))
+-                    }
+-                }
+-            }
+-            response.headers = ShioriHeaders(headers)
+-        }
++        // _customrequest owns dispatch. An empty response may be intentional;
++        // retrying the event here duplicates side effects and initialization.
+         return response
+     }
+ 
+@@ -302,7 +273,7 @@
+                 loadedPlainScript = true
+                 program.functions.merge(AkariAZRParser.functions(in: text)) { _, newer in newer }
+                 for declaration in AkariAZRParser.globalDeclarations(in: text) {
+-                    program.variables[declaration.name] = declaration.expression.map(parseValue) ?? .null
++                    program.variables[declaration.name] = Self.cast(declaration.expression.map(parseValue) ?? .null, to: declaration.type) ?? .null
+                 }
+             default: continue
+             }
+@@ -318,7 +289,7 @@
+                 case "azr":
+                     program.functions.merge(AkariAZRParser.functions(in: text)) { _, newer in newer }
+                     for declaration in AkariAZRParser.globalDeclarations(in: text) {
+-                        program.variables[declaration.name] = declaration.expression.map(parseValue) ?? .null
++                        program.variables[declaration.name] = Self.cast(declaration.expression.map(parseValue) ?? .null, to: declaration.type) ?? .null
+                     }
+                 default: continue
+                 }
+@@ -623,7 +594,7 @@
+             program.functions.merge(AkariAZRParser.functions(in: source)) { _, newer in newer }
+             for declaration in AkariAZRParser.globalDeclarations(in: source) {
+                 if program.variables[declaration.name] == nil {
+-                    program.variables[declaration.name] = declaration.expression.map(Self.parseValue) ?? .null
++                    program.variables[declaration.name] = Self.cast(declaration.expression.map(Self.parseValue) ?? .null, to: declaration.type) ?? .null
+                 }
+             }
+             return .integer(1)
+@@ -886,7 +857,7 @@
+         }
+         for type in ["int", "long", "double", "string", "array", "dict"] where source.hasPrefix("(\(type))") {
+             guard let value = evaluateAZRExpression(String(source.dropFirst(type.count + 2)), locals: &locals, request: request, depth: depth) else { return nil }
+-            return cast(value, to: type)
++            return Self.cast(value, to: type)
+         }
+         if source.hasPrefix("!") {
+             guard let value = evaluateAZRExpression(String(source.dropFirst()), locals: &locals, request: request, depth: depth) else { return nil }
+@@ -972,6 +943,18 @@
+             default: return nil
+             }
+         }
++        // A single $(key, value) is a dictionary entry, including the
++        // documented _eventdict += $("Event", "value") registration form.
++        if source.hasPrefix("$("), source.hasSuffix(")"),
++           closingParenthesis(in: source, opening: source.index(after: source.startIndex)) == source.index(before: source.endIndex)
++        {
++            let parts = splitArguments(String(source.dropFirst(2).dropLast()))
++            guard parts.count == 2,
++                  let key = evaluateAZRExpression(parts[0], locals: &locals, request: request, depth: depth + 1),
++                  let value = evaluateAZRExpression(parts[1], locals: &locals, request: request, depth: depth + 1)
++            else { return nil }
++            return .dictionary([key.stringValue: value])
++        }
+         if let call = parseAZRCall(source) {
+             let values = splitArguments(call.arguments).compactMap {
+                 evaluateAZRExpression($0, locals: &locals, request: request, depth: depth + 1)
+@@ -988,7 +971,7 @@
+         return Self.parseValue(source)
+     }
+ 
+-    private func cast(_ value: AkariValue, to type: String) -> AkariValue? {
++    private static func cast(_ value: AkariValue, to type: String) -> AkariValue? {
+         switch type {
+         case "int", "long": return value.integerValue.map(AkariValue.integer)
+         case "double": return Double(value.stringValue).map(AkariValue.double)
+@@ -1031,9 +1014,10 @@
+         let declarations = AkariAZRParser.declarationList(statement)
+         if !declarations.isEmpty {
+             for declaration in declarations {
+-                let initial = declaration.expression.flatMap {
++                let evaluated = declaration.expression.flatMap {
+                     evaluateAZRExpression($0, locals: &locals, request: request, depth: depth)
+                 } ?? .null
++                let initial = Self.cast(evaluated, to: declaration.type) ?? .null
+                 if statement.hasPrefix("static "), let function = activeFunctionName {
+                     let key = "\(function).\(declaration.name)"
+                     activeStaticBindings[declaration.name] = key
