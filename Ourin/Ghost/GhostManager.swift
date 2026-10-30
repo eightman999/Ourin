@@ -895,6 +895,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     /// 現在表示中の CommunicateBox をスクリプトから閉じるためのモーダル参照。
     var activeCommunicateAlert: NSAlert?
     var communicateDialogCloseRequested = false
+    var activeChoiceAlert: NSAlert?
+    weak var activeSystemDialogWindow: NSWindow?
+    static weak var systemColorPanelOwner: GhostManager?
 
     /// `open,backlogviewer` 用の発言履歴。ゴースト単位で上限付き保持する。
     var backlogEntries: [GhostBacklogEntry] = []
@@ -912,6 +915,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         didSet { applyBalloonConfigDefaultsToBalloonViewModels() }
     }
     var balloonImageLoader: BalloonImageLoader?
+    var activeBalloonDirectoryURL: URL?
+    var explicitlySelectedBalloonDirectoryURL: URL?
+    /// Inject an isolated suite in tests; selections are never written into ghost files.
+    var balloonSelectionDefaults: UserDefaults = .standard
 
     var currentScope: Int = 0
     var balloonTextCancellables: [Int: AnyCancellable] = [:]
@@ -934,6 +941,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case newlineVariation(String)
         case scope(Int)
         case surface(Int)
+        case surfaceNamed(String)
         case balloonImage([String])
         case wait(TimeInterval)
         case waitUntil(TimeInterval) // seconds from precise base
@@ -1009,7 +1017,16 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var animationEngine: AnimationEngine = AnimationEngine()
     var surfaceAliases: [Int: Int] = [:]
     var surfaceNameAliases: [String: Int] = [:]   // \s[alias] 用: 文字列別名 → サーフェスID
+    var surfaceAliasCandidatesByScope: [Int: [String: [Int]]] = [:]
+    var surfaceAliasDefinitionContent: String?
+    var surfaceAliasDefinitionPath: String?
     var parsedSurfaceDefs: [Int: SerikoSurfaceDefinition] = [:]  // element 合成・アニメ定義のキャッシュ
+    let surfaceImageCache: NSCache<NSString, NSImage> = {
+        let cache = NSCache<NSString, NSImage>()
+        cache.countLimit = 128
+        cache.totalCostLimit = 64 * 1024 * 1024
+        return cache
+    }()
     var surfaceTable: SurfaceTable? = nil  // surfacetable.txt のメタデータ（サーフィステスト用グループ定義）
     /// スコープごとの最新サーフェス要求。非同期ロード完了後に古い要求が表示を復活させないために使う。
     var surfaceRequestGenerationByScope: [Int: UInt64] = [:]
@@ -1136,6 +1153,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // Dressup configuration
     var dressupConfigurations: [DressupConfig] = []
     var dressupBindGroupsByScope: [Int: [Int: DressupBindGroupMeta]] = [:]
+    var dressupDefaultsAppliedScopes: Set<Int> = []
     var dressupBindOptionsByScope: [Int: [String: DressupBindOptions]] = [:]
     var dressupMenuItemsByScope: [Int: [Int: Int]] = [:] // scope -> menuIndex -> bindgroupID
 
@@ -1188,6 +1206,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         let part: String
         let thumbnail: String?
         let isDefault: Bool
+        var additionalAnimationIDs: [Int] = []
     }
 
     /// MAYUNA の `*.bindoption*.group` に対応するカテゴリ単位の制約。
@@ -1343,6 +1362,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     
     func loadDressupConfiguration() {
         dressupConfigurations.removeAll()
+        dressupDefaultsAppliedScopes.removeAll()
         dressupBindGroupsByScope.removeAll()
         dressupBindOptionsByScope.removeAll()
         dressupMenuItemsByScope.removeAll()
@@ -1384,7 +1404,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                     category: groupValue.category,
                     part: groupValue.part,
                     thumbnail: groupValue.thumbnail,
-                    isDefault: parsed.bindGroupDefaultByScope[scope]?[id] ?? false
+                    isDefault: parsed.bindGroupDefaultByScope[scope]?[id] ?? false,
+                    additionalAnimationIDs: parsed.bindGroupAddIDsByScope[scope]?[id] ?? []
                 )
                 dressupBindGroupsByScope[scope, default: [:]][id] = meta
             }
@@ -1397,12 +1418,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         partsByCategory: [String: [DressupPartBinding]],
         bindGroupNameByScope: [Int: [Int: (category: String, part: String, thumbnail: String?)]],
         bindGroupDefaultByScope: [Int: [Int: Bool]],
+        bindGroupAddIDsByScope: [Int: [Int: [Int]]],
         bindOptionsByScope: [Int: [String: DressupBindOptions]],
         menuItemsByScope: [Int: [Int: Int]]
     ) {
         var partsByCategory: [String: [DressupPartBinding]] = [:]
         var bindGroupNameByScope: [Int: [Int: (category: String, part: String, thumbnail: String?)]] = [:]
         var bindGroupDefaultByScope: [Int: [Int: Bool]] = [:]
+        var bindGroupAddIDsByScope: [Int: [Int: [Int]]] = [:]
         var bindOptionsByScope: [Int: [String: DressupBindOptions]] = [:]
         var menuItemsByScope: [Int: [Int: Int]] = [:]
 
@@ -1456,6 +1479,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 continue
             }
 
+            if key.lowercased().hasSuffix(".addid"),
+               let parsed = parseBindGroupDefaultKey(String(key.dropLast(6)) + ".default") {
+                bindGroupAddIDsByScope[parsed.scope, default: [:]][parsed.bindGroupID] = value.split(separator: ",").compactMap {
+                    Int($0.trimmingCharacters(in: .whitespaces))
+                }
+                continue
+            }
+
             if let parsed = parseBindOptionGroupKey(key) {
                 let fields = value.split(separator: ",", maxSplits: 1).map {
                     String($0).trimmingCharacters(in: .whitespaces)
@@ -1473,7 +1504,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             }
         }
 
-        return (partsByCategory, bindGroupNameByScope, bindGroupDefaultByScope, bindOptionsByScope, menuItemsByScope)
+        return (partsByCategory, bindGroupNameByScope, bindGroupDefaultByScope, bindGroupAddIDsByScope, bindOptionsByScope, menuItemsByScope)
     }
 
     private static func parseBindGroupNameKey(_ key: String) -> (scope: Int, bindGroupID: Int)? {
@@ -1506,7 +1537,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     private static func parseBindOptionGroupKey(_ key: String) -> Int? {
         guard let regex = try? NSRegularExpression(
-            pattern: #"^(sakura|kero|char\d+)\.bindoption\d+\.group$"#,
+            pattern: #"^(sakura|kero|char\d+)\.bindoption\d*\.group$"#,
             options: [.caseInsensitive]
         ) else {
             return nil
@@ -1630,12 +1661,12 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
 
     /// 共通Factoryとload(context:)を通じてSHIORIを生成・ロードする。
     func createLoadedShioriRuntime(moduleName: String, ghostRoot: URL) -> GhostShioriRuntime? {
-        guard let runtime = ShioriRuntimeFactory.makeRuntime(for: moduleName, ghostRoot: ghostRoot, configuration: ghostConfig) else {
+        let context = makeShioriLoadContext(moduleName: moduleName, ghostRoot: ghostRoot)
+        guard let runtime = ShioriRuntimeFactory.makeRuntime(context: context) else {
             Log.info("[GhostManager] Failed to create SHIORI runtime for \(moduleName)")
             return nil
         }
         runtime.resourceManager = resourceManager
-        let context = makeShioriLoadContext(moduleName: moduleName, ghostRoot: ghostRoot)
         guard runtime.load(context: context) else {
             Log.info("[GhostManager] Failed to load SHIORI runtime: \(moduleName)")
             runtime.unload()
@@ -1698,21 +1729,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 Log.info("[GhostManager] Failed to load ghost configuration from descript.txt")
             }
 
-            // 標準のバルーン: descript.txt の指定（UKADOC）に合うインストール済みのバルーン。
-            // 指定が無い・見つからないときは、従来どおりゴーストのフォルダの balloon/。
-            var balloonPath = self.ghostURL.appendingPathComponent("balloon", isDirectory: true).path
-            if let config = self.ghostConfig, let base = try? OurinPaths.baseDirectory(),
-               let configured = Self.configuredBalloonDirectory(for: config, ghostURL: self.ghostURL, baseDirectory: base) {
-                balloonPath = configured.path
-            }
-            let balloonDescriptPath = (balloonPath as NSString).appendingPathComponent("descript.txt")
-            if let config = BalloonConfig.load(from: balloonDescriptPath) {
-                self.balloonConfig = config
-                self.balloonImageLoader = BalloonImageLoader(balloonPath: balloonPath)
-                Log.info("[GhostManager] Loaded balloon configuration: \(config.name)")
-            } else {
-                Log.info("[GhostManager] Failed to load balloon configuration from \(balloonDescriptPath)")
-            }
+            self.loadStartupBalloon()
 
             let moduleName = ShioriRuntimeFactory.moduleName(for: self.ghostConfig)
             Log.info("[GhostManager] Loading configured SHIORI: \(moduleName)")
@@ -2838,12 +2855,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         case .surface(let id):
             playbackQueue.append(.surface(id))
         case .surfaceNamed(let name):
-            // \s[alias]: 文字列別名を surfaceNameAliases で解決して数値サーフェスへ
-            if let id = surfaceNameAliases[name.lowercased()] {
-                playbackQueue.append(.surface(id))
-            } else {
-                NSLog("[GhostManager] Unknown surface alias \(name) in \\s[...]")
-            }
+            playbackQueue.append(.surfaceNamed(name))
         case .text(let text):
             // Display text character by character with typing effect
             playbackQueue.append(.textToken(text))
@@ -5045,6 +5057,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 // Add a small delay after surface change to respect script timing
                 scheduleNext(after: 0.05)
                 return
+            case .surfaceNamed(let name):
+                if let id = resolveNamedSurfaceAlias(name, scope: currentScope) {
+                    updateSurface(id: id, resolveAlias: false)
+                    scheduleNext(after: 0.05)
+                    return
+                }
+                NSLog("[GhostManager] Unknown surface alias \(name) for scope \(currentScope)")
+                continue
             case .balloonImage(let args):
                 handleBalloonImage(args: args)
                 continue
@@ -5413,7 +5433,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         let shellPath = loadShellPath()?.path ?? ""
         let shellName = activeShellName
         let balloonName = balloonConfig?.name ?? ""
-        let balloonPath = self.ghostURL.appendingPathComponent("balloon").path
+        let balloonPath = activeBalloonDirectoryURL?.path ?? balloonImageLoader?.balloonPath ?? ""
         bridge.notify(.OnNotifySelfInfo, params: [
             "Reference0": config.sakuraName,
             "Reference1": config.sakuraName,
@@ -5502,6 +5522,8 @@ extension GhostManager {
             return
         }
         switch action {
+        case "menu_plugin_browser":
+            DispatchQueue.main.async { PluginBrowserWindow.show() }
         case "menu_ghost_info":
             showGhostInfo()
         case let action where action.hasPrefix("switch_ghost:"):
@@ -5731,12 +5753,11 @@ extension GhostManager {
     
     /// バルーンを切り替え
     private func switchBalloon(to balloonID: String) {
-        if let id = Int(balloonID) {
+        let identifier = balloonID.removingPercentEncoding ?? balloonID
+        if let id = Int(identifier) {
             switchBalloon(to: id, scope: currentScope)
         } else {
-            // メニューはインストール済みのバルーンのフォルダ名を（パーセントエンコードして）渡す。
-            let name = balloonID.removingPercentEncoding ?? balloonID
-            if !switchBalloon(named: name, scope: currentScope, raiseEvent: true) {
+            if !switchBalloon(named: identifier, scope: currentScope, raiseEvent: true) {
                 Log.info("[GhostManager] Invalid balloon ID: \(balloonID)")
             }
         }

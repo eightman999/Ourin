@@ -1,0 +1,53 @@
+{
+  "checked_on": "2026-10-30",
+  "yaya": {
+    "repository": "https://github.com/YAYA-shiori/yaya-shiori",
+    "tag": "Tc607-2",
+    "revision": "21b6c8317bd68561286c2109673f178f1d12173b",
+    "url": "https://codeload.github.com/YAYA-shiori/yaya-shiori/tar.gz/21b6c8317bd68561286c2109673f178f1d12173b",
+    "sha256": "fe7e576e370b6837cd84c9f0b2252147c3926062c4ab33abd7ef4e6f7c0745e4",
+    "published_at": "2026-10-19T08:13:51Z",
+    "draft": false,
+    "prerelease": false,
+    "release_url": "https://github.com/YAYA-shiori/yaya-shiori/releases/tag/Tc607-2",
+    "license": "BSD-3-Clause OR original AYA5 ghost-use license"
+  },
+  "dependencies": {
+    "parson": {
+      "repository": "https://github.com/kgabis/parson",
+      "revision": "ec53fb6528b45811df9db0db22cab96a94a96a11",
+      "url": "https://codeload.github.com/kgabis/parson/tar.gz/ec53fb6528b45811df9db0db22cab96a94a96a11",
+      "sha256": "9ca55b19539a019dd86234543a965be4533be600a8d2539d0046322888df4a41",
+      "license": "MIT"
+    },
+    "tinyxml2": {
+      "repository": "https://github.com/ponapalt/tinyxml2",
+      "revision": "007577b22c50b4d8bc72f127644669f4096773bb",
+      "url": "https://codeload.github.com/ponapalt/tinyxml2/tar.gz/007577b22c50b4d8bc72f127644669f4096773bb",
+      "sha256": "47673d42a414754de247bf5f80d07783cad351387f8d7512cdde998943ee5f99",
+      "license": "Zlib"
+    },
+    "sqlite": {
+      "repository": "https://github.com/ponapalt/sqlite-amalgamation-new",
+      "revision": "73ca18f5db6ae8d056da2eb02018d984576d251f",
+      "url": "https://codeload.github.com/ponapalt/sqlite-amalgamation-new/tar.gz/73ca18f5db6ae8d056da2eb02018d984576d251f",
+      "sha256": "b5f67f21732dbeebb63956e7b43d97cee1cd898f5df9af6425512cccd6d57814",
+      "license": "Public domain (SQLite); BSD-3-Clause (mirror notices)"
+    },
+    "gumbo": {
+      "repository": "https://github.com/ponapalt/gumbo-parser-mirror",
+      "revision": "c8846007c4d9a86046102c99fdbbd295f366f813",
+      "url": "https://codeload.github.com/ponapalt/gumbo-parser-mirror/tar.gz/c8846007c4d9a86046102c99fdbbd295f366f813",
+      "sha256": "e4262b8a4cb11b2069e3db1288640736bb17b81ec52b81de0183e6c4be9e4f77",
+      "license": "Apache-2.0; MIT (UTF-8 decoder)"
+    },
+    "uka_regexp": {
+      "repository": "https://github.com/ukatech/uka_regexp",
+      "revision": "4563e2ea5e2e76f7185d6721da2b34c531fc6b15",
+      "url": "https://codeload.github.com/ukatech/uka_regexp/tar.gz/4563e2ea5e2e76f7185d6721da2b34c531fc6b15",
+      "sha256": "7ff0f0fe4be749b16c27fa51e00208f7acc1c4569e70f99da45ed618d49d54c4",
+      "license": "Unlicense"
+    }
+  },
+  "aya_scope": "Official latest YAYA (AYA5-derived) with POSIX AYA5 configuration discovery. Not the original AYA binary, not AYA 1-4."
+}

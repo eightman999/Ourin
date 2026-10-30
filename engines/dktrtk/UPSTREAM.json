@@ -1,0 +1,28 @@
+{
+  "dktrtk": {
+    "repository": "https://github.com/kinokon/dktrtk",
+    "revision": "1788cad46cdcea59d42b86999227ee7707e859e9",
+    "url": "https://codeload.github.com/kinokon/dktrtk/tar.gz/1788cad46cdcea59d42b86999227ee7707e859e9",
+    "sha256": "f14c914d848d67df0ba4e3c64cf5266d57a531d922121464ef37f4de1ee0b035",
+    "license": "No project license found; optional local build only"
+  },
+  "angelscript": {
+    "repository": "https://github.com/codecat/angelscript-mirror",
+    "revision": "6d1b0cb2c133aad4f5097c238f005eac69ef5f22",
+    "version": "2.30.0",
+    "url": "https://codeload.github.com/codecat/angelscript-mirror/tar.gz/6d1b0cb2c133aad4f5097c238f005eac69ef5f22",
+    "sha256": "c042070bb5dffe6f858a8c0e163e8fd50cb2f69f4c3a727926db13e106106b35",
+    "license": "zlib (sdk/angelscript/include/angelscript.h notice)"
+  },
+  "architecture": "Default: x86_64-apple-darwin / SDK 2.30.0 (Rosetta on Apple Silicon); --arch arm64: native arm64-apple-darwin / official SDK 2.38.0",
+  "external_dependencies": [
+    "Apple Clang and macOS SDK"
+  ],
+  "angelscript_arm64": {
+    "version": "2.38.0",
+    "url": "https://www.angelcode.com/angelscript/sdk/files/angelscript_2.38.0.zip",
+    "sha256": "b33b5dbcda10317ef67d628353d83246984ce6fcac102d4dc2aed121eba52e6f",
+    "license": "zlib (sdk/angelscript/include/angelscript.h; sdk/docs/manual/doc_license.html)",
+    "source": "Official AngelScript SDK, including matching versions of all 13 addon source modules"
+  }
+}

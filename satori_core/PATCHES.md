@@ -8,6 +8,8 @@ The upstream source is kept as close to `Mc172-3` as possible. Ourin applies thr
 
 `src/EncodingIconv.cpp` supplies the CP932/UTF-8 conversion functions expected by the POSIX sources. `src/main.cpp` is an Ourin-owned JSON Lines boundary and is not part of upstream SATORI; it scopes `SAORI_FALLBACK_PATH` to the current ghost's approved search directories before loading SATORI.
 
+The JSONL boundary also duplicates its protocol output descriptor before redirecting ordinary stdout to stderr. Upstream conditional candidate selection writes `selecting` and CP932 dictionary candidates to `std::cout`; these diagnostics must not corrupt JSON responses or trigger helper recovery. Only serialized response lines use the reserved descriptor, with partial-write and EINTR handling.
+
 The encoding boundary matches upstream `_/charset.cpp`: `UTF8toSJIS` consumes a leading UTF-8 BOM, and `CUnicodeF::utf16be_to_sjis` substitutes a space for characters unavailable in CP932. This prevents one valid but unrepresentable dictionary character from aborting the entire load. Malformed UTF-8, surrogate code points, truncated sequences, and invalid CP932 remain errors. This is CP932 compatibility, not lossless Unicode dictionary support. A leading BOM is an encoding signature ([Unicode FAQ](https://unicode.org/faq/utf_bom.html)); embedded U+FEFF is not silently removed.
 
 `main.cpp` duplicates the JSON output descriptor before routing native stdout to stderr. Upstream `Family.h::select_all` emits conditional-selection diagnostics on `std::cout`; these no longer corrupt JSON Lines. Native SAORI stdout follows the same boundary.

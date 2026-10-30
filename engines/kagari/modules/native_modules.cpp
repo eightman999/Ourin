@@ -20,7 +20,9 @@ extern "C" {
 int luaopen_luachild(lua_State*);
 int ourin_luaopen_utf8(lua_State*);
 int luaopen_socket_core(lua_State*);
+int luaopen_mime_core(lua_State*);
 int luaopen_lpeg(lua_State*);
+int luaopen_lanes_core(lua_State*);
 int lc_dir(lua_State*);
 int lc_dirent(lua_State*);
 }
@@ -71,7 +73,9 @@ int rootedFileCall(lua_State* L) {
 }
 void wrapFileFunction(lua_State* L, const char* table, const char* name) {
     if (table) lua_getglobal(L, table); else lua_pushglobaltable(L);
+    if (!lua_istable(L, -1)) { lua_pop(L, 1); return; }
     lua_getfield(L, -1, name);
+    if (!lua_isfunction(L, -1)) { lua_pop(L, 2); return; }
     lua_pushcclosure(L, rootedFileCall, 1); lua_setfield(L, -2, name); lua_pop(L, 1);
 }
 constexpr size_t maxBuffer = 64 * 1024 * 1024;
@@ -260,7 +264,10 @@ int requestSaori(lua_State* L) {
     lua_pushlstring(L, response, static_cast<size_t>(count)); free(response); return 1;
 }
 int newSaori(lua_State* L) {
-    std::string path = absolutePath(L, luaL_checkstring(L, 1));
+    // saori.conf uses Windows separators even in cross-platform KOTORI ghosts.
+    std::string declaredPath = luaL_checkstring(L, 1);
+    for (char& ch : declaredPath) if (ch == '\\') ch = '/';
+    std::string path = absolutePath(L, declaredPath.c_str());
     auto* module = new(lua_newuserdatauv(L, sizeof(Saori), 0)) Saori();
     // KOTORI declares DLL paths on all platforms. Try matching native siblings,
     // never dlopen the Windows binary or invent success for an absent SAORI.
@@ -295,12 +302,22 @@ extern "C" void ourin_kagari_preload_modules(lua_State* L, const char* root) {
     lua_pushstring(L, root); lua_setfield(L, LUA_REGISTRYINDEX, "ourin.kagari.cwd");
     wrapFileFunction(L, "io", "open"); wrapFileFunction(L, "io", "lines");
     wrapFileFunction(L, nullptr, "loadfile"); wrapFileFunction(L, nullptr, "dofile");
-    lua_getglobal(L, "package"); lua_getfield(L, -1, "preload");
+    lua_getglobal(L, "package");
+    if (!lua_istable(L, -1)) { lua_pop(L, 1); return; }
+    lua_getfield(L, -1, "preload");
     for (const auto& module : std::vector<std::pair<const char*, lua_CFunction>>{
         {"luachild", openLuachild}, {"lua-utf8", ourin_luaopen_utf8},
-        {"socket.core", luaopen_socket_core}, {"lpeg", luaopen_lpeg},
+        {"socket.core", luaopen_socket_core}, {"mime.core", luaopen_mime_core}, {"lpeg", luaopen_lpeg},
+        {"lanes.core", luaopen_lanes_core},
         {"clipboard", openClipboard}, {"rand.native", openRandom}, {"fh", openFH}, {"iconv", openIconv}, {"saori_universal.native", openSaori}}) {
         lua_pushcfunction(L, module.second); lua_setfield(L, -2, module.first);
     }
     lua_pop(L, 2);
+}
+
+// A Lanes worker is a fresh Lua state. Inherit the creating ghost's virtual
+// directory and native module loaders without changing the host process cwd.
+extern "C" void ourin_kagari_inherit_modules(lua_State* child, lua_State* parent) {
+    const char* directory = ourin_luachild_cwd(parent);
+    if (directory) ourin_kagari_preload_modules(child, directory);
 }

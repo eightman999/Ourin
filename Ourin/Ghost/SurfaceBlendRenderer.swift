@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import CoreGraphics
 
 /// SERIKO image-compositing methods that depend on the destination alpha.
@@ -10,6 +11,53 @@ enum SurfaceBlendMode: Equatable {
     case replace
     case reduce
     case blend(SerikoBlendMode, destinationAlphaAware: Bool)
+}
+
+/// One cached bitmap per character view. Image instances are immutable inputs
+/// supplied by the surface loader; retaining them prevents identity reuse.
+final class SurfaceCompositionCache: ObservableObject {
+    private struct ImageInput: Equatable {
+        let image: NSImage
+        let size: CGSize
+
+        init(_ image: NSImage) { self.image = image; self.size = image.size }
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.image === rhs.image && lhs.size == rhs.size
+        }
+    }
+
+    private struct LayerInput: Equatable {
+        let image: ImageInput
+        let offset: CGPoint
+        let alpha: Double
+        let zOrder: Int
+        let insertionOrder: Int
+        let mode: SurfaceBlendMode
+
+        init(_ layer: SurfaceOverlay) {
+            image = ImageInput(layer.image)
+            offset = layer.offset
+            alpha = layer.alpha
+            zOrder = layer.zOrder
+            insertionOrder = layer.insertionOrder
+            mode = layer.blendMode
+        }
+    }
+
+    private var baseInput: ImageInput?
+    private var layerInputs: [LayerInput]?
+    private var rendered: NSImage?
+
+    func composite(base: NSImage?, overlays: [SurfaceOverlay]) -> NSImage? {
+        let baseInput = base.map(ImageInput.init)
+        let layerInputs = overlays.map(LayerInput.init)
+        if self.layerInputs == layerInputs && self.baseInput == baseInput { return rendered }
+        let rendered = SurfaceBlendRenderer.composite(base: base, overlays: overlays)
+        self.baseInput = baseInput
+        self.layerInputs = layerInputs
+        self.rendered = rendered
+        return rendered
+    }
 }
 
 /// CPU compositor for SERIKO methods whose result cannot be represented by a
@@ -44,8 +92,8 @@ enum SurfaceBlendRenderer {
                 height: max(1, overlay.image.size.height.rounded(.up))
             )
             let source = imagePixels(overlay.image, size: sourceSize)
-            destination = composite(
-                destinationPixels: destination,
+            composite(
+                destinationPixels: &destination,
                 destinationSize: CGSize(width: width, height: height),
                 sourcePixels: source,
                 sourceSize: sourceSize,
@@ -67,6 +115,22 @@ enum SurfaceBlendRenderer {
         mode: SurfaceBlendMode,
         opacity: Double = 1
     ) -> [UInt8] {
+        var result = destinationPixels
+        composite(destinationPixels: &result, destinationSize: destinationSize,
+                  sourcePixels: sourcePixels, sourceSize: sourceSize,
+                  offset: offset, mode: mode, opacity: opacity)
+        return result
+    }
+
+    private static func composite(
+        destinationPixels: inout [UInt8],
+        destinationSize: CGSize,
+        sourcePixels: [UInt8],
+        sourceSize: CGSize,
+        offset: CGPoint,
+        mode: SurfaceBlendMode,
+        opacity: Double
+    ) {
         let destinationWidth = Int(destinationSize.width.rounded(.up))
         let destinationHeight = Int(destinationSize.height.rounded(.up))
         let sourceWidth = Int(sourceSize.width.rounded(.up))
@@ -75,112 +139,152 @@ enum SurfaceBlendRenderer {
               sourceWidth > 0, sourceHeight > 0,
               destinationPixels.count >= destinationWidth * destinationHeight * 4,
               sourcePixels.count >= sourceWidth * sourceHeight * 4 else {
-            return destinationPixels
+            return
         }
 
-        var result = Array(destinationPixels.prefix(destinationWidth * destinationHeight * 4))
+        if destinationPixels.count > destinationWidth * destinationHeight * 4 {
+            destinationPixels.removeLast(destinationPixels.count - destinationWidth * destinationHeight * 4)
+        }
         let offsetX = Int(offset.x.rounded(.down))
         let offsetY = Int(offset.y.rounded(.down))
         let clampedOpacity = max(0, min(1, opacity))
+        let isNormal = mode == .normal
+        let isReplace = mode == .replace
+        let isReduce = mode == .reduce
 
-        for sourceY in 0..<sourceHeight {
-            let destinationY = sourceY + offsetY
-            guard destinationY >= 0, destinationY < destinationHeight else { continue }
-            for sourceX in 0..<sourceWidth {
-                let destinationX = sourceX + offsetX
-                guard destinationX >= 0, destinationX < destinationWidth else { continue }
+        let startX = max(0, -offsetX), endX = min(sourceWidth, destinationWidth - offsetX)
+        let startY = max(0, -offsetY), endY = min(sourceHeight, destinationHeight - offsetY)
+        guard startX < endX, startY < endY else { return }
+        destinationPixels.withUnsafeMutableBufferPointer { destinationBuffer in
+            sourcePixels.withUnsafeBufferPointer { sourceBuffer in
+                // Dimensions/counts were checked once above. Raw pointers avoid
+                // repeating buffer bounds checks for every channel in debug builds.
+                guard let result = destinationBuffer.baseAddress,
+                      let sourcePixels = sourceBuffer.baseAddress else { return }
+                for sourceY in startY..<endY {
+                    var sourceIndex = (sourceY * sourceWidth + startX) * 4
+                    var destinationIndex = ((sourceY + offsetY) * destinationWidth + startX + offsetX) * 4
+                    for sourceX in startX..<endX {
+                        defer { sourceIndex += 4; destinationIndex += 4 }
+                        let sourceAlphaByte = sourcePixels[sourceIndex + 3]
+                        let destinationAlphaByte = result[destinationIndex + 3]
+                        // Keep replace/reduce/asis semantics for transparent pixels.
+                        // Ordinary source-over must also canonicalize transparent RGB.
+                        if isNormal {
+                            if sourceAlphaByte == 255 && clampedOpacity == 1 {
+                                result[destinationIndex] = sourcePixels[sourceIndex]
+                                result[destinationIndex + 1] = sourcePixels[sourceIndex + 1]
+                                result[destinationIndex + 2] = sourcePixels[sourceIndex + 2]
+                                result[destinationIndex + 3] = 255
+                                continue
+                            }
+                            if sourceAlphaByte == 0 || clampedOpacity == 0 {
+                                if destinationAlphaByte == 0 {
+                                    result[destinationIndex] = 0
+                                    result[destinationIndex + 1] = 0
+                                    result[destinationIndex + 2] = 0
+                                }
+                                continue
+                            }
+                        }
+                        let sourceAlpha = Double(sourceAlphaByte) / 255 * clampedOpacity
+                        let destinationAlpha = Double(destinationAlphaByte) / 255
+                        let effectiveAlpha: Double
+                        switch mode {
+                        case .normal:
+                            effectiveAlpha = sourceAlpha
+                        case .overlayFast:
+                            // UKADOC: the less transparent the base layer is, the
+                            // more strongly the new layer is composited.
+                            effectiveAlpha = sourceAlpha * destinationAlpha
+                        case .interpolate:
+                            // UKADOC: the more transparent the base layer is, the
+                            // more strongly the new layer is composited.
+                            effectiveAlpha = sourceAlpha * (1 - destinationAlpha)
+                        case .asis:
+                            // asis ignores the source transparency/key colour. The
+                            // RGB values have already passed through surface loading.
+                            effectiveAlpha = clampedOpacity
+                        case .replace:
+                            effectiveAlpha = sourceAlpha
+                        case .reduce:
+                            effectiveAlpha = 0
+                        case .blend(_, let destinationAlphaAware):
+                            effectiveAlpha = sourceAlpha * (destinationAlphaAware ? destinationAlpha : 1)
+                        }
 
-                let sourceIndex = (sourceY * sourceWidth + sourceX) * 4
-                let destinationIndex = (destinationY * destinationWidth + destinationX) * 4
-                let sourceAlpha = Double(sourcePixels[sourceIndex + 3]) / 255 * clampedOpacity
-                let destinationAlpha = Double(result[destinationIndex + 3]) / 255
-                let effectiveAlpha: Double
-                switch mode {
-                case .normal:
-                    effectiveAlpha = sourceAlpha
-                case .overlayFast:
-                    // UKADOC: the less transparent the base layer is, the
-                    // more strongly the new layer is composited.
-                    effectiveAlpha = sourceAlpha * destinationAlpha
-                case .interpolate:
-                    // UKADOC: the more transparent the base layer is, the
-                    // more strongly the new layer is composited.
-                    effectiveAlpha = sourceAlpha * (1 - destinationAlpha)
-                case .asis:
-                    // asis ignores the source transparency/key colour. The
-                    // RGB values have already passed through surface loading.
-                    effectiveAlpha = clampedOpacity
-                case .replace:
-                    effectiveAlpha = sourceAlpha
-                case .reduce:
-                    effectiveAlpha = 0
-                case .blend(_, let destinationAlphaAware):
-                    effectiveAlpha = sourceAlpha * (destinationAlphaAware ? destinationAlpha : 1)
+                        if effectiveAlpha == 0 && !isReplace && !isReduce {
+                            if destinationAlphaByte == 0 {
+                                result[destinationIndex] = 0
+                                result[destinationIndex + 1] = 0
+                                result[destinationIndex + 2] = 0
+                            }
+                            continue
+                        }
+                        let outputAlpha = effectiveAlpha + destinationAlpha * (1 - effectiveAlpha)
+                        let sourceRed = Double(sourcePixels[sourceIndex]) / 255
+                        let sourceGreen = Double(sourcePixels[sourceIndex + 1]) / 255
+                        let sourceBlue = Double(sourcePixels[sourceIndex + 2]) / 255
+                        let destinationRed = Double(result[destinationIndex]) / 255
+                        let destinationGreen = Double(result[destinationIndex + 1]) / 255
+                        let destinationBlue = Double(result[destinationIndex + 2]) / 255
+                        if case .replace = mode {
+                            // replace is scoped to the source image rectangle. A fully
+                            // transparent source pixel therefore clears the destination
+                            // instead of falling back to source-over.
+                            result[destinationIndex] = byte(sourceRed)
+                            result[destinationIndex + 1] = byte(sourceGreen)
+                            result[destinationIndex + 2] = byte(sourceBlue)
+                            result[destinationIndex + 3] = byte(sourceAlpha)
+                            continue
+                        }
+                        if case .reduce = mode {
+                            // reduce keeps the destination colour and multiplies its
+                            // alpha by the source alpha. Source RGB is intentionally
+                            // ignored by the SERIKO specification.
+                            result[destinationIndex] = byte(destinationRed)
+                            result[destinationIndex + 1] = byte(destinationGreen)
+                            result[destinationIndex + 2] = byte(destinationBlue)
+                            result[destinationIndex + 3] = byte(destinationAlpha * sourceAlpha)
+                            continue
+                        }
+                        let blended = blendComponents(
+                            mode: mode,
+                            source: (sourceRed, sourceGreen, sourceBlue),
+                            destination: (destinationRed, destinationGreen, destinationBlue),
+                            x: sourceX,
+                            y: sourceY
+                        )
+                        let red = compositedComponent(
+                            source: blended.0,
+                            destination: destinationRed,
+                            sourceAlpha: effectiveAlpha,
+                            destinationAlpha: destinationAlpha,
+                            outputAlpha: outputAlpha
+                        )
+                        let green = compositedComponent(
+                            source: blended.1,
+                            destination: destinationGreen,
+                            sourceAlpha: effectiveAlpha,
+                            destinationAlpha: destinationAlpha,
+                            outputAlpha: outputAlpha
+                        )
+                        let blue = compositedComponent(
+                            source: blended.2,
+                            destination: destinationBlue,
+                            sourceAlpha: effectiveAlpha,
+                            destinationAlpha: destinationAlpha,
+                            outputAlpha: outputAlpha
+                        )
+
+                        result[destinationIndex] = byte(red)
+                        result[destinationIndex + 1] = byte(green)
+                        result[destinationIndex + 2] = byte(blue)
+                        result[destinationIndex + 3] = byte(outputAlpha)
+                    }
                 }
-
-                let outputAlpha = effectiveAlpha + destinationAlpha * (1 - effectiveAlpha)
-                let sourceRed = Double(sourcePixels[sourceIndex]) / 255
-                let sourceGreen = Double(sourcePixels[sourceIndex + 1]) / 255
-                let sourceBlue = Double(sourcePixels[sourceIndex + 2]) / 255
-                let destinationRed = Double(result[destinationIndex]) / 255
-                let destinationGreen = Double(result[destinationIndex + 1]) / 255
-                let destinationBlue = Double(result[destinationIndex + 2]) / 255
-                if case .replace = mode {
-                    // replace is scoped to the source image rectangle. A fully
-                    // transparent source pixel therefore clears the destination
-                    // instead of falling back to source-over.
-                    result[destinationIndex] = byte(sourceRed)
-                    result[destinationIndex + 1] = byte(sourceGreen)
-                    result[destinationIndex + 2] = byte(sourceBlue)
-                    result[destinationIndex + 3] = byte(sourceAlpha)
-                    continue
-                }
-                if case .reduce = mode {
-                    // reduce keeps the destination colour and multiplies its
-                    // alpha by the source alpha. Source RGB is intentionally
-                    // ignored by the SERIKO specification.
-                    result[destinationIndex] = byte(destinationRed)
-                    result[destinationIndex + 1] = byte(destinationGreen)
-                    result[destinationIndex + 2] = byte(destinationBlue)
-                    result[destinationIndex + 3] = byte(destinationAlpha * sourceAlpha)
-                    continue
-                }
-                let blended = blendComponents(
-                    mode: mode,
-                    source: (sourceRed, sourceGreen, sourceBlue),
-                    destination: (destinationRed, destinationGreen, destinationBlue),
-                    x: sourceX,
-                    y: sourceY
-                )
-                let red = compositedComponent(
-                    source: blended.0,
-                    destination: destinationRed,
-                    sourceAlpha: effectiveAlpha,
-                    destinationAlpha: destinationAlpha,
-                    outputAlpha: outputAlpha
-                )
-                let green = compositedComponent(
-                    source: blended.1,
-                    destination: destinationGreen,
-                    sourceAlpha: effectiveAlpha,
-                    destinationAlpha: destinationAlpha,
-                    outputAlpha: outputAlpha
-                )
-                let blue = compositedComponent(
-                    source: blended.2,
-                    destination: destinationBlue,
-                    sourceAlpha: effectiveAlpha,
-                    destinationAlpha: destinationAlpha,
-                    outputAlpha: outputAlpha
-                )
-
-                result[destinationIndex] = byte(red)
-                result[destinationIndex + 1] = byte(green)
-                result[destinationIndex + 2] = byte(blue)
-                result[destinationIndex + 3] = byte(outputAlpha)
             }
         }
-        return result
     }
 
     private static func blendComponents(
@@ -412,11 +516,14 @@ enum SurfaceBlendRenderer {
         //   オフセット付き element/overlay の位置だけが H - y - h に鏡映されていた）
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
 
-        for index in stride(from: 0, to: pixels.count, by: 4) {
-            let alpha = pixels[index + 3]
-            pixels[index] = unpremultiply(pixels[index], alpha: alpha)
-            pixels[index + 1] = unpremultiply(pixels[index + 1], alpha: alpha)
-            pixels[index + 2] = unpremultiply(pixels[index + 2], alpha: alpha)
+        pixels.withUnsafeMutableBufferPointer { buffer in
+            for index in stride(from: 0, to: buffer.count, by: 4) {
+                let alpha = buffer[index + 3]
+                guard alpha != 255 else { continue }
+                buffer[index] = unpremultiply(buffer[index], alpha: alpha)
+                buffer[index + 1] = unpremultiply(buffer[index + 1], alpha: alpha)
+                buffer[index + 2] = unpremultiply(buffer[index + 2], alpha: alpha)
+            }
         }
         return pixels
     }

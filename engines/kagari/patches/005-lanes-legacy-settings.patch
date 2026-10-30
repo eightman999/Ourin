@@ -1,0 +1,26 @@
+--- a/src/tools.c
++++ b/src/tools.c
+@@ -236,7 +236,9 @@
+ 
+     lua_getfield( L, -1, "internal_allocator");             // settings "libc"|"allocator"
+     {
+-        char const* allocator = lua_tostring( L, -1);
++        /* Older lanes.lua wrappers omit this setting. Match their original
++           behavior: use the state's allocator, rather than dereferencing nil. */
++        char const* allocator = luaL_optstring( L, -1, "allocator");
+         if (strcmp(allocator, "libc") == 0)
+         {
+             U->internal_allocator.allocF = libc_lua_Alloc;
+--- a/src/state.c
++++ b/src/state.c
+@@ -414,6 +414,10 @@
+     // will raise an error in from_ in case of problem
+     call_on_state_create( U, L, from_, eLM_LaneBody);
+ 
++    /* Keep relative IO and native module lookup local to the creating ghost. */
++    extern void ourin_kagari_inherit_modules(lua_State*, lua_State*);
++    ourin_kagari_inherit_modules(L, from_);
++
+     STACK_CHECK( L, 0);
+     // after all this, register everything we find in our name<->function database
+     lua_pushglobaltable( L); // Lua 5.2 no longer has LUA_GLOBALSINDEX: we must push globals table on the stack

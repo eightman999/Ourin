@@ -177,13 +177,16 @@ enum SystemNotificationData {
         )
     }
 
-    /// 表示に使っている言語（実際に選ばれた lproj）。言語名はその言語自身での名前（日本語・English・简体中文 など）、
-    /// 言語フォルダはその lproj（SSP の言語フォルダに当たり、祝日表 holidays-XX.txt も入っている）。
-    static func currentLanguageInfo(bundle: Bundle = .main) -> SystemLanguageInfo {
-        let languageID = bundle.preferredLocalizations.first(where: { $0 != "Base" }) ?? ""
+    /// Report the selected UI localization, with stable English names used by SHIORI dictionaries.
+    /// A supplied locale allows callers to describe a particular language independently of the UI.
+    static func currentLanguageInfo(bundle: Bundle = .main, locale: Locale? = nil) -> SystemLanguageInfo {
+        let languageID = locale.map { ($0.languageCode ?? "").lowercased() }
+            ?? bundle.preferredLocalizations.first(where: { $0 != "Base" }) ?? ""
         let languageName = languageID.isEmpty
             ? ""
-            : (Locale(identifier: languageID).localizedString(forIdentifier: languageID) ?? languageID)
+            // SHIORI dictionaries use stable language names (Japanese/English),
+            // not names translated into the current macOS display language.
+            : (Locale(identifier: "en_US_POSIX").localizedString(forLanguageCode: languageID) ?? languageID)
         let resourcePath = languageID.isEmpty
             ? ""
             : (bundle.path(forResource: languageID, ofType: "lproj") ?? "")

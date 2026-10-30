@@ -18,8 +18,13 @@ enum RetinaImageLoader {
 
         // 1x が存在する場合: それを基準サイズ（論理ポイント）とし、@2x/@3x を rep として追加。
         if baseExists, let base = NSImage(contentsOf: url) {
-            let logicalSize = base.size
-            for suffix in ["@2x", "@3x"] {
+            // Ukagaka coordinates are image pixels, not PNG physical-print DPI.
+            // AppKit otherwise shrinks a 350-DPI 421px image to 86.6 points.
+            let scale = explicitScale(of: url)
+            let logicalSize = pixelSize(of: base, scale: scale)
+            base.size = logicalSize
+            for rep in base.representations { rep.size = logicalSize }
+            for suffix in scale == 1 ? ["@2x", "@3x"] : [] {
                 guard let variantURL = variant(of: url, suffix: suffix),
                       fm.fileExists(atPath: variantURL.path),
                       let rep = bitmapRep(contentsOf: variantURL) else { continue }
@@ -35,10 +40,27 @@ enum RetinaImageLoader {
             guard let variantURL = variant(of: url, suffix: suffix),
                   fm.fileExists(atPath: variantURL.path),
                   let img = NSImage(contentsOf: variantURL) else { continue }
-            img.size = NSSize(width: img.size.width / scale, height: img.size.height / scale)
+            let logicalSize = pixelSize(of: img, scale: scale)
+            img.size = logicalSize
+            for rep in img.representations { rep.size = logicalSize }
             return img
         }
         return nil
+    }
+
+    private static func explicitScale(of url: URL) -> CGFloat {
+        let name = url.deletingPathExtension().lastPathComponent.lowercased()
+        if name.hasSuffix("@3x") { return 3 }
+        if name.hasSuffix("@2x") { return 2 }
+        return 1
+    }
+
+    private static func pixelSize(of image: NSImage, scale: CGFloat) -> NSSize {
+        guard let representation = image.representations.first(where: { $0.pixelsWide > 0 && $0.pixelsHigh > 0 }) else {
+            return image.size // Preserve vector representations without raster pixel dimensions.
+        }
+        return NSSize(width: CGFloat(representation.pixelsWide) / scale,
+                      height: CGFloat(representation.pixelsHigh) / scale)
     }
 
     /// ファイルパス文字列版（`NSImage(contentsOfFile:)` の置き換え用）。

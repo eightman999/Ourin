@@ -1,0 +1,18 @@
+{
+  "source": "Microsoft .NET SDK 10.0.401 (Homebrew 10.0.401_1) notices",
+  "runtime_version": "10.0.12",
+  "files": {
+    "LICENSE.txt": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+    "ThirdPartyNotices.txt": "2dc8f8c5a39401e928b5784ab564eb8b3ceb99ead3df8f260e0cab7e0bbecc7a",
+    "LICENSE.brotli.txt": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94"
+  },
+  "brotli": {
+    "version": "1.2.0",
+    "source": "Homebrew brotli 1.2.0, MIT",
+    "library_sha256": {
+      "libbrotlidec.1.dylib": "d7ac1e69b6c443341fb4302de0169d187489d58d8a641c8eadd6db9ca2cd0cbf",
+      "libbrotlienc.1.dylib": "32e38a8ab06c8770ea4bfaf11ea324d7bcb6fe5f07eaff9d6260f93984ee6729",
+      "libbrotlicommon.1.dylib": "3426742c78df5c3b523071df603f07f2bb8dea6bd8e65c366a2c6adf2bf0a3ad"
+    }
+  }
+}

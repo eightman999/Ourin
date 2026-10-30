@@ -6,10 +6,11 @@ OUTPUT="$ROOT/build/engines"
 mkdir -p "$OUTPUT"
 fingerprint="$(python3 - "$ROOT/engines" <<'PY'
 from pathlib import Path
-import hashlib, sys
+import hashlib, json, sys
 root = Path(sys.argv[1])
 h = hashlib.sha256()
-for path in sorted(root.rglob('*')):
+h.update(json.dumps(json.loads((root / 'PINNED_UPSTREAM.json').read_text())['kagari_shiori'], sort_keys=True).encode())
+for path in sorted((root / 'kagari').rglob('*')):
     if path.is_file() and path.suffix in {'.sh', '.json', '.patch', '.cpp', '.c', '.h', '.py'}:
         h.update(str(path.relative_to(root)).encode())
         h.update(path.read_bytes())
@@ -24,7 +25,13 @@ if [[ "$fingerprint" != "$previous" || ! -f "$OUTPUT/kawari/libkawari_shiori.dyl
   printf '%s\n' "$fingerprint" > "$OUTPUT/.build-inputs"
 fi
 for library in "$OUTPUT/kawari/libkawari_shiori.dylib" "$OUTPUT/kagari/libkagari.dylib" "$OUTPUT/kagari/liblua.5.4.dylib" "$OUTPUT/additional/"*.dylib; do
-  lipo "$library" -verify_arch arm64 x86_64
+  engine_architectures="$(lipo -archs "$library")"
+  for required_architecture in arm64 x86_64; do
+    case " $engine_architectures " in
+      *" $required_architecture "*) ;;
+      *) printf 'Missing %s in %s\n' "$required_architecture" "$library" >&2; exit 1 ;;
+    esac
+  done
 done
 if [[ -z "${TARGET_BUILD_DIR:-}" || -z "${CONTENTS_FOLDER_PATH:-}" ]]; then
   echo "Native engines built; no Xcode destination supplied."

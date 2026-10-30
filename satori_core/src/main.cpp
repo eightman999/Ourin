@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <unistd.h>
+#include <cerrno>
 
 #include <nlohmann/json.hpp>
 
@@ -223,17 +224,12 @@ json dispatch(const json& request) {
 } // namespace
 
 int main() {
-    // Engines/SAORIs may print diagnostics to fd 1. Reserve the original pipe
-    // for JSON, then route native stdout to stderr before loading any engine.
-    const int protocolFD = dup(STDOUT_FILENO);
-    if (protocolFD < 0) return EXIT_FAILURE;
-    FILE* protocol = fdopen(protocolFD, "w");
-    if (protocol == nullptr) {
-        close(protocolFD);
-        return EXIT_FAILURE;
-    }
+    // SATORI and its plug-ins may write diagnostics to stdout (including
+    // CP932 dictionary candidates). Keep that output off the JSONL transport.
+    const int protocolOutput = dup(STDOUT_FILENO);
+    if (protocolOutput < 0) return EXIT_FAILURE;
     if (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) {
-        fclose(protocol);
+        close(protocolOutput);
         return EXIT_FAILURE;
     }
     std::ios::sync_with_stdio(false);
@@ -246,13 +242,20 @@ int main() {
             response = {{"ok", false}, {"status", 500}, {"headers", json::object()}, {"value", error.what()}};
         }
         const std::string wire = response.dump() + '\n';
-        if (fwrite(wire.data(), 1, wire.size(), protocol) != wire.size() || fflush(protocol) != 0) {
-            break;
+        size_t written = 0;
+        while (written < wire.size()) {
+            const ssize_t count = write(protocolOutput, wire.data() + written, wire.size() - written);
+            if (count < 0 && errno == EINTR) continue;
+            if (count <= 0) {
+                close(protocolOutput);
+                return EXIT_FAILURE;
+            }
+            written += static_cast<size_t>(count);
         }
     }
     if (runtimeId != 0) {
         satori_unload(runtimeId);
     }
-    fclose(protocol);
+    close(protocolOutput);
     return 0;
 }

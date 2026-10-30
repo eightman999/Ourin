@@ -1,0 +1,7 @@
+{
+  "revision": "618f29de2c718735ae3bfc6ccceb69ebfca311c7",
+  "url": "https://codeload.github.com/Tatakinov/phiori/tar.gz/618f29de2c718735ae3bfc6ccceb69ebfca311c7",
+  "sha256": "6093f446c3c49dac79c4226d61b0a21ac658cdaf1bbf4acad19a9aa3cf508fa8",
+  "python_version": "3.14.8",
+  "license_note": "README: Python MIT / C DLL LGPL3; COPYING.txt says GPL3+. All source notices retained; no auto distribution."
+}

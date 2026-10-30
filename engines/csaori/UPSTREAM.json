@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/ukatech/csaori",
+  "revision": "1ddb8c9024bb4716fa3ac25d05c819fad224e459",
+  "url": "https://codeload.github.com/ukatech/csaori/tar.gz/1ddb8c9024bb4716fa3ac25d05c819fad224e459",
+  "sha256": "a6a429c952cd82e8c3865bc37bb2984d5b7f9f818f3bd71fc42b9b61804a7898",
+  "license": "Upstream ghost-use terms or modified BSD; full terms in readme.txt",
+  "license_file": "readme.txt",
+  "abi": "ukagaka-long",
+  "sample": "Self-authored SHIORI subclass using actual CSAORIInput parser / CSAORIOutput builder",
+  "scope": "UTF-8 development example; not a complete replacement for existing Windows CSAORI DLLs"
+}

@@ -105,8 +105,8 @@ extension GhostManager {
         }
     }
 
-    func updateSurface(id rawID: Int) {
-        let id = surfaceAliases[rawID] ?? rawID
+    func updateSurface(id rawID: Int, resolveAlias: Bool = true) {
+        let id = resolveAlias ? resolveNumericSurfaceAlias(rawID, scope: currentScope) : rawID
         let scope = currentScope
         let oldSurfaceID = characterViewModels[scope]?.currentSurfaceID ?? 0
         let requestGeneration = nextSurfaceRequestGeneration(for: scope)
@@ -266,22 +266,39 @@ extension GhostManager {
             return nil
         }
         let effectiveTransparencyMode = transparencyMode ?? surfaceTransparencyMode
+        // An element-only surface has no surfaceN.png fallback. Its definition
+        // must be available before the first image, not after that image loads.
+        // Keep this first-load snapshot local: image loading also runs off-main.
+        var definitions = parsedSurfaceDefs
+        if definitions.isEmpty, let bundle = SurfaceDefinitionLoader.load(from: shellURL) {
+            definitions = SerikoParser.parseSurfaces(bundle.content)
+        }
+        let table = surfaceTable ?? SurfaceDefinitionLoader.loadSurfaceTable(from: shellURL)
         // surfacetable.txt の option,DisableNoDefineSurfaces:
         // surfaces.txt にも surfacetable.txt にも定義がないサーフェスIDは描画しない（UKADOC）。
-        if let table = surfaceTable, table.disableNoDefineSurfaces,
-           parsedSurfaceDefs[surfaceId] == nil,
+        if let table, table.disableNoDefineSurfaces,
+           definitions[surfaceId] == nil,
            !table.definedSurfaceIDs.contains(surfaceId) {
             Log.debug("[GhostManager] Surface \(surfaceId) suppressed by DisableNoDefineSurfaces")
             return nil
         }
+        let elements = definitions[surfaceId]?.elements ?? []
+        var names = ["surface\(surfaceId).png", String(format: "surface%04d.png", surfaceId)]
+        if scope == 1 { names += ["surface1\(surfaceId).png", String(format: "surface1%04d.png", surfaceId)] }
+        names += elements.map(\.filename)
+        let imageKey = surfaceImageCacheKey(files: names.map { shellURL.appendingPathComponent($0) },
+            context: ["surface", String(surfaceId), String(scope), String(applyTransparency),
+                      String(describing: effectiveTransparencyMode), String(reflecting: elements)])
+        if let image = surfaceImageCache.object(forKey: imageKey) { return image }
         // SERIKO/2.0: element 合成で定義されるサーフェスは複数画像を重ねて生成する
-        if let elements = parsedSurfaceDefs[surfaceId]?.elements, !elements.isEmpty,
+        if !elements.isEmpty,
            let composed = compositeSurfaceElements(
                elements,
                shellURL: shellURL,
                applyTransparency: applyTransparency,
                transparencyMode: effectiveTransparencyMode
            ) {
+            cacheSurfaceImage(composed, key: imageKey)
             Log.debug("[GhostManager] Surface \(surfaceId) composed from \(elements.count) elements")
             return composed
         }
@@ -303,6 +320,7 @@ extension GhostManager {
             // @2x/@3x バリアントがあれば高解像度 rep を取り込む（Retina 対応）
             if FileManager.default.fileExists(atPath: url.path), let img = RetinaImageLoader.image(contentsOf: url) {
                 guard applyTransparency else {
+                    cacheSurfaceImage(img, key: imageKey)
                     Log.debug("[GhostManager] Image loaded without transparency processing: \(name)")
                     return img
                 }
@@ -311,6 +329,7 @@ extension GhostManager {
                     sourceURL: url,
                     mode: effectiveTransparencyMode
                 )
+                cacheSurfaceImage(processed, key: imageKey)
                 Log.debug("[GhostManager] Image loaded: \(name) transparency=\(effectiveTransparencyMode)")
                 return processed
             }
@@ -402,14 +421,45 @@ extension GhostManager {
         applyTransparency: Bool = true,
         transparencyMode: SurfaceTransparencyMode? = nil
     ) -> NSImage? {
+        let mode = transparencyMode ?? surfaceTransparencyMode
+        let key = surfaceImageCacheKey(files: [url], context: ["file", String(applyTransparency), String(describing: mode)])
+        if let image = surfaceImageCache.object(forKey: key) { return image }
         guard FileManager.default.fileExists(atPath: url.path),
               let img = RetinaImageLoader.image(contentsOf: url) else { return nil }
-        guard applyTransparency else { return img }
-        return applySurfaceTransparency(
+        let result = applyTransparency ? applySurfaceTransparency(
             to: img,
             sourceURL: url,
-            mode: transparencyMode ?? surfaceTransparencyMode
-        )
+            mode: mode
+        ) : img
+        cacheSurfaceImage(result, key: key)
+        return result
+    }
+
+    /// Include dependencies and their revision so shell changes, transparency modes,
+    /// PNA/Retina replacements, and edited element definitions never reuse stale pixels.
+    private func surfaceImageCacheKey(files: [URL], context: [String]) -> NSString {
+        var parts = context
+        for file in files {
+            let stem = file.deletingPathExtension()
+            let dependencies = [file, stem.appendingPathExtension("pna")]
+                + ["@2x", "@3x"].map { suffix in
+                    stem.deletingLastPathComponent().appendingPathComponent(stem.lastPathComponent + suffix)
+                        .appendingPathExtension(file.pathExtension)
+                }
+            for url in dependencies {
+                parts.append(url.standardizedFileURL.path)
+                if let attributes = try? FileManager.default.attributesOfItem(atPath: url.path) {
+                    parts.append(String((attributes[.modificationDate] as? Date)?.timeIntervalSince1970 ?? 0))
+                    parts.append(String((attributes[.size] as? NSNumber)?.uint64Value ?? 0))
+                } else { parts.append("missing") }
+            }
+        }
+        return parts.joined(separator: "\0") as NSString
+    }
+
+    private func cacheSurfaceImage(_ image: NSImage, key: NSString) {
+        let bytes = max(1, min(64 * 1024 * 1024, image.size.width * image.size.height * 4))
+        surfaceImageCache.setObject(image, forKey: key, cost: Int(bytes))
     }
 
     /// SERIKO/2.0 element 定義を index 順に重ねて1枚の基底サーフェス画像を合成する。
@@ -601,10 +651,11 @@ extension GhostManager {
         }
         
         let scope = currentScope
+        let surfaceGeneration = surfaceRequestGenerationByScope[scope]
         // 通常の \s[ID] と同じ surface resolver を使う。これにより、SERIKO の
         // anim/add でも alias、surface element 合成、PNA/クロマキー、ゼロ埋め
         // ファイル名、DisableNoDefineSurfaces を同じ規則で適用できる。
-        let resolvedSurfaceID = surfaceAliases[surfaceID] ?? surfaceID
+        let resolvedSurfaceID = resolveNumericSurfaceAlias(surfaceID, scope: scope)
         let effectiveBlendMode: SurfaceBlendMode = type == .replace ? .replace : blendMode
         guard let image = loadImage(
             surfaceId: resolvedSurfaceID,
@@ -618,7 +669,8 @@ extension GhostManager {
         // Add overlay to current scope's character view model
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            guard let vm = self.characterViewModels[scope] else { return }
+            guard let vm = self.characterViewModels[scope],
+                  self.surfaceRequestGenerationByScope[scope] == surfaceGeneration else { return }
 
             // 同じアニメーションの次フレームは前フレームを置き換える。
             // 旧実装は surface ID が変わるたびに append していたため、目元が残留した。

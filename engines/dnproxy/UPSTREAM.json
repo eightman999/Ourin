@@ -1,0 +1,24 @@
+{
+  "dnproxy": {
+    "repository": "https://github.com/nikolat/dnproxy",
+    "revision": "e53c1c95f6018fad7021d0731ef2b85195e67444",
+    "url": "https://codeload.github.com/nikolat/dnproxy/tar.gz/e53c1c95f6018fad7021d0731ef2b85195e67444",
+    "sha256": "8c73ee345c71d05d65ccf82486f00c6fcf4584fc0dd87ea79783aabf34ef018a",
+    "license": "CC0-1.0",
+    "license_file": "LICENSE"
+  },
+  "crawler": {
+    "repository": "https://github.com/nikolat/crawler_uploader",
+    "revision": "5c825cabb26faf6e24b4eacefb0c50d7fe466005",
+    "url": "https://codeload.github.com/nikolat/crawler_uploader/tar.gz/5c825cabb26faf6e24b4eacefb0c50d7fe466005",
+    "sha256": "2b6b5af26bcc06f024dbf40242072bafb6d44457f0d83b826c4aabc980c764b1",
+    "license": "NYSDL 0.9982 (dictionary/text only; shell/assets excluded)",
+    "license_file": "readme.txt"
+  },
+  "sdk": "10.0.401",
+  "target_framework": "net10.0",
+  "external_nuget_dependencies": {
+    "Microsoft.CodeAnalysis.CSharp": "4.14.0",
+    "Microsoft.CodeAnalysis.VisualBasic": "4.14.0"
+  }
+}

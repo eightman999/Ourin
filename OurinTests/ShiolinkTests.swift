@@ -37,6 +37,32 @@ struct ShiolinkTests {
         #expect(adapter.request(method: "GET", id: "OnBoot", timeout: 1) == nil)
     }
 
+    @Test(arguments: [false, true]) func legacySentenceEventsUseSharedShiori2Compatibility(forceUTF8: Bool) throws {
+        let (root, original) = try fixture(mode: forceUTF8 ? "shiori2-utf8" : "shiori2")
+        let context = ShioriRuntimeLoadContext(ghostURL: original.ghostURL, ghostRoot: original.ghostRoot,
+            moduleName: original.moduleName, communication: ShioriCommunicationOptions(
+                version: forceUTF8 ? "SHIORI/2.2" : nil, forceEncoding: forceUTF8 ? "UTF-8" : nil))
+        defer { try? FileManager.default.removeItem(at: root) }
+        let adapter = ShiolinkAdapter()
+        defer { adapter.unload() }
+        try #require(adapter.load(context: context))
+        let greeting = forceUTF8 ? "起動しました 🌸" : "起動しました"
+        let boot = try #require(adapter.request(method: "GET", id: "OnBoot", refs: [greeting], timeout: 1))
+        #expect(boot.value == greeting)
+        #expect(boot.headers?["Reference0"] == "OnBoot")
+        #expect(boot.headers?["Charset"] == "UTF-8")
+        #expect(adapter.request(method: "NOTIFY", id: "OnSecondChange", timeout: 1)?.status == 204)
+        #expect(adapter.request(method: "GET", id: "OnUnsupportedEvent", timeout: 1)?.status == 204)
+        let click = adapter.request(method: "GET", id: "OnMouseDoubleClick", refs: ["つついた"], timeout: 1)
+        #expect(click?.value == "つついた")
+        #expect(click?.headers?["Reference0"] == "OnMouseDoubleClick")
+        adapter.unload()
+        let (modernRoot, modernContext) = try fixture()
+        defer { try? FileManager.default.removeItem(at: modernRoot) }
+        try #require(adapter.load(context: modernContext))
+        #expect(adapter.request(method: "GET", id: "OnModernEvent", refs: ["桜鈴 🌸"], timeout: 1)?.value == "桜鈴 🌸")
+    }
+
     @Test func productionFactorySelectsAndLoadsShiolink() throws {
         let (root, context) = try fixture()
         defer { try? FileManager.default.removeItem(at: root) }
@@ -46,6 +72,30 @@ struct ShiolinkTests {
         #expect(runtime.kind == .shiolink)
         #expect(runtime.load(context: context))
         #expect(runtime.request(method: "GET", id: "OnBoot", refs: ["factory"], timeout: 1)?.value == "factory")
+    }
+
+    @Test func explicitPortKeepsOriginalModuleAndDoesNotAffectOtherModules() throws {
+        let (root, original) = try fixture()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let directory = original.ghostRoot.appendingPathComponent("会話 engine")
+        let config = directory.appendingPathComponent("SHIOLINK.ourin.ini")
+        let text = try String(contentsOf: config, encoding: .utf8) + "module=PHIORI.DLL\n"
+        try text.write(to: config, atomically: true, encoding: .utf8)
+        let context = ShioriRuntimeLoadContext(ghostURL: root, ghostRoot: original.ghostRoot,
+                                              moduleName: "会話 engine/phiori.dll")
+        let runtime = try #require(ShioriRuntimeFactory.makeRuntime(context: context))
+        defer { runtime.unload() }
+        #expect(runtime.kind == .shiolink)
+        #expect(runtime.load(context: context))
+        #expect(runtime.request(method: "GET", id: "OnBoot", refs: ["unchanged descriptor"], timeout: 1)?.value == "unchanged descriptor")
+        let other = ShioriRuntimeLoadContext(ghostURL: root, ghostRoot: original.ghostRoot,
+                                            moduleName: "会話 engine/other.dll")
+        #expect(ShioriRuntimeFactory.makeRuntime(context: other)?.kind == .native)
+        runtime.unload()
+        try FileManager.default.moveItem(at: config, to: directory.appendingPathComponent("SHIOLINK.INI"))
+        #expect(ShioriRuntimeFactory.makeRuntime(context: context)?.kind == .native)
+        try FileManager.default.removeItem(at: directory.appendingPathComponent("SHIOLINK.INI"))
+        #expect(ShioriRuntimeFactory.makeRuntime(context: context)?.kind == .native)
     }
 
     @Test(arguments: ["bad-echo", "load-hang", "startup-hang"])

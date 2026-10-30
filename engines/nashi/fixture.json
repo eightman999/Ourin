@@ -1,0 +1,24 @@
+{
+  "format": "nashi/1",
+  "meta": { "name": "桜鈴・なし栞fixture", "sakuraName": "なしこ" },
+  "settings": { "randomTalkEnabled": false },
+  "variables": [{ "name": "回数", "value": 0 }],
+  "scripts": [
+    { "id": "boot", "kind": "event", "event": "OnBoot", "blocks": [
+      { "type": "change", "name": "回数", "value": 1 },
+      { "type": "raw", "text": { "type": "join", "a": "桜鈴 🌸 ", "b": { "type": "var", "name": "回数" } } }
+    ] },
+    { "id": "read", "kind": "event", "event": "OnRead", "blocks": [
+      { "type": "raw", "text": { "type": "join", "a": "保存 ", "b": { "type": "var", "name": "回数" } } }
+    ] },
+    { "id": "echo", "kind": "event", "event": "OnEcho", "blocks": [
+      { "type": "raw", "text": { "type": "ref", "index": 0 } }
+    ] },
+    { "id": "notify", "kind": "event", "event": "OnIncrement", "blocks": [
+      { "type": "change", "name": "回数", "value": 10 }
+    ] },
+    { "id": "close", "kind": "event", "event": "OnClose", "blocks": [
+      { "type": "raw", "text": "桜鈴・なし栞終了" }
+    ] }
+  ]
+}

@@ -10,15 +10,17 @@ final class NativeShioriModule {
         case ukagakaInt32 = "ukagaka-int32"
         /// KAGARI POSIX 版 (`kagari_load` / `kagari_request(id,…)` / `kagari_unload`).
         case kagari
-        /// Aosora POSIX uses C long instance IDs (zero means load failure).
+        /// Aosora POSIX ABI uses C long instance IDs and lengths.
         case aosora
+        /// Official YAYA POSIX multi-instance ABI; instance zero is reserved.
+        case yaya
     }
-    private typealias AosoraLoad = @convention(c) (UnsafeMutableRawPointer?, Int) -> Int
-    private typealias AosoraUnload = @convention(c) (Int) -> Int32
-    private typealias AosoraRequest = @convention(c) (Int, UnsafeMutableRawPointer?, UnsafeMutablePointer<Int>?) -> UnsafeMutableRawPointer?
     private typealias KagariLoad = @convention(c) (UnsafeMutableRawPointer?, Int) -> Int32
     private typealias KagariUnload = @convention(c) (Int32) -> Int32
     private typealias KagariRequest = @convention(c) (Int32, UnsafeMutableRawPointer?, UnsafeMutablePointer<Int>?) -> UnsafeMutableRawPointer?
+    private typealias AosoraLoad = @convention(c) (UnsafeMutableRawPointer?, Int) -> Int
+    private typealias AosoraUnload = @convention(c) (Int) -> Int32
+    private typealias AosoraRequest = @convention(c) (Int, UnsafeMutableRawPointer?, UnsafeMutablePointer<Int>?) -> UnsafeMutableRawPointer?
     private typealias LegacyLoad = @convention(c) (UnsafePointer<CChar>?) -> Bool
     private typealias LegacyRequest = @convention(c) (UnsafePointer<UInt8>?, Int, UnsafeMutablePointer<UnsafeMutablePointer<UInt8>?>?, UnsafeMutablePointer<Int>?) -> Bool
     private typealias Load64 = @convention(c) (UnsafeMutableRawPointer?, Int) -> Int32
@@ -74,6 +76,8 @@ final class NativeShioriModule {
                 abi = value
             } else if dlsym(handle, "kagari_request") != nil {
                 abi = .kagari
+            } else if dlsym(handle, "aosora_request") != nil {
+                abi = .aosora
             } else {
                 guard dlsym(handle, "shiori_request") != nil else {
                     throw Self.error("Unprefixed request requires an explicit OurinShioriABI declaration")
@@ -132,26 +136,6 @@ final class NativeShioriModule {
                     loaded = load(input, count) != 0
                 } else { loaded = true }
                 if loaded, let unload = symbol(unloadNames, StandardUnload.self) { performUnload = { _ = unload() } }
-            case .aosora:
-                guard let load = symbol(["aosora_load"], AosoraLoad.self),
-                      let unload = symbol(["aosora_unload"], AosoraUnload.self),
-                      let request = symbol(["aosora_request"], AosoraRequest.self) else {
-                    throw Self.error("Missing aosora_load/aosora_request/aosora_unload")
-                }
-                let pathData = Data(path.utf8)
-                guard let input = Self.owned(pathData) else { throw Self.error("Allocation failed") }
-                let instance = load(input, pathData.count)
-                guard instance > 0 else { throw Self.error("aosora_load failed") }
-                performRequest = { data in
-                    guard let input = Self.owned(data) else { return nil }
-                    var length = data.count
-                    guard let output = request(instance, input, &length) else { return nil }
-                    defer { free(output) }
-                    guard length >= 0, length <= 64 * 1024 * 1024 else { return nil }
-                    return Data(bytes: output, count: length)
-                }
-                performUnload = { _ = unload(instance) }
-                loaded = true
             case .kagari:
                 guard let load = symbol(["kagari_load"], KagariLoad.self),
                       let unload = symbol(["kagari_unload"], KagariUnload.self),
@@ -173,6 +157,29 @@ final class NativeShioriModule {
                     return Data(bytes: output, count: length)
                 }
                 performUnload = { _ = unload(activeID) }
+                loaded = true
+            case .aosora, .yaya:
+                let loadName = abi == .yaya ? "multi_loadu" : "aosora_load"
+                let requestName = abi == .yaya ? "multi_request" : "aosora_request"
+                let unloadName = abi == .yaya ? "multi_unload" : "aosora_unload"
+                guard let load = symbol([loadName], AosoraLoad.self),
+                      let unload = symbol([unloadName], AosoraUnload.self),
+                      let request = symbol([requestName], AosoraRequest.self) else {
+                    throw Self.error("Missing \(loadName)/\(requestName)/\(unloadName)")
+                }
+                let pathData = Data(path.utf8)
+                guard let pathBuffer = Self.owned(pathData) else { throw Self.error("Allocation failed") }
+                let instance = load(pathBuffer, pathData.count)
+                guard instance > 0 else { throw Self.error("\(loadName) failed") }
+                performRequest = { data in
+                    guard let input = Self.owned(data) else { return nil }
+                    var length = data.count
+                    guard let output = request(instance, input, &length) else { return nil }
+                    defer { free(output) }
+                    guard length >= 0, length <= 64 * 1024 * 1024 else { return nil }
+                    return Data(bytes: output, count: length)
+                }
+                performUnload = { _ = unload(instance) }
                 loaded = true
             }
             guard loaded else { throw Self.error("SHIORI load returned false") }

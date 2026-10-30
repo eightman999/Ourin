@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/kanadelab/aosora-shiori",
+  "revision": "b9f6641c58ca4bfdaa775960e4b666c7282339db",
+  "url": "https://codeload.github.com/kanadelab/aosora-shiori/tar.gz/b9f6641c58ca4bfdaa775960e4b666c7282339db",
+  "sha256": "6d3f8c4aedd13c8edbcda3f43fba8cdf9783fee4b656d077af2f73dad435c49f",
+  "license_file": "license.txt",
+  "license_scope": "local-use-only",
+  "dependency": "vendored thirdparty/jsoncpp-1.9.6",
+  "abi": "aosora",
+  "source_patch": "Call Shiori::Unload before erasing a POSIX instance, matching the Windows entrypoint and preserving SaveData::Save."
+}

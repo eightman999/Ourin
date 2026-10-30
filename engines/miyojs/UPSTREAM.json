@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/Narazaka/miyojs",
+  "revision": "bb82273539ed557b1afd499e60798dfbec1c252a",
+  "package": "miyojs",
+  "version": "2.0.3",
+  "url": "https://registry.npmjs.org/miyojs/-/miyojs-2.0.3.tgz",
+  "sha256": "efc4f3578bd2761c20a5ae2c095f82b0763fb30f389e3ec4e7e230f72b846572",
+  "license": "MIT (source/package declaration; see upstream Readme.ja.md)",
+  "transport": "SHIOLINK UTF-8",
+  "package_lock_sha256": "999636b3c24fa7d54a1bd426c13c9b7ea4c8e983d59c33ecc0fdc45416962388",
+  "yaml_compatibility": "js-yaml 3.14.2 provides upstream safeLoad API; selected exactly in package-lock.json"
+}

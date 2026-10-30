@@ -27,6 +27,7 @@ struct ContentView: View {
     enum Section: String, CaseIterable, Identifiable {
         case general = "General"
         case shioriResource = "SHIORI Resource"
+        case plugins = "プラグインを探す・管理"
         case pluginsEvents = "Plugins & Events"
         case external = "External"
         case headline = "Headline / Balloon"
@@ -77,6 +78,8 @@ struct ContentView: View {
             GeneralSettingsView()
         case .shioriResource:
             ShioriResourceView()
+        case .plugins:
+            PluginBrowserView()
         case .pluginsEvents:
             PluginEventView()
         case .external:

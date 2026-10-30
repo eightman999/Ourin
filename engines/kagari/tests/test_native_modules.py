@@ -55,6 +55,9 @@ free(input); const char *text = "SAORI/1.0 200 OK\\r\\nResult: fixture\\r\\n\\r\
                 (root / 'child').mkdir(parents=True)
                 (root / 'tag.txt').write_text(str(index))
                 (root / 'snippet.lua').write_text('return 42')
+                (root / 'saori/fixture').mkdir(parents=True)
+                import shutil
+                shutil.copy2(native_library, root / 'saori/fixture/fixture.dylib')
                 state = lua.luaL_newstate(); states.append(state)
                 lua.luaL_openlibs(state)
                 lib.ourin_kagari_preload_modules(state, str(root).encode())
@@ -87,6 +90,28 @@ free(input); const char *text = "SAORI/1.0 200 OK\\r\\nResult: fixture\\r\\n\\r\
                 assert(module:request('EXECUTE SAORI/1.0\\r\\n\\r\\n'):find('503'))
             ''')
             run(states[0], r'''
+                local module = require('saori_universal.native')('saori\\fixture\\fixture.dll')
+                assert(module:load(require('luachild').currentdir()))
+                assert(module:request('EXECUTE SAORI/1.0\r\n\r\n'):find('Result: fixture'))
+                assert(module:unload())
+            ''')
+            run(states[0], r'''
+                -- Legacy ghost wrappers omit internal_allocator; that must not
+                -- crash configure(). Exercise a real worker and a Linda queue.
+                local core = require('lanes.core')
+                core.configure{nb_keepers=1, shutdown_timeout=0.25,
+                               with_timers=false, track_lanes=false, verbose_errors=false}
+                local queue = core.linda()
+                assert(queue:send('answer', 42))
+                local key, value = queue:receive(0, 'answer')
+                assert(key == 'answer' and value == 42)
+                local worker = core.lane_new(function(n)
+                    local f = assert(io.open('tag.txt')); local tag = f:read('*a'); f:close()
+                    assert(require('lua-utf8').len('桜鈴') == 2)
+                    return n * 2, tag
+                end, '*', nil, nil, nil, nil, nil, 21)
+                local answer, tag = worker:join(5)
+                assert(answer == 42 and tag == '0')
                 local utf = require('lua-utf8'); assert(utf.len('桜鈴') == 2)
                 local iconv = require('iconv')
                 local cp = assert(iconv.new('CP932', 'UTF-8')):iconv('桜鈴')
@@ -94,6 +119,7 @@ free(input); const char *text = "SAORI/1.0 200 OK\\r\\nResult: fixture\\r\\n\\r\
                 local no, err = assert(iconv.new('UTF-8', 'UTF-8')):iconv(string.char(255))
                 assert(no == nil and err == 2)
                 local socket = require('socket.core'); assert(type(socket.gettime()) == 'number')
+                assert(require('mime.core').b64('hello') == 'aGVsbG8=')
                 local lpeg = require('lpeg'); assert(lpeg.match(lpeg.P('hello'), 'hello') == 6)
                 assert(type(require('clipboard').set) == 'function') -- no live clipboard write
                 local rand = require('rand.native'); local a, b = rand(123), rand(123)
@@ -140,7 +166,7 @@ return 'SHIORI/3.0 200 OK\\r\\nValue: '..text..'\\r\\n\\r\\n' end}'''
         bad = Path(tmp) / 'invalid'; bad.mkdir(); (bad / 'index.lua').write_text('error("expected")')
         assert api.load(bad) < 0
         assert os.getcwd() == before
-    print(json.dumps({'status':'pass','checks':['two_lua_roots','two_kagari_instances','host_cwd_unchanged','child_spawn_cwd','relative_io','native_modules','native_saori_abi','missing_saori','load_failure_cwd']}))
+    print(json.dumps({'status':'pass','checks':['two_lua_roots','two_kagari_instances','host_cwd_unchanged','child_spawn_cwd','relative_io','native_modules','lanes_legacy_settings_and_worker','native_saori_abi','missing_saori','load_failure_cwd']}))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

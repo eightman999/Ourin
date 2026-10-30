@@ -48,6 +48,7 @@ struct CharacterView: View {
 
     /// The ViewModel that provides the character image.
     @ObservedObject var viewModel: CharacterViewModel
+    @StateObject private var compositionCache = SurfaceCompositionCache()
     /// Scope ID used by drag-and-drop SHIORI references.
     var scopeID: Int = 0
     /// Optional callback for handling drag and drop events
@@ -85,7 +86,7 @@ struct CharacterView: View {
         let foregroundOverlays = overlays.filter { $0.zOrder >= 0 }
         let filteredSurface: NSImage? = {
             guard !viewModel.activeFilters.isEmpty else { return nil }
-            guard let composited = SurfaceBlendRenderer.composite(base: processedBase, overlays: overlays) else { return nil }
+            guard let composited = compositionCache.composite(base: processedBase, overlays: overlays) else { return nil }
             return SurfaceVisualEffectRenderer.applying(image: composited, effects: [], filters: viewModel.activeFilters)
         }()
         let needsBitmapComposition = overlays.contains { $0.blendMode != .normal }
@@ -109,7 +110,7 @@ struct CharacterView: View {
             // dress-up parts, or text animations to become visible alone.
             if let baseImage = processedBase {
                 if needsBitmapComposition,
-                   let rendered = filteredSurface ?? SurfaceBlendRenderer.composite(base: baseImage, overlays: overlays) {
+                   let rendered = filteredSurface ?? compositionCache.composite(base: baseImage, overlays: overlays) {
                     Image(nsImage: rendered)
                         .resizable()
                         .frame(width: rendered.size.width, height: rendered.size.height)

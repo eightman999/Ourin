@@ -5,6 +5,8 @@
 **Scope:** Ourin (macOS, Universal 2) で、ゴーストの *YAYA 辞書(.dic)* を **Windows DLL に依存せず**ネイティブ実行するための仕様。  
 **Non‑goals:** Windowsの `yaya.dll` をそのまま読むこと（不可）。dll→dylib変換もしない。
 
+**2026-10-30の追加:** 公式YAYA Tc607-2と、その実エンジンを使うAYA5互換構成を[SHIORIエンジンプラグイン](SHIORI_ENGINE_PLUGINS_ja-jp.md)として追加しました。導入済みの公式エンジンは通常FactoryからNative/XPCへ接続し、未導入時は従来の`yaya_core`経路を使います。`yaya_core`はOurin独自の互換VMであり、公式YAYA最新版そのものとは区別します。以下は既存Adapter・独自VMの設計と記録です。
+
 ---
 
 ## 目次

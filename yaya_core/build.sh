@@ -27,7 +27,7 @@ mkdir -p build
 cd build
 
 # Configure with CMake
-cmake ..
+cmake .. -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0
 
 # Build
 cores=$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 4)

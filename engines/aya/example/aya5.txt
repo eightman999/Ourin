@@ -1,0 +1,5 @@
+charset, Shift_JIS
+charset.output, Shift_JIS
+charset.save, UTF-8
+dic, probe.dic
+save.auto, on

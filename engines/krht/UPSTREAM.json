@@ -1,0 +1,28 @@
+{
+  "krht": {
+    "repository": "https://github.com/kinokon/krht",
+    "revision": "bdfba1fb72e05342b35adbdd9c354c181e6f6729",
+    "url": "https://codeload.github.com/kinokon/krht/tar.gz/bdfba1fb72e05342b35adbdd9c354c181e6f6729",
+    "sha256": "8e8dd92bd59fb16c10bbeb31cd169d8ac9b1faf4aab3c7dc717b6caba592dff2",
+    "license": "No license file or redistribution grant found in the pinned repository",
+    "entry_source": "krht/dllmain.cpp",
+    "upstream_dictionary_examples": []
+  },
+  "tcl": {
+    "version": "9.1.0",
+    "prefix": "/opt/homebrew/opt/tcl-tk",
+    "license_file": "license.terms",
+    "minimum_macos": "11.0 source build target; earlier macOS runtime behavior unverified",
+    "source": "Pinned Tcl source build by default; --existing-tcl retains optional Homebrew mode",
+    "source_build": {
+      "revision": "0c6bad08d91fa2ad51f05a50a41f8c1ea82ce985",
+      "url": "https://codeload.github.com/tcltk/tcl/tar.gz/0c6bad08d91fa2ad51f05a50a41f8c1ea82ce985",
+      "sha256": "e6c1b474a2b299bef58ab20f95528d8489c4481ed82b381ec0f311c2f836c70e",
+      "minimum_macos": "11.0"
+    },
+    "existing_prefix_minimum_macos": "26.0"
+  },
+  "transport": "SHIOLINK UTF-8",
+  "compiled_abi": "local POSIX malloc/free, int32 load/unload, long length",
+  "redistribution": "Not enabled; local opt-in build only"
+}

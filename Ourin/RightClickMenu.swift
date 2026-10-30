@@ -166,14 +166,14 @@ struct RightClickMenu: View {
     @ViewBuilder
     private var pluginSubmenu: some View {
         let entries = AppDelegate.resolve()?.pluginRegistry?.pluginMenuEntries() ?? []
-        if !entries.isEmpty {
-            Menu("プラグイン(P)") {
-                ForEach(entries, id: \.actionIdentifier) { entry in
-                    Button(entry.title) {
-                        ghostManager?.handleMenuAction(entry.actionIdentifier)
-                    }
-                    .disabled(!entry.canDispatchRequests)
+        Menu("プラグイン(P)") {
+            Button("プラグインを探す・管理…") { PluginBrowserWindow.show() }
+            if !entries.isEmpty { Divider() }
+            ForEach(entries, id: \.actionIdentifier) { entry in
+                Button(entry.title) {
+                    ghostManager?.handleMenuAction(entry.actionIdentifier)
                 }
+                .disabled(!entry.canDispatchRequests)
             }
         }
     }

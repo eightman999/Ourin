@@ -112,6 +112,10 @@ extension GhostManager {
     /// Apply dressup configuration for a category
     func applyDressup(category: String, part: String, value: String, scope: Int? = nil) {
         let targetScope = scope ?? currentScope
+        // Standard MAYUNA uses bindgroup -> animation IDs, not a surface PNG binding.
+        if dressupBindGroupsByScope[targetScope]?.values.contains(where: { $0.category == category && $0.part == part }) == true {
+            return // The complete selection is composed once by refreshSerikoDressupBindings.
+        }
         guard let config = dressupConfigurations.first(where: { $0.category == category }) else {
             Log.info("[GhostManager] No dressup config found for category: \(category)")
             return
@@ -343,19 +347,64 @@ extension GhostManager {
         )
     }
 
+    func enabledDressupAnimationIDs(for scope: Int) -> Set<Int> {
+        guard let vm = characterViewModels[scope] else { return [] }
+        var ids: Set<Int> = []
+        for meta in dressupBindGroupsByScope[scope]?.values ?? Dictionary<Int, DressupBindGroupMeta>().values {
+            guard let value = vm.dressupBindings[meta.category]?[meta.part], value != "0" else { continue }
+            ids.insert(meta.bindGroupID)
+            ids.formUnion(meta.additionalAnimationIDs)
+        }
+        return ids
+    }
+
+    /// UKADOC MAYUNA: plain bind composites *all* patterns immediately, ignoring waits.
+    /// This per-scope static composition also survives scope switches and SERIKO loop shutdown.
+    func refreshSerikoDressupBindings(for scope: Int) {
+        guard let vm = characterViewModels[scope] else { return }
+        let enabled = enabledDressupAnimationIDs(for: scope)
+        vm.overlays.removeAll { $0.id.hasPrefix("dressup_seriko_") }
+        guard let definitions = parsedSurfaceDefs[vm.currentSurfaceID]?.animations else { return }
+        for id in enabled.sorted() {
+            guard let definition = definitions[id], definition.interval.components == [.bind] else { continue }
+            for (index, pattern) in definition.patterns.enumerated() {
+                guard pattern.surfaceID >= 0,
+                      let image = loadImage(surfaceId: pattern.surfaceID, scope: scope) else { continue }
+                let mode: SurfaceBlendMode
+                switch pattern.method {
+                case .overlayFast: mode = .overlayFast
+                case .reduce: mode = .reduce
+                case .replace: mode = .replace
+                case .interpolate: mode = .interpolate
+                case .asis: mode = .asis
+                case .blend(let operation, let fast): mode = .blend(operation, destinationAlphaAware: fast)
+                default: mode = .normal
+                }
+                vm.overlays.append(SurfaceOverlay(
+                    id: "dressup_seriko_\(id)_\(index)", image: image,
+                    offset: CGPoint(x: CGFloat(pattern.x), y: CGFloat(pattern.y)), alpha: 1,
+                    zOrder: definition.options.contains("background") ? -100 : 0,
+                    insertionOrder: id * 10000 + index, blendMode: mode
+                ))
+            }
+        }
+    }
+
     func applyDefaultDressupBindings(for scope: Int) {
-        let defaults = dressupMenuEntries(for: scope).filter(\.isDefault)
-        for item in defaults {
-            // 初期状態の反映では差分イベントを発火せず、起動後の
-            // sendInitializationNotifies() から OnNotifyDressupInfo を1回送る。
-            handleBindDressup(
-                category: item.category,
-                part: item.part,
-                value: "true",
-                scope: scope,
-                emitEvents: false,
-                emitInfo: false
-            )
+        let entries = dressupMenuEntries(for: scope)
+        guard characterViewModels[scope] != nil, !entries.isEmpty,
+              !dressupDefaultsAppliedScopes.contains(scope) else { return }
+        dressupDefaultsAppliedScopes.insert(scope)
+        var selected = entries.filter(\.isDefault)
+        // mustselect requires one item even when the shell omits a default flag.
+        for entry in entries where dressupBindOptionsByScope[scope]?[entry.category]?.mustSelect == true {
+            if !selected.contains(where: { $0.category == entry.category }) {
+                selected.append(entry)
+            }
+        }
+        for item in selected {
+            handleBindDressup(category: item.category, part: item.part, value: "true", scope: scope,
+                              emitEvents: false, emitInfo: false)
         }
     }
 

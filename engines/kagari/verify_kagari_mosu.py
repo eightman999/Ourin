@@ -102,8 +102,8 @@ class Kagari:
         # KAGARI owns and frees the supplied path and request buffers.
         return self.lib.kagari_load(self.owned_buffer(raw), len(raw))
 
-    def request(self, instance: int, event: str, refs: dict[int, str] | None = None) -> str:
-        lines = ['GET SHIORI/3.0', 'Charset: UTF-8', 'Sender: OurinCompatibilityProbe',
+    def request(self, instance: int, event: str, refs: dict[int, str] | None = None, method: str = "GET") -> str:
+        lines = [f'{method} SHIORI/3.0', 'Charset: UTF-8', 'Sender: OurinCompatibilityProbe',
                  'SecurityLevel: Local', f'ID: {event}']
         lines.extend(f'Reference{k}: {v}' for k, v in (refs or {}).items())
         raw = ('\r\n'.join(lines) + '\r\n\r\n').encode()
@@ -123,7 +123,8 @@ def response_check(raw: str) -> tuple[bool, str]:
     headers = raw.split('\r\n\r\n', 1)[0].split('\r\n')
     status = headers[0] if headers else ''
     value = next((line[6:].strip() for line in headers[1:] if line.startswith('Value:')), '')
-    return bool(re.fullmatch(r'SHIORI/3\.0 200(?: .*)?', status) and value), value
+    errors = any(line.lower().startswith(('errorlevel:', 'errordescription:')) for line in headers[1:])
+    return bool(re.fullmatch(r'SHIORI/3\.0 200(?: .*)?', status) and value and not errors), value
 
 
 def child_probe(args) -> int:
@@ -142,11 +143,32 @@ def child_probe(args) -> int:
                 result['error'] = 'KAGARI load failed; see child log for missing dependency'
             else:
                 try:
+                    # Mirror baseware startup notifications before lifecycle GETs.
+                    # The real dictionary initializes Interval and its language here.
+                    if args.phase.startswith('ghost-'):
+                        result['initialization'] = []
+                        for event, refs in [('OnInitialize', {}), ('OnLanguageChange', {0: 'Japanese'})]:
+                            raw = api.request(instance, event, refs, method='NOTIFY')
+                            ok = raw.startswith('SHIORI/3.0 204') and 'ErrorLevel:' not in raw
+                            result['initialization'].append({'event': event, 'ok': ok, 'response': raw})
                     events = [('OnBoot', {}), ('OnMouseDoubleClick', {0: '0', 1: '0', 2: '0', 3: '0', 4: ''})]
                     if args.phase == 'ghost-first':
                         events.append(('OnMenu', {0: '1'}))
                     elif args.phase == 'ghost-reload':
                         events.append(('OnMenu', {}))
+                    if args.phase == 'ghost-choice':
+                        # Invoke the original t_Key -> talkRandom dictionary path.
+                        # Do not inject an event or replace its anonymous SAORI talk.
+                        attempts = []
+                        selected = False
+                        for _ in range(128):
+                            raw = api.request(instance, 't_Key', {})
+                            ok, value = response_check(raw)
+                            attempts.append({'ok': ok, 'response': raw})
+                            if ok and re.search(r'文字列[123]が選ばれたよ。', value):
+                                selected = True
+                                break
+                        result['choice'] = {'ok': selected and all(a['ok'] for a in attempts), 'attempts': attempts}
                     events.append(('OnClose', {}))
                     for event, refs in events:
                         raw = api.request(instance, event, refs)
@@ -154,7 +176,7 @@ def child_probe(args) -> int:
                         if event == 'OnMenu':
                             ok = ok and '1分' in value  # 30 -> 60 seconds; retained after reload.
                         result['events'].append({'event': event, 'ok': ok, 'response': raw})
-                    result['ok'] = all(event['ok'] for event in result['events'])
+                    result['ok'] = all(event['ok'] for event in result['events'] + result.get('initialization', [])) and result.get('choice', {'ok': True})['ok']
                 finally:
                     result['unload'] = api.lib.kagari_unload(instance)
                     result['ok'] = result['ok'] and result['unload'] == 1
@@ -189,6 +211,9 @@ def main() -> int:
     parser.add_argument('nar', nargs='?', type=Path, default=NAR_DEFAULT)
     parser.add_argument('--workdir', type=Path)
     parser.add_argument('--lua-include', type=Path)
+    parser.add_argument('--choice-module', type=Path, help='Explicit independently implemented choice.dylib to install into the temporary extracted ghost')
+    parser.add_argument('--stage-legacy-dependencies', action='store_true',
+                        help='Legacy diagnostic mode: compile extra modules into the temporary ghost copy')
     parser.add_argument('--child', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--ghost', type=Path, help=argparse.SUPPRESS)
     parser.add_argument('--phase', help=argparse.SUPPRESS)
@@ -219,7 +244,18 @@ def main() -> int:
                     raise ValueError('unsafe NAR path')
             archive.extractall(base)
         lua_inc = args.lua_include or args.library.parents[2] / 'deps/kagari/lua-5.4.4/src'
-        summary['dependencies'] = stage_dependencies(work, master, lua_inc.resolve())
+        if args.stage_legacy_dependencies:
+            summary['dependencies'] = stage_dependencies(work, master, lua_inc.resolve())
+        else:
+            summary['dependencies'] = {'mode': 'bundled-only', 'ghost_modules_added': False}
+        original_files = {str(p.relative_to(master)): digest(p) for p in master.rglob('*') if p.is_file()}
+        if args.choice_module:
+            destination = master / 'saori/choice/choice.dylib'
+            if destination.exists():
+                raise RuntimeError('NAR already contains a choice.dylib; refusing replacement')
+            shutil.copy2(args.choice_module, destination)
+            summary['choice_module'] = {'path': str(args.choice_module.resolve()), 'sha256': digest(destination),
+                                       'implementation': 'Ourin independent documented-operation compatibility implementation'}
         summary['checks']['mosu'] = run_probe(args.library, master, 'ghost-first', work)
         save = master / 'kagari_save.lua'
         summary['checks']['save'] = {'ok': save.is_file() and save.stat().st_size > 0}
@@ -227,7 +263,15 @@ def main() -> int:
             summary['checks']['save']['sha256'] = digest(save)
         if summary['checks']['mosu']['ok'] and summary['checks']['save']['ok']:
             summary['checks']['reload'] = run_probe(args.library, master, 'ghost-reload', work)
-        return 0 if all(c['ok'] for c in summary['checks'].values()) else 2
+        if args.choice_module:
+            summary['checks']['choice'] = run_probe(args.library, master, 'ghost-choice', work)
+            choice_log = (work / 'ghost-choice.log').read_text()
+            summary['checks']['choice']['no_load_warning'] = 'SAORI error(load): choice' not in choice_log
+            summary['checks']['choice']['ok'] &= summary['checks']['choice']['no_load_warning']
+        else:
+            summary['checks']['choice'] = {'ok': False, 'reason': 'choice macOS module not installed; lifecycle success alone is incomplete'}
+        summary['original_ghost_files_unchanged'] = all(digest(master / path) == sha for path, sha in original_files.items())
+        return 0 if all(c['ok'] for c in summary['checks'].values()) and summary['original_ghost_files_unchanged'] else 2
     except Exception as exc:
         summary['error'] = f'{type(exc).__name__}: {exc}'
         print(summary['error'], flush=True)

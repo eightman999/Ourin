@@ -5,6 +5,9 @@
 /graphify-out
 /Samples
 /build/release/
+/build/release-*/
+/build/shiori-release-*/
+/build/release-probes/
 
 # 旧同梱ゴースト（テストfixture用にローカルのみ保持）
 /emily4/
@@ -12,6 +15,12 @@
 /build/release/
 /Installer/.build/
 /Installer/.swiftpm/
+
+# Locally built SHIORI engines and verified upstream caches
+/build/engines/
+/build/deps/
+/build/engine-plugins/
+/engines/**/__pycache__/
 
 # Reproducible native SHIORI build cache and Python checks
 /build/engines/
@@ -22,6 +31,7 @@
 
 /engines/kagari/__pycache__/
 /yaya_core/tests/__pycache__/
+/satori_core/tests/__pycache__/
 
 # Private converted third-party packages and local Python bytecode
 /build/plugin-ports/

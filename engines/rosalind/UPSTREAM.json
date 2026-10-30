@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/as-is-prog/rosalind",
+  "revision": "d173e38c9f508649057799beb35578a7d808a4d9",
+  "url": "https://codeload.github.com/as-is-prog/rosalind/tar.gz/d173e38c9f508649057799beb35578a7d808a4d9",
+  "sha256": "6bf9867128ec732ae2edeee7ab1e3e2b47c080a2e6f89e820f09a93b00869ded",
+  "license": "MIT",
+  "license_file": "LICENSE",
+  "sdk": "10.0.401",
+  "target_framework": "net10.0",
+  "transport": "SHIOLINK"
+}

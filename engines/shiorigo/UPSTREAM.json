@@ -1,0 +1,28 @@
+{
+  "shiorigo": {
+    "repository": "https://github.com/Narazaka/shiorigo",
+    "revision": "9e4d270a4b2856304bd5ed91e1dd4757cde780e8",
+    "url": "https://codeload.github.com/Narazaka/shiorigo/tar.gz/9e4d270a4b2856304bd5ed91e1dd4757cde780e8",
+    "sha256": "1545903a85841d4ce27284861b23918d9814710a34278c13a12a30100d99c28a",
+    "license": "MIT",
+    "license_declaration": "Readme.md",
+    "license_reference": "http://narazaka.net/license/MIT?2016"
+  },
+  "gohst": {
+    "repository": "https://github.com/kurousada/gohst",
+    "revision": "6401a0c38d1162deee8c2384fa3f39d09e0c864b",
+    "url": "https://codeload.github.com/kurousada/gohst/tar.gz/6401a0c38d1162deee8c2384fa3f39d09e0c864b",
+    "sha256": "867c77c5375d36b9bd5cca846c80088c545fbedbe1f31b98e2006743e774106b",
+    "license": "MIT for code; excludes shell artwork",
+    "license_file": "LICENSE.md",
+    "compiled_path": "internal/requesthandlers/requesthandlers.go"
+  },
+  "go": {
+    "version": "go1.27.2",
+    "license": "BSD-3-Clause",
+    "license_file": "GOROOT/LICENSE",
+    "source": "Existing local Go installation; no compiler is installed by this build"
+  },
+  "transport": "SHIOLINK UTF-8",
+  "other_external_go_dependencies": []
+}

@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/Narazaka/cshiori",
+  "revision": "4aaf9df77cc55401feb1a1beb742048e0de541c0",
+  "url": "https://codeload.github.com/Narazaka/cshiori/tar.gz/4aaf9df77cc55401feb1a1beb742048e0de541c0",
+  "sha256": "4f9a2040403d24ddb699b6bf39d77eb8cb3155b8b5f8ad81482134fd0281e18f",
+  "license": "Zlib",
+  "license_file": "LICENSE",
+  "transport": "SHIOLINK",
+  "example_charset": "Shift_JIS",
+  "portability_patch": "Rename private getline function to cshiori_getline to avoid macOS stdio getline collision. Preserve the upstream CP932 example bytes.",
+  "example_ownership_patch": "SHIOLINK entrypoint copies the upstream sample borrowed response strings before the framework destructor frees them. The event source remains byte-identical."
+}

@@ -83,8 +83,8 @@ enum ZipUtil {
     /// 同じ正規化先に複数のファイルがある曖昧なアーカイブは上書きせず拒否する。
     static func normalizeWindowsPaths(at root: URL) throws {
         let fm = FileManager.default
-        // Resolve the nearest existing ancestor first. Foundation can return
-        // /var for an existing URL but /private/var for a not-yet-created child.
+        // Resolve the nearest existing ancestor so /var and /private/var aliases
+        // also agree for destinations which have not been created yet.
         func resolvedPath(_ url: URL) -> String {
             var ancestor = url.standardizedFileURL
             var suffix: [String] = []
@@ -97,58 +97,83 @@ enum ZipUtil {
             return resolved.path
         }
         let canonicalRoot = root.resolvingSymlinksInPath()
-        let boundary = resolvedPath(canonicalRoot)
-        let keys: Set<URLResourceKey> = [.isDirectoryKey, .isSymbolicLinkKey]
+        let rootPath = resolvedPath(canonicalRoot)
+        let keys: Set<URLResourceKey> = [.isDirectoryKey, .isSymbolicLinkKey, .isRegularFileKey, .fileSizeKey]
 
         func merge(_ source: URL, into target: URL) throws {
-            guard isWithinRoot(resolvedPath(source), root: boundary),
-                  isWithinRoot(resolvedPath(target), root: boundary) else {
-                throw NarInstaller.Error.zipSlipDetected(target.path)
-            }
             let sourceValues = try source.resourceValues(forKeys: keys)
-            guard sourceValues.isSymbolicLink != true else {
-                throw NarInstaller.Error.zipSlipDetected(source.path)
+            guard sourceValues.isSymbolicLink != true,
+                  isWithinRoot(resolvedPath(source), root: rootPath),
+                  isWithinRoot(resolvedPath(target), root: rootPath),
+                  resolvedPath(target) != rootPath else {
+                throw NarInstaller.Error.zipSlipDetected(target.path)
             }
             if let targetValues = try? target.resourceValues(forKeys: keys) {
                 guard targetValues.isSymbolicLink != true else {
                     throw NarInstaller.Error.zipSlipDetected(target.path)
                 }
                 guard sourceValues.isDirectory == true, targetValues.isDirectory == true else {
-                    throw NarInstaller.Error.unzipFailed("Conflicting normalized ZIP path: \(target.lastPathComponent)")
+                    throw NarInstaller.Error.unzipFailed("Conflicting Windows archive paths: \(target.lastPathComponent)")
                 }
-                for child in try fm.contentsOfDirectory(at: source, includingPropertiesForKeys: Array(keys)) {
+                for child in try fm.contentsOfDirectory(at: source, includingPropertiesForKeys: nil) {
                     try merge(child, into: target.appendingPathComponent(child.lastPathComponent))
                 }
-                try fm.removeItem(at: source) // The merged source directory is now empty.
+                try fm.removeItem(at: source) // the merged source directory is now empty
             } else {
                 try fm.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
                 try fm.moveItem(at: source, to: target)
             }
         }
 
-        func normalize(_ directory: URL) throws {
+        func walk(_ directory: URL) throws {
             let entries = try fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: Array(keys))
-                .sorted { $0.lastPathComponent < $1.lastPathComponent }
-            for entry in entries where entry.lastPathComponent.contains("\\") {
-                let normalized = entry.lastPathComponent.replacingOccurrences(of: "\\", with: "/")
-                // Windows writers may prefix relative paths with .\ or repeat
-                // separators. These still refer to the same in-root directory.
-                let pathParts = normalized.split(separator: "/").filter { $0 != "." }
-                guard !normalized.hasPrefix("/"), !pathParts.isEmpty,
-                      pathParts.allSatisfy({ $0 != ".." && !$0.contains(":") }) else {
-                    throw NarInstaller.Error.zipSlipDetected(entry.path)
+                .sorted { $0.lastPathComponent.count < $1.lastPathComponent.count }
+            for source in entries where source.lastPathComponent.contains("\\") {
+                let normalized = source.lastPathComponent.replacingOccurrences(of: "\\", with: "/")
+                let parts = normalized.split(separator: "/").filter { $0 != "." }
+                // Some Windows NARs include a single, empty root-directory marker.
+                if parts.isEmpty {
+                    let values = try source.resourceValues(forKeys: keys)
+                    let emptyDirectory: Bool
+                    if values.isDirectory == true { emptyDirectory = try fm.contentsOfDirectory(atPath: source.path).isEmpty }
+                    else { emptyDirectory = false }
+                    // ditto represents some DOS directory markers as empty regular files.
+                    let emptyFile = values.isRegularFile == true && values.fileSize == 0
+                    guard values.isSymbolicLink != true, emptyDirectory || emptyFile else {
+                        throw NarInstaller.Error.zipSlipDetected(source.path)
+                    }
+                    try fm.removeItem(at: source)
+                    continue
                 }
-                try merge(entry, into: directory.appendingPathComponent(pathParts.joined(separator: "/")))
+                guard !normalized.hasPrefix("/"), !parts.contains(".."),
+                      parts.allSatisfy({ !$0.contains(":") }), !normalized.contains("\0") else {
+                    throw NarInstaller.Error.zipSlipDetected(source.path)
+                }
+                let target = directory.appendingPathComponent(parts.joined(separator: "/"))
+                if normalized.hasSuffix("/") {
+                    let values = try source.resourceValues(forKeys: keys)
+                    if values.isDirectory != true {
+                        guard values.isSymbolicLink != true, values.isRegularFile == true, values.fileSize == 0 else {
+                            throw NarInstaller.Error.unzipFailed("Invalid Windows directory marker")
+                        }
+                        // DOS directory attributes can be lost by ditto for backslash names.
+                        try fm.removeItem(at: source)
+                        try fm.createDirectory(at: source, withIntermediateDirectories: false)
+                    }
+                }
+                try merge(source, into: target)
             }
-            // Re-enumerate after moves, visiting each real directory once.
             for child in try fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: Array(keys)) {
                 let values = try child.resourceValues(forKeys: keys)
-                if values.isDirectory == true && values.isSymbolicLink != true {
-                    try normalize(child)
+                if values.isDirectory == true, values.isSymbolicLink != true {
+                    guard isWithinRoot(resolvedPath(child), root: rootPath) else {
+                        throw NarInstaller.Error.zipSlipDetected(child.path)
+                    }
+                    try walk(child)
                 }
             }
         }
-        try normalize(canonicalRoot)
+        try walk(canonicalRoot)
     }
 
     /// 展開した NAR の中身のルート。直下に install.txt が無く、隠しファイル（`.nar_icon` など）と

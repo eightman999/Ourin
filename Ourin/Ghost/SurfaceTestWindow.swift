@@ -273,7 +273,7 @@ extension GhostManager {
             surfaceTable: surfaceTable,
             definitionIDs: Set(parsedSurfaceDefs.keys),
             imageIDs: imageIDs,
-            nameAliases: surfaceNameAliases
+            nameAliases: surfaceAliasCandidatesByScope[currentScope]?.compactMapValues { $0.first } ?? surfaceNameAliases
         )
     }
 

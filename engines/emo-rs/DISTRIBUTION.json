@@ -1,0 +1,7 @@
+{
+  "repository": "https://github.com/ekicyou/emo-gs",
+  "revision": "6722ba895f1aa1e7d5f37c2a72a14ec56861a257",
+  "url": "https://raw.githubusercontent.com/ekicyou/emo-gs/6722ba895f1aa1e7d5f37c2a72a14ec56861a257/ghost/emo-gs.nar",
+  "sha256": "9048182947acbdb917baf5a389bfd75118a7e587deecaca5863956757904b3d9",
+  "note": "Local opt-in test fixture; original Lua/framework/shell/descriptor bytes preserved. No automatic redistribution."
+}

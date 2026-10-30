@@ -713,7 +713,26 @@ public enum SerikoParser {
             tail = String(tail.dropFirst(".append".count))
         }
         let parts = tail.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-        return parts.compactMap { Int($0) }
+        var included: Set<Int> = [], excluded: Set<Int> = []
+        let rangePattern = try? NSRegularExpression(pattern: #"^(-?\d+)\s*-\s*(-?\d+)$"#)
+        for raw in parts {
+            let excluding = raw.hasPrefix("!")
+            let token = excluding ? String(raw.dropFirst()).trimmingCharacters(in: .whitespaces) : raw
+            var ids: Set<Int> = []
+            if let id = Int(token) {
+                ids.insert(id)
+            } else if let match = rangePattern?.firstMatch(in: token, range: NSRange(token.startIndex..., in: token)),
+                      let lowRange = Range(match.range(at: 1), in: token),
+                      let highRange = Range(match.range(at: 2), in: token),
+                      let first = Int(token[lowRange]), let last = Int(token[highRange]) {
+                let lower = min(first, last), upper = max(first, last)
+                let distance = upper.subtractingReportingOverflow(lower)
+                guard !distance.overflow, distance.partialValue <= 100_000 else { continue }
+                ids.formUnion(lower...upper)
+            }
+            if excluding { excluded.formUnion(ids) } else { included.formUnion(ids) }
+        }
+        return included.subtracting(excluded).sorted()
     }
 
     private static func parseElementLine(_ line: String) -> SerikoElement? {
@@ -833,6 +852,39 @@ public enum SerikoParser {
                     result[key] = id
                 }
             }
+        }
+        return result
+    }
+
+    /// SSP aliases belong to a character scope and may contain weighted candidates.
+    public static func parseScopedSurfaceAliases(_ content: String) -> [Int: [String: [Int]]] {
+        var result: [Int: [String: [Int]]] = [:]
+        var pendingScope: Int?, scope: Int?
+        for raw in content.components(separatedBy: .newlines) {
+            let line = stripComment(from: raw).trimmingCharacters(in: .whitespacesAndNewlines)
+            if line.isEmpty { continue }
+            let header = line.hasSuffix("{") ? String(line.dropLast()).trimmingCharacters(in: .whitespaces) : line
+            if header.hasSuffix(".surface.alias") {
+                let prefix = String(header.dropLast(".surface.alias".count)).lowercased()
+                let id: Int?
+                if prefix == "sakura" { id = 0 }
+                else if prefix == "kero" { id = 1 }
+                else if prefix.hasPrefix("char"), let number = Int(prefix.dropFirst(4)), number >= 0 { id = number }
+                else { id = nil }
+                pendingScope = id; scope = line.hasSuffix("{") ? id : nil
+                continue
+            }
+            if line == "{" { scope = pendingScope; pendingScope = nil; continue }
+            if line == "}" { scope = nil; pendingScope = nil; continue }
+            pendingScope = nil
+            guard let scope, let comma = line.firstIndex(of: ",") else { continue }
+            let key = line[..<comma].trimmingCharacters(in: .whitespaces).lowercased()
+            let value = line[line.index(after: comma)...].trimmingCharacters(in: .whitespaces)
+            let inner = value.hasPrefix("[") && value.hasSuffix("]") ? String(value.dropFirst().dropLast()) : value
+            let parts = inner.split(separator: ",", omittingEmptySubsequences: false)
+            let ids = parts.compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+            guard !key.isEmpty, !ids.isEmpty, ids.count == parts.count else { continue }
+            result[scope, default: [:]][key] = ids
         }
         return result
     }

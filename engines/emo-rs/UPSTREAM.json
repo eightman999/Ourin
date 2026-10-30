@@ -1,0 +1,14 @@
+{
+  "emo": {
+    "revision": "a8275d842846a58a05867f84bd3700971370a65f",
+    "url": "https://codeload.github.com/ekicyou/emo-rs/tar.gz/a8275d842846a58a05867f84bd3700971370a65f",
+    "sha256": "186ceca2c433b05e06537621b8b2ee09a830fac776d8eafffb4a388604d66d52",
+    "license": "MIT"
+  },
+  "shiori3": {
+    "version": "0.5.0",
+    "url": "https://static.crates.io/crates/shiori3/shiori3-0.5.0.crate",
+    "sha256": "25c08bfe49daeb105d5b03c4814d80cd2417ce2cd395bbab3e5b2619e6674227",
+    "license": "MIT"
+  }
+}

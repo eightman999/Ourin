@@ -1478,10 +1478,17 @@ final class ShioriDispatcher {
     /// 既存コードとの互換用。新規コードは useRuntime(_:) を使う。
     func useYaya(_ adapter: YayaAdapter?) { self.shioriRuntime = adapter }
 
+    private func requestHeaders(security: ShioriSecurityContext) -> [String: String] {
+        var headers = security.shioriHeaders()
+        let flags = ghostManager?.shioriStatusFlags() ?? []
+        if !flags.isEmpty { headers["Status"] = flags.joined(separator: ",") }
+        return headers
+    }
+
     /// ゴースト辞書エントリの生スクリプトを GET で取得する（SSP `SPGhost::GetScript` 互換）。
     /// 取得できない場合・空の場合は nil を返す。
     func fetchDictionaryEntry(_ entryName: String) -> String? {
-        let headers = ["Charset": "UTF-8", "Sender": "Ourin", "SecurityLevel": "local"]
+        let headers = requestHeaders(security: .local)
         let response: YayaResponse?
         if let runtime = shioriRuntime {
             response = runtime.request(method: "GET", id: entryName, headers: headers, refs: [], timeout: 2.0)
@@ -1554,7 +1561,7 @@ final class ShioriDispatcher {
         let refs = orderedRefs(from: params)
         var script: String = ""
 
-        let hdrs = security.shioriHeaders()
+        let hdrs = requestHeaders(security: security)
         if let runtime = shioriRuntime {
             if let res = runtime.request(method: "NOTIFY", id: id.rawValue, headers: hdrs, refs: refs, timeout: 2.0), res.ok, let val = res.value {
                 script = val
@@ -1579,7 +1586,7 @@ final class ShioriDispatcher {
         let refs = orderedRefs(from: params)
         var script: String = ""
 
-        let hdrs = security.shioriHeaders()
+        let hdrs = requestHeaders(security: security)
         if let runtime = shioriRuntime {
             if let res = runtime.request(method: "NOTIFY", id: eventName, headers: hdrs, refs: refs, timeout: 2.0), res.ok, let val = res.value {
                 script = val
@@ -1604,7 +1611,7 @@ final class ShioriDispatcher {
     func sendGetCustom(eventName: String, params: [String:String], security: ShioriSecurityContext = .local) -> String {
         let req = buildRequest(method: "GET", id: eventName, params: params)
         let refs = orderedRefs(from: params)
-        let hdrs = security.shioriHeaders()
+        let hdrs = requestHeaders(security: security)
         var res = ""
         if let runtime = shioriRuntime {
             if let r = runtime.request(method: "GET", id: eventName, headers: hdrs, refs: refs, timeout: 3.0), r.ok, let val = r.value {
@@ -1621,7 +1628,7 @@ final class ShioriDispatcher {
     func sendGet(id: EventID, params: [String:String], security: ShioriSecurityContext = .local) -> String {
         let req = buildRequest(method: "GET", id: id.rawValue, params: params)
         let refs = orderedRefs(from: params)
-        let hdrs = security.shioriHeaders()
+        let hdrs = requestHeaders(security: security)
         var res = ""
         if let runtime = shioriRuntime {
             if let r = runtime.request(method: "GET", id: id.rawValue, headers: hdrs, refs: refs, timeout: 3.0), r.ok, let val = r.value {

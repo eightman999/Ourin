@@ -66,6 +66,7 @@ final class SatoriAdapter: GhostShioriRuntime {
 
     @discardableResult
     private func launchHelper() -> Bool {
+        stopStandardErrorMonitoring()
         process = Process()
         inputPipe = Pipe()
         outputPipe = Pipe()
@@ -75,21 +76,40 @@ final class SatoriAdapter: GhostShioriRuntime {
         process.standardOutput = outputPipe
         process.standardError = errorPipe
 
-        errorPipe.fileHandleForReading.readabilityHandler = { handle in
-            let data = handle.availableData
-            guard let text = String(data: data, encoding: .utf8), !text.isEmpty else { return }
-            if Log.verbose {
-                NSLog("[satori_core stderr] %@", text.trimmingCharacters(in: .whitespacesAndNewlines))
-            }
-        }
+        Self.monitorStandardError(errorPipe.fileHandleForReading)
 
         do {
             try process.run()
             return true
         } catch {
+            stopStandardErrorMonitoring()
             NSLog("[SatoriAdapter] Failed to launch satori_core: %@", error.localizedDescription)
             return false
         }
+    }
+
+    /// EOF remains readable until the dispatch source is cancelled. Leaving the
+    /// handler installed spins a CPU core for every helper that has exited.
+    static func monitorStandardError(_ handle: FileHandle) {
+        handle.readabilityHandler = { handle in
+            do {
+                guard let data = try handle.read(upToCount: 65_536), !data.isEmpty else {
+                    handle.readabilityHandler = nil
+                    return
+                }
+                if Log.verbose, let text = String(data: data, encoding: .utf8), !text.isEmpty {
+                    NSLog("[satori_core stderr] %@", text.trimmingCharacters(in: .whitespacesAndNewlines))
+                }
+            } catch {
+                handle.readabilityHandler = nil
+            }
+        }
+    }
+
+    private func stopStandardErrorMonitoring() {
+        let handle = errorPipe.fileHandleForReading
+        handle.readabilityHandler = nil
+        try? handle.close()
     }
 
     @discardableResult
@@ -169,14 +189,13 @@ final class SatoriAdapter: GhostShioriRuntime {
                 #endif
             }
         }
-        inputPipe.fileHandleForWriting.closeFile()
-        outputPipe.fileHandleForReading.closeFile()
-        errorPipe.fileHandleForReading.closeFile()
+        stopStandardErrorMonitoring()
+        try? inputPipe.fileHandleForWriting.close()
+        try? outputPipe.fileHandleForReading.close()
     }
 
     deinit {
         unload()
-        errorPipe.fileHandleForReading.readabilityHandler = nil
     }
 
     private func send(_ request: SatoriRequest) throws {
@@ -222,6 +241,7 @@ final class SatoriAdapter: GhostShioriRuntime {
 
     private func forceTerminate() {
         isLoaded = false
+        stopStandardErrorMonitoring()
         guard process.isRunning else { return }
         process.terminate()
         usleep(200_000)

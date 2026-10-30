@@ -1,6 +1,6 @@
 # SHIORIランタイム互換性マトリクス
 
-**更新日:** 2026-10-25
+**更新日:** 2026-10-30
 **位置付け:** SHIORIランタイム選択・ロード・障害隔離の正本。仕様語彙はUKADOC SHIORI/3.0およびghost `descript.txt`に従う。
 
 ## 状態定義
@@ -21,7 +21,35 @@
 | Native XPC | 既定。`OURIN_SHIORI_ISOLATION_MODE=inprocess`でのみ無効 | 済 | 実fixtureの別PID往復 | 未 | 済 | 接続単位session、load/request/unload、5秒watchdog |
 | SHIORI 2.x | Native backendを互換ラッパーで変換 | 済 | 済 | 未 | backend依存 | `Shiori2CompatBackend`を使用 |
 
-## 2026-10-25 開発版での追加検証
+## 2026-10-30 開発版のSHIORIエンジンプラグイン
+
+追加エンジンは、実行環境を含む **`.plugin`** として導入する。Finderで1項目として選択でき、ZIPの展開は不要。YAYA・里々・KAGARIの既存内蔵経路は維持する。以下は開発中の作業ツリーの結果であり、配布中のアプリへの収録状況はリリースノートで確認する。
+
+**生成済み22パッケージは、実行用17と開発用サンプル5。** 外部公開は行っていない。通常のSHIORIエンジンと、PLUGINイベントAPI用プラグインは別に扱う。
+
+| パッケージ | 接続・実行環境 | 今回の成果物・制限 |
+|---|---|---|
+| 公式YAYA Tc607-2 | Native / XPC、C longのmulti-instance ABI | Universal2・macOS13以降。導入時は`yaya.dll`を公式エンジンへ、未導入時は既存の独自互換VMへ接続 |
+| AYA5互換（公式YAYA Tc607-2） | Native / XPC、`aya.dll` / `aya5.dll` | Universal2・macOS13以降。AYA5設定名探索とCP932往復。原本AYA5やAYA1〜4の実装ではない |
+| なし栞 1.0.4-alpha系（macOS移植） | SHIOLINK、1ゴースト1子process | Universal2・macOS13以降。許諾済みmainの実interpreter、`ghost.json` / `nashi_save.json`。版応答1.0.0は上流のまま |
+| 華和梨（KAWARI） | Native / XPC | Universal2。実エンジン、保存・再ロード。GUIで導入・割当・自動選択復帰・ダブルクリックを確認 |
+| Aosora | Native / XPC、instance-ID ABI | Universal2。終了時保存のPOSIX境界を修正。ローカル個人利用用 |
+| aktk / dktrtk / krht | SHIOLINK、mruby / AngelScript / Tcl同梱 | arm64。追加言語runtimeのインストール不要 |
+| emo-rs / emo-rs-lua54 | Native / XPC、LuaJIT / Lua 5.4 | arm64。`emo.dll`はLua 5.4版を自動選択、LuaJIT版は明示割当 |
+| D.N.Proxy / Kanahebi / Rosalind | SHIOLINK、.NETと依存同梱 | arm64、今回のBrotli依存によりmacOS 26.0以降 |
+| MiyoJS / SanaJK | SHIOLINK、Node.js同梱 | arm64、macOS 13.5以降 |
+| Sana / phiori | SHIOLINK、Ruby / Python同梱 | arm64、今回のruntimeはmacOS 26.0以降 |
+| cshiori / shioridll-nim / shiorigo / csaori / lib_skeleton | コンパイル済み開発用サンプル | 任意のWindowsゴースト向けには自動選択しない。NimのみUniversal2、他はarm64 |
+
+今回の関連6suiteは **46 test PASS、skip 0**。実行用17パッケージすべてで、実際の`.plugin`導入から通常Factory、要求、終了、再ロードを確認した。新3種はGUI導入と実キャラクターのダブルクリックから期待応答・スクリプト再生tokenまで確認。バルーン文字画像そのものは別途取得していない。公式YAYA上流の未改変smokeはarm64/Rosetta各110項目、なし栞上流のbehaviorは81項目が成功。Intel実機・最低OS実機・全第三者ゴースト・任意SAORIの網羅検証は未実施。
+
+ゴースト自身のmacOSモジュールと明示的な`SHIOLINK.ourin.ini`を優先し、曖昧な自動選択は行わない。Ourin側での割当・解除は元ゴーストの辞書や`descript.txt`を書き換えない。許諾未確認のものを再配布可能とは扱わない。
+
+導入・生成・利用条件は[SHIORIエンジンプラグイン](SHIORI_ENGINE_PLUGINS_ja-jp.md)、最新の検証は[追加3種の記録](SHIORI_ADDITIONS_2026-10-30.md)、以前の19パッケージの検証は[初期プラグイン記録](SHIORI_PLUGIN_VERIFICATION_2026-10-29.md)を参照。
+
+## 2026-10-25 開発版での追加検証（当時の記録）
+
+以下は初期の同梱方式とその時点の検証記録。現在の追加プラグイン方式・GUI確認は前節を参照する。
 
 公開版 v0.0.1.21 には以下の新しい同梱エンジン・SHIOLINK拡張は含まれない。
 

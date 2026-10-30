@@ -1,0 +1,14 @@
+_load:
+  filters: [miyo_require_filters, restore]
+  argument:
+    miyo_require_filters: [./probe.js]
+_unload:
+  filters: save
+version: "2.0.3"
+name: MiyoJS
+OnTest: ""
+OnBoot:
+  filters: counter
+OnMouseDoubleClick:
+  filters: echo
+OnClose: '\h\s[0]MiyoJS終了。\e'

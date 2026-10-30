@@ -1,0 +1,27 @@
+{
+  "aktk": {
+    "repository": "https://github.com/kinokon/aktk",
+    "revision": "64db7ffe61908ad4ac53dcfb76f98b829fdcd84a",
+    "url": "https://codeload.github.com/kinokon/aktk/tar.gz/64db7ffe61908ad4ac53dcfb76f98b829fdcd84a",
+    "sha256": "603f7d8305dd2a424398f98561f95d397cde1996072094d88beb7fd51505ddab",
+    "entry_source": "aktk/dllmain.cpp",
+    "license": "No license or redistribution grant found in pinned repository",
+    "upstream_dictionary_examples": []
+  },
+  "mruby": {
+    "repository": "https://github.com/mruby/mruby",
+    "version": "3.4.0",
+    "revision": "a309524d0bc90eef077a24634db2495a6f68e318",
+    "url": "https://codeload.github.com/mruby/mruby/tar.gz/refs/tags/3.4.0",
+    "sha256": "183711c7a26d932b5342e64860d16953f1cc6518d07b2c30a02937fb362563f8",
+    "license_file": "LICENSE",
+    "legal_file": "LEGAL",
+    "gembox": "default (only core mrbgems shipped in fixed archive)"
+  },
+  "build_tools": {
+    "ruby": "Existing local Ruby 4.0.7; no installation",
+    "rake": "Existing local Rake 13.3.1; no gem download"
+  },
+  "transport": "SHIOLINK UTF-8",
+  "redistribution": "Not enabled; optional local build only"
+}

@@ -1,10 +1,10 @@
 # SHIOLINK external process transport
 
-[日本語](SHIOLINK_ja-jp.md) · Updated: 2026-10-25
+[日本語](SHIOLINK_ja-jp.md) · Updated: 2026-10-30
 
 [User guide](https://furinlab.com/ourin/guide/) · [Published documentation](https://furinlab.com/ourin/docs/) · [Support and compatibility](https://furinlab.com/ourin/compatibility/)
 
-The Ourin development build routes `shiori,SHIOLINK.dll` to an external SHIOLINK process. It does not load a Windows DLL. Supply a macOS runtime such as Node.js or Ruby and a SHIOLINK-speaking engine separately. This does not guarantee compatibility with every MiyoJS dictionary.
+The Ourin development build routes `shiori,SHIOLINK.dll` to an external SHIOLINK process. [SHIORI engine plugins (Japanese)](SHIORI_ENGINE_PLUGINS_ja-jp.md) include the engine and its required runtime. Installing a matching `.plugin` does not require a separate Node.js, Ruby, Python or .NET installation. The following sections describe manual configuration for a runtime you supply yourself. This does not execute Windows DLLs or guarantee compatibility with every MiyoJS dictionary.
 
 ## Configuration
 
@@ -21,7 +21,7 @@ charmode=UTF-8
 
 This configuration was verified against the actual npm `miyojs@2.0.3` package. `bin/miyo-shiolink.js` is its shipped entry point; the next argument, `./dic`, selects the dictionary directory.
 
-`arguments` is a JSON string array. Adjust the Node path, script and dictionary directory to your installation. Ourin does not install runtimes or npm packages automatically.
+`arguments` is a JSON string array. Adjust the Node path, script and dictionary directory to your installation. Manual configuration does not install runtimes or npm packages automatically.
 
 The shared `commandline` format also accepts quoted arguments:
 
@@ -35,19 +35,33 @@ Execution uses `Process.executableURL` and `arguments`, without an implicit shel
 
 The child inherits Ourin's execution privileges. This transport adds no separate sandbox or automatic SAORI forwarding.
 
+## Keeping the original module name
+
+An optional `module=phiori.dll` entry in `SHIOLINK.ourin.ini` selects a port for that exact DLL basename, ignoring case. This lets `descript.txt` retain its Windows module name. Put the configuration beside that module, including when it lives in a relative subdirectory. This entry is rejected in the shared `SHIOLINK.INI`; unrelated module names retain their normal runtime selection.
+
+Automatic selection of a matching installed plugin does not require a manual `module` entry.
+
 ## Communication and failure handling
 
 - Ourin sends `*L:directory`, followed by a `version` request and waits for its response. SHIOLINK has no dedicated load acknowledgment; this verifies communication, not the validity of every dictionary.
 - Each request checks a unique `*S:identifier` echo before sending the SHIORI message. GET and NOTIFY use the same transport.
 - After `*U:`, Ourin waits briefly for clean exit, then sends TERM and KILL if necessary and reaps its direct child.
-- Initialization defaults to five seconds. Requests use the caller's timeout, capped at 60 seconds. A single deadline covers writes, synchronization and reads. Invalid echo, EOF, malformed response, timeout, or a request/response over 1 MiB closes the session. There is no automatic restart; reloading the ghost reconnects.
+- Manual initialization defaults to five seconds. Plugin startup has a separate configured deadline: 30 seconds for the current script/.NET packages and 60 seconds for phiori. Requests use the caller's timeout, capped at 60 seconds. A single deadline covers writes, synchronization and reads. Invalid echo, EOF, malformed response, timeout, or a request/response over 1 MiB closes the session. There is no automatic restart; reloading the ghost reconnects.
 - `charmode` supports UTF-8 (default) and Shift_JIS. UTF-16/32 cannot use the byte-oriented line framing and are rejected. Unencodable outgoing characters fail the operation. stderr is discarded rather than accumulated.
 
 SHIORIPROXY, Rishu's dedicated proxy protocol and Windows DLL execution are outside this feature. Engines remain responsible for descendant processes they launch.
 
+Successful SHIORI/2.x responses select the existing legacy compatibility codec. Subsequent events are converted to Event fields and Sentence is normalized to the internal Value. Unknown events return 204; NOTIFY 200 responses are also normalized to 204. An explicit `communication.version=SHIORI/2.x` applies from the initial request. The normal 2.x wire uses Shift_JIS; forced UTF-8 also updates the outgoing Charset header. Unload resets compatibility state and the existing 3.x UTF-8 path is preserved. This is verified with Kanahebi's unchanged 2.2 sample, not a guarantee for every legacy engine.
+
+## Nashi plugin processes and persistence
+
+`nashi.plugin` is selected for `nashi.dll`, `ghost.json` or `nashi.json` and starts one SHIOLINK child process per ghost. Loading one ghost does not overwrite another ghost's dictionary or variables in a shared VM. It reads the upstream dictionary format and saves to `nashi_save.json`. Both a normal `*U:` and EOF during an incomplete request follow the upstream unload/save path. Saving is not guaranteed after forced termination.
+
+This macOS port uses the licensed official main source, from the 1.0.4-alpha line. It preserves the upstream version response `1.0.0`. It does not run Windows SAORI or the Nashi Studio editing GUI. See the [additions and verification record (Japanese)](SHIORI_ADDITIONS_2026-10-30.md).
+
 ## Validation
 
-`ShiolinkTests` launches a real C fixture to check Unicode round trips, GET/NOTIFY, the load directory, unload, synchronization errors, hangs, excessive output, EOF, child cleanup and configuration precedence. Compatibility testing with real MiyoJS ghosts remains separate.
+`ShiolinkTests` launches a real C fixture to check Unicode round trips, GET/NOTIFY, the load directory, unload, synchronization errors, hangs, excessive output, EOF, child cleanup and configuration precedence. `NashiEngineTests` and `engines/nashi/verify.py` cover Nashi's concurrent processes, saving and reloading. Compatibility testing with distributed ghosts remains separate.
 
 ## Primary references
 
@@ -90,3 +104,5 @@ python3 scripts/verify_external_shiori.py miyo "$miyo_master"
 The final command checks actual-adapter LOAD, OnBoot, OnClose, UNLOAD, and child reaping. Keep the generated `package-lock.json`; running `npm ci --ignore-scripts --no-audit --no-fund` inside that master directory reproduces its resolved dependencies.
 
 See the [Rishu guide](RISHU_en-us.md) for its separate TCP transport.
+
+Translation: Codex. Japanese/English content comparison: 2026-10-30. Consult the individual verification reports for execution results.

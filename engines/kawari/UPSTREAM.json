@@ -1,0 +1,19 @@
+{
+  "kawari": {
+    "repository": "https://github.com/ukatech/kawari",
+    "revision": "4de74aeaf99d372aa660378e1b974ed754283da8",
+    "url": "https://codeload.github.com/ukatech/kawari/tar.gz/4de74aeaf99d372aa660378e1b974ed754283da8",
+    "sha256": "c40fd052b2dd8252e955d44b497e7a0575c65b0f1e6fac10272701d1f05c46d5",
+    "license": "BSD-2-Clause",
+    "license_file": "LICENSE"
+  },
+  "uka_regexp": {
+    "repository": "https://github.com/ukatech/uka_regexp",
+    "revision": "4563e2ea5e2e76f7185d6721da2b34c531fc6b15",
+    "url": "https://codeload.github.com/ukatech/uka_regexp/tar.gz/4563e2ea5e2e76f7185d6721da2b34c531fc6b15",
+    "sha256": "7ff0f0fe4be749b16c27fa51e00208f7acc1c4569e70f99da45ed618d49d54c4",
+    "license": "Unlicense",
+    "license_file": "LICENSE",
+    "upstream_submodule": "build/src/uka_regexp"
+  }
+}

@@ -1,0 +1,11 @@
+# Self-authored regression dictionary for the real upstream KAWARI interpreter.
+=kis
+if $(isexist state.kis) $(load state.kis);
+=end
+System.Callback.OnGET: ${event.${System.Request.ID}}
+System.Callback.OnUnload: $(save state.kis persist.value)
+event.OnBoot: \0桜鈴・華和梨起動\e
+event.OnEcho: ${System.Request.Reference0}
+event.OnSet: $(set persist.value ${System.Request.Reference0})saved
+event.OnRead: ${persist.value}
+event.OnClose: \0華和梨終了\-

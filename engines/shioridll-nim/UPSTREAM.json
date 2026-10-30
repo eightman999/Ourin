@@ -1,0 +1,24 @@
+{
+  "shioridll": {
+    "repository": "https://github.com/Narazaka/shioridll-nim",
+    "revision": "9bb220712818ce709d9eeb69c1a9d1cbd77906a6",
+    "url": "https://codeload.github.com/Narazaka/shioridll-nim/tar.gz/9bb220712818ce709d9eeb69c1a9d1cbd77906a6",
+    "sha256": "06a308fa3432bb6a1a0a53285b46836aa83799b27363da8c1d210ee9eba9dba7",
+    "license": "MIT",
+    "license_declaration": "shioridll.nim module documentation and shioridll.nimble",
+    "license_reference": "https://narazaka.net/license/MIT?2017"
+  },
+  "nim": {
+    "version": "2.2.4",
+    "revision": "f7145dd26efeeeb6eeae6fff649db244d81b212d",
+    "url": "https://github.com/nim-lang/nightlies/releases/download/2025-04-22-version-2-2-f7145dd26efeeeb6eeae6fff649db244d81b212d/nim-2.2.4-macosx_arm64.tar.xz",
+    "sha256": "86391e69225feae2c8ea54eadf560307aaf35b9b8f0bf7df40ffa84fceb2ee74",
+    "sha256_origin": "Computed from the official binary archive downloaded for this integration; the linked publisher .sha256 URL returns 404.",
+    "license": "MIT",
+    "license_file": "copying.txt",
+    "platform": "macos-arm64",
+    "install_guide": "https://nim-lang.org/install_unix.html"
+  },
+  "abi": "ukagaka-long",
+  "external_nimble_dependencies": []
+}

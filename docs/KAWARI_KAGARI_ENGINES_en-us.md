@@ -1,6 +1,14 @@
-# Bundled KAWARI / KAGARI engines
+# Installing KAWARI / KAGARI engines
 
-Updated: 2026-10-25. Development build only; these additions are not in public v0.0.1.21.
+Updated: 2026-10-30. Development documentation.
+
+## Current installation
+
+KAWARI is packaged as `kawari.plugin`, including its dependencies, and imported through the SHIORI engine tab in Ourin's plugin manager. KAGARI retains its existing built-in path. The current `engines/package.sh` embeds KAGARI only.
+
+Use `python3 engines/package-plugins.py` to generate additional packages. See `engines/kawari/README.md` for the pinned KAWARI build, [engine plugins (Japanese)](SHIORI_ENGINE_PLUGINS_ja-jp.md) for installation and conditions, and the [current verification record (Japanese)](SHIORI_PLUGIN_VERIFICATION_2026-10-29.md).
+
+**The following sections preserve the initial packaging record dated 2026-10-25.** Their build commands, bundled artifacts and pending GUI checks describe that earlier stage.
 
 ## Pinned upstreams
 

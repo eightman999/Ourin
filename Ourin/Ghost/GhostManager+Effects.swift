@@ -113,9 +113,11 @@ extension GhostManager {
             }
 
             var changes: [DressupChange] = []
-            let configuredParts = self.dressupConfigurations
-                .first(where: { $0.category == category })?.parts
-                .map(\.partName) ?? []
+            var configuredParts = self.dressupConfigurations
+                .first(where: { $0.category == category })?.parts.map(\.partName) ?? []
+            for meta in self.dressupMenuEntries(for: targetScope) where meta.category == category {
+                if !configuredParts.contains(meta.part) { configuredParts.append(meta.part) }
+            }
             let bindOptions = self.dressupBindOptionsByScope[targetScope]?[category]
             let requiresSelection = bindOptions?.mustSelect == true
             let allowsMultiple = bindOptions?.allowsMultiple == true
@@ -186,17 +188,17 @@ extension GhostManager {
                     // `multiple` があるカテゴリだけ全パーツを同時に着衣する。
                     // 指定がないカテゴリは、現在の1パーツを維持し、未選択なら
                     // 設定順の先頭だけを選択する（UKADOCの既定値）。
-                    let configParts = self.dressupConfigurations.first(where: { $0.category == category })?.parts ?? []
+                    let configParts = configuredParts
                     if allowsMultiple {
                         for binding in configParts {
-                            enablePart(binding.partName, eventValue: eventValue)
+                            enablePart(binding, eventValue: eventValue)
                         }
                         if configParts.isEmpty {
                             // 設定なしカテゴリでも、従来どおり空パーツを状態として
                             // 保持し、後続のトグル判定を成立させる。
                             enablePart(part, eventValue: eventValue)
                         }
-                    } else if let selectedPart = existingParts.first ?? configParts.first?.partName {
+                    } else if let selectedPart = existingParts.first ?? configParts.first {
                         for existingPart in existingParts where existingPart != selectedPart {
                             disablePart(existingPart)
                         }
@@ -217,6 +219,17 @@ extension GhostManager {
                     }
                     enablePart(part, eventValue: eventValue)
                 }
+            }
+
+            let enabledAnimations = self.enabledDressupAnimationIDs(for: targetScope)
+            vm.overlays.removeAll { overlay in
+                guard let id = overlay.animationID,
+                      self.parsedSurfaceDefs[vm.currentSurfaceID]?.animations[id]?.interval.components.contains(.bind) == true else { return false }
+                return !enabledAnimations.contains(id)
+            }
+            self.refreshSerikoDressupBindings(for: targetScope)
+            if targetScope == self.currentScope {
+                self.serikoExecutor.setEnabledBindAnimationIDs(self.enabledDressupAnimationIDs(for: targetScope))
             }
 
             // SERIKO の bind interval は、SHIORI 通知の有無とは独立した描画イベント。
@@ -383,28 +396,14 @@ extension GhostManager {
             return true
         }
 
-        let baseBalloonDir = ghostURL.appendingPathComponent("balloon", isDirectory: true)
-        let namedBalloonDir = baseBalloonDir.appendingPathComponent(trimmed, isDirectory: true)
-        let descriptCandidates = [
-            namedBalloonDir.appendingPathComponent("descript.txt").path,
-            baseBalloonDir.appendingPathComponent("descript.txt").path
-        ]
-
-        var candidatePaths = descriptCandidates
-        // ゴーストのフォルダに無ければ、インストール済みのバルーン（基準フォルダの balloon/）から探す。
-        if let base = try? OurinPaths.baseDirectory(),
-           let installed = Self.installedBalloonDirectory(
-               matching: trimmed, balloonRoot: base.appendingPathComponent("balloon", isDirectory: true)) {
-            candidatePaths.append(installed.appendingPathComponent("descript.txt").path)
-        }
-
-        for path in candidatePaths {
-            guard let config = BalloonConfig.load(from: path) else { continue }
-            let dirPath = (path as NSString).deletingLastPathComponent
-            balloonConfig = config
-            balloonImageLoader = BalloonImageLoader(balloonPath: dirPath)
-            Log.info("[GhostManager] Switched balloon config to \(config.name)")
-            EventBridge.shared.notify(.OnBalloonChange, refs: ["prevBalloonName": previousBalloon, "newBalloonName": config.name, "phase": "changed"])
+        if let directory = resolveBalloonDirectory(named: trimmed), activateBalloonDirectory(directory) {
+            explicitlySelectedBalloonDirectoryURL = directory
+            rememberBalloonSelection(directory)
+            if let recommended = ghostConfig?.recommendedBalloon,
+               recommended.caseInsensitiveCompare(balloonConfig?.name ?? "") != .orderedSame {
+                Log.info("[GhostManager] Selected balloon differs from recommended balloon: \(recommended)")
+            }
+            EventBridge.shared.notify(.OnBalloonChange, refs: ["prevBalloonName": previousBalloon, "newBalloonName": balloonConfig?.name ?? trimmed, "phase": "changed"])
             NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
             return true
         }

@@ -1,0 +1,39 @@
+// Self-authored fixture; actual official parser/VM executes every branch.
+load
+{
+    if ourin_saved == ""
+    {
+        ourin_saved = "未保存"
+    }
+}
+
+request
+{
+    _crlf = CHR(13) + CHR(10)
+    _lines = SPLIT(_argv[0], _crlf)
+    _id = ""
+    _ref = ""
+    foreach _lines; _line
+    {
+        if SUBSTR(_line, 0, 4) == "ID: " { _id = SUBSTR(_line, 4, STRLEN(_line)) }
+        if SUBSTR(_line, 0, 12) == "Reference0: " { _ref = SUBSTR(_line, 12, STRLEN(_line)) }
+    }
+    _value = ""
+    if _id == "version" { _value = GETSETTING(0) }
+    elseif _id == "name" { _value = GETSETTING(3) }
+    elseif _id == "OnBoot" { _value = "\0桜鈴・公式YAYA起動\e" }
+    elseif _id == "OnEcho" { _value = _ref }
+    elseif _id == "OnSet" { ourin_saved = _ref; _value = "saved" }
+    elseif _id == "OnRead" { _value = ourin_saved }
+    elseif _id == "OnClose" { _value = "\0公式YAYA終了\-" }
+    elseif _id == "OnLatestRegex" { _value = RE_REPLACEEX("2026-10", "([0-9]+)-([0-9]+)", "$2/$1") }
+    if SUBSTR(_lines[0], 0, 6) == "NOTIFY" { _value = "" }
+    if _value == ""
+    {
+        "SHIORI/3.0 204 No Content" + _crlf + "Charset: " + GETSETTING("charset.output") + _crlf + _crlf
+    }
+    else
+    {
+        "SHIORI/3.0 200 OK" + _crlf + "Charset: " + GETSETTING("charset.output") + _crlf + "Value: " + _value + _crlf + _crlf
+    }
+}

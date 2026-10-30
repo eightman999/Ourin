@@ -48,6 +48,7 @@ final class InputMonitor {
         local = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged, .leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .otherMouseDown, .otherMouseUp, .mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged, .scrollWheel]) { [weak self] ev in
             guard let self = self else { return ev }
             self.updatePointerRegion(for: ev)
+            guard Self.shouldDispatchLocalEvent(ev.type, windowIdentifier: ev.window?.identifier?.rawValue) else { return ev }
 
             // Selection mode owns mouse gestures while it is active. The event is
             // still returned to AppKit so normal window tracking remains intact,
@@ -154,7 +155,8 @@ final class InputMonitor {
         }
         global = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved, .scrollWheel]) { [weak self] ev in
             self?.updatePointerRegion(for: ev)
-            self?.dispatch(ev)
+            // Global events belong to another application. They can end a
+            // ghost hover, but are never ghost-local movement or scrolling.
         }
     }
 
@@ -207,6 +209,15 @@ final class InputMonitor {
     }
 
     /// NSEvent を SHIORI イベントへ変換してハンドラに渡す
+    static func shouldDispatchLocalEvent(_ type: NSEvent.EventType, windowIdentifier: String?) -> Bool {
+        switch type {
+        case .keyDown, .keyUp, .flagsChanged: return true
+        default:
+            guard let identifier = windowIdentifier else { return false }
+            return identifier.hasPrefix("GhostCharacterWindow_") || identifier.hasPrefix("GhostBalloonWindow_")
+        }
+    }
+
     private func dispatch(_ ev: NSEvent) {
         // NSEvent の種類に応じてイベント ID を決定
         let id: EventID

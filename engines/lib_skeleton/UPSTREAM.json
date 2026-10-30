@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/Tatakinov/lib_skeleton",
+  "revision": "bc8c65820a10af0fa3015a01dc16a264db845ff0",
+  "url": "https://codeload.github.com/Tatakinov/lib_skeleton/tar.gz/bc8c65820a10af0fa3015a01dc16a264db845ff0",
+  "sha256": "cf673511ecf88e7e2a93fca505143b0d7aa2f9cc28dba2d74ff7a0d222201be7",
+  "license": "MIT",
+  "license_file": "LICENSE",
+  "language": "C++20",
+  "abi": "ukagaka-long",
+  "sample": "Self-authored SHIORI development example; real upstream parser and builder"
+}

@@ -1,0 +1,126 @@
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -43,3 +43,6 @@
+ [profile.release]
+ opt-level = "s"
+ lto = true
++
++[patch.crates-io]
++shiori3 = { path = "third_party/shiori3" }
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -7,3 +7,6 @@
+ mod shiori;
+ mod utils;
+ pub mod windows;
++
++#[cfg(unix)]
++pub mod posix;
+--- a/src/lua_path.rs
++++ b/src/lua_path.rs
+@@ -33,13 +33,17 @@
+     {
+         // luaモジュールのパス解決関数
+         let mut add_path = |root: &str| {
++            #[cfg(unix)]
++            let root = root.replace('\\', "/");
+             let mut add_path = |pre: &str| {
++                #[cfg(unix)]
++                let pre = pre.replace('\\', "/");
+                 if !lua_path.is_empty() {
+                     lua_path.push(';');
+                 }
+                 lua_path.push_str(&load_dir);
+-                lua_path.push_str(root);
+-                lua_path.push_str(pre);
++                lua_path.push_str(&root);
++                lua_path.push_str(&pre);
+                 lua_path.push_str(ext);
+             };
+             add_path("\\?.");
+--- a/src/utils.rs
++++ b/src/utils.rs
+@@ -41,6 +41,8 @@
+ }
+ 
+ pub fn setup_logger<P: AsRef<Path>>(load_dir: P) -> Result<()> {
++    #[cfg(unix)]
++    if log::max_level() != log::LevelFilter::Off { return Ok(()); }
+     let log_file = {
+         let mut p = load_dir.as_ref().to_owned();
+         p.push("profile");
+--- a/src/shiori.rs
++++ b/src/shiori.rs
+@@ -107,7 +107,7 @@
+                     let s = std::str::from_utf8_unchecked(load_dir_bytes);
+                     s.to_owned()
+                 };
+-                func.call::<_, bool>((h_inst, ansi_load_dir))?;
++                if !func.call::<_, bool>((h_inst, ansi_load_dir))? { anyhow::bail!("Lua SHIORI load returned false"); }
+             }
+ 
+             // ##  luaモジュールのロード
+--- a/third_party/shiori3/src/api.rs
++++ b/third_party/shiori3/src/api.rs
+@@ -1,10 +1,12 @@
+ use crate::error::MyError;
++#[cfg(windows)]
+ use crate::hglobal::GStr;
+ 
+ use log::*;
+ use std::borrow::Cow;
+ use std::path::Path;
+ use std::ptr;
++#[cfg(windows)]
+ use winapi::shared::minwindef::{DWORD, HGLOBAL, LPVOID};
+ 
+ pub trait Shiori3: Sized {
+@@ -44,6 +46,9 @@
+     }
+ }
+ 
++#[cfg(windows)]
++mod windows {
++use super::*;
+ /// SHIORI DLL API
+ 
+ #[allow(dead_code)]
+@@ -143,3 +148,7 @@
+         Ok(gres.value())
+     }
+ }
++
++}
++#[cfg(windows)]
++pub use windows::RawShiori3;
+--- a/third_party/shiori3/src/lib.rs
++++ b/third_party/shiori3/src/lib.rs
+@@ -3,10 +3,17 @@
+ mod hglobal;
+ mod parsers;
+ 
++#[cfg(windows)]
+ pub use crate::api::RawShiori3;
+ pub use crate::api::Shiori3;
+ pub use crate::error::MyError as ShioriError;
+ pub use crate::error::MyResult as ShioriResult;
++#[cfg(windows)]
+ pub use crate::hglobal::enc::Encoder;
++#[cfg(windows)]
+ pub use crate::hglobal::enc::Encoding;
++#[cfg(unix)]
++mod posix_encoding;
++#[cfg(unix)]
++pub use posix_encoding::{Encoder, Encoding};
+ pub use crate::parsers::req;
+--- a/script/emo/shiori/main_loop.lua
++++ b/script/emo/shiori/main_loop.lua
+@@ -6,7 +6,7 @@
+ local response  = require "shiori.response"
+ local ser       = require "libs.serpent"
+ local utils     = require "shiori.utils"
+-local cts       = require "shiori.cts"
++local cts       = require "libs.cts"
+ 
+ --データを保存します。エラーは無視します。
+ local function write(path, data)

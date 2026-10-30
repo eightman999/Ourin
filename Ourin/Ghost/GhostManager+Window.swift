@@ -289,11 +289,9 @@ extension GhostManager {
     }
 
     private func appendPluginMenu(to items: inout [OwnerDrawMenuItem]) {
-        guard let registry = AppDelegate.resolve()?.pluginRegistry else { return }
-        let entries = registry.pluginMenuEntries()
-        guard !entries.isEmpty else { return }
-
-        let pluginItems = entries.map { entry in
+        let entries = AppDelegate.resolve()?.pluginRegistry?.pluginMenuEntries() ?? []
+        var pluginItems = [OwnerDrawMenuItem(type: .button(action: "menu_plugin_browser"), caption: "プラグインを探す・管理…")]
+        pluginItems += entries.map { entry in
             var item = OwnerDrawMenuItem(type: .button(action: entry.actionIdentifier), caption: entry.title)
             item.enabled = entry.canDispatchRequests
             return item

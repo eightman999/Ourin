@@ -44,7 +44,13 @@ for product in akari ese-shiori niseshiori shino hisui yuhna misaka; do
     -c release --arch arm64 --arch x86_64 --show-bin-path)"
   cp "$BIN/lib$product.dylib" "$OUT/"
   install_name_tool -id "@rpath/lib$product.dylib" "$OUT/lib$product.dylib"
-  lipo "$OUT/lib$product.dylib" -verify_arch arm64 x86_64
+  engine_architectures="$(lipo -archs "$OUT/lib$product.dylib")"
+  for required_architecture in arm64 x86_64; do
+    case " $engine_architectures " in
+      *" $required_architecture "*) ;;
+      *) printf 'Missing %s in %s\n' "$required_architecture" "$OUT/lib$product.dylib" >&2; exit 1 ;;
+    esac
+  done
   codesign --force --sign - "$OUT/lib$product.dylib"
   python3 - "$OUT/lib$product.dylib.plist" <<'PY'
 import plistlib, sys

@@ -1,0 +1,18 @@
+{
+  "repository": "https://github.com/yanashi-interface/nashi-shiori-studio",
+  "revision": "970146932de3dc6d9212be5a7ba80a9138f13638",
+  "url": "https://codeload.github.com/yanashi-interface/nashi-shiori-studio/tar.gz/970146932de3dc6d9212be5a7ba80a9138f13638",
+  "sha256": "8b83ff6645de89ea338431741bfd935991a9afc05aec24af2ddf91896d730d03",
+  "license": "Nashi License 1.1",
+  "latest_pre_release": "v1.0.4-beta",
+  "pre_release_warning": "Upstream release title says do not use; v1.0.3 recommended for normal use.",
+  "version": "1.0.4-alpha",
+  "source_status": "Archived main includes Nashi License 1.1; stable v1.0.3 archive lacks a license file.",
+  "stable_compatible_core": [
+    "json.cpp",
+    "program.cpp",
+    "interp.cpp",
+    "shiori.cpp"
+  ],
+  "stable_revision": "8197cb5f2028e5e2d5a41db2fc9721f18ea1a955"
+}

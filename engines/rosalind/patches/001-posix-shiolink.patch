@@ -1,0 +1,222 @@
+diff --git a/Rosalind.Common/EncodingTextReader.cs b/Rosalind.Common/EncodingTextReader.cs
+index b93fef3..3d639bd 100644
+--- a/Rosalind.Common/EncodingTextReader.cs
++++ b/Rosalind.Common/EncodingTextReader.cs
+@@ -1,4 +1,4 @@
+-﻿using System;
++using System;
+ using System.Collections.Generic;
+ using System.IO;
+ using System.Linq;
+@@ -20,19 +20,17 @@ namespace Shiorose
+ 
+         public string ReadLine()
+         {
+-            var rawByteList = new List<byte>();
+-            byte[] buffer = new byte[1];
+-
+-            string nl = Environment.NewLine;
+-            int counter = 0;
+-            do
++            var bytes = new List<byte>();
++            while (true)
+             {
+-                _stream.Read(buffer, 0, 1);
+-                rawByteList.Add(buffer[0]);
+-                counter++;
+-            } while ((counter < Environment.NewLine.Length) || !_encoding.GetString(rawByteList.ToArray()).EndsWith(nl));
+-
+-            return _encoding.GetString(rawByteList.GetRange(0, counter - Environment.NewLine.Length).ToArray());
++                int value = _stream.ReadByte();
++                if (value < 0) throw new EndOfStreamException();
++                if (value == 10) break;
++                bytes.Add((byte)value);
++                if (bytes.Count > 1048576) throw new FormatException("SHIOLINK line too large");
++            }
++            if (bytes.Count > 0 && bytes[bytes.Count - 1] == 13) bytes.RemoveAt(bytes.Count - 1);
++            return _encoding.GetString(bytes.ToArray());
+         }
+ 
+         public void Dispose()
+diff --git a/Rosalind.Common/Rosalind.Common.csproj b/Rosalind.Common/Rosalind.Common.csproj
+index cb09814..d987ed3 100644
+--- a/Rosalind.Common/Rosalind.Common.csproj
++++ b/Rosalind.Common/Rosalind.Common.csproj
+@@ -1,7 +1,7 @@
+ <Project Sdk="Microsoft.NET.Sdk">
+ 
+   <PropertyGroup>
+-    <TargetFramework>netstandard2.0</TargetFramework>
++    <TargetFramework>net10.0</TargetFramework>
+     <RootNamespace>Shiorose</RootNamespace>
+     <AssemblyName>Rosalind</AssemblyName>
+     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+@@ -9,7 +9,7 @@
+   </PropertyGroup>
+ 
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+-    <DocumentationFile>C:\Users\as-is-prog\git\Rosalind\Rosalind.Common\Rosalind.xml</DocumentationFile>
++    <DocumentationFile></DocumentationFile>
+   </PropertyGroup>
+ 
+   <ItemGroup>
+diff --git a/Rosalind.Common/Shiolink/Response.cs b/Rosalind.Common/Shiolink/Response.cs
+index 38679b2..132f57f 100644
+--- a/Rosalind.Common/Shiolink/Response.cs
++++ b/Rosalind.Common/Shiolink/Response.cs
+@@ -1,4 +1,4 @@
+-﻿using System;
++using System;
+ using System.Collections.Generic;
+ using System.Linq;
+ using System.Text;
+@@ -61,7 +61,7 @@ namespace Shiorose.Shiolink
+             if (null != Sender) retStr.AppendFormat("{0}{1}\r\n", SENDER_HEADSTR, Sender);
+             if (null != Charset) retStr.AppendFormat("{0}{1}\r\n", CHARSET_HEADSTR, Charset);
+             if (null != Value) retStr.AppendFormat("{0}{1}\r\n", VALUE_HEADSTR, Value);
+-            retStr.AppendLine();
++            retStr.Append("\r\n");
+             return retStr.ToString();
+         }
+     }
+diff --git a/Rosalind.Common/Shiori.cs b/Rosalind.Common/Shiori.cs
+index 30e6b47..2e6266b 100644
+--- a/Rosalind.Common/Shiori.cs
++++ b/Rosalind.Common/Shiori.cs
+@@ -1,75 +1,32 @@
+-﻿#define LOGGING_off
+ using System;
++using System.IO;
+ using System.Text;
+ using System.Threading.Tasks;
+-
+-namespace Shiorose
+-{
+-    /// <summary>
+-    /// SHIORIおよびSHIOLINKプロトコルの処理をするクラス
+-    /// </summary>
+-    public class Shiori
+-    {
+-        /// <summary>
+-        /// デフォルト文字コード
+-        /// </summary>
+-        public static readonly Encoding DEFAULT_CHARSET = Encoding.UTF8;
+-#if LOGGING
+-        public static readonly System.IO.TextWriter logFile = System.IO.File.AppendText("error_log.txt");
+-#endif
+-        internal static async Task Main(string[] args, Func<Shiolink.Load, Task<Rosalind>> loadFunc)
+-        {
+-            // TODO: 設定ファイル(ini)読み込み？
+-            
+-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+-            var firstEncoding = Console.InputEncoding;
+-
+-
+-            var inStream = Console.OpenStandardInput();
+-
+-            var inTextReader = new EncodingTextReader(inStream)
+-            {
+-                Encoding = DEFAULT_CHARSET
+-            };
+-
+-            Shiolink.Load firstLoad = Shiolink.Protocol.Parse(inTextReader) as Shiolink.Load;
+-
+-            inTextReader.Encoding = DEFAULT_CHARSET;
+-            Console.OutputEncoding = DEFAULT_CHARSET;
+-
+-            Rosalind rosa = await loadFunc(firstLoad);
+-
+-            Shiolink.Protocol pr;
+-            do
+-            {
+-                pr = Shiolink.Protocol.Parse(inTextReader);
+-                switch (pr)
+-                {
+-                    case Shiolink.Load load:
+-                        throw new InvalidOperationException("Unexpected second load.");
+-                    case Shiolink.Sync sync:
+-                        Console.WriteLine(sync.SyncStr);
+-                        Shiolink.Request request = Shiolink.Request.Parse(inTextReader);
+-#if LOGGING
+-                        logFile.WriteLine("\\\\ request\r\n\r\n" + request + "\r\n");
+-#endif
+-                        Shiolink.Response res = await rosa.Request(request);
+-                        Console.WriteLine(res);
+-#if LOGGING
+-                        logFile.WriteLine("\\\\ res\r\n\r\n" + res + "\r\n");
+-#endif
+-                        break;
+-                }
+-
+-            } while (pr.GetType() != typeof(Shiolink.Unload));
+-
+-            rosa.Unload(pr as Shiolink.Unload);
+-            inTextReader.Dispose();
+-
+-#if LOGGING
+-            logFile.Close();
+-#endif
+-            return;
+-        }
+-    }
++namespace Shiorose {
++ public class Shiori {
++  public static readonly Encoding DEFAULT_CHARSET = new UTF8Encoding(false);
++  internal static async Task Main(string[] args, Func<Shiolink.Load, Task<Rosalind>> loadFunc) {
++   Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
++   using (var reader = new EncodingTextReader(Console.OpenStandardInput()) { Encoding = DEFAULT_CHARSET }) {
++    Console.OutputEncoding = DEFAULT_CHARSET;
++    Rosalind rosa = null;
++    try {
++     var first = Shiolink.Protocol.Parse(reader) as Shiolink.Load;
++     if (first == null) throw new FormatException("Expected SHIOLINK load");
++     rosa = await loadFunc(first);
++     while (true) {
++      var command = Shiolink.Protocol.Parse(reader);
++      if (command is Shiolink.Unload) break;
++      if (command is Shiolink.Sync sync) {
++       Console.Write(sync.SyncStr + "\r\n"); Console.Out.Flush();
++       var request = Shiolink.Request.Parse(reader);
++       var response = await rosa.Request(request);
++       Console.Write(response.ToString()); Console.Out.Flush();
++      } else throw new FormatException("Unexpected second SHIOLINK load");
++     }
++    } catch (EndOfStreamException) { }
++    finally { if (rosa != null) rosa.Unload(new Shiolink.Unload()); }
++   }
++  }
++ }
+ }
+diff --git a/Rosalind.NET.CSharp/Rosalind.NET.CSharp.csproj b/Rosalind.NET.CSharp/Rosalind.NET.CSharp.csproj
+index 1ab4675..c403953 100644
+--- a/Rosalind.NET.CSharp/Rosalind.NET.CSharp.csproj
++++ b/Rosalind.NET.CSharp/Rosalind.NET.CSharp.csproj
+@@ -2,7 +2,7 @@
+ 
+   <PropertyGroup>
+     <OutputType>Exe</OutputType>
+-    <TargetFramework>net6.0</TargetFramework>
++    <TargetFramework>net10.0</TargetFramework>
+     <ImplicitUsings>enable</ImplicitUsings>
+     <Nullable>enable</Nullable>
+ </PropertyGroup>
+@@ -16,10 +16,6 @@
+   </ItemGroup>
+ 
+   <ItemGroup>
+-    <PackageReference Include="Costura.Fody" Version="5.7.0">
+-      <PrivateAssets>all</PrivateAssets>
+-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+-    </PackageReference>
+     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.2.0" />
+     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
+     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.2.0" />
+@@ -27,7 +23,7 @@
+   </ItemGroup>
+ 
+   <ItemGroup>
+-    <ProjectReference Include="..\Rosalind.Common\Rosalind.Common.csproj" />
++    <ProjectReference Include="../Rosalind.Common/Rosalind.Common.csproj" />
+   </ItemGroup>
+ 
+ </Project>

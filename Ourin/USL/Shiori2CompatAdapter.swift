@@ -203,6 +203,10 @@ private struct Shiori2Response {
 }
 
 enum Shiori2CompatAdapter {
+    static func responseVersion(_ response: String) -> String? {
+        Shiori2Response.parseStatusLine(response)?.version
+    }
+
     private static let shiori2EventIDs: Set<String> = [
         "OnFirstBoot", "OnBoot", "OnClose", "OnWindowStateMinimize", "OnWindowStateRestore", "OnTeachStart",
         "OnGhostChanging", "OnGhostChanged", "OnShellChanging", "OnShellChanged",
@@ -219,11 +223,11 @@ enum Shiori2CompatAdapter {
         "OnMusicPlay", "OnNarCreating", "OnNarCreated", "OnUpdatedataCreating", "OnUpdatedataCreated"
     ]
 
-    static func versionRequest() -> String {
+    static func versionRequest(charset: String = "Shift_JIS") -> String {
         buildWire(firstLine: "GET Version SHIORI/2.0", headers: [
             ("Sender", "Ourin"),
             ("SecurityLevel", "local"),
-            ("Charset", "Shift_JIS")
+            ("Charset", charset)
         ])
     }
 
@@ -259,6 +263,13 @@ enum Shiori2CompatAdapter {
             return nil
         }
         return buildEventRequest(from: request, eventID: id)
+    }
+
+    /// Keep legacy backends' Shift_JIS default while allowing an explicit transport override.
+    static func buildRequest(from request: Shiori2Request, charset: String) -> Shiori2WireRequest? {
+        guard let converted = buildRequest(from: request) else { return nil }
+        return Shiori2WireRequest(wire: converted.wire.replacingOccurrences(
+            of: "Charset: Shift_JIS\r\n", with: "Charset: \(sanitizeHeader(charset))\r\n"))
     }
 
     static func normalizeResponse(_ response: String) -> Shiori2NormalizedResponse {

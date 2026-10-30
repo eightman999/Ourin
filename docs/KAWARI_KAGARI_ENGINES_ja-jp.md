@@ -1,6 +1,14 @@
-# KAWARI / KAGARI 実エンジン同梱
+# KAWARI / KAGARI 実エンジンの導入
 
-更新: 2026-10-25。開発版のビルド・解決規則。互換性マトリクスの実測は別途更新する。
+更新: 2026-10-30。開発版のビルド・解決規則。
+
+## 現在の導入方式
+
+華和梨は実行環境を含む`kawari.plugin`を生成し、「プラグインを探す・管理…」のSHIORIタブから導入する。KAGARIは既存の内蔵経路を維持し、現在の`engines/package.sh`はKAGARIだけをアプリへ同梱する。新規SHIORIをすべて内蔵する方式にはしていない。
+
+`python3 engines/package-plugins.py`で追加パッケージを生成する。KAWARIの固定版・依存は`engines/kawari/README.md`を参照。導入・選択規則・利用条件は[SHIORIエンジンプラグイン](SHIORI_ENGINE_PLUGINS_ja-jp.md)、最新の結果は[対応表](SHIORI_RUNTIME_COMPATIBILITY_MATRIX_ja-jp.md)と[プラグイン検証記録](SHIORI_PLUGIN_VERIFICATION_2026-10-29.md)へ。
+
+**以下は2026-10-25の初期同梱方式の記録。** 当時のビルドコマンド・同梱物・GUI未確認の記述を、現在の導入方式や最新の確認結果として扱わない。
 
 ## 上流の固定版
 

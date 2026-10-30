@@ -1,0 +1,21 @@
+{
+  "repository": "https://github.com/kanadelab/Kanahebi",
+  "revision": "f1fa677ff728ad4b319fad3521675811dd98ed98",
+  "url": "https://codeload.github.com/kanadelab/Kanahebi/tar.gz/f1fa677ff728ad4b319fad3521675811dd98ed98",
+  "sha256": "8692f06576034aebf00c5717848e1c003ffcb111b139d14aeead0e31d6cf30c3",
+  "license": "No project license found; optional local build only",
+  "sdk": "10.0.401",
+  "target_framework": "net10.0",
+  "ironpython": "3.4.2",
+  "upstream_sample_sha256": "0ac275b3868d90da54a45aeba8ec519a028527079d2d89d7fcbe2cf0d7ae46c0",
+  "additional_license_files": [
+    {
+      "path": "licenses/Mono.Unix.LICENSE",
+      "url": "https://raw.githubusercontent.com/mono/mono.posix/58686c26e7f5b6234a87ccd05ca0448015933564/LICENSE",
+      "sha256": "7059ffc1a74528b3d0b1e11ebd9d5cebcf9b3ce8f4ae3491002f60f8ae5bef3a"
+    }
+  ],
+  "upstream_ironpython": "3.4.1",
+  "runtime_update_reason": "IronPython 3.4.1 fails on .NET 9+/10 when emitting ICustomTypeDescriptor implementations (class creation/stdlib import). Official 3.4.2 fixes .NET 9 compatibility.",
+  "runtime_release_url": "https://github.com/IronLanguages/ironpython3/releases/tag/v3.4.2"
+}

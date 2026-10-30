@@ -10,6 +10,7 @@
 # 環境変数:
 #   OURIN_ROOT       ビルド対象のチェックアウト（既定: このスクリプトのリポジトリ）
 #   OUT_DIR          出力先（既定: $OURIN_ROOT/build/release）
+#   RELEASE_DERIVED_DATA_PATH  archive用キャッシュ（既定: $OUT_DIR/DerivedData）
 #   SIGN_IDENTITY    署名 ID（既定: Developer ID Application: EITO HANAWA (ST983BCMDG)）
 #   TEAM_ID          チーム ID（既定: ST983BCMDG）
 #   NOTARY_PROFILE   notarytool の keychain profile（既定: ourin-notary）
@@ -45,6 +46,8 @@ mkdir -p "$OUT_DIR"
 log "archive (Release, universal)"
 xcodebuild -project "$OURIN_ROOT/Ourin.xcodeproj" -scheme Ourin -configuration Release \
     -destination 'generic/platform=macOS' -archivePath "$ARCHIVE" \
+    -derivedDataPath "${RELEASE_DERIVED_DATA_PATH:-$OUT_DIR/DerivedData}" \
+    CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=NO \
     archive > "$OUT_DIR/archive.log" 2>&1 || { tail -40 "$OUT_DIR/archive.log"; exit 1; }
 ditto "$ARCHIVE/Products/Applications/Ourin.app" "$APP"
 

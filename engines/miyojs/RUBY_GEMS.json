@@ -1,0 +1,22 @@
+{
+  "sana": {
+    "version": "0.0.4",
+    "url": "https://rubygems.org/downloads/sana-0.0.4.gem",
+    "sha256": "9cb66813df4b5d3a323e3337ff410e8dbc1962d5134f33623c41bab366d2f440"
+  },
+  "shiolink": {
+    "version": "0.0.2",
+    "url": "https://rubygems.org/downloads/shiolink-0.0.2.gem",
+    "sha256": "74c086c30dcf8fffca2ca96ca2cd8916534a7ab1e934be8885323201493b87e1"
+  },
+  "shioruby": {
+    "version": "0.0.3",
+    "url": "https://rubygems.org/downloads/shioruby-0.0.3.gem",
+    "sha256": "7a158de5e48691447c95cd203bd6a7a3846a3b2bff40867c6018e750ba4bedcc"
+  },
+  "ostruct": {
+    "version": "0.6.3",
+    "url": "https://rubygems.org/downloads/ostruct-0.6.3.gem",
+    "sha256": "95a2ed4a4bd1d190784e666b47b2d3f078e4a9efda2fccf18f84ddc6538ed912"
+  }
+}

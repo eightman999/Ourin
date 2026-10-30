@@ -22,6 +22,58 @@ struct NativeShioriABITests {
         try data.write(to: module.appendingPathExtension("plist"))
     }
 
+    private func yayaFixture(root: URL, failLoad: Bool = false) throws -> URL {
+        let source = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .appendingPathComponent("Fixtures/shiori/yaya_multi_fixture.c")
+        let module = root.appendingPathComponent("yaya-multi.dylib")
+        let compiler = Process()
+        compiler.executableURL = URL(fileURLWithPath: "/usr/bin/clang")
+        compiler.arguments = ["-dynamiclib", "-DOURIN_YAYA_MULTI_FIXTURE", source.path, "-o", module.path]
+            + (failLoad ? ["-DFAIL_LOAD"] : [])
+        try compiler.run(); compiler.waitUntilExit()
+        try #require(compiler.terminationStatus == 0)
+        try declare("yaya", for: module)
+        return module
+    }
+
+    @Test(arguments: [false, true])
+    func officialYayaABIUsesLongInstanceIDsAndKeepsTwoGhostsIndependent(isolated: Bool) throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let firstDirectory = root.appendingPathComponent("最初"), secondDirectory = root.appendingPathComponent("second")
+        try FileManager.default.createDirectory(at: firstDirectory, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: secondDirectory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let module = try yayaFixture(root: root)
+        let first = try #require(ShioriLoader(moduleURL: module, xpcServiceName: isolated ? "jp.ourin.shiori" : nil,
+                                             shiori2Compatibility: false, loadDirectory: firstDirectory))
+        let second = try #require(ShioriLoader(moduleURL: module, xpcServiceName: isolated ? "jp.ourin.shiori" : nil,
+                                              shiori2Compatibility: false, loadDirectory: secondDirectory))
+        defer { first.unload(); second.unload() }
+        let get = "GET SHIORI/3.0\r\nCharset: UTF-8\r\nID: OnBoot\r\n\r\n"
+        let firstResponse = try #require(first.request(get))
+        let secondResponse = try #require(second.request(get))
+        #expect(firstResponse.contains(":1\r\n"))
+        #expect(secondResponse.contains(":1\r\n"))
+        if !isolated { #expect(firstResponse != secondResponse) }
+        #expect(second.request("NOTIFY SHIORI/3.0\r\nID: OnNotify\r\n\r\n")?.contains("204 No Content") == true)
+        first.unload()
+        #expect(FileManager.default.fileExists(atPath: firstDirectory.appendingPathComponent("unloaded.marker").path))
+        #expect(!FileManager.default.fileExists(atPath: secondDirectory.appendingPathComponent("unloaded.marker").path))
+        #expect(second.request(get)?.contains(":2\r\n") == true)
+        second.unload()
+        #expect(FileManager.default.fileExists(atPath: secondDirectory.appendingPathComponent("unloaded.marker").path))
+    }
+
+    @Test(arguments: [false, true])
+    func officialYayaABIDoesNotTreatTheReservedZeroInstanceAsSuccess(isolated: Bool) throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let module = try yayaFixture(root: root, failLoad: true)
+        #expect(ShioriLoader(moduleURL: module, xpcServiceName: isolated ? "jp.ourin.shiori" : nil) == nil)
+        #expect(!FileManager.default.fileExists(atPath: root.appendingPathComponent("unloaded.marker").path))
+    }
+
     @Test(arguments: [false, true], [false, true])
     func standardABIUsesDeclaredWidthAndGhostDirectory(int32: Bool, isolated: Bool) throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

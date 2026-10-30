@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
+if(CMAKE_HOST_APPLE AND NOT CMAKE_OSX_DEPLOYMENT_TARGET)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0" CACHE STRING "Minimum macOS supported by Ourin" FORCE)
+endif()
 project(yaya_core)
 
 set(CMAKE_CXX_STANDARD 17)

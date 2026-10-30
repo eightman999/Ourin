@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "dnutil": {
+        "type": "Project"
+      },
+      "Ukagaka.NET.Interfaces": {
+        "type": "Project"
+      }
+    }
+  }
+}

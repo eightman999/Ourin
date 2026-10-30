@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import Ourin
 
@@ -76,6 +77,20 @@ struct SystemNotificationDataTests {
             "Reference2": "/tmp/ja.lproj",
             "Reference3": ""
         ])
+    }
+
+    @Test(arguments: ["ja_JP", "ja_US"])
+    func japaneseLanguageNameIsStableAcrossDisplayLocales(identifier: String) {
+        let info = SystemNotificationData.currentLanguageInfo(locale: Locale(identifier: identifier))
+        #expect(info.languageName == "Japanese")
+        #expect(info.parameters["Reference0"] == "Japanese")
+        #expect(info.languageID == "ja")
+    }
+
+    @Test
+    func englishLanguageNameMatchesDictionaryLocaleKey() {
+        let info = SystemNotificationData.currentLanguageInfo(locale: Locale(identifier: "en_GB"))
+        #expect(info.languageName == "English")
     }
 
     @Test

@@ -7,10 +7,48 @@ struct ShiolinkConfiguration {
     let arguments: [String]
     let directory: URL
     let charset: String
+    /// Only the Ourin-specific configuration may select a port for an existing DLL name.
+    let moduleOverride: String?
+    var environment: [String: String] = [:]
+    var launchTimeout: TimeInterval? = nil
 
     enum Failure: Error { case missing, invalid, unsupportedCharset, executableMissing }
 
+    static func childEnvironment(overrides: [String: String],
+                                 parent: [String: String] = ProcessInfo.processInfo.environment) -> [String: String] {
+        var values = parent
+        // XCTest injects its bundle into the host app. Engine subprocesses are
+        // independent executables and must not inherit that host instrumentation.
+        if parent.keys.contains(where: { $0.hasPrefix("XCTest") || $0.hasPrefix("XCInject") }) {
+            for key in ["DYLD_INSERT_LIBRARIES", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH",
+                        "XCInjectBundleInto", "XCInjectBundle", "XCTestBundlePath", "XCTestConfigurationFilePath"] {
+                values.removeValue(forKey: key)
+            }
+        }
+        return values.merging(overrides) { _, value in value }
+    }
+
     static func load(context: ShioriRuntimeLoadContext) throws -> Self {
+        do {
+            let explicit = try loadExplicit(context: context)
+            if let selected = explicit.moduleOverride,
+               selected.caseInsensitiveCompare(URL(fileURLWithPath: context.moduleName.replacingOccurrences(of: "\\", with: "/")).lastPathComponent) != .orderedSame {
+                throw Failure.invalid
+            }
+            return explicit
+        }
+        catch {
+            // An explicit Ourin override is authoritative, including its errors.
+            if let directory = ShioriEnginePlugins.dictionaryDirectory(for: context),
+               UkagakaModuleABI.resolveCaseInsensitive("SHIOLINK.ourin.ini", in: directory) != nil {
+                throw error
+            }
+            if let plugin = ShioriEnginePlugins.processConfiguration(context: context) { return plugin }
+            throw error
+        }
+    }
+
+    static func loadExplicit(context: ShioriRuntimeLoadContext) throws -> Self {
         let module = context.moduleName.replacingOccurrences(of: "\\", with: "/")
         guard !module.hasPrefix("/"), !module.split(separator: "/").contains("..") else { throw Failure.invalid }
         let directory = context.ghostRoot.appendingPathComponent(module).deletingLastPathComponent()
@@ -70,7 +108,15 @@ struct ShiolinkConfiguration {
                 ["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin"].map { URL(fileURLWithPath: $0).appendingPathComponent(executableName) }
         }
         guard let executable = candidates.first(where: { FileManager.default.isExecutableFile(atPath: $0.path) }) else { throw Failure.executableMissing }
-        return Self(executable: executable, arguments: arguments, directory: directory, charset: EncodingAdapter.charsetName(for: encoding))
+        let moduleOverride: String?
+        if let selected = values["module"] {
+            guard config.lastPathComponent.caseInsensitiveCompare("SHIOLINK.ourin.ini") == .orderedSame,
+                  !selected.isEmpty, !selected.contains("/"), !selected.contains("\\"),
+                  !selected.contains("\0") else { throw Failure.invalid }
+            moduleOverride = selected
+        } else { moduleOverride = nil }
+        return Self(executable: executable, arguments: arguments, directory: directory,
+                    charset: EncodingAdapter.charsetName(for: encoding), moduleOverride: moduleOverride)
     }
 
     /// Quotes group arguments; shell substitutions/operators are never evaluated.
@@ -116,6 +162,7 @@ final class ShiolinkAdapter: GhostShioriRuntime {
     private var pending = Data()
     private var configuration: ShiolinkConfiguration?
     private var communication = ShioriCommunicationOptions()
+    private var usesShiori2 = false
     private let maximumBytes = 1_048_576
     private let loadTimeout: TimeInterval
     private(set) var lastError: String?
@@ -134,6 +181,7 @@ final class ShiolinkAdapter: GhostShioriRuntime {
             let child = Process(), stdin = Pipe(), stdout = Pipe()
             child.executableURL = config.executable
             child.arguments = config.arguments
+            child.environment = ShiolinkConfiguration.childEnvironment(overrides: config.environment)
             child.currentDirectoryURL = config.directory
             child.standardInput = stdin
             child.standardOutput = stdout
@@ -149,7 +197,7 @@ final class ShiolinkAdapter: GhostShioriRuntime {
             }
             guard fcntl(stdin.fileHandleForWriting.fileDescriptor, F_SETNOSIGPIPE, 1) != -1 else { throw ShiolinkConfiguration.Failure.invalid }
             communication = context.communication
-            let deadline = now + bounded(loadTimeout)
+            let deadline = now + bounded(config.launchTimeout ?? loadTimeout)
             guard write("*L:\(config.directory.path)/\r\n", deadline: deadline),
                   exchange(method: "GET", id: "version", headers: [:], refs: [], deadline: deadline) != nil else {
                 fail("SHIOLINK initialization failed")
@@ -175,13 +223,25 @@ final class ShiolinkAdapter: GhostShioriRuntime {
 
     private func exchange(method: String, id: String, headers: [String: String], refs: [String], deadline: TimeInterval) -> ShioriRuntimeResponse? {
         guard let configuration, process?.isRunning == true else { return nil }
+        let converting = usesShiori2 || communication.version?.uppercased().hasPrefix("SHIORI/2.") == true
+        let charset = communication.forceEncoding ?? (converting ? "Shift_JIS" : communication.encoding ?? configuration.charset)
+        guard let encoding = EncodingAdapter.knownEncoding(for: charset), encoding == .utf8 || encoding == .shiftJIS else { return nil }
+        var wire = ShioriWireCodec.makeRequest(method: method, id: id, headers: headers, refs: refs,
+                                              protocolVersion: converting ? "SHIORI/3.0" : communication.version ?? "SHIORI/3.0", charset: charset)
+        if converting {
+            if id.caseInsensitiveCompare("version") == .orderedSame {
+                wire = Shiori2CompatAdapter.versionRequest(charset: charset)
+            } else {
+                guard let parsed = Shiori2Request.parse(wire),
+                      let converted = Shiori2CompatAdapter.buildRequest(from: parsed, charset: charset) else {
+                    return ShioriWireCodec.parseResponse(Shiori2CompatAdapter.noContentResponse())
+                }
+                wire = converted.wire
+            }
+        }
         let serial = UUID().uuidString
         guard write("*S:\(serial)\r\n", deadline: deadline),
               readLine(deadline: deadline) == Data("*S:\(serial)".utf8) else { return nil }
-        let charset = communication.forceEncoding ?? communication.encoding ?? configuration.charset
-        guard let encoding = EncodingAdapter.knownEncoding(for: charset), encoding == .utf8 || encoding == .shiftJIS else { return nil }
-        let wire = ShioriWireCodec.makeRequest(method: method, id: id, headers: headers, refs: refs,
-                                              protocolVersion: communication.version ?? "SHIORI/3.0", charset: charset)
         guard write(wire, charset: charset, deadline: deadline) else { return nil }
         var response = Data()
         while let line = readLine(deadline: deadline) {
@@ -190,7 +250,16 @@ final class ShiolinkAdapter: GhostShioriRuntime {
             if line.isEmpty {
                 let responseCharset = communication.forceEncoding ?? EncodingAdapter.detectCharset(in: response, default: charset)
                 guard let text = EncodingAdapter.decode(response, charset: responseCharset) else { return nil }
-                return ShioriWireCodec.parseResponse(communication.escapeUnknown ? EncodingAdapter.restoreEscapedUnicode(in: text) : text)
+                let restored = communication.escapeUnknown ? EncodingAdapter.restoreEscapedUnicode(in: text) : text
+                if Shiori2CompatAdapter.responseVersion(restored)?.hasPrefix("SHIORI/2.") == true {
+                    let normalized = Shiori2CompatAdapter.normalizeResponse(restored)
+                    if (200..<300).contains(normalized.status) { usesShiori2 = true }
+                    if method.uppercased() == "NOTIFY", normalized.status == 200 {
+                        return ShioriWireCodec.parseResponse(Shiori2CompatAdapter.noContentResponse())
+                    }
+                    return ShioriWireCodec.parseResponse(normalized.wire)
+                }
+                return ShioriWireCodec.parseResponse(restored)
             }
         }
         return nil
@@ -264,6 +333,7 @@ final class ShiolinkAdapter: GhostShioriRuntime {
 
     private func stop(graceful: Bool) {
         loaded = false
+        usesShiori2 = false
         if let child = process, child.isRunning {
             if graceful { _ = write("*U:\r\n", deadline: now + 0.2) }
             let graceEnd = now + (graceful ? 0.3 : 0)

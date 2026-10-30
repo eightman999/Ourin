@@ -49,6 +49,9 @@ struct OurinApp: App {
                 }
                 .keyboardShortcut(",", modifiers: .command)
             }
+            CommandGroup(after: .appSettings) {
+                Button("プラグインを探す・管理…") { PluginBrowserWindow.show() }
+            }
             CommandGroup(replacing: .appInfo) {
                 Button("About Ourin") {
                     appDelegate.showAboutWindow()
@@ -126,6 +129,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
     /// 本番（SwiftUI）とテスト（AppKit直接delegate）の両構成で同じ実体を返す。
     static func resolve() -> AppDelegate? {
+        guard Thread.isMainThread else {
+            return DispatchQueue.main.sync { resolve() }
+        }
         if let direct = NSApp.delegate as? AppDelegate {
             return direct
         }
@@ -742,8 +748,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
                 for item in installed {
                     self.notifyInstallComplete(for: item.result)
-                    NSLog("[installNar] Running ghost at: \(item.result.target.path)")
-                    self.runGhost(at: item.result.target)
+                    if item.result.manifest.type.lowercased() == "ghost" {
+                        NSLog("[installNar] Running ghost at: \(item.result.target.path)")
+                        self.runGhost(at: item.result.target)
+                    }
                 }
 
                 self.notifyPluginCatalogs()

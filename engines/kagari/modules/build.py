@@ -63,6 +63,8 @@ def main():
         path.mkdir(parents=True, exist_ok=True)
     manifest = json.loads((ROOT/'DEPENDENCIES.json').read_text())
     paths = {item['name']: source(item, args.cache) for item in manifest}
+    subprocess.run(['patch', '-d', str(paths['lanes']), '-p1', '-i',
+                    str(ROOT.parent/'patches/005-lanes-legacy-settings.patch')], check=True)
     posix = paths['luachild']/'luachild_posix.c'
     body = posix.read_text()
     needle = '  ret = posix_spawnp(&proc->pid, p->command, &p->redirect, 0,'
@@ -79,10 +81,12 @@ def main():
     flags = ['-O2' , '-fPIC', '-mmacosx-version-min=13.0', '-arch', args.arch, '-I'+str(args.lua_include)]
     sources = [(paths['luachild']/name, ['-DUSE_POSIX', '-include', 'signal.h']) for name in ('luachild_common.c','luachild_lua_5_3.c','luachild_luajit_2_1.c','luachild_posix.c','luachild_windows.c')]
     sources.append((paths['luautf8']/'lutf8lib.c', ['-Dluaopen_utf8=ourin_luaopen_utf8']))
-    sources.extend((paths['luasocket']/'src'/(name+'.c'), ['-DLUASOCKET_NODEBUG']) for name in ('luasocket','timeout','buffer','io','auxiliar','compat','options','inet','usocket','except','select','tcp','udp'))
+    sources.extend((paths['luasocket']/'src'/(name+'.c'), ['-DLUASOCKET_NODEBUG']) for name in ('luasocket','timeout','buffer','io','auxiliar','compat','options','inet','usocket','except','select','tcp','udp','mime'))
     sources.extend((path, []) for path in sorted(paths['lpeg'].glob('*.c')))
+    sources.extend((path, ['-DNDEBUG']) for path in sorted((paths['lanes']/'src').glob('*.c')))
     for path, extra in sources:
-        subprocess.run([os.environ.get('CC','clang'),'-std=gnu99',*flags,*extra,'-c',str(path),'-o',str(args.objects/(path.stem+'.o'))],check=True)
+        object_name = ('lanes_' if path.parent == paths['lanes']/'src' else '') + path.stem + '.o'
+        subprocess.run([os.environ.get('CC','clang'),'-std=gnu99',*flags,*extra,'-c',str(path),'-o',str(args.objects/object_name)],check=True)
     subprocess.run([os.environ.get('CXX','clang++'),'-std=c++17',*flags,'-c',str(ROOT/'native_modules.cpp'),'-o',str(args.objects/'native_modules.o')],check=True)
     # The original MIT notice is embedded in the POSIX source, not COPYING.txt.
     mit = (paths['luachild']/'luachild_posix.c').read_text().split('*/',1)[0].removeprefix('/*')
@@ -91,6 +95,7 @@ def main():
     shutil.copyfile(paths['luautf8']/'LICENSE',args.output/'LICENSE.luautf8.txt')
     shutil.copyfile(paths['luasocket']/'LICENSE',args.output/'LICENSE.luasocket.txt')
     shutil.copyfile(paths['lpeg']/'lpeg.html',args.output/'LICENSE.lpeg.html')
+    shutil.copyfile(paths['lanes']/'COPYRIGHT',args.output/'LICENSE.lanes.txt')
     shutil.copyfile(ROOT/'DEPENDENCIES.json',args.output/'MODULE_DEPENDENCIES.json')
 
 if __name__ == '__main__':

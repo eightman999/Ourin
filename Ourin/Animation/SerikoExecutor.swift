@@ -40,6 +40,54 @@ public final class SerikoExecutor {
     private let nowProvider: () -> Date
     private let randomProvider: () -> Double
 
+    /// nil preserves standalone/manual event mode; the shell host provides actual MAYUNA state.
+    public private(set) var enabledBindAnimationIDs: Set<Int>?
+    public func setEnabledBindAnimationIDs(_ ids: Set<Int>) {
+        let previous = enabledBindAnimationIDs ?? []
+        enabledBindAnimationIDs = ids
+        for id in ids.subtracting(previous) { triggeredRunonce.remove(id) }
+        for id in previous.subtracting(ids) where activeAnimations[id] != nil { stopAnimation(id: id) }
+    }
+
+    /// Time-driven definitions still need a clock while no pattern is active.
+    public var needsScheduling: Bool {
+        definitions.contains { id, definition in
+            let components = definition.interval.components
+            guard !definition.patterns.isEmpty, !components.contains(.never) else { return false }
+            if components.contains(.bind) {
+                if let enabled = enabledBindAnimationIDs, !enabled.contains(id) { return false }
+                if components == [.bind] { return false }
+            }
+            if components.contains(.runonce), triggeredRunonce.contains(id) { return false }
+            if components.contains(.always), suppressedAlwaysAnimationIDs.contains(id) { return false }
+            return components.contains { component in
+                switch component {
+                case .always, .sometimes, .rarely, .random, .periodic, .runonce: return true
+                default: return false
+                }
+            }
+        }
+    }
+
+    /// A zero-wait first frame supplies a periodic animation's initial resting image.
+    /// Run the initial cycle immediately, then retain normal periodic spacing.
+    public func startInitialPeriodicAnimations() {
+        let now = nowProvider()
+        for id in definitions.keys.sorted() {
+            guard let definition = definitions[id],
+                  definition.interval.components.contains(where: { if case .periodic = $0 { return true }; return false }),
+                  let first = definition.patterns.first, first.duration == 0,
+                  first.durationRange?.upperBound ?? 0 == 0, first.surfaceID >= 0 else { continue }
+            switch first.method {
+            case .overlay, .overlayFast, .add, .bind, .auto, .reduce, .replace, .interpolate, .asis, .blend: break
+            default: continue // Do not eagerly execute control/base/move/import instructions.
+            }
+            if definition.interval.components.contains(.bind), let enabled = enabledBindAnimationIDs, !enabled.contains(id) { continue }
+            lastPeriodicStart[id] = now
+            _ = executeAnimation(id: id)
+        }
+    }
+
     public var onPatternExecuted: ((Int, SerikoPattern) -> Void)?
     public var onAnimationFinished: ((Int, SerikoAnimationFinishReason) -> Void)?
     public var onMethodInvoked: ((Int, SerikoMethod, Int, Int, Int) -> Void)?
@@ -171,8 +219,10 @@ public final class SerikoExecutor {
 
             let count = state.definition.patterns.count
             if state.currentPatternIndex >= count || state.currentPatternIndex < 0 {
-                if state.definition.interval.components.contains(.runonce) {
-                    // runonce: finish immediately
+                if state.definition.interval.components.contains(.runonce)
+                    || (!state.definition.interval.components.contains(.always) && !state.definition.pingPong) {
+                    // Only always (or explicit ping-pong) loops continuously.
+                    // periodic/random/talk complete one cycle, then await their next trigger.
                     finishAnimation(id: id, reason: .completed)
                     continue
                 }
@@ -627,7 +677,14 @@ public final class SerikoExecutor {
                 guard pendingIntervalEvents.contains(.endTalk) else { return false }
                 guard hasStartedTalk else { return false }
             case .bind:
-                guard pendingIntervalEvents.contains(.bind) else { return false }
+                if let enabled = enabledBindAnimationIDs {
+                    guard enabled.contains(animationID) else { return false }
+                    // A plain bind composites every pattern immediately as a static image.
+                    // GhostManager composes these per scope; only combined intervals animate.
+                    guard components.count > 1 else { return false }
+                } else {
+                    guard pendingIntervalEvents.contains(.bind) else { return false }
+                }
             case .never, .unknown, .combined:
                 // パーサーは複合から never を除外済みのため、ここへ到達する never は
                 // 単独指定のみ（= 無効）。combined は平坦化済みなので到達しない。

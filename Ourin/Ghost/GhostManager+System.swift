@@ -1769,8 +1769,10 @@ extension GhostManager: NSWindowDelegate {
                 updateHover(self.choiceButtonIndex(atWindowPoint: alert.window.mouseLocationOutsideOfEventStream, alert: alert))
             }
             
-            // Show dialog
+            // The modal choice belongs to this ghost only while it is displayed.
+            self.activeChoiceAlert = alert
             let response = alert.runModal()
+            self.activeChoiceAlert = nil
             timeoutTimer?.invalidate()
             initialHoverTimer?.invalidate()
             hoverTimer?.invalidate()
@@ -5125,7 +5127,7 @@ extension GhostManager: NSWindowDelegate {
                 ids.formUnion(start...end)
             } else if let id = Int(value) {
                 ids.insert(id)
-            } else if let alias = surfaceNameAliases[value.lowercased()] {
+            } else if let alias = resolveNamedSurfaceAlias(value, scope: scope) {
                 ids.insert(alias)
             }
         }
@@ -6837,7 +6839,10 @@ extension GhostManager: NSWindowDelegate {
             panel.allowsMultipleSelection = false
             if let title = parsed.options["title"] { panel.title = title }
             if let path = parsed.options["dir"] { panel.directoryURL = URL(fileURLWithPath: path) }
-            if panel.runModal() == .OK, let url = panel.url {
+            activeSystemDialogWindow = panel
+            let response = panel.runModal()
+            activeSystemDialogWindow = nil
+            if response == .OK, let url = panel.url {
                 emitSystemDialog(type: type, eventID: eventID, value: url.path)
             } else {
                 emitSystemDialogCancel(type: type, eventID: eventID)
@@ -6847,7 +6852,10 @@ extension GhostManager: NSWindowDelegate {
             if let title = parsed.options["title"] { panel.title = title }
             if let path = parsed.options["dir"] { panel.directoryURL = URL(fileURLWithPath: path) }
             if let name = parsed.options["name"] { panel.nameFieldStringValue = name }
-            if panel.runModal() == .OK, let url = panel.url {
+            activeSystemDialogWindow = panel
+            let response = panel.runModal()
+            activeSystemDialogWindow = nil
+            if response == .OK, let url = panel.url {
                 emitSystemDialog(type: type, eventID: eventID, value: url.path)
             } else {
                 emitSystemDialogCancel(type: type, eventID: eventID)
@@ -6860,6 +6868,11 @@ extension GhostManager: NSWindowDelegate {
                     panel.color = NSColor(red: rgb[0] / 255.0, green: rgb[1] / 255.0, blue: rgb[2] / 255.0, alpha: 1.0)
                 }
             }
+            if let previous = GhostManager.systemColorPanelOwner, previous !== self {
+                previous.utilityWindows.removeValue(forKey: "systemdialog.color")
+            }
+            GhostManager.systemColorPanelOwner = self
+            utilityWindows["systemdialog.color"] = panel
             panel.makeKeyAndOrderFront(nil)
             let rgb = panel.color.usingColorSpace(.deviceRGB) ?? panel.color
             let value = "\(Int(rgb.redComponent * 255)),\(Int(rgb.greenComponent * 255)),\(Int(rgb.blueComponent * 255))"
