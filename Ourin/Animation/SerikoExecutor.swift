@@ -481,6 +481,36 @@ public final class SerikoExecutor {
         executePattern(animationID: id, pattern: pattern)
     }
 
+    /// アクティブなアニメーションが 0 件でも、`startLoop()` の定期評価で自動起動し得る定義があるか。
+    /// ホストはこれが true の間、定期 tick を止めてはならない。止めると、アニメーションが無い間は
+    /// sometimes / rarely / random / periodic / always が評価されず、次の trigger まで抽選されない。
+    /// 対象は always / sometimes / rarely / random,N / periodic,N（未実行の runonce との複合を含む）。
+    /// yen-e / talk / starttalk / endtalk / bind は trigger の直後にホストがタイマーを起こすため含めない。
+    public var needsIntervalEvaluation: Bool {
+        for (id, definition) in definitions where canStartByIntervalTick(animationID: id, definition: definition) {
+            return true
+        }
+        return false
+    }
+
+    private func canStartByIntervalTick(animationID id: Int, definition: SerikoParser.AnimationDefinition) -> Bool {
+        guard !definition.patterns.isEmpty,
+              !suppressedAlwaysAnimationIDs.contains(id) else { return false }
+        var evaluatedByTick = false
+        for component in definition.interval.components {
+            switch component {
+            case .always, .sometimes, .rarely, .random, .periodic:
+                evaluatedByTick = true
+            case .runonce:
+                // 実行済みの runonce は、サーフェス定義を置き換えるまで再び起動しない。
+                guard !triggeredRunonce.contains(id) else { return false }
+            case .yenE, .talk, .talkCharacters, .startTalk, .endTalk, .bind, .never, .unknown, .combined:
+                return false
+            }
+        }
+        return evaluatedByTick
+    }
+
     private func startScheduledAnimations(now: Date) {
         for (id, definition) in definitions {
             guard activeAnimations[id] == nil else { continue }
