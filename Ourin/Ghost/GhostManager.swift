@@ -1341,6 +1341,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
     }
     
+    /// descript.txt の `sakura.name` / `kero.name` を `%selfname` / `%keroname` に反映する。
+    /// OnBoot / OnFirstBoot の応答は OnNotifySelfInfo による保存値の更新より先に展開されるため、
+    /// 保存値（初回は未設定、別ゴーストの後は前回の名前）ではなく、このゴースト自身の名前を先に設定する。
+    /// UserDefaults の共有キーには書き込まない（ゴースト別の値で他ゴーストの保存値を上書きしない）。
+    func applyCharacterNames(from config: GhostConfiguration) {
+        sakuraEngine.envExpander.selfname = config.sakuraName
+        sakuraEngine.envExpander.keroname = config.keroName ?? ""
+    }
+
     func loadDressupConfiguration() {
         dressupConfigurations.removeAll()
         dressupBindGroupsByScope.removeAll()
@@ -1549,9 +1558,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         if let kero = keroName {
             defaults.set(kero, forKey: "OurinKeroName")
         }
-        sakuraEngine.envExpander.selfname = sakuraName
-        if let kero = keroName {
-            sakuraEngine.envExpander.keroname = kero
+        if let config = ghostConfig {
+            // OnNotifySelfInfo は全セッションへ配られるため、他ゴーストの名前で自分の値を上書きしない。
+            applyCharacterNames(from: config)
+        } else {
+            sakuraEngine.envExpander.selfname = sakuraName
+            if let kero = keroName {
+                sakuraEngine.envExpander.keroname = kero
+            }
         }
         Log.debug("[GhostManager] Saved character names - Sakura: \(sakuraName), Kero: \(keroName ?? "none")")
     }
@@ -1669,6 +1683,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             if let config = GhostConfiguration.load(from: ghostRoot) {
                 self.ghostConfig = config
                 self.activeShellName = config.defaultShellDirectory.isEmpty ? "master" : config.defaultShellDirectory
+                // OnBoot / OnFirstBoot の応答の %selfname / %keroname は OnNotifySelfInfo より先に展開される。
+                self.applyCharacterNames(from: config)
                 DispatchQueue.main.async {
                     AppDelegate.resolve()?.recordActiveGhostForCrashRecovery(name: config.name, manager: self)
                 }
