@@ -166,6 +166,70 @@ struct GhostUtilityCommandTests {
     }
 
     @Test @MainActor
+    func switchShellReplacesSurfaceAliasesWithTheNewShellDefinitions() async throws {
+        let root = try TestGhostFixture.makeRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        func writeShell(_ name: String, surfaces: String?) throws {
+            let shell = root.appendingPathComponent("shell/\(name)", isDirectory: true)
+            try FileManager.default.createDirectory(at: shell, withIntermediateDirectories: true)
+            if let surfaces {
+                try surfaces.write(to: shell.appendingPathComponent("surfaces.txt"), atomically: true, encoding: .utf8)
+            }
+        }
+        try writeShell("master", surfaces: "sakura.surface.alias\n{\n35,[55]\nsmile,[5]\n}\n")
+        try writeShell("aliased", surfaces: "sakura.surface.alias\n{\n35,[77]\n}\n")
+        try writeShell("plain", surfaces: nil)
+
+        let manager = GhostManager(ghostURL: root)
+        defer { _ = manager.shutdown() }
+
+        // 別名は updateSurface の冒頭で引くため、その前に現在のシェルの定義から読み込まれている。
+        manager.updateSurface(id: 35)
+        #expect(manager.surfaceAliases == [35: 55])
+        #expect(manager.surfaceNameAliases["smile"] == 5)
+
+        // 別名を持つ別のシェルへ切り替えると、前のシェルの別名は残らない。
+        #expect(manager.switchShell(named: "aliased"))
+        #expect(manager.surfaceAliases == [35: 77])
+        #expect(manager.surfaceNameAliases["smile"] == nil)
+
+        // 別名を持たないシェルへ切り替えると、別名はすべて空になる。
+        #expect(manager.switchShell(named: "plain"))
+        #expect(manager.surfaceAliases.isEmpty)
+        #expect(manager.surfaceNameAliases.isEmpty)
+
+        // 保留中のサーフェス読み込みが終わってから後始末する。
+        try await Task.sleep(nanoseconds: 100_000_000)
+    }
+
+    @Test @MainActor
+    func reloadSurfacesDefinitionPicksUpEditedAliases() async throws {
+        let root = try TestGhostFixture.makeRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let shell = try TestGhostFixture.makeShell(in: root)
+        let surfacesURL = shell.appendingPathComponent("surfaces.txt")
+        try "sakura.surface.alias\n{\n35,[55]\nsmile,[5]\n}\n".write(to: surfacesURL, atomically: true, encoding: .utf8)
+
+        let manager = GhostManager(ghostURL: root)
+        defer { _ = manager.shutdown() }
+        manager.reloadSurfacesDefinition()
+        #expect(manager.surfaceAliases == [35: 55])
+        #expect(manager.surfaceNameAliases["smile"] == 5)
+
+        // alias を書き換えて再読込すると、古い別名は消えて新しい別名だけになる。
+        try "sakura.surface.alias\n{\n40,[66]\n}\n".write(to: surfacesURL, atomically: true, encoding: .utf8)
+        manager.reloadSurfacesDefinition()
+        #expect(manager.surfaceAliases == [40: 66])
+        #expect(manager.surfaceNameAliases["smile"] == nil)
+
+        // 別名の定義をすべて消した場合も、前の別名は残らない。
+        try FileManager.default.removeItem(at: surfacesURL)
+        manager.reloadSurfacesDefinition()
+        #expect(manager.surfaceAliases.isEmpty)
+        #expect(manager.surfaceNameAliases.isEmpty)
+    }
+
+    @Test @MainActor
     func unloadedCharacterWindowRetainsItsCanvasSize() async throws {
         let manager = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-empty-window-size-test"))
         defer { _ = manager.shutdown() }
