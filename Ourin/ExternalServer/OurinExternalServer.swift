@@ -51,13 +51,9 @@ public final class OurinExternalServer {
         self.bridge = bridge
         unified.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
         unifiedCompat.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
-        // XPC が Ourin の Direct SSTP。SAORI/1.0 の要求は内蔵モジュールで処理する。
-        xpc.onRequest = { [weak self] raw in
-            if InternalSaoriRouting.isSaoriRequest(raw) {
-                return String(decoding: InternalSaoriRouting.respond(to: raw), as: UTF8.self)
-            }
-            return self?.handleRaw(raw) ?? ""
-        }
+        // XPC が Ourin の Direct SSTP。SAORI/1.0 の要求は XpcDirectServer が内蔵モジュールで処理し、
+        // 応答を Data のまま返す（Charset が UTF-8 以外でも化けない）。ここへ届くのは SSTP のみ。
+        xpc.onRequest = { [weak self] in self?.handleRaw($0) ?? "" }
         applyRuntimeConfig()
     }
 
