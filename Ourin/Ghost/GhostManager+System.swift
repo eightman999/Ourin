@@ -5973,6 +5973,11 @@ extension GhostManager: NSWindowDelegate {
         case "shell", "balloon", "ghost", "aigraph":
             executeReloadSurface()
         case "shiori":
+            // executeLoad はロード済みだと何もしないため、辞書を読み直すには先にアンロードする。
+            // 未ロード（起動失敗後など）なら OnShioriUnloaded を出さず、そのままロードする。
+            if shioriRuntime != nil {
+                executeUnload(target: target)
+            }
             executeLoad(target: target)
         case "makoto":
             reloadMakotoTranslators()
