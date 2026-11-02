@@ -56,6 +56,35 @@ struct EnvironmentExpanderTests {
     }
 
     @Test
+    func scriptExpansionKeepsEscapedPercentFollowedByVariableName() {
+        let expander = EnvironmentExpander(propertyManager: PropertyManager())
+
+        // \% の直後が変数名でも展開しない（\% 自体は後段のパーサーが % に戻す）
+        #expect(expander.expand(script: "\\%month") == "\\%month")
+        #expect(expander.expand(script: "100\\% complete") == "100\\% complete")
+        #expect(expander.expand(script: "\\%month と \\%day") == "\\%month と \\%day")
+
+        // % そのものの展開は従来どおり
+        let expanded = expander.expand(script: "%month")
+        #expect(expanded != "%month")
+        #expect(Int(expanded) != nil)
+        #expect(expander.expand(script: "%month") == expander.expand(text: "%month"))
+    }
+
+    @Test
+    func scriptExpansionTreatsEscapedBackslashAsOnePair() {
+        let expander = EnvironmentExpander(propertyManager: PropertyManager())
+
+        // \\ の直後の %month は展開される（\\ + \% の並びは \\ を先に読む）
+        let expanded = expander.expand(script: "\\\\%month")
+        #expect(expanded.hasPrefix("\\\\"))
+        #expect(!expanded.contains("%month"))
+        #expect(expander.expand(script: "\\\\\\%month") == "\\\\\\%month")
+        // 後ろに文字が無い末尾の \ はそのまま
+        #expect(expander.expand(script: "abc\\") == "abc\\")
+    }
+
+    @Test
     func percentStarExpandsToCommunicationMarkerCommand() {
         let engine = SakuraScriptEngine()
 
