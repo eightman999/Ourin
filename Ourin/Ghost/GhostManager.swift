@@ -1024,6 +1024,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // Window management (used by Window extension)
     var stickyWindowRelationships: [Int: Set<Int>] = [:] // Master scope -> follower scopes
     var stickyWindowOffsets: [Int: [Int: CGPoint]] = [:] // Master scope -> follower scope -> initial relative origin
+    /// sticky 窓の親窓移動を見る didMove observer（Master scope -> token）。
+    /// `removeObserver(_:name:object:)` はセレクタで区別できず、窓位置の保存・バルーン追従用の
+    /// `characterWindowDidChangeFrame` の購読まで外してしまうため、sticky 用だけをトークンで解除する。
+    var stickyWindowObservers: [Int: NSObjectProtocol] = [:]
     var windowZOrderScopes: [Int]? = nil // Persisted z-order group for windows created later
     var pendingWindowStateReasons: [Int: String] = [:] // Scope -> reason for the next minimize/restore notification
     var serikoScaleFactorsByScope: [Int: [Int: CGPoint]] = [:] // scope -> animationID -> x/y multiplier
@@ -1920,6 +1924,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
         NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
         removeScreenChangeObserver()
+        removeStickyWindowObservers()
         NotificationCenter.default.removeObserver(self)
         if let config = ghostConfig,
            let dispatcher = AppDelegate.resolve()?.pluginDispatcher {
