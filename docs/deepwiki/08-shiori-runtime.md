@@ -349,11 +349,11 @@ XPC サービス側の `ShioriSession` はバイト列をそのままモジュ�
 | XPC 要求のタイムアウト | `[XpcBackend] Request timeout` をログし、接続を invalidate して `nil` |
 | リモートエラー・接続エラー | ログして `nil` |
 
-注意: 要求が失敗しても `NativeShioriRuntime.isLoaded` は `true` のまま残る。XPC 接続を invalidate した後に自動再接続する処理はコード上に無いため、以後の要求は `nil` を返し続けると読める（再ロードはゴースト側の `\![load,shiori]` などに依存。推測）。
+注意: 要求が失敗しても `NativeShioriRuntime.isLoaded` は `true` のまま残る。XPC 接続を invalidate した後に自動再接続する処理はコード上に無いため、以後の要求は `nil` を返し続けると読める（invalidate 済みの `NSXPCConnection` が再利用できないという Foundation の仕様に基づく推測。再ロードするには `\![unload,shiori]` で `shioriRuntime` を捨ててから `\![load,shiori]` を実行する必要がある。`executeLoad` は `shioriRuntime` が残っていると何もしない）。
 
 `ShioriLoaderError` には `openFailed`・`missingRequiredSymbol`・`xpcUnavailable`・`requestTimeout`・`requestFailed` が定義されているが、`XpcBackend` 以外で投げているのは確認できなかった。
 
-**出典:** [Ourin/USL/ShioriLoader.swift:23-44](../../Ourin/USL/ShioriLoader.swift#L23-L44)、[Ourin/USL/ShioriLoader.swift:607-664](../../Ourin/USL/ShioriLoader.swift#L607-L664)、[Ourin/USL/ShioriLoader.swift:688-702](../../Ourin/USL/ShioriLoader.swift#L688-L702)、[Ourin/USL/ShioriRuntimeFactory.swift:166-204](../../Ourin/USL/ShioriRuntimeFactory.swift#L166-L204)
+**出典:** [Ourin/USL/ShioriLoader.swift:23-44](../../Ourin/USL/ShioriLoader.swift#L23-L44)、[Ourin/USL/ShioriLoader.swift:607-664](../../Ourin/USL/ShioriLoader.swift#L607-L664)、[Ourin/USL/ShioriLoader.swift:688-702](../../Ourin/USL/ShioriLoader.swift#L688-L702)、[Ourin/USL/ShioriRuntimeFactory.swift:166-204](../../Ourin/USL/ShioriRuntimeFactory.swift#L166-L204)、[Ourin/Ghost/GhostManager+System.swift:5984-6009](../../Ourin/Ghost/GhostManager+System.swift#L5984-L6009)
 
 ## NativeShioriModule と ABI
 

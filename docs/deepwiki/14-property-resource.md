@@ -302,9 +302,9 @@ sequenceDiagram
 | SSTP `EXECUTE` `SetProperty` / `GetProperty` | `handleExtendedExecuteCommand` が `PropertyManager.shared` を直接読み書き | [Ourin/SSTP/SSTPDispatcher.swift:651-658](../../Ourin/SSTP/SSTPDispatcher.swift#L651-L658) |
 | SSTP `EXECUTE` `GetName` / `GetShellNameList` 等 | `currentghost.name`、`*.index(i).name` を `count` 回読み集める | [Ourin/SSTP/SSTPDispatcher.swift:596-634](../../Ourin/SSTP/SSTPDispatcher.swift#L596-L634)、[Ourin/SSTP/SSTPDispatcher.swift:955-966](../../Ourin/SSTP/SSTPDispatcher.swift#L955-L966) |
 
-`handleExtendedExecuteCommand` は `securityContext` を引数に取らない。外部由来の `EXECUTE SetProperty` を上流で拒否しているかは [10 SSTP スタック](./10-sstp.md) の範囲で、本ページでは未確認。
+`handleExtendedExecuteCommand` は `securityContext` を引数に取らず、`GetFMO` のようにヘッダの `SecurityLevel` を見る分岐も `SetProperty` / `GetProperty` には無い。上流で外部由来を弾くのは、`securityLocalOnly`（引数。無ければ環境変数 `OURIN_SSTP_LOCAL_ONLY=1`）が有効で、リクエストのヘッダが external を申告した（`SecurityOrigin` が非ローカル、または `SecurityLevel: external`）ときに 420 を返す処理だけである。したがって外部受信口から届いてもヘッダで external を申告しない `EXECUTE SetProperty` は、そのまま `PropertyManager.shared.set` に届く（コードの読み取り。実行では確認していない）。受信口ごとの扱いは [10 SSTP スタック](./10-sstp.md) を参照。
 
-**出典:** [Ourin/SSTP/SSTPDispatcher.swift:474-506](../../Ourin/SSTP/SSTPDispatcher.swift#L474-L506)、[Ourin/SSTP/SSTPDispatcher.swift:559-569](../../Ourin/SSTP/SSTPDispatcher.swift#L559-L569)
+**出典:** [Ourin/SSTP/SSTPDispatcher.swift:474-506](../../Ourin/SSTP/SSTPDispatcher.swift#L474-L506)、[Ourin/SSTP/SSTPDispatcher.swift:559-569](../../Ourin/SSTP/SSTPDispatcher.swift#L559-L569)、[Ourin/SSTP/SSTPDispatcher.swift:134-155](../../Ourin/SSTP/SSTPDispatcher.swift#L134-L155)、[Ourin/SSTP/SSTPDispatcher.swift:939-946](../../Ourin/SSTP/SSTPDispatcher.swift#L939-L946)、[Ourin/ExternalServer/OurinExternalServer.swift:83-88](../../Ourin/ExternalServer/OurinExternalServer.swift#L83-L88)
 
 ## ResourceManager（SHIORI Resource の保存と移行）
 
@@ -375,10 +375,10 @@ sequenceDiagram
 
 ## 制約と注意点
 
-- **一覧系の名前指定アクセス**: Provider は `(名前).prop` 形式を解けるが、`PropertyManager.resolveProvider` は `.` 区切りの接頭辞しか照合しない。そのため `ghostlist(Emily).keroname` のようにトップレベルの名前空間へ括弧が直接付くキーは、`ghostlist(Emily)` という接頭辞を探して失敗する（コードの読み取り。`currentghost.shelllist(名)` のように接頭辞の後ろに括弧がある形は解ける）。docs の例 `\![get,property,OnGetSakuraName,ghostlist(Emily/Phase4.5).keroname]` がこの経路で動くかはテストが見当たらず未確認。
+- **一覧系の名前指定アクセス**: Provider は `(名前).prop` 形式を解けるが、`PropertyManager.resolveProvider` は `.` 区切りの接頭辞しか照合しない。そのため `ghostlist(Emily).keroname` のようにトップレベルの名前空間へ括弧が直接付くキーは、`ghostlist(Emily)` という接頭辞を探して失敗する（コードの読み取り。`currentghost.shelllist(名)` のように接頭辞の後ろに括弧がある形は解ける）。docs の例 `\![get,property,OnGetSakuraName,ghostlist(Emily/Phase4.5).keroname]` は、`PropertyManager.get` の経路では `resolveProvider` が接頭辞を見つけられず `nil` になると読める（`get` の前段に括弧を分解する処理は見当たらず、`Phase4.5` の `.` でも分割される。この形を通すテストは見当たらず、実行では確認していない）。
 - **一覧のスナップショット**: `ghostlist` / `balloonlist` / `calendar*list` は `PropertyManager.shared` 初期化時の一覧を保持し、NAR インストール後に作り直す処理はない。`headlinelist` / `pluginlist` も初回参照時に一度だけ構築する。
 - **`history.*` は常に空**、`currentghost.balloon.scope(n).*` は `scaling` 以外は値を返さない（前述）。
-- `valueCache` / `missingValueCache` / 各 Provider の辞書にはロックがない。SSTP のバックグラウンドキューとメインスレッドの双方から呼ばれるため、同時アクセス時の安全性は未確認。
+- `valueCache` / `missingValueCache` / 各 Provider の辞書にはロックがない（ロックを持つのは `LazyPropertyProvider` の初回構築と `RateOfUseStore` だけ）。SSTP のバックグラウンドキューとメインスレッドの双方から呼ばれるため、同時アクセス時の安全性は未確認。
 - `currentghost.shelllist` は `PropertyManager` 登録時に `shells` を渡しておらず、`shells` を後から更新するメソッドも、`currentghost` を再登録する呼び出しもリポジトリ内に見当たらない。したがって本番では `currentghost.shelllist.*` と `shell.*` エイリアスは値を返さないと読める（`SerikoCursorController` は `?? "master"` で補っている。`EXECUTE GetShellName` は `currentghost.shell.name` にフォールバックするがこれも未定義キーで、最終的に空文字を返す）。同様に `scopeData` も空なので、`scope(n).x` / `y` / `rect` / `name` は live getter が扱わない限り `nil` になる。また `EXECUTE GetBalloonName` は表示中バルーンではなく `balloonlist.index(0).name`（インストール済み一覧の先頭）を返す。
 - 注意: `docs/PropertySystem_ja-jp.md` は `manager.expand(text:)` と書くが、実際のシグネチャは `expand(_:)`。また同書は書き込み可能プロパティを `shelllist(...).menu` だけ、`history.*` を将来拡張としているが、コードでは前節の表のとおり SET 可能範囲が広く、`HistoryPropertyProvider` も（中身は空だが）登録済みである。
 - 注意: `docs/PROPERTY_1.0M_SPEC_FULL_ja-jp.md` §7 は「書込は無視＋警告ログ」とするが、未知キーへの SET は `false` を返すだけで、`\![set,property]` 経路はデバッグログに成否を出すのみ。

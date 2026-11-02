@@ -106,7 +106,7 @@ flowchart LR
 
 往復は直列キュー `satori.adapter.io` 上で「1 行送って 1 行読む」だけで、YAYA のような `host_op` の折り返しは無い。期限切れ・EOF・デコード失敗では `forceTerminate()`（`terminate()`、0.2 秒後に `SIGKILL`）で helper を捨てる。次の `request` で `recoverIfNeeded()` が前の世代のキューが 2 秒以内に空くのを待ち、`launchHelper()` と `load` をやり直す。
 
-注意: `recoverIfNeeded()` の再ロードは `load(ghostRoot:dicEntries:communication:)` を `saoriPaths` 無しで呼ぶ。そのため再起動後の helper には `saori_paths` が渡らず、`SAORI_FALLBACK_PATH` が未設定になる。コード上は、helper の再起動後に外部 SAORI の代替ライブラリを探せなくなる（実機での確認はしていない）。
+注意: `recoverIfNeeded()` の再ロードは `load(ghostRoot:dicEntries:communication:)` を `saoriPaths` 無しで呼ぶ。そのため再起動後の helper には `saori_paths` が空配列で渡り、helper は `SAORI_FALLBACK_PATH` と `SAORI_FALLBACK_ALWAYS` を未設定にする（`configureSaoriSearchPath`）。コード上は、helper の再起動後に外部 SAORI の代替ライブラリを探せなくなる（実機での確認はしていない）。
 
 **出典:** [Ourin/USL/SatoriAdapter.swift:54-93](../../Ourin/USL/SatoriAdapter.swift#L54-L93)、[Ourin/USL/SatoriAdapter.swift:95-180](../../Ourin/USL/SatoriAdapter.swift#L95-L180)、[Ourin/USL/SatoriAdapter.swift:198-262](../../Ourin/USL/SatoriAdapter.swift#L198-L262)、[Ourin/SaoriHost/SaoriRegistry.swift:8-37](../../Ourin/SaoriHost/SaoriRegistry.swift#L8-L37)、[Ourin/SaoriHost/SaoriRegistry.swift:162-172](../../Ourin/SaoriHost/SaoriRegistry.swift#L162-L172)、[Ourin/Ghost/GhostManager.swift:1563-1580](../../Ourin/Ghost/GhostManager.swift#L1563-L1580)、[Ourin/Ghost/GhostManager.swift:1665](../../Ourin/Ghost/GhostManager.swift#L1665)、[Ourin/USL/ShioriRuntime.swift:15-33](../../Ourin/USL/ShioriRuntime.swift#L15-L33)
 
@@ -180,7 +180,7 @@ sequenceDiagram
 
 `PATCHES.md` は、この境界は「CP932 互換」であって「Unicode 辞書の無損失対応ではない」と明記し、1 つの表現不能文字で辞書全体のロードが止まらないようにするための置換だと説明している。辞書ファイル自体は書き換えない。
 
-**出典:** [satori_core/src/EncodingIconv.cpp:10-133](../../satori_core/src/EncodingIconv.cpp#L10-L133)、[satori_core/PATCHES.md:15](../../satori_core/PATCHES.md#L15)、[Ourin/SSTP/EncodingAdapter.swift:117-130](../../Ourin/SSTP/EncodingAdapter.swift#L117-L130)、[satori_core/README.md:20-21](../../satori_core/README.md#L20-L21)
+**出典:** [satori_core/src/EncodingIconv.cpp:10-133](../../satori_core/src/EncodingIconv.cpp#L10-L133)、[satori_core/PATCHES.md:11](../../satori_core/PATCHES.md#L11)、[Ourin/SSTP/EncodingAdapter.swift:117-130](../../Ourin/SSTP/EncodingAdapter.swift#L117-L130)、[satori_core/README.md:22](../../satori_core/README.md#L22)
 
 ## ビルドと Windows 依存の回避
 
@@ -252,7 +252,7 @@ Xcode の `Build satori_core` Run Script は、成果物が無いか入力（`CM
 
 探索パスの一覧は上流側で一度だけ読んで静的変数に保持する（`posix_dll_search_path_is_ready`）。1 helper = 1 ゴーストの運用では問題にならないが、同じプロセスで別のゴーストを読み直すと古いパスが残る（コードからの推測。Ourin は 1 プロセスで 1 ゴーストしか読まない）。
 
-**出典:** [satori_core/third_party/satoriya-shiori/satoriya/satori/shiori_plugin.cpp:44-92](../../satori_core/third_party/satoriya-shiori/satoriya/satori/shiori_plugin.cpp#L44-L92)、[satori_core/third_party/satoriya-shiori/satoriya/satori/shiori_plugin.cpp:196-250](../../satori_core/third_party/satoriya-shiori/satoriya/satori/shiori_plugin.cpp#L196-L250)、[satori_core/src/main.cpp:28-52](../../satori_core/src/main.cpp#L28-L52)、[satori_core/tests/fixtures/external/satori_conf.txt](../../satori_core/tests/fixtures/external/satori_conf.txt)、[satori_core/README.md:18](../../satori_core/README.md#L18)
+**出典:** [satori_core/third_party/satoriya-shiori/satoriya/satori/shiori_plugin.cpp:44-92](../../satori_core/third_party/satoriya-shiori/satoriya/satori/shiori_plugin.cpp#L44-L92)、[satori_core/third_party/satoriya-shiori/satoriya/satori/shiori_plugin.cpp:196-250](../../satori_core/third_party/satoriya-shiori/satoriya/satori/shiori_plugin.cpp#L196-L250)、[satori_core/src/main.cpp:28-52](../../satori_core/src/main.cpp#L28-L52)、[satori_core/tests/fixtures/external/satori_conf.txt](../../satori_core/tests/fixtures/external/satori_conf.txt)、[satori_core/PATCHES.md:7](../../satori_core/PATCHES.md#L7)
 
 ## テストと fixture
 
@@ -273,12 +273,12 @@ Swift 側では `OurinTests/ShioriRuntimeTests.swift` が、偽の helper（zsh 
 
 - **完全な Unicode 対応ではない**。SATORI 本体は CP932 で動くため、UTF-8 辞書でも CP932 に無い文字は空白になる。要求側の未知文字は `escape_unknown` を有効にしたときだけ `?escape!unicode[…]` で保持される。
 - **SAORI は Swift の SAORI ホストを通らない**。内蔵・互換 SAORI は使えず、macOS ネイティブの `.dylib` / `.so` が探索パスにある場合だけ動く。
-- **helper の再起動後は `saori_paths` が渡らない**（`recoverIfNeeded()` の実装による。前述）。
+- **helper の再起動後は `saori_paths` が空になる**（`recoverIfNeeded()` の実装による。前述）。
 - エラー文言が `value` に入るため、`ok:false` のときに `value` を発話として扱わないよう呼び出し側で注意が要る（`ShioriRuntimeResponse.error` は常に nil になる）。
 - deployment target が 11.0 のままで、アプリ（13.0）と揃っていない。`docs/RELEASE_GATES_2026-10-25.md` は 13.0 への引き上げを推奨事項として挙げている。
 - `buildWire` のヘッダ除外は大文字小文字を区別するので、Swift から `charset` のような小文字のヘッダが来ると `Charset` と二重に出る（コードからの推測。実際にそうしたヘッダを送る呼び出し元があるかは未確認）。
 
-**出典:** [satori_core/PATCHES.md:15](../../satori_core/PATCHES.md#L15)、[Ourin/USL/SatoriAdapter.swift:242-262](../../Ourin/USL/SatoriAdapter.swift#L242-L262)、[satori_core/src/main.cpp:61-85](../../satori_core/src/main.cpp#L61-L85)、[satori_core/CMakeLists.txt:6](../../satori_core/CMakeLists.txt#L6)、[docs/RELEASE_GATES_2026-10-25.md:44-48](../../docs/RELEASE_GATES_2026-10-25.md#L44-L48)
+**出典:** [satori_core/PATCHES.md:11](../../satori_core/PATCHES.md#L11)、[satori_core/README.md:22](../../satori_core/README.md#L22)、[Ourin/USL/SatoriAdapter.swift:242-262](../../Ourin/USL/SatoriAdapter.swift#L242-L262)、[satori_core/src/main.cpp:28-52](../../satori_core/src/main.cpp#L28-L52)、[satori_core/src/main.cpp:61-85](../../satori_core/src/main.cpp#L61-L85)、[satori_core/CMakeLists.txt:6](../../satori_core/CMakeLists.txt#L6)、[docs/RELEASE_GATES_2026-10-25.md:44-48](../../docs/RELEASE_GATES_2026-10-25.md#L44-L48)
 
 ## 関連ページ
 

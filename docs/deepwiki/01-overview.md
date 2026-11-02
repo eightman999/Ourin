@@ -79,9 +79,9 @@ flowchart TB
     GM --> FMO
 ```
 
-注意: README の図は `GhostShioriRuntime` という名前で SHIORI 層を表しているが、実装上の型の構成（`ShioriRuntime`・`ShioriRuntimeFactory` など）は [8 SHIORI 層（USL）](./08-shiori-runtime.md) を参照すること。
+注意: README の図に出る `GhostShioriRuntime` は実在するプロトコル（`Ourin/USL/ShioriRuntime.swift`）で、`YayaAdapter`・`SatoriAdapter`・`ShiolinkAdapter`・`RishuProxyAdapter`・`NativeShioriRuntime` がこれに準拠する。README の図に現れない `ShioriRuntimeFactory` が、モジュール名やゴーストの内容から実装を選んで生成する。詳しくは [8 SHIORI 層（USL）](./08-shiori-runtime.md) を参照すること。
 
-**出典:** [README.md:17-36](../../README.md#L17-L36)、[AGENTS.md:7-10](../../AGENTS.md#L7-L10)
+**出典:** [README.md:17-36](../../README.md#L17-L36)、[AGENTS.md:7-10](../../AGENTS.md#L7-L10)、[Ourin/USL/ShioriRuntime.swift:100-123](../../Ourin/USL/ShioriRuntime.swift#L100-L123)、[Ourin/USL/ShioriRuntimeFactory.swift:79-95](../../Ourin/USL/ShioriRuntimeFactory.swift#L79-L95)
 
 ## 起動の要点
 
@@ -117,9 +117,9 @@ flowchart TB
 
 ゴースト・バルーン・プラグインなどのユーザーデータの基準フォルダは `OurinPaths.baseDirectory()` が決める。本番は `~/Documents/Ourin` で、`~/Documents` が使えない（TCC 拒否など）ときは `~/Library/Application Support/Ourin` にフォールバックする。基準フォルダの下に SSP 標準のサブフォルダ（`ghost`・`balloon`・`plugin`・`headline`・`language`・`calendar`・`data`・`data/profile`・`temp`・`package`・`saori`）を冪等に作る。旧来の保存先（`~/Library/Application Support/Ourin`、旧サンドボックスコンテナ内の `Application Support/Ourin` と `Documents/Ourin`）からは、起動時に一度だけ移行する。
 
-注意: `AGENTS.md` は保存先を `~/Library/Containers/furin-lab.Ourin/Data/Library/Application Support/Ourin/ghost/` と書いているが、現行コードではこれは **移行元** の 1 つである。現在の entitlements には App Sandbox のキーがなく、`com.apple.security.cs.disable-library-validation` だけが有効になっている（ネイティブ SHIORI / PLUGIN の dylib を読み込むため、と推測される）。ユーザーのゴースト・NAR データを実データとして扱い、破壊的操作をしないという `AGENTS.md` の制約はそのまま有効である。
+注意: `AGENTS.md` は保存先を `~/Library/Containers/furin-lab.Ourin/Data/Library/Application Support/Ourin/ghost/` と書いているが、現行コードではこれは **移行元** の 1 つである。現在の entitlements には App Sandbox のキーがなく（pbxproj も `ENABLE_APP_SANDBOX = NO`）、`com.apple.security.cs.disable-library-validation` だけが有効になっている（`ENABLE_HARDENED_RUNTIME = YES` のままネイティブ SHIORI / PLUGIN の dylib を読み込むため、と推測される。理由を述べたコメントや文書は見つからない）。ユーザーのゴースト・NAR データを実データとして扱い、破壊的操作をしないという `AGENTS.md` の制約はそのまま有効である。
 
-**出典:** [Ourin/NarInstall/Paths.swift:9-12](../../Ourin/NarInstall/Paths.swift#L9-L12)、[Ourin/NarInstall/Paths.swift:45-79](../../Ourin/NarInstall/Paths.swift#L45-L79)、[Ourin/NarInstall/Paths.swift:116-152](../../Ourin/NarInstall/Paths.swift#L116-L152)、[Ourin/Ourin.entitlements:1-8](../../Ourin/Ourin.entitlements#L1-L8)、[AGENTS.md:11](../../AGENTS.md#L11)
+**出典:** [Ourin/NarInstall/Paths.swift:9-12](../../Ourin/NarInstall/Paths.swift#L9-L12)、[Ourin/NarInstall/Paths.swift:45-79](../../Ourin/NarInstall/Paths.swift#L45-L79)、[Ourin/NarInstall/Paths.swift:116-152](../../Ourin/NarInstall/Paths.swift#L116-L152)、[Ourin/Ourin.entitlements:1-8](../../Ourin/Ourin.entitlements#L1-L8)、[Ourin.xcodeproj/project.pbxproj:684-686](../../Ourin.xcodeproj/project.pbxproj#L684-L686)、[AGENTS.md:11](../../AGENTS.md#L11)
 
 ## リポジトリ構成
 
@@ -144,9 +144,9 @@ flowchart TB
 | `.agents/`、`.serena/`、`.kamui/`、`.agent-context/`、`.claude` | — | AI エージェント向けの設定・履歴 | [19](./19-dev-tooling.md) |
 | `README.md`、`AGENTS.md`、`CLAUDE.md`、`CONTRIBUTING.md`、`LICENSE`、`LICENSES/` | — | 入口文書とライセンス | — |
 
-注意: ルートには `$!`（YAYA helper への `load` コマンドの JSON 1 行）、空の `default.profraw`、`build_output.log` のような作業中の副産物と思われるファイルも git 管理下にある。用途はコードから参照されていない（推測: 誤コミット）。
+注意: ルートには `$!`（YAYA helper への `load` コマンドの JSON 1 行）、空の `default.profraw`、`build_output.log` のような作業中の副産物と思われるファイルも git 管理下にある。用途はコードから参照されておらず、`.gitignore` にもこれらを除外する行はない（推測: 誤コミット）。
 
-**出典:** [README.md:1-36](../../README.md#L1-L36)、[AGENTS.md:1-26](../../AGENTS.md#L1-L26)
+**出典:** [README.md:1-36](../../README.md#L1-L36)、[AGENTS.md:1-26](../../AGENTS.md#L1-L26)、[.gitignore](../../.gitignore)
 
 ## Ourin/ 配下のサブシステム
 
@@ -170,7 +170,7 @@ flowchart TB
 | `HeadlineHost/`、`Calendar/`、`SaveShare/`、`Ghost/`（SNTP・RSS・Sound など） | 付帯機能 | [16](./16-auxiliary-features.md) |
 | `DevTools/` | 開発者ツールと Migrator | [17](./17-devtools-migrator.md) |
 
-**出典:** [Ourin/OurinApp.swift:115](../../Ourin/OurinApp.swift#L115)、[Ourin/Ghost/GhostManager.swift:822](../../Ourin/Ghost/GhostManager.swift#L822)
+**出典:** [Ourin/](../../Ourin/)、[Ourin/Ghost/](../../Ourin/Ghost/)、[Ourin/Ghost/GhostManager.swift:822](../../Ourin/Ghost/GhostManager.swift#L822)
 
 ## 技術スタックと依存
 

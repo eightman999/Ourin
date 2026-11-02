@@ -376,7 +376,7 @@ sequenceDiagram
 | `NSMicrophoneUsageDescription` / `NSSpeechRecognitionUsageDescription` | 音声認識イベント用 | 起動時には要求せず、設定画面のボタンから要求する |
 | `NSHumanReadableCopyright` | `© 2025 Furin Lab and contributors` | About に表示する |
 
-`LSUIElement` は無いので、Dock にアイコンが出ると考えられる（推測。`setActivationPolicy` もコード中に見当たらない）。
+`Ourin/Resources/Info.plist` に `LSUIElement` も `LSBackgroundOnly` も無く、コード中に `setActivationPolicy` の呼び出しも無い。このため既定の通常アプリとして Dock にアイコンが出ると考えられる（AppKit の既定動作に基づく推測。実機では未確認）。
 
 entitlements（`Ourin/Ourin.entitlements`）は `com.apple.security.cs.disable-library-validation` だけである。App Sandbox は無効（`ENABLE_APP_SANDBOX = NO`）、Hardened Runtime は有効である。build settings には `ENABLE_INCOMING_NETWORK_CONNECTIONS = YES` などもあるが、サンドボックスが無効なので実際の制限にはならないと考えられる（未確認）。
 
@@ -414,12 +414,12 @@ entitlements（`Ourin/Ourin.entitlements`）は `com.apple.security.cs.disable-l
 - **`Log.verbose` が固定で true**: デバッグ用の一時変更が残っているため、`Log.debug` が常に `NSLog` に出力される。
 - **`OurinDefaultEncoding` は未使用**: 設定画面で保存されるが、Swift のコード中に読む箇所が無い。保存時のアラートは「次回起動時に適用」と表示するが、多くの項目（エンコーディング、自動アップデート）は次回起動を待たずに読まれる。
 - **自動アップデートは署名済みの配布版だけ**: 署名の Team ID が取れないビルドでは `currentAppUnsigned` で失敗する。アプリの親ディレクトリに書き込めない場合（一般ユーザーの `/Applications` など）も失敗する。
-- **更新 helper と単一インスタンス制御の相互作用（未確認）**: helper は `Contents/MacOS/Ourin` と同じ実行ファイルで動き、再起動（`NSWorkspace.open`）の後で終了する。新しく起動したインスタンスの `ProcessKiller` 検査が、終了前の helper を「他の Ourin」と判定する可能性があるかどうかは、コードからは断定できない（退避先のパス名は `/Ourin.app/Contents/MacOS/Ourin` で終わらないため、判定されないと推測する）。
-- **About に出ないライセンス**: 同梱エンジンのライセンス（`Resources/EngineLicenses/`）は About のライセンス一覧の対象外である。`Licenses/` サブディレクトリが bundle 内に残るかどうか（同期フォルダの平坦化の有無）は未確認である。
+- **更新 helper と単一インスタンス制御の相互作用（未確認）**: helper は `Contents/MacOS/Ourin` と同じ実行ファイルで動き、再起動（`NSWorkspace.open`）の後で終了する。新しく起動したインスタンスの `ProcessKiller` 検査が、終了前の helper を「他の Ourin」と判定する可能性があるかどうかは、コードからは断定できない（`replace` が旧アプリを移す退避先は `.Ourin.app.OurinOld-<UUID>` で、その中の実行ファイルのパスは `/Ourin.app/Contents/MacOS/Ourin` で終わらないため、`isOurinMainExecutable` に合わず判定されないと推測する。移動後の実行中プロセスに対して `proc_pidpath` がどのパスを返すかは実機でしか確かめられない）。
+- **About に出ないライセンス**: 同梱エンジンのライセンス（`Resources/EngineLicenses/`）は About のライセンス一覧の対象外である。`Licenses/` サブディレクトリが bundle 内に残るかどうか（同期フォルダの平坦化の有無）は未確認である。コード側の想定も一致せず、`AboutView` は `subdirectory: "Licenses"` を指定して読む一方、`HolidayInfo` は `Holidays/` と Resources 直下の両方を探してコメントで「同梱のときはフォルダの中身が Resources 直下に置かれる」と書いている。
 - **使われていないコード**: `OurinApp.openAboutWindow()` と `AppUpdater.checkForUpdatesFromMenu(_:)` は呼び出し元が無い。
 - **`runNamedGhost` は既定ゴーストへ戻らない**: `OurinStartupGhost` のゴーストが削除されていると、アラートが出るだけでゴーストは起動しない。
 
-**出典:** [AGENTS.md:11](../../AGENTS.md#L11)、[Ourin/NarInstall/Paths.swift:45-70](../../Ourin/NarInstall/Paths.swift#L45-L70)、[Ourin/Utils/Log.swift:3-9](../../Ourin/Utils/Log.swift#L3-L9)、[Ourin/OurinApp.swift:382-388](../../Ourin/OurinApp.swift#L382-L388)、[Ourin/AppUpdater.swift:240-251](../../Ourin/AppUpdater.swift#L240-L251)、[Ourin/ContentView.swift:844-886](../../Ourin/ContentView.swift#L844-L886)、[Ourin/OurinApp.swift:659-671](../../Ourin/OurinApp.swift#L659-L671)
+**出典:** [AGENTS.md:11](../../AGENTS.md#L11)、[Ourin/NarInstall/Paths.swift:45-70](../../Ourin/NarInstall/Paths.swift#L45-L70)、[Ourin/NarInstall/Paths.swift:149-153](../../Ourin/NarInstall/Paths.swift#L149-L153)、[Ourin/ContentView.swift:888](../../Ourin/ContentView.swift#L888)、[Ourin/Utils/ProcessKiller.swift:76-98](../../Ourin/Utils/ProcessKiller.swift#L76-L98)、[Ourin/BasewareUpdate.swift:298-301](../../Ourin/BasewareUpdate.swift#L298-L301)、[Ourin/BasewareUpdate.swift:268-284](../../Ourin/BasewareUpdate.swift#L268-L284)、[Ourin/Utils/Log.swift:3-9](../../Ourin/Utils/Log.swift#L3-L9)、[Ourin/OurinApp.swift:382-388](../../Ourin/OurinApp.swift#L382-L388)、[Ourin/AppUpdater.swift:240-251](../../Ourin/AppUpdater.swift#L240-L251)、[Ourin/ContentView.swift:844-886](../../Ourin/ContentView.swift#L844-L886)、[Ourin/OurinApp.swift:659-671](../../Ourin/OurinApp.swift#L659-L671)、[Ourin/About/AboutView.swift:66-73](../../Ourin/About/AboutView.swift#L66-L73)、[Ourin/SHIORIEvents/HolidayInfo.swift:99-106](../../Ourin/SHIORIEvents/HolidayInfo.swift#L99-L106)
 
 ## 関連ページ
 

@@ -82,11 +82,11 @@
 | `LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]` | `@executable_path/../Frameworks` | 同梱 dylib（`@rpath/...`）を `Contents/Frameworks` から解決する |
 | `SWIFT_OBJC_BRIDGING_HEADER` | `Ourin/Ourin-Bridging-Header.h` | FMO の C ブリッジ（[11 FMO](./11-fmo.md)） |
 | `EXCLUDED_SOURCE_FILE_NAMES` | `**/Info.plist` | 同期フォルダ内の Info.plist をリソースとしてコピーしない |
-| `ENABLE_USER_SCRIPT_SANDBOXING` | `NO`（プロジェクト共通） | Run Script phase がリポジトリ内の `build/` へ書き込めるようにする（推測: このための設定） |
+| `ENABLE_USER_SCRIPT_SANDBOXING` | `NO`（プロジェクト共通） | Run Script phase（`Build satori_core`・`Build yaya_core`・`Build and embed native SHIORI engines`）が `${SRCROOT}` 配下の `satori_core/build/` などへ書き込めるようにする（推測: このための設定。各 phase は入力ファイルを宣言していない） |
 
-`disable-library-validation` は、署名チームの異なる第三者 SHIORI・PLUGIN・SAORI の dylib/bundle を `dlopen` するために必要と考えられる（推測。コード上に明示コメントはない）。
+`disable-library-validation` は、署名チームの異なる第三者 SHIORI・PLUGIN・SAORI の dylib/bundle を `dlopen` するために必要と考えられる（推測。entitlements・pbxproj・docs のいずれにも理由を述べた記述はない。サードパーティのモジュールを `dlopen` する箇所は `Ourin/PluginHost/Plugin.swift:48`・`Ourin/USL/NativeShioriModule.swift:43`・`Ourin/SaoriHost/SaoriLoader.swift:69` にある）。
 
-**出典:** [Ourin.xcodeproj/project.pbxproj:79-152](../../Ourin.xcodeproj/project.pbxproj#L79-L152)、[Ourin.xcodeproj/project.pbxproj:222-317](../../Ourin.xcodeproj/project.pbxproj#L222-L317)、[Ourin.xcodeproj/project.pbxproj:509-550](../../Ourin.xcodeproj/project.pbxproj#L509-L550)、[Ourin.xcodeproj/project.pbxproj:673-729](../../Ourin.xcodeproj/project.pbxproj#L673-L729)、[Ourin.xcodeproj/project.pbxproj:787-810](../../Ourin.xcodeproj/project.pbxproj#L787-L810)、[Ourin.xcodeproj/xcshareddata/xcschemes/Ourin.xcscheme:26-56](../../Ourin.xcodeproj/xcshareddata/xcschemes/Ourin.xcscheme#L26-L56)、[Ourin/Ourin.entitlements:1-8](../../Ourin/Ourin.entitlements#L1-L8)、[OurinShioriXPCService/OurinShioriXPCService.entitlements:1-8](../../OurinShioriXPCService/OurinShioriXPCService.entitlements#L1-L8)
+**出典:** [Ourin.xcodeproj/project.pbxproj:79-152](../../Ourin.xcodeproj/project.pbxproj#L79-L152)、[Ourin.xcodeproj/project.pbxproj:222-317](../../Ourin.xcodeproj/project.pbxproj#L222-L317)、[Ourin.xcodeproj/project.pbxproj:509-550](../../Ourin.xcodeproj/project.pbxproj#L509-L550)、[Ourin.xcodeproj/project.pbxproj:673-729](../../Ourin.xcodeproj/project.pbxproj#L673-L729)、[Ourin.xcodeproj/project.pbxproj:787-810](../../Ourin.xcodeproj/project.pbxproj#L787-L810)、[Ourin.xcodeproj/project.pbxproj:403-456](../../Ourin.xcodeproj/project.pbxproj#L403-L456)、[Ourin.xcodeproj/xcshareddata/xcschemes/Ourin.xcscheme:26-56](../../Ourin.xcodeproj/xcshareddata/xcschemes/Ourin.xcscheme#L26-L56)、[Ourin/Ourin.entitlements:1-8](../../Ourin/Ourin.entitlements#L1-L8)、[OurinShioriXPCService/OurinShioriXPCService.entitlements:1-8](../../OurinShioriXPCService/OurinShioriXPCService.entitlements#L1-L8)、[Ourin/PluginHost/Plugin.swift:48](../../Ourin/PluginHost/Plugin.swift#L48)、[Ourin/USL/NativeShioriModule.swift:43](../../Ourin/USL/NativeShioriModule.swift#L43)、[Ourin/SaoriHost/SaoriLoader.swift:69](../../Ourin/SaoriHost/SaoriLoader.swift#L69)
 
 ## Ourin target の build phase
 
@@ -215,9 +215,9 @@ flowchart LR
 | `Contents/Resources/yaya_core` | Resources phase | 使われない重複コピー（後述「制約と注意点」） |
 | `Contents/Resources/EngineMetadata/`、`EngineLicenses/` | `engines/package.sh` | ABI 判定と、BOOTH 版でのライセンス同梱 |
 
-`Ourin/` 同期フォルダ内のリソース（`Resources/Licenses/*.txt`、`Resources/Holidays/*.txt`、`*.lproj`、`Resources/SakuraScriptLexicon.json`、`Assets.xcassets`、`Ourin.icns` など）は、同期フォルダの規則に従って `Contents/Resources` へコピーされる。ただし、サブディレクトリ（`Licenses/`、`Holidays/`）が残るか平坦化されるかは、ビルド済みの成果物で確認していない（未確認）。
+`Ourin/` 同期フォルダ内のリソース（`Resources/Licenses/*.txt`、`Resources/Holidays/*.txt`、`*.lproj`、`Resources/SakuraScriptLexicon.json`、`Assets.xcassets`、`Ourin.icns` など）は、同期フォルダの規則に従って `Contents/Resources` へコピーされる。ただし、サブディレクトリ（`Licenses/`、`Holidays/`）が残るか平坦化されるかは、ビルド済みの成果物で確認していない（未確認）。コード側の想定も一致しておらず、`HolidayInfo.swift` は `Holidays/` と Resources 直下の両方を探してコメントで「同梱のときはフォルダの中身が Resources 直下に置かれる」と書く一方、`AboutView.swift` は `subdirectory: "Licenses"` を指定して読む。
 
-**出典:** [Ourin.xcodeproj/project.pbxproj:42-77](../../Ourin.xcodeproj/project.pbxproj#L42-L77)、[.github/workflows/macOS.yml:201-259](../../.github/workflows/macOS.yml#L201-L259)、[Ourin/Yaya/YayaAdapter.swift:63](../../Ourin/Yaya/YayaAdapter.swift#L63)、[Ourin/USL/SatoriAdapter.swift:55](../../Ourin/USL/SatoriAdapter.swift#L55)、[engines/package.sh:33-52](../../engines/package.sh#L33-L52)
+**出典:** [Ourin/SHIORIEvents/HolidayInfo.swift:99-106](../../Ourin/SHIORIEvents/HolidayInfo.swift#L99-L106)、[Ourin/About/AboutView.swift:66-73](../../Ourin/About/AboutView.swift#L66-L73)、[Ourin.xcodeproj/project.pbxproj:42-77](../../Ourin.xcodeproj/project.pbxproj#L42-L77)、[.github/workflows/macOS.yml:201-259](../../.github/workflows/macOS.yml#L201-L259)、[Ourin/Yaya/YayaAdapter.swift:63](../../Ourin/Yaya/YayaAdapter.swift#L63)、[Ourin/USL/SatoriAdapter.swift:55](../../Ourin/USL/SatoriAdapter.swift#L55)、[engines/package.sh:33-52](../../engines/package.sh#L33-L52)
 
 ## 既定ゴースト sakura.nar の生成
 
@@ -246,7 +246,7 @@ flowchart LR
 | `build_default_ghost.sh` | `DefaultGhost/sakura/` | `sakura.nar` | `zip -qr -X`。`.DS_Store` を除く |
 | `gen_default_dialogue.py` | `scripts/data/default_dialogue.json`、`default_dialogue_events.json` | `ghost/master/dialogue.dic` | JSON の `talks[]`（`category`・`id`・`lines[{who,face,text}]`）を YAYA 関数 `Talk_<category>` へ変換する。`who` 0/1/2 は `\0` `\1` `\p[2]`。`face` は scope ごとに許可された番号だけ受け付ける。`\ % " { } < >` と改行は禁止。埋め込み記号 `<<R0..R7>>` `<<HOUR>>` は許可されたカテゴリだけで使え、`Esc(reference[n])` / `TOSTR(GETTIME[3])` に置き換わる。ID の重複はエラー。生成物は手で編集しない |
 | `gen_default_balloon.py` | なし（Pillow で描画） | `balloon/balloons0.png` `balloonk0.png` `balloonc0.png` `arrow0/1.png`、`descript.txt` | 3 倍スーパーサンプリングの角丸吹き出し。`origin`・`wordwrappoint`・`validrect`・フォント色・カーソル色などを `descript.txt` に固定値で書く |
-| `gen_default_ghost_art.py` | なし（標準ライブラリだけで PNG を生成） | `surface0/1/10.png`、`thumbnail.png` | 本絵が無かったころのプレースホルダ。docstring に「本絵ができたら差し替えればよい」とある（推測: 現在の surface はこれではなく下の prepare_* の出力） |
+| `gen_default_ghost_art.py` | なし（標準ライブラリだけで PNG を生成） | `surface0/1/10.png`、`thumbnail.png` | 本絵が無かったころのプレースホルダ。docstring に「本絵ができたら差し替えればよい」とある。コミット済みの `surface0/1.png` は 250x480、`surface10.png` は 180x180、`thumbnail.png` は 125x240 で、本スクリプトの出力サイズ（220x360・140x180）ではなく `prepare_rin_generated_art.py` の出力サイズ（`scripts/prepare_rin_generated_art.py:56-59`）と一致する。現在の surface は下の `prepare_*` の出力である |
 | `prepare_rin_generated_art.py` | normal / smile / blink / bell の生成画像 | `surface0〜2`、`surface10`、`thumbnail.png` | 906x1736 のマスター画像を前提に、目と口のパッチだけを合成して 250x480 に縮小する。アルファや緑の色かぶりを assert で検査する |
 | `prepare_rin_expression_art.py` | `--manifest` の JSON（表情番号 → PNG） | `surface3〜8`、`surface11〜13` | 縮小してから顔の内側だけを合成する。既存の出力は上書きしない。`--verify-only` あり |
 | `prepare_rinne_generated_art.py` | `--manifest` の JSON（`100`〜`108`） | `surface100〜108` | りんね（`\1`）用。合成方式は同じで、出力は排他作成。`--verify-only` あり |
@@ -254,7 +254,7 @@ flowchart LR
 
 既定ゴーストの設定は次のとおり。`install.txt` は `type,ghost` / `name,sakura` / `directory,sakura` に加えて `balloon.directory,sakura` / `balloon.source.directory,balloon` を持ち、同梱バルーンも一緒にインストールさせる。`ghost/master/descript.txt` は `shiori,yaya.dll` と `sakura.name,さくら` / `kero.name,りんね` / `char2.name,ベル` を宣言し、既定サーフェスを 0 / 100 / 10 にしている。`readme.txt` には、立ち絵を画像生成 AI で作ったことが書かれている。
 
-**出典:** [scripts/build_default_ghost.sh:1-7](../../scripts/build_default_ghost.sh#L1-L7)、[scripts/gen_default_dialogue.py:1-106](../../scripts/gen_default_dialogue.py#L1-L106)、[scripts/gen_default_balloon.py:1-68](../../scripts/gen_default_balloon.py#L1-L68)、[scripts/gen_default_ghost_art.py:1-55](../../scripts/gen_default_ghost_art.py#L1-L55)、[scripts/prepare_rin_generated_art.py:1-85](../../scripts/prepare_rin_generated_art.py#L1-L85)、[scripts/prepare_rin_expression_art.py:1-46](../../scripts/prepare_rin_expression_art.py#L1-L46)、[scripts/prepare_rinne_generated_art.py:1-44](../../scripts/prepare_rinne_generated_art.py#L1-L44)、[scripts/gen_holidays.py:1-30](../../scripts/gen_holidays.py#L1-L30)、[DefaultGhost/sakura/install.txt:1-6](../../DefaultGhost/sakura/install.txt#L1-L6)、[DefaultGhost/sakura/ghost/master/descript.txt:1-17](../../DefaultGhost/sakura/ghost/master/descript.txt#L1-L17)、[DefaultGhost/sakura/readme.txt:1-2](../../DefaultGhost/sakura/readme.txt#L1-L2)、[Ourin.xcodeproj/project.pbxproj:12](../../Ourin.xcodeproj/project.pbxproj#L12)
+**出典:** [scripts/build_default_ghost.sh:1-7](../../scripts/build_default_ghost.sh#L1-L7)、[scripts/gen_default_dialogue.py:1-106](../../scripts/gen_default_dialogue.py#L1-L106)、[scripts/gen_default_balloon.py:1-68](../../scripts/gen_default_balloon.py#L1-L68)、[scripts/gen_default_ghost_art.py:1-55](../../scripts/gen_default_ghost_art.py#L1-L55)、[scripts/prepare_rin_generated_art.py:1-85](../../scripts/prepare_rin_generated_art.py#L1-L85)、[scripts/prepare_rin_expression_art.py:1-46](../../scripts/prepare_rin_expression_art.py#L1-L46)、[scripts/prepare_rinne_generated_art.py:1-44](../../scripts/prepare_rinne_generated_art.py#L1-L44)、[scripts/gen_holidays.py:1-30](../../scripts/gen_holidays.py#L1-L30)、[DefaultGhost/sakura/install.txt:1-6](../../DefaultGhost/sakura/install.txt#L1-L6)、[DefaultGhost/sakura/ghost/master/descript.txt:1-17](../../DefaultGhost/sakura/ghost/master/descript.txt#L1-L17)、[DefaultGhost/sakura/readme.txt:1-2](../../DefaultGhost/sakura/readme.txt#L1-L2)、[DefaultGhost/sakura/shell/master/surface0.png](../../DefaultGhost/sakura/shell/master/surface0.png)、[Ourin.xcodeproj/project.pbxproj:12](../../Ourin.xcodeproj/project.pbxproj#L12)
 
 ## リリース手順（署名・公証・配布物）
 
@@ -293,7 +293,7 @@ flowchart TD
 - **`SKIP_NOTARIZE=1`** は署名と zip だけを行い、exit 0 で終わる。このため Installer も作られない。
 - **Installer**: `Installer/Package.swift` は `OurinInstallerCore`（SSP の検出・データ移行・app の差し替え）と実行ファイル `OurinInstaller` の 2 target からなり、`platforms: [.macOS(.v12)]`、`defaultLocalization: "ja"` である。`build-installer.sh` は Info.plist をヒアドキュメントで生成する（`furin-lab.Ourin.Installer`、`LSMinimumSystemVersion 12.0`）。同梱する `Ourin.app` は再署名せず `Contents/Helpers/Ourin.app` に置き、外側だけを署名する。実行時は `InstallerModel` がこの位置を payload として読み（環境変数 `OURIN_INSTALLER_PAYLOAD` で上書きできる）、`AppInstaller` が「退避 → 設置 → 失敗したら戻す」の手順で `/Applications` などに置く。データ移行の詳細は [15 NAR インストール](./15-nar-install.md) にある。
 - **BOOTH 版**: `package-booth.sh` は両方の `.app` に `stapler validate` と `spctl -a -t exec` をかけ、通らなければ中止する。`docs/booth/README_ja-jp.txt` の `{{VERSION}}` を置換して `はじめにお読みください.txt` にする。ライセンスは `LICENSE`、`LICENSES/*.txt`、`Ourin/Resources/Licenses/*.txt`、app 内の `Resources/EngineLicenses`（→ `ライセンス/エンジン`）を集める。zip は `ditto -c -k --sequesterRsrc --keepParent` で作る（Finder の圧縮と同じ形式で、拡張属性と staple を保つ）。
-- **自動アップデートとの関係**: `release.sh` が作る `Ourin-<版>.zip` と `Ourin-<版>.zip.sha256` という名前は、アプリ内の `AppUpdater` が GitHub Releases の asset から探す名前と一致する（[3 アプリの起動](./03-app-lifecycle.md) の「アップデート」）。GitHub Release への upload を自動化するスクリプトはリポジトリに無い（手作業と推測）。
+- **自動アップデートとの関係**: `release.sh` が作る `Ourin-<版>.zip` と `Ourin-<版>.zip.sha256` という名前は、アプリ内の `AppUpdater` が GitHub Releases の asset から探す名前と一致する（[3 アプリの起動](./03-app-lifecycle.md) の「アップデート」）。GitHub Release への upload を行うスクリプトや workflow はリポジトリに無い（`gh release` や release 作成 action の記述を検索しても見つからない。upload は手作業と推測）。
 
 **出典:** [scripts/release.sh:1-97](../../scripts/release.sh#L1-L97)、[scripts/notarize.sh:1-47](../../scripts/notarize.sh#L1-L47)、[scripts/build-installer.sh:1-100](../../scripts/build-installer.sh#L1-L100)、[scripts/package-booth.sh:1-50](../../scripts/package-booth.sh#L1-L50)、[Installer/Package.swift:1-25](../../Installer/Package.swift#L1-L25)、[Installer/Sources/OurinInstaller/InstallerModel.swift:76-92](../../Installer/Sources/OurinInstaller/InstallerModel.swift#L76-L92)、[Installer/Sources/OurinInstallerCore/AppInstaller.swift:1-60](../../Installer/Sources/OurinInstallerCore/AppInstaller.swift#L1-L60)、[docs/booth/README_ja-jp.txt:1-30](../../docs/booth/README_ja-jp.txt#L1-L30)
 
@@ -332,7 +332,7 @@ workflow 名は `macOS CI (release gate)` で、`pull_request`、`master` への
 
 テストを直列で実行する理由はコメントに書かれている。テストスイートがアプリのメイン run loop とプロセス全体のランタイムを共有するため、CPU 負荷の高い暗号系スイートと、締め切り時刻に依存する IPC/UI テストが並行すると、CI でコールバックが飢餓状態になる。
 
-workflow 冒頭のコメントでは、`metadata / test / release-gate / helper-cores` を branch protection の必須チェックにする前提になっている。ただし、その設定にはリポジトリ管理者の作業が必要で、RELEASE_GATES 文書は「未設定の間は CI は走るが必須ではない」と記録している（設定済みかどうかは未確認）。
+workflow 冒頭のコメントでは、`metadata / test / release-gate / helper-cores` を branch protection の必須チェックにする前提になっている。ただし、その設定にはリポジトリ管理者の作業が必要で、RELEASE_GATES 文書は「未設定の間は CI は走るが必須ではない」と記録している（設定済みかどうかは GitHub 側の設定でありリポジトリからは確認できない。未確認）。
 
 ### GitHub テンプレート
 
@@ -366,7 +366,7 @@ workflow 冒頭のコメントでは、`metadata / test / release-gate / helper-
 ## 制約と注意点
 
 - **Resources への `yaya_core` 重複**: `yaya_core` は `Copy helper cores`（`CodeSignOnCopy`）に加えて Resources phase にも入っているので、`Contents/Resources/yaya_core` に署名なしのコピーが残る。RELEASE_GATES 文書はこれを公証で問題になりやすいパターンとして記録している。`release.sh` は全 Mach-O を署名するので、配布物の上では問題が回避されている。恒久対応は未定。
-- **注意: `release.sh` のコメントと実装の食い違い**: `release.sh` 冒頭には「`MARKETING_VERSION` は使われていない」とある。しかし XPC の Info.plist は `$(MARKETING_VERSION)` / `$(CURRENT_PROJECT_VERSION)` を参照し、`check_release_metadata.py` もその一致を検査している。このコメントが正しいのは本体の Info.plist（値を直接書いている）についてだけである。
+- **注意: `release.sh` のコメントと実装の食い違い**: `release.sh` 冒頭には「`MARKETING_VERSION` は使われていない」とある。しかし XPC の Info.plist は `$(MARKETING_VERSION)` / `$(CURRENT_PROJECT_VERSION)` を参照し、`check_release_metadata.py` もその一致を検査している。このコメントが正しいのは本体の Info.plist（`CFBundleShortVersionString` / `CFBundleVersion` に値を直接書いている）についてだけである。
 - **注意: RELEASE_GATES 文書の版数は古い**: 文書では現在値が `0.0.1.21` / `21` とされているが、コード上は `0.1.0` / `22` である（3 整数のリリース形式に移行済み）。
 - **deployment target の不揃い**: `satori_core` は `CMAKE_OSX_DEPLOYMENT_TARGET=11.0` でビルドされ、`yaya_core/CMakeLists.txt` は deployment target を指定していない。アプリの 13.0 より低い（または SDK 既定の）値でも動作には支障ない。RELEASE_GATES 文書は表記を 13.0 に揃えることを残件にしている。Installer は macOS 12 以上（`.v12`）のままである。
 - **初回ビルドにはネットワークが必要**: `engines/package.sh` から呼ばれる各 `build.sh` が GitHub から上流を clone し、Lua などを `curl` で取得する。キャッシュ（`build/engine-sources/` など）があれば再取得しない。
@@ -374,7 +374,7 @@ workflow 冒頭のコメントでは、`metadata / test / release-gate / helper-
 - **`sakura.nar` の同期は手作業**: `DefaultGhost/` を変えたら `scripts/build_default_ghost.sh` を実行して、`sakura.nar` も commit する必要がある。CI は `sakura.nar` があるかどうかしか見ない。
 - **CI の範囲**: RELEASE_GATES 文書は、CI 設定の成功と、最低対応 OS（13）や Intel 実機での動作確認を区別している。ネイティブ Intel runner の job は無く、x86_64 は Rosetta 上の advisory job と `lipo` 検査だけである。
 
-**出典:** [Ourin.xcodeproj/project.pbxproj:13-15](../../Ourin.xcodeproj/project.pbxproj#L13-L15)、[docs/RELEASE_GATES_2026-10-25.md:42-56](../../docs/RELEASE_GATES_2026-10-25.md#L42-L56)、[docs/RELEASE_GATES_2026-10-25.md:60-82](../../docs/RELEASE_GATES_2026-10-25.md#L60-L82)、[docs/RELEASE_GATES_2026-10-25.md:244-253](../../docs/RELEASE_GATES_2026-10-25.md#L244-L253)、[scripts/release.sh:7-8](../../scripts/release.sh#L7-L8)、[satori_core/build.sh:13-15](../../satori_core/build.sh#L13-L15)
+**出典:** [Ourin.xcodeproj/project.pbxproj:13-15](../../Ourin.xcodeproj/project.pbxproj#L13-L15)、[docs/RELEASE_GATES_2026-10-25.md:42-56](../../docs/RELEASE_GATES_2026-10-25.md#L42-L56)、[docs/RELEASE_GATES_2026-10-25.md:60-82](../../docs/RELEASE_GATES_2026-10-25.md#L60-L82)、[docs/RELEASE_GATES_2026-10-25.md:244-253](../../docs/RELEASE_GATES_2026-10-25.md#L244-L253)、[scripts/release.sh:7-8](../../scripts/release.sh#L7-L8)、[OurinShioriXPCService/Info.plist:14-16](../../OurinShioriXPCService/Info.plist#L14-L16)、[Ourin/Resources/Info.plist:32-48](../../Ourin/Resources/Info.plist#L32-L48)、[scripts/check_release_metadata.py:184-198](../../scripts/check_release_metadata.py#L184-L198)、[satori_core/build.sh:13-15](../../satori_core/build.sh#L13-L15)
 
 ## 関連ページ
 

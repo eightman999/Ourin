@@ -97,7 +97,7 @@ flowchart LR
 
 ## ShiolinkAdapter（SHIOLINK 外部プロセス）
 
-`shiori,SHIOLINK.dll` のゴーストを、Windows DLL ではなく SHIOLINK を話す外部プロセスへ接続する。コード中のコメントは「SHIOLINK *L / *S / *U transport」で、SHIORIPROXY や JSON Lines helper とは別物と明記している（SHIOLINK2 と呼ばれる形式に当たると思われるが、コード中にその呼称は無い。推測）。
+`shiori,SHIOLINK.dll` のゴーストを、Windows DLL ではなく SHIOLINK を話す外部プロセスへ接続する。コード中のコメントは「SHIOLINK *L / *S / *U transport」で、SHIORIPROXY や JSON Lines helper とは別物と明記している（SHIOLINK2 と呼ばれる形式に当たると思われるが、リポジトリ全体を検索しても `SHIOLINK2` という呼称は無い。外部知識に基づく推測）。
 
 ### 設定ファイル（ShiolinkConfiguration）
 
@@ -341,14 +341,14 @@ Aosora は上流の利用条件上、ソースから作ったライブラリの�
 ## 制約と注意点
 
 - **同一栞の同時起動**: 追加栞と Aosora は上流がプロセス内 singleton で、同じプロセスへの 2 回目の load は失敗する。XPC は接続ごとのセッションを持つが別 PID を保証しないため、同じ栞を使う複数ゴーストの同時実行は対応済みとされていない（`docs/ADDITIONAL_SHIORI_ja-jp.md`）。
-- **状態ファイルの保存先**: 追加栞の状態ファイルは既定で辞書フォルダ、上流互換の `UTATANE_GHOST_STATE_DIR` があればそちら。Ourin はこの環境変数をゴーストごとに切り替えない（docs 記載。上流コードはリポジトリに無く未確認）。
+- **状態ファイルの保存先**: 追加栞の状態ファイルは既定で辞書フォルダ、上流互換の `UTATANE_GHOST_STATE_DIR` があればそちら。Ourin はこの環境変数をゴーストごとに切り替えない（docs 記載。リポジトリ内でこの環境変数に触れるコードは、検証時に環境から取り除く `engines/additional/verify.py` だけで、アプリ側で設定する箇所は無い。上流コードはリポジトリに無く、上流側の挙動は未確認）。
 - **ビルド時のネットワーク**: 初回ビルドは `git clone` / `curl` / `urllib` で上流を取得する。取得物は `build/engine-sources` と `build/deps/kagari` にキャッシュされる。
 - **指紋の範囲**: `package.sh` の指紋は `engines/` 全体（`plugins/`・`tts/`・`aosora/` も含む）の対象拡張子を対象にするため、それらを変えても 3 系統すべてが再ビルドされる。逆に `.swift`（`AkariValueRegressionTests.swift`）の変更は指紋に入らない。
 - **外部プロセスの責任範囲**: SHIOLINK / 里珠とも、子プロセスがさらに起動した孫プロセスやスクリプト固有のファイル保存はエンジン側の責任。直接の子だけを TERM → KILL で回収する。
 - **SHIOLINK の文字コード**: UTF-8 と Shift_JIS 以外は拒否。変換できない送信文字は失敗（`escape_unknown` は応答側の復元にのみ使われる）。
 - **里珠の LOAD**: ディレクトリパスが Shift_JIS で表せないとロードできない。
 
-**出典:** [docs/ADDITIONAL_SHIORI_ja-jp.md:17-19](../../docs/ADDITIONAL_SHIORI_ja-jp.md#L17-L19)、[docs/ADDITIONAL_SHIORI_ja-jp.md:46](../../docs/ADDITIONAL_SHIORI_ja-jp.md#L46)、[engines/package.sh:7-25](../../engines/package.sh#L7-L25)、[engines/aosora/adapter.cpp:9-22](../../engines/aosora/adapter.cpp#L9-L22)、[Ourin/USL/ShiolinkAdapter.swift:181-185](../../Ourin/USL/ShiolinkAdapter.swift#L181-L185)、[Ourin/USL/RishuProxyAdapter.swift:45-50](../../Ourin/USL/RishuProxyAdapter.swift#L45-L50)、[docs/SHIOLINK_ja-jp.md:36-46](../../docs/SHIOLINK_ja-jp.md#L36-L46)
+**出典:** [docs/ADDITIONAL_SHIORI_ja-jp.md:17-19](../../docs/ADDITIONAL_SHIORI_ja-jp.md#L17-L19)、[docs/ADDITIONAL_SHIORI_ja-jp.md:46](../../docs/ADDITIONAL_SHIORI_ja-jp.md#L46)、[engines/package.sh:7-25](../../engines/package.sh#L7-L25)、[engines/aosora/adapter.cpp:9-22](../../engines/aosora/adapter.cpp#L9-L22)、[Ourin/USL/ShiolinkAdapter.swift:181-185](../../Ourin/USL/ShiolinkAdapter.swift#L181-L185)、[Ourin/USL/RishuProxyAdapter.swift:45-50](../../Ourin/USL/RishuProxyAdapter.swift#L45-L50)、[docs/SHIOLINK_ja-jp.md:36-46](../../docs/SHIOLINK_ja-jp.md#L36-L46)、[engines/additional/verify.py:94-98](../../engines/additional/verify.py#L94-L98)
 
 ## 関連ページ
 

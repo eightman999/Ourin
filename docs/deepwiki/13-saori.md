@@ -19,6 +19,7 @@
 - [Ourin/USL/SatoriAdapter.swift](../../Ourin/USL/SatoriAdapter.swift)
 - [Ourin/SSTP/DirectSSTPXPC.swift](../../Ourin/SSTP/DirectSSTPXPC.swift)
 - [Ourin/ExternalServer/OurinExternalServer.swift](../../Ourin/ExternalServer/OurinExternalServer.swift)
+- [Ourin/ExternalServer/XpcDirectServer.swift](../../Ourin/ExternalServer/XpcDirectServer.swift)
 - [Ourin/SSTP/HTTPBridge.swift](../../Ourin/SSTP/HTTPBridge.swift)
 - [Ourin/SSTP/SSTPListener.swift](../../Ourin/SSTP/SSTPListener.swift)
 - [Ourin/NarInstall/Paths.swift](../../Ourin/NarInstall/Paths.swift)
@@ -94,7 +95,7 @@ Value0: <追加の戻り値>
 | 要素 | 扱い |
 |---|---|
 | 要求行 | `SaoriProtocol.parseRequest` は `METHOD VERSION` と `METHOD TARGET VERSION`（`GET Version SAORI/1.0`）の 2 形を受ける |
-| `ArgumentN` | `SaoriManager.execute` が配列の順に `Argument0`… を作る。内蔵・互換・proxy_ex 側は `Argument0` から連続する番号だけを読む（欠番で止まる） |
+| `ArgumentN` | `SaoriManager.execute` が配列の順に `Argument0`… を作る。内蔵・互換モジュールは `Argument0` から連続する番号だけを読む（欠番で止まる）。`proxy_ex` は `Argument0`〜`Argument63` を調べ、欠番は飛ばして詰める |
 | `Charset` | 要求の文字コード。応答側も `Charset` で自分の文字コードを示す |
 | `Sender` | `execute` と `GET Version` の握手では `Ourin` |
 | `SecurityLevel` / `SecurityOrigin` | `execute` の引数で指定されたときだけ付ける |
@@ -108,7 +109,7 @@ Value0: <追加の戻り値>
 - `buildRequest` / `buildResponse` はヘッダをキー名の辞書順に並べる。
 - 文字コードの名前は `EncodingAdapter.knownEncoding` で解決する（UTF-8、Shift_JIS 系の別名 `sjis` / `cp932` / `windows-31j` 等、EUC-JP、ISO-2022-JP、UTF-16 系、Big5、GBK、EUC-KR、Latin-1、`windows-NNNN` のコードページ）。知らない名前は `unsupportedEncoding`。
 
-**出典:** [Ourin/SaoriHost/SaoriProtocol.swift:3-29](../../Ourin/SaoriHost/SaoriProtocol.swift#L3-L29)、[Ourin/SaoriHost/SaoriProtocol.swift:57-218](../../Ourin/SaoriHost/SaoriProtocol.swift#L57-L218)、[Ourin/SaoriHost/SaoriManager.swift:100-121](../../Ourin/SaoriHost/SaoriManager.swift#L100-L121)、[Ourin/SaoriHost/SaoriManager.swift:193-211](../../Ourin/SaoriHost/SaoriManager.swift#L193-L211)、[Ourin/SSTP/EncodingAdapter.swift:27-49](../../Ourin/SSTP/EncodingAdapter.swift#L27-L49)
+**出典:** [Ourin/SaoriHost/SaoriProtocol.swift:3-29](../../Ourin/SaoriHost/SaoriProtocol.swift#L3-L29)、[Ourin/SaoriHost/SaoriProtocol.swift:57-218](../../Ourin/SaoriHost/SaoriProtocol.swift#L57-L218)、[Ourin/SaoriHost/SaoriManager.swift:100-121](../../Ourin/SaoriHost/SaoriManager.swift#L100-L121)、[Ourin/SaoriHost/SaoriManager.swift:193-211](../../Ourin/SaoriHost/SaoriManager.swift#L193-L211)、[Ourin/SaoriHost/BuiltinSaori.swift:50](../../Ourin/SaoriHost/BuiltinSaori.swift#L50)、[Ourin/SaoriHost/Internal/InternalSaori.swift:167](../../Ourin/SaoriHost/Internal/InternalSaori.swift#L167)、[Ourin/SaoriHost/Compat/CompatSaori.swift:204](../../Ourin/SaoriHost/Compat/CompatSaori.swift#L204)、[Ourin/SSTP/EncodingAdapter.swift:27-49](../../Ourin/SSTP/EncodingAdapter.swift#L27-L49)
 
 ## SaoriManager（ゴーストごとのインスタンスとライフサイクル）
 
@@ -350,7 +351,7 @@ Windows の SAORI DLL の共通 ABI は `BOOL load(HGLOBAL h, long len)`、`HGLO
 | Direct SSTP（XPC） | `InternalSaoriRouting.respond` | 内蔵、互換（ゴーストなし） |
 | PLUGIN の内蔵 YAYA | `PluginEngineHost` の `YayaAdapter` → `SaoriManager`（ゴーストなし） | ネイティブ dylib、内蔵、互換、proxy_ex |
 
-注意: `InternalSaori.swift` の冒頭コメントは内蔵モジュールを「SHIORI（YAYA の FUNCTIONEX、里々）からの呼び出し」で受け付けると書くが、里々の経路は SaoriHost を通らず、satori_core と SATORI 側にも `internal_` を扱うコードは見当たらない。コード上は、里々ゴーストから内蔵・互換・proxy_ex は使えない。
+注意: `InternalSaori.swift` の冒頭コメントは内蔵モジュールを「SHIORI（YAYA の FUNCTIONEX、里々）からの呼び出し」で受け付けると書くが、里々の経路は `SaoriManager` を通らず（`SaoriRegistry` は検索パスの収集にだけ使う）、satori_core と SATORI 側にも `internal_` を扱うコードは見当たらない。コード上は、里々ゴーストから内蔵・互換・proxy_ex は使えない。
 
 `engines/plugins` の移植プラグイン（[12 PLUGIN](./12-plugin.md)）は別系統で、bundle 内の adapter が `--saori-backend` で明示した dylib とローカル TTS / Bouyomi の代替だけを SAORI として扱い、SaoriHost は使わない。
 
@@ -376,12 +377,12 @@ Windows の SAORI DLL の共通 ABI は `BOOL load(HGLOBAL h, long len)`、`HGLO
 - `proxy_ex` の内蔵ローダーは `resolveModuleURL` で見つからない名前に対して作られるため、`unloadModule(named:)` / `loadedModule(named:)` からは引けない。`UNLOADLIB` しても `unloadAll` まで同じインスタンス（`/delim`・`/charset` の状態）が残る。
 - `ensureVersionHandshake` は対象モジュールの文字コードに関係なく `Charset: UTF-8` で `GET Version` を送る。
 - `buildRequest` はヘッダをキー名の辞書順に並べるため、`Argument10` が `Argument2` より前に出る（名前で読むモジュールには影響しない）。
-- yaya_core の `FUNCTIONEX` は要求文に常に `Charset: UTF-8` を書くが、実際の符号化は `REQUESTLIB` の文字コード（`CHARSETLIB` の指定があればそれ）で行う。推測: `CHARSETLIB` で Shift_JIS を指定するとヘッダとバイト列が食い違い得る。
+- yaya_core の `FUNCTIONEX` は要求文に常に `Charset: UTF-8` を書くが、実際の符号化は `REQUESTLIB` の文字コード（`CHARSETLIB` の指定があればそれ）で行う。ネイティブ dylib への要求では、`CHARSETLIB` で Shift_JIS を指定するとヘッダは `Charset: UTF-8` のままバイト列だけが Shift_JIS になる（`SaoriLoader.send` が引数の `charset` で符号化し、ヘッダは書き換えないため）。モジュールがヘッダとバイト列のどちらを信じるかは各モジュール次第で、ここでは確認していない。内蔵・互換・`proxy_ex` は要求を文字列のまま受け取るので、この食い違いは起きない。
 - `internal_data` の `Decompress` は `zstd` を受け付けるが、OS に実装が無いので常に `unsupported algorithm` を返す（コメントは「brotli まで」）。
 - 内蔵の `--async` と互換の `houchi` / `httpc bg` / `mciaudio` 等はゴーストありの呼び出しでしか動かない。PLUGIN の内蔵 YAYA と Direct SSTP は「ゴーストなし」である。
-- `OurinExternalServer` の XPC 受信は SAORI 応答のバイト列を UTF-8 として文字列化して返す（`DirectSSTPXPC` はバイト列のまま返す）。要求の `Charset` が UTF-8 以外のときの扱いは未確認。
+- `OurinExternalServer` の XPC 受信は SAORI 応答のバイト列を `String(decoding:as: UTF8.self)` で文字列化し、`XpcDirectServer` が `Data(resp.utf8)` で返す（`DirectSSTPXPC` はバイト列のまま返す）。要求の `Charset` が UTF-8 以外で応答に非 ASCII 文字を含むと、その文字コードで符号化済みのバイト列が UTF-8 として復号（不正なバイトは U+FFFD に置換）・再符号化されるので、元のバイト列は保たれない。
 
-**出典:** [docs/THIRD_PARTY_TRUST_MODEL_ja-jp.md:22-27](../../docs/THIRD_PARTY_TRUST_MODEL_ja-jp.md#L22-L27)、[docs/THIRD_PARTY_TRUST_MODEL_ja-jp.md:58-60](../../docs/THIRD_PARTY_TRUST_MODEL_ja-jp.md#L58-L60)、[Ourin/SaoriHost/BuiltinSaori.swift:77-116](../../Ourin/SaoriHost/BuiltinSaori.swift#L77-L116)、[Ourin/SaoriHost/SaoriRegistry.swift:139-149](../../Ourin/SaoriHost/SaoriRegistry.swift#L139-L149)、[Ourin/SaoriHost/SaoriManager.swift:193-202](../../Ourin/SaoriHost/SaoriManager.swift#L193-L202)、[Ourin/SaoriHost/SaoriProtocol.swift:144-162](../../Ourin/SaoriHost/SaoriProtocol.swift#L144-L162)、[yaya_core/src/VM.cpp:4672-4683](../../yaya_core/src/VM.cpp#L4672-L4683)、[Ourin/SaoriHost/Internal/InternalDataModule.swift:28-31](../../Ourin/SaoriHost/Internal/InternalDataModule.swift#L28-L31)、[Ourin/SaoriHost/Internal/InternalDataModule.swift:82-87](../../Ourin/SaoriHost/Internal/InternalDataModule.swift#L82-L87)、[Ourin/ExternalServer/OurinExternalServer.swift:55-58](../../Ourin/ExternalServer/OurinExternalServer.swift#L55-L58)
+**出典:** [docs/THIRD_PARTY_TRUST_MODEL_ja-jp.md:22-27](../../docs/THIRD_PARTY_TRUST_MODEL_ja-jp.md#L22-L27)、[docs/THIRD_PARTY_TRUST_MODEL_ja-jp.md:58-60](../../docs/THIRD_PARTY_TRUST_MODEL_ja-jp.md#L58-L60)、[Ourin/SaoriHost/BuiltinSaori.swift:77-116](../../Ourin/SaoriHost/BuiltinSaori.swift#L77-L116)、[Ourin/SaoriHost/SaoriRegistry.swift:139-149](../../Ourin/SaoriHost/SaoriRegistry.swift#L139-L149)、[Ourin/SaoriHost/SaoriManager.swift:193-202](../../Ourin/SaoriHost/SaoriManager.swift#L193-L202)、[Ourin/SaoriHost/SaoriProtocol.swift:144-162](../../Ourin/SaoriHost/SaoriProtocol.swift#L144-L162)、[yaya_core/src/VM.cpp:4672-4683](../../yaya_core/src/VM.cpp#L4672-L4683)、[Ourin/SaoriHost/Internal/InternalDataModule.swift:28-31](../../Ourin/SaoriHost/Internal/InternalDataModule.swift#L28-L31)、[Ourin/SaoriHost/Internal/InternalDataModule.swift:82-87](../../Ourin/SaoriHost/Internal/InternalDataModule.swift#L82-L87)、[Ourin/ExternalServer/OurinExternalServer.swift:55-58](../../Ourin/ExternalServer/OurinExternalServer.swift#L55-L58)、[Ourin/ExternalServer/XpcDirectServer.swift:58-62](../../Ourin/ExternalServer/XpcDirectServer.swift#L58-L62)、[Ourin/SaoriHost/Internal/InternalSaori.swift:308-312](../../Ourin/SaoriHost/Internal/InternalSaori.swift#L308-L312)、[Ourin/SaoriHost/SaoriLoader.swift:110-118](../../Ourin/SaoriHost/SaoriLoader.swift#L110-L118)
 
 ## 関連ページ
 

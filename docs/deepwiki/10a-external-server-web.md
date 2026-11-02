@@ -165,7 +165,7 @@ README は、設定が `~/Library/Preferences/furin-lab.Ourin.plist` から読�
 - `OurinExternalServer` は XPC の `onRequest` だけ、`SAORI/1.0` 要求を `InternalSaoriRouting.respond(to:)`（内蔵 SAORI、[13 SAORI](./13-saori.md)）へ回す。それ以外は `handleRaw`。
 - 設定画面（`ContentView`）には `NSXPCConnection(machServiceName: "jp.ourin.sstp")` でサンプル要求を送る機能がある。
 
-注意（推測・未確認）: リポジトリ内に launchd の `MachServices` 登録（LaunchAgent の plist など）は見当たらない。一般に `NSXPCListener(machServiceName:)` は launchd に登録された名前でないと受け付けられないため、通常のアプリ起動ではこの受信口が実際には機能していない可能性がある。
+注意（推測・未確認）: リポジトリ全体を検索しても launchd の `MachServices` 登録（LaunchAgent の plist など）は見当たらない（`NSXPCListener(machServiceName:)` を使うコードと設定画面のサンプル送信、テスト、`Samples/` だけがある）。一般に `NSXPCListener(machServiceName:)` は launchd に登録された名前でないと受け付けられないため、通常のアプリ起動ではこの受信口が実際には機能していない可能性がある。
 
 **出典:** [Ourin/ExternalServer/XpcDirectServer.swift:1-69](../../Ourin/ExternalServer/XpcDirectServer.swift#L1-L69)、[Ourin/ExternalServer/OurinExternalServer.swift:54-60](../../Ourin/ExternalServer/OurinExternalServer.swift#L54-L60)、[Ourin/ContentView.swift:1619-1630](../../Ourin/ContentView.swift#L1619-L1630)
 
@@ -204,7 +204,7 @@ Reference1: <detail>
 Script: <fallback script>\e
 ```
 
-`Reference0` は `start` / `prompt` / `edit` / `run` / `pass` / `fail` / `denied` / `done` / `aborted` / `say`、`Reference1` はコマンドやファイル名。README は送信内容だけを示し、どの受信口を使うかは書いていない（未確認）。
+`Reference0` は `start` / `prompt` / `edit` / `run` / `pass` / `fail` / `denied` / `done` / `aborted` / `say`、`Reference1` はコマンドやファイル名。README は送信内容だけを示し、どの受信口を使うかは書いていない。送信側の mod はリポジトリ外にあるため、実際の経路は確認できない（未確認）。
 
 Ourin 側では、`Event` 付き SEND なので `SSTPDispatcher.routeToShiori` が `GET OnClaudeCode`（R0/R1 は要求の Reference）を稼働中ゴーストへ送る。`OnClaudeCode` は `EventID` に無い任意イベント名で、そのまま SHIORI の `ID` になる。
 
@@ -278,18 +278,18 @@ stateDiagram-v2
 
 ## セキュリティ上の注意
 
-- **TCP と HTTP は片方だけ有効にできない**: `UnifiedSstpListener` は `enableTCP || enableHTTP` で起動し、接続の振り分けで設定値を見ない。`OurinExternalSSTPAllowHTTP` だけを有効にしても生 SSTP が、`AllowTCP` だけでも HTTP が `127.0.0.1:9801` / `9821` で受け付けられる。
+- **TCP と HTTP は片方だけ有効にできない**: `UnifiedSstpListener` は `enableTCP || enableHTTP` で起動し、接続の振り分けで設定値を見ない。`OurinExternalSSTPAllowHTTP` だけを有効にしても生 SSTP が、`OurinExternalSSTPAllowTCP` だけでも HTTP が `127.0.0.1:9801` / `9821` で受け付けられる。
 - **ループバックでも external**: TCP / HTTP / XPC / Distributed IPC の要求は、Owned（`ID` が FMO / `uniqueid` と一致）でない限り SHIORI に `SecurityLevel: external` で渡る。一方、`OurinExternalSSTPAllowExternalSecurityLevel = false` の local-only は「クライアントが external と申告した要求」を拒否するだけで、申告しない要求は通す（[10 SSTP スタック](./10-sstp.md)）。
 - **自己申告の local**: `EXECUTE GetFMO` / `GetCollision` / `CompressArchive` / `ExtractArchive` の local 制限は要求ヘッダで判定するため、ヘッダを付けない TCP / XPC / Distributed IPC のクライアントは通る。
 - **XPC と Distributed IPC は接続元を検査しない**: XPC は全接続を受け入れ、Distributed IPC は同一セッションの全プロセスから要求でき、応答も他プロセスに見える。
 - **ブラウザ由来の HTTP**: `Origin` が localhost 系・`null` 以外なら HTTP 層で `403`。`null`（ファイルから開いたページなど）は `SecurityLevel: external` で local-only により `420`。ローカルのツールは `Origin` を付けずに送る（README）。
 - **x-ukagaka-link の install**: 任意の Web ページのリンクから、確認無しにダウンロードとインストール処理が始まる。スキーム（既定 https のみ）・公開アドレス・サイズ・タイムアウトの検査はあるが、ドメイン許可リストやハッシュ検証（`docs/WEB_1.0M_SPEC_ja-jp.md` の推奨）は実装されていない。
 
-**出典:** [Ourin/ExternalServer/OurinExternalServer.swift:111-125](../../Ourin/ExternalServer/OurinExternalServer.swift#L111-L125)、[Ourin/ExternalServer/UnifiedSstpListener.swift:57-83](../../Ourin/ExternalServer/UnifiedSstpListener.swift#L57-L83)、[Ourin/SSTP/SSTPDispatcher.swift:559-753](../../Ourin/SSTP/SSTPDispatcher.swift#L559-L753)、[Ourin/ExternalServer/XpcDirectServer.swift:36-41](../../Ourin/ExternalServer/XpcDirectServer.swift#L36-L41)、[Ourin/Web/WebHandler.swift:91-100](../../Ourin/Web/WebHandler.swift#L91-L100)、[docs/WEB_1.0M_SPEC_ja-jp.md:63-68](../../docs/WEB_1.0M_SPEC_ja-jp.md#L63-L68)、[README.md:204-205](../../README.md#L204-L205)
+**出典:** [Ourin/ExternalServer/OurinExternalServer.swift:111-125](../../Ourin/ExternalServer/OurinExternalServer.swift#L111-L125)、[Ourin/ExternalServer/UnifiedSstpListener.swift:57-83](../../Ourin/ExternalServer/UnifiedSstpListener.swift#L57-L83)、[Ourin/ExternalServer/SstpHttpServer.swift:90-91](../../Ourin/ExternalServer/SstpHttpServer.swift#L90-L91)、[Ourin/ExternalServer/SstpHttpServer.swift:135-164](../../Ourin/ExternalServer/SstpHttpServer.swift#L135-L164)、[Ourin/SSTP/SSTPDispatcher.swift:130-155](../../Ourin/SSTP/SSTPDispatcher.swift#L130-L155)、[Ourin/SSTP/SSTPDispatcher.swift:559-753](../../Ourin/SSTP/SSTPDispatcher.swift#L559-L753)、[Ourin/ExternalServer/XpcDirectServer.swift:36-41](../../Ourin/ExternalServer/XpcDirectServer.swift#L36-L41)、[Ourin/Web/WebHandler.swift:91-100](../../Ourin/Web/WebHandler.swift#L91-L100)、[docs/WEB_1.0M_SPEC_ja-jp.md:63-68](../../docs/WEB_1.0M_SPEC_ja-jp.md#L63-L68)、[README.md:204-205](../../README.md#L204-L205)
 
 ## 制約と注意点
 
-- **応答の文字コード**: TCP / HTTP / XPC はいずれも応答を UTF-8 で送る。SSTP 応答の `Charset` ヘッダは要求の値をそのまま写すため、`Charset: Shift_JIS` の要求には宣言と実際が食い違う応答が返る。XPC 経由の SAORI 応答は `InternalSaoriRouting.respond` が要求の Charset でエンコードしたバイト列を `String(decoding:as: UTF8.self)` で文字列に戻してから再び UTF-8 で返すため、UTF-8 以外の Charset では化ける可能性がある（推測、未確認）。
+- **応答の文字コード**: TCP / HTTP / XPC はいずれも応答を UTF-8 で送る。SSTP 応答の `Charset` ヘッダは要求の値をそのまま写すため、`Charset: Shift_JIS` の要求には宣言と実際が食い違う応答が返る。XPC 経由の SAORI 応答は `InternalSaoriRouting.respond` が要求の Charset でエンコードしたバイト列を `String(decoding:as: UTF8.self)` で文字列に戻してから再び UTF-8 で返すため、UTF-8 以外の Charset では、応答に非 ASCII 文字があると化ける（不正な UTF-8 バイト列は `String(decoding:as:)` が U+FFFD に置き換えるため。コード上の帰結で、実機では未確認）。
 - **起動失敗が見えない**: リスナー起動のエラーは `try?` で捨てられる。`xpc.isRunning` は `resume()` を呼んだだけで真になる。
 - **ドキュメントとの食い違い**（コード優先）:
   - 注意: README の受信口表は `9801` だけを挙げるが、コードは `9821` でも同じ受信口を開く。README の「`Origin` ヘッダ付きの HTTP 要求は `external` になり `420`」は、localhost 系の Origin では `420` にならず、localhost 系・`null` 以外では HTTP `403` になる点で不正確。
@@ -297,7 +297,7 @@ stateDiagram-v2
   - 注意: `docs/WEB_1.0M_SPEC_ja-jp.md` は `type=event` / `install` / `homeurl` の 3 種だが、コードは `query`（`OnURLQuery`）も受け付ける。同文書の「インストール前に確認ダイアログ」は本ページ範囲のコードには無い。同文書は `.nar` の UTI を `com.ourin.nar` とするが、`Info.plist` の `UTExportedTypeDeclarations` / `CFBundleDocumentTypes` は `jp.ourin.nar`（`public.zip-archive` 準拠、拡張子 `nar`、MIME `application/x-nar` / `application/x-ukagaka-nar` / `application/zip`）を宣言している。
 - **WebSocket のイベント**: Open / Receive などは全セッションへ NOTIFY される。接続を開いたゴースト以外にも届く。
 
-**出典:** [Ourin/ExternalServer/SstpTcpServer.swift:72-79](../../Ourin/ExternalServer/SstpTcpServer.swift#L72-L79)、[Ourin/ExternalServer/SstpHttpServer.swift:101-113](../../Ourin/ExternalServer/SstpHttpServer.swift#L101-L113)、[Ourin/ExternalServer/OurinExternalServer.swift:54-60](../../Ourin/ExternalServer/OurinExternalServer.swift#L54-L60)、[Ourin/SaoriHost/Internal/InternalSaori.swift:306-311](../../Ourin/SaoriHost/Internal/InternalSaori.swift#L306-L311)、[Ourin/ExternalServer/XpcDirectServer.swift:20-34](../../Ourin/ExternalServer/XpcDirectServer.swift#L20-L34)、[README.md:190-205](../../README.md#L190-L205)、[docs/SSTP_1.xM_SPEC_ja-jp.md:78-80](../../docs/SSTP_1.xM_SPEC_ja-jp.md#L78-L80)、[docs/SSTP_1.xM_SPEC_ja-jp.md:181-183](../../docs/SSTP_1.xM_SPEC_ja-jp.md#L181-L183)、[docs/WEB_1.0M_SPEC_ja-jp.md:34-39](../../docs/WEB_1.0M_SPEC_ja-jp.md#L34-L39)、[docs/WEB_1.0M_SPEC_ja-jp.md:55-60](../../docs/WEB_1.0M_SPEC_ja-jp.md#L55-L60)、[Ourin/Resources/Info.plist:7-21](../../Ourin/Resources/Info.plist#L7-L21)、[Ourin/Resources/Info.plist:59-84](../../Ourin/Resources/Info.plist#L59-L84)、[Ourin/Web/GhostManager+WebSocket.swift:107-113](../../Ourin/Web/GhostManager+WebSocket.swift#L107-L113)
+**出典:** [Ourin/ExternalServer/SstpTcpServer.swift:72-79](../../Ourin/ExternalServer/SstpTcpServer.swift#L72-L79)、[Ourin/ExternalServer/SstpHttpServer.swift:101-113](../../Ourin/ExternalServer/SstpHttpServer.swift#L101-L113)、[Ourin/ExternalServer/OurinExternalServer.swift:54-60](../../Ourin/ExternalServer/OurinExternalServer.swift#L54-L60)、[Ourin/SaoriHost/Internal/InternalSaori.swift:306-311](../../Ourin/SaoriHost/Internal/InternalSaori.swift#L306-L311)、[Ourin/ExternalServer/XpcDirectServer.swift:20-34](../../Ourin/ExternalServer/XpcDirectServer.swift#L20-L34)、[README.md:190-205](../../README.md#L190-L205)、[docs/SSTP_1.xM_SPEC_ja-jp.md:78-80](../../docs/SSTP_1.xM_SPEC_ja-jp.md#L78-L80)、[docs/SSTP_1.xM_SPEC_ja-jp.md:181-183](../../docs/SSTP_1.xM_SPEC_ja-jp.md#L181-L183)、[docs/WEB_1.0M_SPEC_ja-jp.md:34-39](../../docs/WEB_1.0M_SPEC_ja-jp.md#L34-L39)、[docs/WEB_1.0M_SPEC_ja-jp.md:55-60](../../docs/WEB_1.0M_SPEC_ja-jp.md#L55-L60)、[Ourin/Resources/Info.plist:7-21](../../Ourin/Resources/Info.plist#L7-L21)、[Ourin/Resources/Info.plist:59-84](../../Ourin/Resources/Info.plist#L59-L84)、[Ourin/Web/GhostManager+WebSocket.swift:107-113](../../Ourin/Web/GhostManager+WebSocket.swift#L107-L113)、[Ourin/SaoriHost/Internal/InternalSaori.swift:299-317](../../Ourin/SaoriHost/Internal/InternalSaori.swift#L299-L317)
 
 ## 関連ページ
 

@@ -296,12 +296,12 @@ FMO の書き込みは常に「全ゴーストを集め直してスナップシ�
 - **サイズ上限と切り詰め**: 本文は最大 65,531 バイトで、超えた分は黙って切り捨てられる。行やマルチバイト文字の途中で切れうる。ゴーストを多数同時起動したときの影響は未確認。
 - **残りバイト**: 書き込み時に領域をゼロクリアしないので、前回より短い本文のあとに古いバイトが残る。読み手は長さ（または NUL）で止める必要がある。
 - **`hwnd` の安定性**: 代替値は Swift の `Hasher` で作る。`Hasher` のシードは実行ごとに変わる（Swift 標準ライブラリの仕様）ため、同一プロセス内でのみ安定である。
-- **失敗検出**: `FmoSharedMemory` は `fmo_map` の結果を `nil` かどうかで判定し、`FmoMutex` は `fmo_sem_open` の結果を `nil` かどうかで判定している。POSIX の `mmap` は失敗時に `MAP_FAILED`（`(void *)-1`）を返し、Darwin の `sem_open` は `SEM_FAILED`（`(sem_t *)-1`）を返すので、これらの失敗は `nil` 判定では捕まらないと考えられる（推測。macOS 実機では未確認）。その場合 `FmoMutex` の残留セマフォ再作成の分岐にも入らず、後の `sem_wait` 失敗として `FMO writeSnapshot failed` のログに現れるはずである。
+- **失敗検出（推測）**: `FmoSharedMemory` は `fmo_map` の結果を `nil` かどうかで判定し、`FmoMutex` は `fmo_sem_open` の結果を `nil` かどうかで判定している。C ブリッジの `fmo_map` と `fmo_sem_open` は `mmap` と `sem_open` の戻り値をそのまま返し、`MAP_FAILED` や `SEM_FAILED` を `NULL` に変換していない。POSIX の `mmap` は失敗時に `MAP_FAILED`（`(void *)-1`）を返し、Darwin の `sem_open` は `SEM_FAILED`（`(sem_t *)-1`）を返すので、これらの失敗は `nil` 判定では捕まらないと考えられる（推測。macOS 実機での確認が必要）。その場合 `FmoMutex` は失敗に気づかず成功扱いで戻り、`EEXIST` の残留セマフォを再作成する分岐にも入らない。続く `sem_wait` が無効なポインタに対して `-1` を返して `FMO writeSnapshot failed` のログに現れるのか、プロセスが異常終了するのかは分からない（未確認）。
 - **ロックにタイムアウトが無い**: `sem_wait` は無期限に待つ。外部プロセスが `/ourin_fmo_mutex` を取ったまま止まると、`refreshFmo()` を呼んだスレッド（多くはメインスレッド）が止まる。
 - **アプリ名への依存**: 単一インスタンス判定は実行ファイルのパスが `/Ourin.app/Contents/MacOS/Ourin` で終わることを条件にしているので、`.app` の名前を変えた Ourin 同士は互いを検出しない。
 - **初期化失敗時の文言**: FMO 初期化に失敗すると「single instance enforcement disabled」とログに出るが、プロセス一覧による判定はその前に済んでいる。
 
-**出典:** [docs/KNOWN_ISSUES_ja-jp.md:19](../../docs/KNOWN_ISSUES_ja-jp.md#L19)、[docs/About_FMO_ja-jp.md:69-88](../../docs/About_FMO_ja-jp.md#L69-L88)、[Ourin/FMO/FmoSharedMemory.swift:47-69](../../Ourin/FMO/FmoSharedMemory.swift#L47-L69)、[Ourin/FMO/FmoMutex.swift:23-60](../../Ourin/FMO/FmoMutex.swift#L23-L60)、[Ourin/OurinApp.swift:855-867](../../Ourin/OurinApp.swift#L855-L867)、[Ourin/Utils/ProcessKiller.swift:75-101](../../Ourin/Utils/ProcessKiller.swift#L75-L101)、[Ourin/OurinApp.swift:382-388](../../Ourin/OurinApp.swift#L382-L388)
+**出典:** [docs/KNOWN_ISSUES_ja-jp.md:19](../../docs/KNOWN_ISSUES_ja-jp.md#L19)、[docs/About_FMO_ja-jp.md:69-88](../../docs/About_FMO_ja-jp.md#L69-L88)、[Ourin/FMO/FmoSharedMemory.swift:47-69](../../Ourin/FMO/FmoSharedMemory.swift#L47-L69)、[Ourin/FMO/FmoMutex.swift:23-60](../../Ourin/FMO/FmoMutex.swift#L23-L60)、[Ourin/FMO/FmoBridge.c:25-28](../../Ourin/FMO/FmoBridge.c#L25-L28)、[Ourin/FMO/FmoBridge.c:50-53](../../Ourin/FMO/FmoBridge.c#L50-L53)、[Ourin/FMO/FmoManager.swift:228-237](../../Ourin/FMO/FmoManager.swift#L228-L237)、[Ourin/OurinApp.swift:855-867](../../Ourin/OurinApp.swift#L855-L867)、[Ourin/Utils/ProcessKiller.swift:75-101](../../Ourin/Utils/ProcessKiller.swift#L75-L101)、[Ourin/OurinApp.swift:382-388](../../Ourin/OurinApp.swift#L382-L388)
 
 ## 関連ページ
 

@@ -180,7 +180,7 @@ flowchart LR
 | `request` | `method`（既定 `GET`）、`id`、`headers`、`ref` | `ok`、`status`、`headers`、`value`（NOTIFY の一部イベントでは `value` なしで 204） | `YayaAdapter.request` |
 | `raw_request` | `raw` | `ok`、`status`、`value`（辞書の `request` の戻り値そのまま。関数が無ければ 500） | `YayaAdapter.rawRequest` |
 | `plugin_request` | `wire`（`GET/NOTIFY PLUGIN/2.0[M]` で始まる 1 MiB 以下の電文） | `ok`、`status`、`wire`。枠が不正なら 400、`request` 関数が無ければ 501、応答が不正なら 502 | `engines/plugins/yaya_adapter.cpp`（Swift からは送らない） |
-| `get_loaded_dics` | なし | `ok`、`status`、`loaded_dics` | 呼び出し元なし（未確認。リポジトリ内に送信箇所が見当たらない） |
+| `get_loaded_dics` | なし | `ok`、`status`、`loaded_dics` | 呼び出し元なし（リポジトリ全体を検索しても送信箇所は無く、受け口の `YayaCore.cpp:473` だけがある） |
 | `unload` | なし | `ok`、`status` 200 | `YayaAdapter.unload` |
 | その他 | — | `ok:false`、`status:400`、`error:"unknown command"` | — |
 
@@ -383,7 +383,7 @@ VM の `REQUESTLIB` は、文字コードを `CHARSETLIB` の設定、第 3 引�
 
 `yaya_core/.gitignore` は `build/` と `*.txt` を無視する。`CMakeLists.txt` は追跡済みなので影響しないが、新しく `.txt` を足すときは注意が要る。
 
-**出典:** [yaya_core/CMakeLists.txt:1-71](../../yaya_core/CMakeLists.txt#L1-L71)、[yaya_core/build.sh:1-41](../../yaya_core/build.sh#L1-L41)、[Ourin.xcodeproj/project.pbxproj:54-65](../../Ourin.xcodeproj/project.pbxproj#L54-L65)、[Ourin.xcodeproj/project.pbxproj:424-442](../../Ourin.xcodeproj/project.pbxproj#L424-L442)、[.github/workflows/macOS.yml:126-155](../../.github/workflows/macOS.yml#L126-L155)、[.github/workflows/macOS.yml:201-229](../../.github/workflows/macOS.yml#L201-L229)
+**出典:** [yaya_core/CMakeLists.txt:1-71](../../yaya_core/CMakeLists.txt#L1-L71)、[yaya_core/.gitignore:1-2](../../yaya_core/.gitignore#L1-L2)、[yaya_core/build.sh:1-41](../../yaya_core/build.sh#L1-L41)、[Ourin.xcodeproj/project.pbxproj:54-65](../../Ourin.xcodeproj/project.pbxproj#L54-L65)、[Ourin.xcodeproj/project.pbxproj:424-442](../../Ourin.xcodeproj/project.pbxproj#L424-L442)、[.github/workflows/macOS.yml:126-155](../../.github/workflows/macOS.yml#L126-L155)、[.github/workflows/macOS.yml:201-229](../../.github/workflows/macOS.yml#L201-L229)
 
 ## テスト・サンプル・別のホスト
 
@@ -391,7 +391,7 @@ VM の `REQUESTLIB` は、文字コードを `CHARSETLIB` の設定、第 3 引�
 |---|---|
 | [yaya_core/tests/](../../yaya_core/tests/) | 実 helper（`build/yaya_core`）へ JSON line を流す Python `unittest`。辞書はすべて自作。`test_file_persistence.py`（FOPEN/FREAD の登録表・EOF、保存の別プロセス復元、他形式の保存を上書きしない、`save_file` と `basepath` の分離）、`test_hash_foreach.py`（YAYA 600 の `foreach` 意味論）、`test_json_files.py`（JSON の BOM・コメント・int64・文字コード・パス脱出拒否）、`test_saori_no_content.py`（SAORI 204 は Void、host_op への応答を stdin に流して検証）、`test_user_arguments.py`（配列引数の展開と参照の書き戻し） |
 | [yaya_core/examples/](../../yaya_core/examples/) | `simple_ghost.dic`、`phase2_features.dic`、`all_functions_test.dic`、`re_test*.dic` と使い方の README。手でパイプ入力して試す例 |
-| `yaya_core/test_*.dic` | `test_b64.dic`、`test_eval.dic`、`test_strstr.dic` など 10 個の小さな辞書。参照するテストはリポジトリ内に見当たらない（手動確認用と推測） |
+| `yaya_core/test_*.dic` | `test_b64.dic`、`test_eval.dic`、`test_strstr.dic` など 10 個の小さな辞書。ファイル名でこれらを参照するテストやスクリプトはリポジトリ全体を検索しても無い（手動確認用と推測） |
 | `OurinTests/Yaya*Tests.swift` | Swift 側から helper を起動する回帰テスト（[18 テストと互換性検証](./18-testing.md)）。`YayaEmily4RegressionTests` は `OURIN_EMILY4_DIR` を指定したときだけ実ゴーストを読む |
 | [engines/plugins/yaya_adapter.cpp](../../engines/plugins/yaya_adapter.cpp) | YAYA 製 PLUGIN を `.plugin` 化するためのネイティブアダプタ。自分で `yaya_core` を `posix_spawn` し、`host_execute: true` 付きの `load` と `plugin_request` を送り、`host_op` に自前で答える（[12 PLUGIN](./12-plugin.md)） |
 | `PluginEngine`（Swift） | `yaya.dll` を PLUGIN として使うとき `YayaAdapter.loadModule(root:configName:)` と `rawRequest` を使う。`loadModule` は SHIORI の `capability` を送らない |
@@ -449,7 +449,7 @@ CI の `test` ジョブは `yaya_core/tests` のうち `test_file_persistence.py
 - `load` の `env` と `headers`、`load_messages` で読んだ `messagetxt` の文言は、現状どれも VM の動作に使われない。
 - `SAVEVAR` の形式は Ourin 独自の型付き JSON で、本家 YAYA の保存形式とは異なる。既存の本家形式・暗号化形式のファイルは上書きしない（読み込みも JSON として解釈できる場合に限られる）。
 - `ZEN2HAN` / `HAN2ZEN` は 2 回登録されている（3926/3932 行と 4096/4102 行）。後の登録が有効になるが実装は同じ。
-- `get_loaded_dics` コマンドを送るコードはリポジトリ内に無い（未確認。外部ツール用か残置かは不明）。
+- `get_loaded_dics` コマンドを送るコードはリポジトリ内に無い（リポジトリ全体を検索して確認した。外部ツール用か残置かは不明で、未確認）。
 
 **出典:** [AGENTS.md:9](../../AGENTS.md#L9)、[CONTRIBUTING.md:23-25](../../CONTRIBUTING.md#L23-L25)、[yaya_core/src/DictionaryManager.cpp:380-381](../../yaya_core/src/DictionaryManager.cpp#L380-L381)、[engines/plugins/yaya_adapter.cpp:226-236](../../engines/plugins/yaya_adapter.cpp#L226-L236)、[yaya_core/src/VM.cpp:4172-4201](../../yaya_core/src/VM.cpp#L4172-L4201)、[yaya_core/src/VM.cpp:3945-3955](../../yaya_core/src/VM.cpp#L3945-L3955)、[yaya_core/tests/test_json_files.py:1-6](../../yaya_core/tests/test_json_files.py#L1-L6)
 

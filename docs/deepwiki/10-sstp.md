@@ -403,7 +403,7 @@ Cookie はアプリ起動時に `enablePersistence()` → `loadFromDisk()` さ�
 
 ## 制約と注意点
 
-- **`GhostRegistry` が実運用で空のまま**: `GhostRegistry.shared.register(name:path:)` の呼び出しはテスト（`OurinTests/SSTPDispatcherEffectTests.swift`）にしか無い。このため `ReceiverGhostName` を付けた SEND / NOTIFY / COMMUNICATE / GIVE / INSTALL（と EXECUTE の非拡張コマンド）は `512 Invisible` になり、`GetNames` 系は空、`GetName` は `currentghost.name` プロパティに依存する（静的解析による推論。実機では未確認）。`docs/SSTP_1.xM_SPEC_ja-jp.md` の「ReceiverGhostName 未発見は 404」とも食い違う。
+- **`GhostRegistry` が実運用で空のまま**: `GhostRegistry.shared.register(name:path:)` の呼び出しはテスト（`OurinTests/SSTPDispatcherEffectTests.swift`）にしか無い。このため `ReceiverGhostName` を付けた SEND / NOTIFY / COMMUNICATE / GIVE / INSTALL（と EXECUTE の非拡張コマンド）は `512 Invisible` になり、`GetNames` 系は空、`GetName` は `currentghost.name` プロパティに依存する（分岐と登録呼び出しの有無からコード上確定できる帰結で、実機では未確認）。`docs/SSTP_1.xM_SPEC_ja-jp.md` の「ReceiverGhostName 未発見は 404」とも食い違う。
 - **応答の文字コード**: 応答の `Charset` ヘッダには要求の `Charset` をそのまま書くが、受信口はバイト列を常に UTF-8 でエンコードして返す（[10.1](./10a-external-server-web.md)）。`Charset: Shift_JIS` の要求には宣言と実際が食い違う応答が返る。
 - **EXECUTE の local 判定は自己申告**: `GetFMO` などの制限は要求ヘッダの `SecurityLevel` / `SecurityOrigin` で判定するため、これらを付けない TCP / XPC クライアントは local 扱いになる。
 - **到達しないコード**: `handleExecute` 内の `setcookie` / `getcookie` 分岐は、先に `handleExtendedExecuteCommand` が同名を必ず処理して非 `nil` を返すため実行されない。
