@@ -1,0 +1,9 @@
+{
+  "name": "deepwiki-site-tools",
+  "private": true,
+  "description": "Pre-renders the Mermaid diagrams of docs/deepwiki for build_site.py",
+  "dependencies": {
+    "mermaid": "11.4.1",
+    "playwright": "1.63.0"
+  }
+}

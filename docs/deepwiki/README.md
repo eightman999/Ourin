@@ -10,7 +10,7 @@ Ourin（桜鈴）のソースコードを読んで作成した、階層型の技
 ## 読み方
 
 ```mermaid
-flowchart LR
+flowchart TB
     A["1 概要"] --> B["3 起動とライフサイクル"]
     B --> C["4 GhostManager"]
     C --> D["5 サーフェス / 6 バルーン / 7 さくらスクリプト"]
@@ -78,6 +78,27 @@ flowchart LR
 | [18 テストと互換性検証](./18-testing.md) | XCTest の分類、fixture、Python テスト、互換性コーパスと実ゴースト検証 |
 | [19 開発支援ツールと文書体系](./19-dev-tooling.md) | `ourin-autonomy`・`ukadoc-mcp`、AI エージェント設定、`docs/` の構成と対訳規則 |
 | [20 用語集](./20-glossary.md) | 伺か用語と Ourin 固有の名前 |
+
+## HTML 版
+
+`docs/deepwiki/site/index.html` は、この wiki 全体を 1 ファイルにまとめた HTML 版である。ブラウザで直接開ける（GitHub Pages などに置いてもよい）。
+
+- 左にページの階層、右に「このページの内容」を表示する。上部の検索欄（`/` キーで移動）で全ページの節を全文検索できる
+- 出典はコミット `aa88972` に固定した GitHub の行リンクになる
+- Mermaid 図はビルド時に SVG にしてある（ライト・ダーク両方）。図の「拡大」で原寸表示になる
+- 配色は OS の設定に従い、右上のボタンで切り替えられる
+
+Markdown（このディレクトリの `*.md`）が正本で、HTML は `tools/` のスクリプトで生成する。
+
+```bash
+cd docs/deepwiki/tools
+npm install                          # mermaid と playwright（図の事前描画に使う）
+pip install markdown-it-py pygments
+python3 build_site.py                # docs/deepwiki/site/index.html を書き出す
+python3 check_wiki.py ../../..       # 出典リンク・行範囲・ページ間リンクの検査
+```
+
+Node.js がない環境では `python3 build_site.py --no-mermaid` で、図を Mermaid のソースのまま載せた HTML を作れる。配色・フォント・対象コミットは `tools/site.json` で設定する。
 
 ## この wiki の検証方法
 
