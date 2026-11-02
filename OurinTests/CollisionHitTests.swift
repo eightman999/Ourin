@@ -38,6 +38,40 @@ struct CollisionHitTests {
         #expect(manager.collisionRegionName(at: bottom, scope: 0) == "Body")
     }
 
+    /// 複数ゴースト同時起動時に、当たり判定と右クリックメニューの処理先が窓の持ち主になること。
+    @MainActor
+    @Test
+    func owningGhostManagerIsResolvedFromInputWindow() throws {
+        let rootA = try TestGhostFixture.makeRoot()
+        let rootB = try TestGhostFixture.makeRoot()
+        defer {
+            try? FileManager.default.removeItem(at: rootA)
+            try? FileManager.default.removeItem(at: rootB)
+        }
+        let managerA = GhostManager(ghostURL: rootA)
+        let managerB = GhostManager(ghostURL: rootB)
+        defer {
+            managerA.shutdown()
+            managerB.shutdown()
+        }
+
+        func makeWindow() -> NSWindow {
+            NSWindow(contentRect: NSRect(x: 0, y: 0, width: 100, height: 100),
+                     styleMask: .borderless, backing: .buffered, defer: false)
+        }
+        let windowA = makeWindow()
+        let windowB = makeWindow()
+        let strangerWindow = makeWindow()
+        managerA.characterWindows[0] = windowA
+        managerB.characterWindows[0] = windowB
+
+        let managers = [managerA, managerB]
+        #expect(InputMonitor.owningGhostManager(of: windowA, in: managers) === managerA)
+        #expect(InputMonitor.owningGhostManager(of: windowB, in: managers) === managerB)
+        #expect(InputMonitor.owningGhostManager(of: strangerWindow, in: managers) == nil)
+        #expect(InputMonitor.owningGhostManager(of: nil, in: managers) == nil)
+    }
+
     /// 標準ゴーストの各判定領域が、サーフェス画像の不透明部分にある程度乗っていること。
     /// 絵を差し替えたときに、判定だけが空白へずれたままになるのを検出する。
     @Test

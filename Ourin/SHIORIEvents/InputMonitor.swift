@@ -9,7 +9,9 @@ final class InputMonitor {
     private var local: Any?
     private var global: Any?
     private var handler: ((ShioriEvent)->Void)?
-    /// Called when a right-click (non-gesture) is detected on a ghost character window.
+    /// Fallback called when a right-click (non-gesture) is detected on a ghost character
+    /// window whose owning GhostManager cannot be resolved. Normally the menu is routed
+    /// to the owner of the clicked window by `showRightClickMenu(from:at:)`.
     /// The parameter is the screen-space click location.
     var rightClickMenuHandler: ((NSPoint) -> Void)?
     /// Called before normal click events are delivered for a ghost/balloon window.
@@ -102,7 +104,7 @@ final class InputMonitor {
 
                                     if ev.type == .rightMouseUp && windowId.hasPrefix("GhostCharacterWindow") {
                                         let screenPoint = ev.window?.convertPoint(toScreen: ev.locationInWindow) ?? ev.locationInWindow
-                                        self.rightClickMenuHandler?(screenPoint)
+                                        self.showRightClickMenu(from: ev.window, at: screenPoint)
                                     }
                                 }
 
@@ -156,6 +158,30 @@ final class InputMonitor {
             self?.updatePointerRegion(for: ev)
             self?.dispatch(ev)
         }
+    }
+
+    /// 窓を所有するゴーストを返す。複数ゴースト同時起動時に、当たり判定や右クリックメニューを
+    /// 主ゴーストではなく窓の持ち主で処理するために使う。所有判定は `ghostClickHandler` と同じ
+    /// `GhostManager.ownsInputWindow(_:)`。
+    static func owningGhostManager(of window: NSWindow?, in managers: [GhostManager]) -> GhostManager? {
+        guard let window else { return nil }
+        return managers.first { $0.ownsInputWindow(window) }
+    }
+
+    private func owningGhostManager(of window: NSWindow?) -> GhostManager? {
+        Self.owningGhostManager(of: window, in: AppDelegate.resolve()?.allGhostManagers ?? [])
+    }
+
+    /// 右クリックメニューを、右クリックされた窓を持つゴーストで表示する。
+    /// 持ち主を解決できない場合だけ、従来の `rightClickMenuHandler` に任せる。
+    func showRightClickMenu(from window: NSWindow?, at screenPoint: NSPoint) {
+        if let owner = owningGhostManager(of: window) {
+            DispatchQueue.main.async {
+                owner.showOwnerDrawMenu(at: screenPoint)
+            }
+            return
+        }
+        rightClickMenuHandler?(screenPoint)
     }
 
     /// 監視を停止する
@@ -570,7 +596,9 @@ final class InputMonitor {
                     scope = s
                     // 当たり判定は左上原点のサーフェス座標で定義されるため、AppKit の左下原点から変換して渡す。
                     let surfacePoint = Self.surfacePoint(fromWindowPoint: point, windowHeight: window.frame.height)
-                    if let gm = AppDelegate.resolve()?.ghostManager,
+                    // 追加ゴーストの窓でも主ゴーストの表を引かないよう、窓の持ち主で判定する。
+                    // 持ち主を解決できない場合だけ従来どおり主ゴーストを使う。
+                    if let gm = owningGhostManager(of: window) ?? AppDelegate.resolve()?.ghostManager,
                        let r = gm.collisionRegionName(at: surfacePoint, scope: s), !r.isEmpty {
                         region = r
                     }
