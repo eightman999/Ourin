@@ -55,11 +55,18 @@ public final class XpcDirectServer: NSObject, NSXPCListenerDelegate, OurinSSTPXP
             return
         }
         let start = Date()
-        let resp = onRequest?(str) ?? "SSTP/1.1 204 No Content\r\n\r\n"
+        let replyData: Data
+        if InternalSaoriRouting.isSaoriRequest(str) {
+            // SAORI over DirectSSTP: SAORI/1.0 の要求は内蔵モジュールで処理する。応答は要求の Charset で
+            // 符号化済みの Data なので、String を経由せずそのまま返す（UTF-8 として復号すると化ける）。
+            replyData = InternalSaoriRouting.respond(to: str)
+        } else {
+            replyData = Data((onRequest?(str) ?? "SSTP/1.1 204 No Content\r\n\r\n").utf8)
+        }
         let duration = Date().timeIntervalSince(start)
         logger.info("xpc size=\(request.count) duration=\(duration)")
         ServerMetrics.shared.record(duration: duration, error: false)
-        reply(Data(resp.utf8))
+        reply(replyData)
     }
 
     /// XPC入力をCharset宣言とCP932受理設定に従ってUTF-8文字列へ変換する。
