@@ -34,6 +34,9 @@ final class PluginEngineHost {
     private let lock = NSLock()
     private var yaya: YayaAdapter?
     private var native: NativeShioriModule?
+    /// `unload()` 済みか。`load()` を明示的に呼ぶまで、`request` はエンジンを起動し直さない
+    /// （再読み込みで破棄された旧 Plugin 宛ての遅れた要求が、unload 済みのエンジンを復活させないため）。
+    private var isUnloaded = false
 
     init(kind: PluginEngineKind, moduleDirectory: URL, moduleFileName: String) {
         self.kind = kind
@@ -46,6 +49,7 @@ final class PluginEngineHost {
     func load() -> Bool {
         lock.lock(); defer { lock.unlock() }
         guard yaya == nil, native == nil else { return true }
+        isUnloaded = false
         switch kind {
         case .yaya:
             guard let adapter = YayaAdapter() else { return false }
@@ -69,7 +73,10 @@ final class PluginEngineHost {
 
     /// 要求のワイヤバイト列を処理して応答バイト列を返す。
     func request(_ data: Data) -> Data? {
-        if yaya == nil && native == nil, !load() { return nil }
+        if yaya == nil && native == nil {
+            lock.lock(); let unloaded = isUnloaded; lock.unlock()
+            if unloaded || !load() { return nil }
+        }
         lock.lock(); defer { lock.unlock() }
         if let native {
             return native.request(data)
@@ -85,6 +92,7 @@ final class PluginEngineHost {
 
     func unload() {
         lock.lock(); defer { lock.unlock() }
+        isUnloaded = true
         yaya?.unload()
         yaya = nil
         native?.unload()

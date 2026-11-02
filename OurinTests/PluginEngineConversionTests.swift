@@ -99,6 +99,10 @@ struct PluginEngineConversionTests {
             plugin.send(PluginFrame(id: "loadpath", charset: "UTF-8").build(), charset: "UTF-8")
         )
         #expect(path.value == dir.path + "/")
+
+        // unload 済みのエンジンは、遅れて届いた要求で起動し直されない（再読み込みで破棄された旧 Plugin 向け）
+        plugin.unload()
+        #expect(plugin.send(PluginFrame(id: "loadpath", charset: "UTF-8").build(), charset: "UTF-8").isEmpty)
     }
 
     // MARK: - fixtures
