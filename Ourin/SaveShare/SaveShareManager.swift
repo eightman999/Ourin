@@ -11,6 +11,9 @@
 //   offset 16 : computerName (computerNameLen-1 bytes、無ければ省略)
 //   offset 16+len : uncompressedSize (LE32) ※ 圧縮前の本文バイト数
 //   offset 20+len : zlib 圧縮データ (compress2 level -1)
+//                   RFC 1950 の zlib 形式 = 2 バイトヘッダ (78 9C) + 生 deflate + Adler-32 (BE32)
+//                   読み込み時、zlib ヘッダで始まらないデータは生 deflate (RFC 1951) として展開する
+//                   (旧 Ourin が書いた .ssg を読むため)。
 //
 //   本文テキスト (SSP 互換):
 //     "===SSP_SAVESHARE:1.0===\\r\\n"
@@ -326,8 +329,48 @@ enum SaveShareManager {
         return (UInt32(intervals & 0xFFFF_FFFF), UInt32(intervals >> 32))
     }
 
+    /// zlib 形式 (RFC 1950) に圧縮する。Compression フレームワークの COMPRESSION_ZLIB はヘッダも
+    /// Adler-32 も無い生 deflate (RFC 1951) なので、前後に 2 バイトヘッダと Adler-32 を自前で付ける。
     static func zlibCompress(_ data: Data) throws -> Data {
         guard !data.isEmpty else { return Data() }
+        let deflated = try rawDeflate(data)
+        // CMF=0x78 (deflate、32K 窓)、FLG=0x9C (既定の圧縮レベル。(CMF*256+FLG) が 31 の倍数)。
+        var output = Data([0x78, 0x9C])
+        output.append(deflated)
+        let checksum = InternalCompression.adler32(data)
+        output.append(contentsOf: [
+            UInt8((checksum >> 24) & 0xFF), UInt8((checksum >> 16) & 0xFF),
+            UInt8((checksum >> 8) & 0xFF), UInt8(checksum & 0xFF),
+        ])
+        return output
+    }
+
+    /// zlib 形式 (RFC 1950) を展開し、Adler-32 を確かめる。先頭が zlib ヘッダでなければ
+    /// 旧 Ourin が書いた生 deflate (RFC 1951) として展開する。展開できない・Adler-32 が合わないときは nil。
+    static func zlibDecompress(_ data: Data, expectedSize: Int) throws -> Data? {
+        guard !data.isEmpty else { return Data() }
+        guard hasZlibHeader(data) else {
+            return rawInflate(data, expectedSize: expectedSize)
+        }
+        // 2 バイトヘッダ + deflate + Adler-32 (4 バイト)。
+        guard data.count > 6 else { return nil }
+        guard let output = rawInflate(Data(data.dropFirst(2).dropLast(4)), expectedSize: expectedSize) else {
+            return nil
+        }
+        let expected = data.suffix(4).reduce(UInt32(0)) { ($0 << 8) | UInt32($1) }
+        guard InternalCompression.adler32(output) == expected else { return nil }
+        return output
+    }
+
+    /// 先頭 2 バイトが zlib ヘッダとして妥当か (CMF の下位 4bit が 8 = deflate、(CMF*256+FLG) が 31 の倍数)。
+    private static func hasZlibHeader(_ data: Data) -> Bool {
+        guard data.count >= 2 else { return false }
+        let cmf = Int(data[data.startIndex])
+        let flg = Int(data[data.startIndex + 1])
+        return cmf & 0x0F == 8 && (cmf * 256 + flg) % 31 == 0
+    }
+
+    private static func rawDeflate(_ data: Data) throws -> Data {
         let dstCap = data.count + (data.count / 2) + 64
         var dst = Data(count: dstCap)
         let written = dst.withUnsafeMutableBytes { (dstPtr: UnsafeMutableRawBufferPointer) -> Int in
@@ -346,8 +389,7 @@ enum SaveShareManager {
         return dst.prefix(written)
     }
 
-    static func zlibDecompress(_ data: Data, expectedSize: Int) throws -> Data? {
-        guard !data.isEmpty else { return Data() }
+    private static func rawInflate(_ data: Data, expectedSize: Int) -> Data? {
         let cap = expectedSize > 0 ? expectedSize : (data.count * 8 + 64)
         var dst = Data(count: cap)
         let written = dst.withUnsafeMutableBytes { (dstPtr: UnsafeMutableRawBufferPointer) -> Int in
