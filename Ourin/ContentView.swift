@@ -98,8 +98,7 @@ struct ContentView: View {
         logger.info("reload triggered")
         ResourceBridge.shared.invalidateAll()
         if let app = AppDelegate.resolve() {
-            app.pluginRegistry?.unloadAll()
-            app.pluginRegistry?.discoverAndLoad()
+            app.reloadPlugins()
         }
     }
 

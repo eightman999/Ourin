@@ -774,6 +774,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
     }
 
+    /// プラグインを再読み込みする。設定画面・DevTools の再読み込みはすべてここを通す。
+    /// ディスパッチャは Plugin ごとのキュー・タイマー・version 送信を持つため、レジストリだけを
+    /// 入れ替えず、ディスパッチャ経由で一覧ごと差し替える。
+    func reloadPlugins() {
+        if let dispatcher = pluginDispatcher {
+            dispatcher.reloadPlugins()
+        } else {
+            pluginRegistry?.unloadAll()
+            pluginRegistry?.discoverAndLoad()
+        }
+    }
+
     private func notifyPluginCatalogs() {
         guard let dispatcher = pluginDispatcher else { return }
         dispatcher.notifyInstalledPlugin()
