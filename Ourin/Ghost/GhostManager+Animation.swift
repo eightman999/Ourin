@@ -83,6 +83,8 @@ extension GhostManager {
         serikoLoopTimer?.invalidate()
         serikoLoopTimer = nil
         serikoExecutor.stopAllAnimations()
+        // 定義を残すと、後から startSerikoLoopIfNeeded() が呼ばれたときに interval の評価が続いてしまう。
+        serikoExecutor.replace(animations: [:])
         activeAnimationIDsByScope.removeAll()
         persistentSerikoAnimationIDsByScope.removeAll()
         characterViewModels[scope]?.serikoMoveOffset = .zero
@@ -380,7 +382,8 @@ extension GhostManager {
         } else {
             serikoExecutor.replace(animations: [:])
         }
-        if !serikoExecutor.activeAnimations.isEmpty {
+        // アニメーションが 0 件でも、interval の自動起動を評価する定義があればタイマーを動かす。
+        if !serikoExecutor.activeAnimations.isEmpty || serikoExecutor.needsIntervalEvaluation {
             startSerikoLoopIfNeeded()
         }
         Log.debug("[GhostManager] Loaded animations for surface \(surfaceID)")
@@ -1044,8 +1047,11 @@ extension GhostManager {
 
     func startSerikoLoopIfNeeded() {
         guard serikoLoopTimer == nil else { return }
-        serikoLoopTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
+        serikoLoopTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] timer in
+            guard let self = self else {
+                timer.invalidate()
+                return
+            }
             self.serikoExecutor.startLoop()
             self.stopSerikoLoopIfIdle()
         }
@@ -1053,6 +1059,9 @@ extension GhostManager {
 
     private func stopSerikoLoopIfIdle() {
         guard serikoExecutor.activeAnimations.isEmpty else { return }
+        // sometimes / rarely / random / periodic / always の評価待ちの定義がある間は止めない。
+        // 止めると、トーク・\e・bind などで再開されるまで自動起動が抽選されない。
+        guard !serikoExecutor.needsIntervalEvaluation else { return }
         serikoLoopTimer?.invalidate()
         serikoLoopTimer = nil
     }
