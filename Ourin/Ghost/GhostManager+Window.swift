@@ -1292,13 +1292,19 @@ extension GhostManager {
             self.captureStickyWindowOffsets(masterScope: masterScope)
             
             // Add observer for master window movement
+            // 同じ親窓の購読が重ならないよう、前回分を外してから登録し直す。
+            if let previous = self.stickyWindowObservers.removeValue(forKey: masterScope) {
+                NotificationCenter.default.removeObserver(previous)
+            }
             if let masterWindow = self.characterWindows[masterScope] {
-                NotificationCenter.default.addObserver(
-                    self,
-                    selector: #selector(self.stickyMasterWindowMoved(_:)),
-                    name: NSWindow.didMoveNotification,
-                    object: masterWindow
-                )
+                // queue: nil なので、従来のセレクタ購読と同じく通知を投げたスレッド上で同期的に呼ばれる。
+                self.stickyWindowObservers[masterScope] = NotificationCenter.default.addObserver(
+                    forName: NSWindow.didMoveNotification,
+                    object: masterWindow,
+                    queue: nil
+                ) { [weak self] notification in
+                    self?.stickyMasterWindowMoved(notification)
+                }
                 Log.info("[GhostManager] Sticky window relationships established")
             }
         }
@@ -1353,18 +1359,21 @@ extension GhostManager {
         CGPoint(x: masterOrigin.x + offset.x, y: masterOrigin.y + offset.y)
     }
     
+    /// sticky 窓の親窓移動の observer をすべて解除する（block observer は `removeObserver(self)` では外れない）。
+    func removeStickyWindowObservers() {
+        for observer in stickyWindowObservers.values {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        stickyWindowObservers.removeAll()
+    }
+
     /// Reset sticky window relationships
     func resetStickyWindow() {
         Log.debug("[GhostManager] Resetting sticky window relationships")
         DispatchQueue.main.async {
-            // Remove all observers
-            for window in self.characterWindows.values {
-                NotificationCenter.default.removeObserver(
-                    self,
-                    name: NSWindow.didMoveNotification,
-                    object: window
-                )
-            }
+            // sticky 用の observer だけを外す。窓位置の保存・バルーン追従
+            // （characterWindowDidChangeFrame）の didMove 購読は残す。
+            self.removeStickyWindowObservers()
             
             // Clear relationships
             self.stickyWindowRelationships.removeAll()
