@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import Ourin
 
@@ -190,5 +191,41 @@ struct FmoTests {
             compatible: nil
         )
         #expect(state.value == "shiori:critical,makoto-ghost:running,makoto-shell:critical")
+    }
+
+    // MARK: - sem_open / mmap の失敗検出 (SEM_FAILED / MAP_FAILED)
+
+    /// 実環境の FMO 名と衝突しないテスト専用名 (macOS の名前付きセマフォは 31 文字以内)
+    private static func uniqueFmoName(_ tag: String) -> String {
+        "/ourin_t_\(tag)_\(UUID().uuidString.prefix(8))"
+    }
+
+    @Test func fmoMutexReclaimsStaleSemaphore() throws {
+        let name = Self.uniqueFmoName("sem")
+        // 先に作ったセマフォが残っている状態を再現する (close せず保持)
+        let stale = try FmoMutex(name: name)
+        defer { stale.close() }
+
+        // 同名で作り直すと EEXIST を検出し、unlink → 再作成して使えること
+        let mutex = try FmoMutex(name: name)
+        defer { mutex.close() }
+        try mutex.lock()
+        mutex.unlock()
+    }
+
+    @Test func fmoMutexThrowsWhenOpeningMissingSemaphore() {
+        let name = Self.uniqueFmoName("nosem")
+        #expect(throws: FmoError.self) {
+            _ = try FmoMutex(name: name, createNew: false)
+        }
+    }
+
+    @Test func fmoSharedMemoryThrowsWhenMmapFails() {
+        let name = Self.uniqueFmoName("shm")
+        defer { shm_unlink(name) }
+        // size 0 の mmap は EINVAL で失敗する (MAP_FAILED を nil として検出できること)
+        #expect(throws: FmoError.self) {
+            _ = try FmoSharedMemory(name: name, size: 0)
+        }
     }
 }
