@@ -1009,6 +1009,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var animationEngine: AnimationEngine = AnimationEngine()
     var surfaceAliases: [Int: Int] = [:]
     var surfaceNameAliases: [String: Int] = [:]   // \s[alias] 用: 文字列別名 → サーフェスID
+    /// 上の別名を読み込んだシェル名。`activeShellName` と食い違うときは、サーフェス切替の前に読み直す。
+    var surfaceAliasShellName: String?
     var parsedSurfaceDefs: [Int: SerikoSurfaceDefinition] = [:]  // element 合成・アニメ定義のキャッシュ
     var surfaceTable: SurfaceTable? = nil  // surfacetable.txt のメタデータ（サーフィステスト用グループ定義）
     /// スコープごとの最新サーフェス要求。非同期ロード完了後に古い要求が表示を復活させないために使う。
