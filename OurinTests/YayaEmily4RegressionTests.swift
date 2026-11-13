@@ -28,6 +28,18 @@ struct YayaEmily4RegressionTests {
         return nil
     }
 
+    /// `OURIN_EMILY4_DIR` が指す Emily4 の `ghost/master`。指定が無い、または無い場合は nil。
+    private static func emily4MasterSource() -> URL? {
+        guard let dir = ProcessInfo.processInfo.environment["OURIN_EMILY4_DIR"], !dir.isEmpty else { return nil }
+        let source = URL(fileURLWithPath: dir).appendingPathComponent("ghost/master")
+        return FileManager.default.fileExists(atPath: source.path) ? source : nil
+    }
+
+    // スキップは本体の `return` ではなく `.enabled(if:)` trait で表す。本体で `return` すると
+    // Swift Testing は成功として数え、実行されなかったことが結果に残らない（未検証が合格に見える）。
+    private static var yayaCoreAvailable: Bool { locateYayaCore() != nil }
+    private static var emily4Available: Bool { emily4MasterSource() != nil }
+
     private static func locateYayaCore() -> URL? {
         if let url = Bundle.main.url(forAuxiliaryExecutable: "yaya_core") { return url }
         guard let root = repoRoot() else { return nil }
@@ -39,10 +51,9 @@ struct YayaEmily4RegressionTests {
     /// テスト専用の追加辞書（SRAND シード検証用ラッパー等）を、git 管理下の実データを汚さずに
     /// 追加投入できるようにするため。
     /// Emily4 は同梱しないため、`OURIN_EMILY4_DIR`（Emily4 ゴーストのルート）を指定した場合だけ実行する。
+    /// xcodebuild では `TEST_RUNNER_OURIN_EMILY4_DIR` で渡す（`verify.sh --full` は `emily4/` があれば自動で渡す）。
     private static func copyEmily4Master() throws -> URL? {
-        guard let dir = ProcessInfo.processInfo.environment["OURIN_EMILY4_DIR"], !dir.isEmpty else { return nil }
-        let source = URL(fileURLWithPath: dir).appendingPathComponent("ghost/master")
-        guard FileManager.default.fileExists(atPath: source.path) else { return nil }
+        guard let source = emily4MasterSource() else { return nil }
         let dest = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
         try FileManager.default.copyItem(at: source, to: dest)
         return dest
@@ -181,7 +192,10 @@ struct YayaEmily4RegressionTests {
     /// `OnFirstBoot` の実リクエストがフレームワーク経由で 200 応答になり、
     /// 初回起動用の Sakura Script を返すことを確認する。
     /// ロード直後は Emily4 の仕様で初期化スクリプトが前置されるため、全文 golden では固定しない。
-    @Test
+    @Test(
+        .enabled(if: yayaCoreAvailable, "yaya_core が見つからない"),
+        .enabled(if: emily4Available, "OURIN_EMILY4_DIR が未指定、または ghost/master が無い")
+    )
     func emily4OnFirstBootFrameworkRequestProducesSakuraScript() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping Emily4 regression test")
@@ -212,7 +226,10 @@ struct YayaEmily4RegressionTests {
     /// 実再生前の `GhostManager.translateForDisplay` が利用する `OnTranslate` は、
     /// 入力 Sakura Script をそのまま返す必要がある。ここが数値の `0` を返すと、
     /// 表示前にスクリプト全体が `0` へ置換され、バルーンが「0」だけになる。
-    @Test
+    @Test(
+        .enabled(if: yayaCoreAvailable, "yaya_core が見つからない"),
+        .enabled(if: emily4Available, "OURIN_EMILY4_DIR が未指定、または ghost/master が無い")
+    )
     func emily4OnTranslatePreservesSakuraScript() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping Emily4 regression test")
@@ -245,7 +262,10 @@ struct YayaEmily4RegressionTests {
     /// CommunicateBox が生成する ECHO/1.0 配置を Emily4 の実辞書で検証する。
     /// R1 の空要素を省略すると、Emily4 は種別を R2、本文を R3 として読めず、
     /// OnCommunicate が入力を処理できない。
-    @Test
+    @Test(
+        .enabled(if: yayaCoreAvailable, "yaya_core が見つからない"),
+        .enabled(if: emily4Available, "OURIN_EMILY4_DIR が未指定、または ghost/master が無い")
+    )
     func emily4OnCommunicateReadsCommunicateBoxReference3() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping Emily4 regression test")
@@ -296,7 +316,10 @@ struct YayaEmily4RegressionTests {
 
     /// 全33辞書が構文エラー無しでロードできることを回帰確認する
     /// （`docs/AUDITS_TODO.md`/`IMPLEMENTATION_STATUS.md` の「33/33ロード成功」主張の裏付け）。
-    @Test
+    @Test(
+        .enabled(if: yayaCoreAvailable, "yaya_core が見つからない"),
+        .enabled(if: emily4Available, "OURIN_EMILY4_DIR が未指定、または ghost/master が無い")
+    )
     func emily4AllDictionariesLoadWithoutParseFailure() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping Emily4 regression test")
@@ -318,7 +341,10 @@ struct YayaEmily4RegressionTests {
 
     /// Mouse hover events may return an integer control value when no surface
     /// hit occurred. That value must not be exposed as a spoken Sakura Script.
-    @Test
+    @Test(
+        .enabled(if: yayaCoreAvailable, "yaya_core が見つからない"),
+        .enabled(if: emily4Available, "OURIN_EMILY4_DIR が未指定、または ghost/master が無い")
+    )
     func emily4NoOpMouseMoveDoesNotBecomeTalk() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping Emily4 regression test")
@@ -346,7 +372,10 @@ struct YayaEmily4RegressionTests {
     }
 
     /// クリック対象が無い場合も、内部ハンドラ名や終了タグ断片を返り値として表示しない。
-    @Test
+    @Test(
+        .enabled(if: yayaCoreAvailable, "yaya_core が見つからない"),
+        .enabled(if: emily4Available, "OURIN_EMILY4_DIR が未指定、または ghost/master が無い")
+    )
     func emily4NoOpMouseClickDoesNotExposeGeneratedHandlerName() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping Emily4 regression test")
@@ -380,7 +409,10 @@ struct YayaEmily4RegressionTests {
     /// `reference[0]` が SHIORI の parsed Reference0 ではなく、request() に渡した生の
     /// リクエスト文字列へ解決されると、Emily4 の `OnChoiceSelect` が
     /// `OnChoiceSelect_GET SHIORI/3.0...` を再帰的に EVAL してスタックオーバーフローする。
-    @Test
+    @Test(
+        .enabled(if: yayaCoreAvailable, "yaya_core が見つからない"),
+        .enabled(if: emily4Available, "OURIN_EMILY4_DIR が未指定、または ghost/master が無い")
+    )
     func emily4ChoiceSelectUsesParsedReferenceWithoutRecursion() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping Emily4 regression test")
@@ -411,7 +443,10 @@ struct YayaEmily4RegressionTests {
 
     /// YAYA フレームワークの request() が保持する REQ.COMMAND、出力候補エリア、
     /// `void`、裸の `return` を、実在ゴースト辞書上で検証する。
-    @Test
+    @Test(
+        .enabled(if: yayaCoreAvailable, "yaya_core が見つからない"),
+        .enabled(if: emily4Available, "OURIN_EMILY4_DIR が未指定、または ghost/master が無い")
+    )
     func emily4FrameworkRequestDispatchesGetCommand() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping Emily4 regression test")
@@ -477,7 +512,10 @@ struct YayaEmily4RegressionTests {
     /// Emily4 実データの雑談配列（`RandomTalkNormal`）に対し、SRAND(seed) で固定シードした場合に
     /// 選択結果が再現可能であることを検証する（`yaya_core` の SRAND スタブ修正の回帰テスト）。
     /// 実行毎に変わってよい内容なので、golden 文字列ではなく「同一シード→同一出力」を確認する。
-    @Test
+    @Test(
+        .enabled(if: yayaCoreAvailable, "yaya_core が見つからない"),
+        .enabled(if: emily4Available, "OURIN_EMILY4_DIR が未指定、または ghost/master が無い")
+    )
     func emily4RandomTalkIsReproducibleWithFixedSeed() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping Emily4 regression test")
@@ -517,7 +555,10 @@ struct YayaEmily4RegressionTests {
     /// `EMRandomTalkSubArray : array` が `parallel` 修飾子によって正しくフラット化されることを検証する。
     /// `parallel` 未実装時代は各 `parallel F(...)` 行が「未定義変数参照＋別文」に化けて
     /// 候補配列が入れ子（要素に配列が混入）のまま返っており、雑談トークがサイレントに壊れていた。
-    @Test
+    @Test(
+        .enabled(if: yayaCoreAvailable, "yaya_core が見つからない"),
+        .enabled(if: emily4Available, "OURIN_EMILY4_DIR が未指定、または ghost/master が無い")
+    )
     func emily4RandomTalkSubArrayIsFlattenedByParallel() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping Emily4 regression test")
@@ -574,7 +615,10 @@ struct YayaEmily4RegressionTests {
     /// `EMRandomTalkSub : nonoverlap { parallel EMRandomTalkSubArray }`（非 array 文脈の parallel =
     /// 候補から1つ選択）が SRAND 固定シードで決定的に動作することを検証する。
     /// 既存の SeededRandomTalkNormal テストが意図的に回避していた `parallel` 経路のカバレッジ。
-    @Test
+    @Test(
+        .enabled(if: yayaCoreAvailable, "yaya_core が見つからない"),
+        .enabled(if: emily4Available, "OURIN_EMILY4_DIR が未指定、または ghost/master が無い")
+    )
     func emily4SeededEMRandomTalkSubIsReproducible() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping Emily4 regression test")
@@ -614,7 +658,7 @@ struct YayaEmily4RegressionTests {
     // MARK: - 標準ゴースト（さくら）
 
     /// リポジトリの `DefaultGhost/sakura/ghost/master` を実際に yaya_core へロードして発話を確認する。
-    @Test
+    @Test(.enabled(if: yayaCoreAvailable, "yaya_core が見つからない"))
     func sakuraDefaultGhostLoadsAndTalks() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping Rin regression test")
@@ -644,7 +688,7 @@ struct YayaEmily4RegressionTests {
     }
 
     /// キャラクターごと・部位ごとの当たり判定に応じて、別々のキャラが別々の台詞を返すこと。
-    @Test
+    @Test(.enabled(if: yayaCoreAvailable, "yaya_core が見つからない"))
     func sakuraGhostRespondsPerCharacterAndRegion() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping")
@@ -680,7 +724,7 @@ struct YayaEmily4RegressionTests {
     }
 
     /// 起動・クリック（EVAL によるキャラ別・部位別の振り分け）・OnIdle の放置検出が動くこと。
-    @Test
+    @Test(.enabled(if: yayaCoreAvailable, "yaya_core が見つからない"))
     func sakuraGhostDialogueDispatchAndIdle() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping")
@@ -730,7 +774,7 @@ struct YayaEmily4RegressionTests {
     }
 
     /// システムイベント・なでなで・ホイール・時報の台本が返り、参照値は無害化されて埋め込まれること。
-    @Test
+    @Test(.enabled(if: yayaCoreAvailable, "yaya_core が見つからない"))
     func sakuraGhostHandlesSystemEvents() throws {
         guard let exe = Self.locateYayaCore() else {
             print("[skip] yaya_core not found; skipping")

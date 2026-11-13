@@ -1009,6 +1009,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var animationEngine: AnimationEngine = AnimationEngine()
     var surfaceAliases: [Int: Int] = [:]
     var surfaceNameAliases: [String: Int] = [:]   // \s[alias] 用: 文字列別名 → サーフェスID
+    /// 上の別名を読み込んだシェル名。`activeShellName` と食い違うときは、サーフェス切替の前に読み直す。
+    var surfaceAliasShellName: String?
     var parsedSurfaceDefs: [Int: SerikoSurfaceDefinition] = [:]  // element 合成・アニメ定義のキャッシュ
     var surfaceTable: SurfaceTable? = nil  // surfacetable.txt のメタデータ（サーフィステスト用グループ定義）
     /// スコープごとの最新サーフェス要求。非同期ロード完了後に古い要求が表示を復活させないために使う。
@@ -1024,6 +1026,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // Window management (used by Window extension)
     var stickyWindowRelationships: [Int: Set<Int>] = [:] // Master scope -> follower scopes
     var stickyWindowOffsets: [Int: [Int: CGPoint]] = [:] // Master scope -> follower scope -> initial relative origin
+    /// sticky 窓の親窓移動を見る didMove observer（Master scope -> token）。
+    /// `removeObserver(_:name:object:)` はセレクタで区別できず、窓位置の保存・バルーン追従用の
+    /// `characterWindowDidChangeFrame` の購読まで外してしまうため、sticky 用だけをトークンで解除する。
+    var stickyWindowObservers: [Int: NSObjectProtocol] = [:]
     var windowZOrderScopes: [Int]? = nil // Persisted z-order group for windows created later
     var pendingWindowStateReasons: [Int: String] = [:] // Scope -> reason for the next minimize/restore notification
     var serikoScaleFactorsByScope: [Int: [Int: CGPoint]] = [:] // scope -> animationID -> x/y multiplier
@@ -1341,6 +1347,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
     }
     
+    /// descript.txt の `sakura.name` / `kero.name` を `%selfname` / `%keroname` に反映する。
+    /// OnBoot / OnFirstBoot の応答は OnNotifySelfInfo による保存値の更新より先に展開されるため、
+    /// 保存値（初回は未設定、別ゴーストの後は前回の名前）ではなく、このゴースト自身の名前を先に設定する。
+    /// UserDefaults の共有キーには書き込まない（ゴースト別の値で他ゴーストの保存値を上書きしない）。
+    func applyCharacterNames(from config: GhostConfiguration) {
+        sakuraEngine.envExpander.selfname = config.sakuraName
+        sakuraEngine.envExpander.keroname = config.keroName ?? ""
+    }
+
     func loadDressupConfiguration() {
         dressupConfigurations.removeAll()
         dressupBindGroupsByScope.removeAll()
@@ -1549,9 +1564,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         if let kero = keroName {
             defaults.set(kero, forKey: "OurinKeroName")
         }
-        sakuraEngine.envExpander.selfname = sakuraName
-        if let kero = keroName {
-            sakuraEngine.envExpander.keroname = kero
+        if let config = ghostConfig {
+            // OnNotifySelfInfo は全セッションへ配られるため、他ゴーストの名前で自分の値を上書きしない。
+            applyCharacterNames(from: config)
+        } else {
+            sakuraEngine.envExpander.selfname = sakuraName
+            if let kero = keroName {
+                sakuraEngine.envExpander.keroname = kero
+            }
         }
         Log.debug("[GhostManager] Saved character names - Sakura: \(sakuraName), Kero: \(keroName ?? "none")")
     }
@@ -1669,6 +1689,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             if let config = GhostConfiguration.load(from: ghostRoot) {
                 self.ghostConfig = config
                 self.activeShellName = config.defaultShellDirectory.isEmpty ? "master" : config.defaultShellDirectory
+                // OnBoot / OnFirstBoot の応答の %selfname / %keroname は OnNotifySelfInfo より先に展開される。
+                self.applyCharacterNames(from: config)
                 DispatchQueue.main.async {
                     AppDelegate.resolve()?.recordActiveGhostForCrashRecovery(name: config.name, manager: self)
                 }
@@ -1920,6 +1942,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
         NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
         removeScreenChangeObserver()
+        removeStickyWindowObservers()
         NotificationCenter.default.removeObserver(self)
         if let config = ghostConfig,
            let dispatcher = AppDelegate.resolve()?.pluginDispatcher {

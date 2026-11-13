@@ -7,6 +7,9 @@
 #   ./verify.sh           高速検証: 構成確認 + xcodebuild build（目安5分以内）
 #   ./verify.sh --full    重い検証: 上記 + xcodebuild test
 #                         （YayaEmily4RegressionTests を含む全テスト）
+#                         実ゴースト Emily4 の回帰テストは、emily4/ghost/master/yaya.txt が
+#                         あるか環境変数 OURIN_EMILY4_DIR を指定したときだけ実行する。
+#                         無いときは実行されず skip（SKIP 件数に数える）。
 #
 # 契約:
 #   - 出力は "[n/m] ステップ名" 形式。最後に VERIFY PASS / VERIFY FAIL(exit 1)
@@ -18,6 +21,9 @@
 #   - CLAUDE.md / README.md:
 #       xcodebuild -project Ourin.xcodeproj -scheme Ourin build
 #       xcodebuild -project Ourin.xcodeproj -scheme Ourin test
+#   - xcodebuild の test 実行へ環境変数を渡すには TEST_RUNNER_ 接頭辞が要る
+#     （接頭辞を外した名前でテストプロセスに渡される）。本スクリプトは
+#     Emily4 のルートを TEST_RUNNER_OURIN_EMILY4_DIR として渡す。
 #   - 単一テストのみ実行する場合(参考・本スクリプトでは未使用):
 #       xcodebuild -project Ourin.xcodeproj -scheme Ourin \
 #         -only-testing:OurinTests/YayaEmily4RegressionTests test
@@ -102,7 +108,7 @@ if [ "$MODE" = "check" ]; then
   echo "         [2/3] yaya_core / satori_core のビルド有無確認"
   echo "         [3/3] xcodebuild -project Ourin.xcodeproj -scheme Ourin build"
   echo "  --full: 上記に加えて"
-  echo "         [4/5] YayaEmily4 回帰テストの前提確認（emily4 辞書・yaya_core バイナリ）"
+  echo "         [4/5] YayaEmily4 回帰テストの前提確認（emily4/ または OURIN_EMILY4_DIR の辞書・yaya_core バイナリ）"
   echo "         [5/5] xcodebuild -project Ourin.xcodeproj -scheme Ourin test"
   finish
 fi
@@ -124,7 +130,7 @@ step "yaya_core / satori_core のビルド有無確認"
 if [ -x "$YAYA_BIN" ]; then
   ok "yaya_core ビルド済み（${YAYA_BIN}）"
 else
-  info "yaya_core 未ビルド（${YAYA_BIN} が無い）。YayaEmily4RegressionTests は自動スキップされる設計"
+  info "yaya_core 未ビルド（${YAYA_BIN} が無い）。見つからないまま test を実行すると YayaEmily4RegressionTests は skip される"
 fi
 if [ -x "$SATORI_BIN" ]; then
   ok "satori_core ビルド済み（${SATORI_BIN}）"
@@ -169,18 +175,39 @@ if [ -f "OurinTests/YayaEmily4RegressionTests.swift" ]; then
 else
   info "OurinTests/YayaEmily4RegressionTests.swift が見つからない"
 fi
-if [ -f "emily4/ghost/master/yaya.txt" ]; then
-  ok "実ゴースト辞書 emily4/ghost/master/yaya.txt が存在する"
+# テストが見るのは環境変数 OURIN_EMILY4_DIR（Emily4 ゴーストのルート）だけなので、
+# ここで同じ値を決めて test 実行へ渡す。指定があればそれを優先し、無ければ emily4/ を使う。
+EMILY4_DIR=""
+if [ -n "${OURIN_EMILY4_DIR:-}" ]; then
+  EMILY4_DIR="$OURIN_EMILY4_DIR"
+elif [ -f "emily4/ghost/master/yaya.txt" ]; then
+  EMILY4_DIR="$(pwd)/emily4"
+fi
+if [ -z "$EMILY4_DIR" ]; then
+  skip "Emily4 が無い（emily4/ghost/master/yaya.txt も OURIN_EMILY4_DIR も無い）ため、実ゴースト回帰テストは実行されず skip になる"
+elif [ ! -d "${EMILY4_DIR}/ghost/master" ]; then
+  # 明示指定したのに使えないのは設定ミス。skip で済ませず失敗にする。
+  fail "OURIN_EMILY4_DIR=${EMILY4_DIR} に ghost/master が無い（Emily4 ゴーストのルートを指定する）"
 else
-  info "emily4 辞書が見つからないため回帰テストは自動スキップされる"
+  ok "実ゴースト Emily4 を回帰テストに渡す（OURIN_EMILY4_DIR=${EMILY4_DIR}）"
 fi
 if [ ! -x "$YAYA_BIN" ]; then
   if [ "$BUILD_DONE" -eq 1 ]; then
-    info "build 後も ${YAYA_BIN} が無い。回帰テストは自動スキップされる"
+    info "build 後も ${YAYA_BIN} が無い。見つからないままだと回帰テストは skip される"
   else
-    info "${YAYA_BIN} が無い。回帰テストは自動スキップされる（test のビルドフェーズで生成される場合あり）"
+    info "${YAYA_BIN} が無い。見つからないままだと回帰テストは skip される（test のビルドフェーズで生成される場合あり）"
   fi
 fi
+
+# xcodebuild test のテストプロセスへ環境変数を渡すには TEST_RUNNER_ 接頭辞が要る。
+run_xcodebuild_test() {
+  if [ -n "$EMILY4_DIR" ]; then
+    TEST_RUNNER_OURIN_EMILY4_DIR="$EMILY4_DIR" \
+      xcodebuild -project Ourin.xcodeproj -scheme Ourin test
+  else
+    xcodebuild -project Ourin.xcodeproj -scheme Ourin test
+  fi
+}
 
 step "テスト: xcodebuild -project Ourin.xcodeproj -scheme Ourin test"
 if [ "$HAS_PROJ" -eq 0 ]; then
@@ -192,12 +219,19 @@ elif [ "$CMAKE_OK" -eq 0 ] && { [ ! -x "$SATORI_BIN" ] || [ ! -x "$YAYA_BIN" ]; 
 else
   LOG=$(mktemp "${TMPDIR:-/tmp}/ourin_verify_test.XXXXXX")
   echo "  実行中（ログ: ${LOG}）..."
-  if xcodebuild -project Ourin.xcodeproj -scheme Ourin test >"$LOG" 2>&1; then
-    # 回帰テストが「実行された」のか「スキップされた」のかを正直に区別して報告する
-    if grep -q "YayaEmily4RegressionTests" "$LOG"; then
-      ok "テスト成功（YayaEmily4RegressionTests がログに出現）"
+  if run_xcodebuild_test >"$LOG" 2>&1; then
+    ok "テスト成功（xcodebuild test が終了コード 0）"
+    # Emily4 の回帰テストが「実行された」のか「skip された」のかを区別して報告する。
+    # skip は xcodebuild の成功に含まれるため、終了コードだけでは分からない。
+    # ここはログの文面に頼る簡易判定（Emily4 のテスト名と skipped が同じ行に出るか）。
+    if [ -z "$EMILY4_DIR" ]; then
+      info "Emily4 実ゴースト回帰テストは前提が無く実行されていない（上の SKIP を参照）"
+    elif grep -Eqi 'skipped.*emily4|emily4.*skipped' "$LOG"; then
+      skip "Emily4 を渡したが、Emily4 回帰テストが skip と報告された（ログ: ${LOG}）"
+    elif grep -q "YayaEmily4RegressionTests" "$LOG"; then
+      ok "YayaEmily4RegressionTests がログに出現し、skip の報告は無い"
     else
-      ok "テスト成功（注意: YayaEmily4RegressionTests がログに見つからない。スキップされた可能性あり。ログ: ${LOG}）"
+      skip "YayaEmily4RegressionTests がログに見つからず、実行を確認できない（ログ: ${LOG}）"
     fi
   else
     echo "  --- テストログ末尾 ---"

@@ -106,6 +106,10 @@ extension GhostManager {
     }
 
     func updateSurface(id rawID: Int) {
+        // 別名は新しいシェルの定義を読み込む前に引くことになるため、シェルが替わっていたら先に読み直す。
+        if surfaceAliasShellName != activeShellName {
+            reloadSurfaceAliases()
+        }
         let id = surfaceAliases[rawID] ?? rawID
         let scope = currentScope
         let oldSurfaceID = characterViewModels[scope]?.currentSurfaceID ?? 0
@@ -682,6 +686,8 @@ extension GhostManager {
             EventBridge.shared.notify(.OnShellChanging, refs: ["prevShellName": previousShell, "newShellName": trimmed])
         }
         activeShellName = trimmed
+        // 前のシェルの別名を捨て、新しいシェルの別名で `updateSurface` の解決を行う。
+        reloadSurfaceAliases()
         loadDressupConfiguration()
         reloadMakotoTranslators()
 

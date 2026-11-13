@@ -332,6 +332,30 @@ extension GhostManager {
         }
     }
 
+    /// 現在のシェルの定義に書かれた数値別名・文字列別名で、保持している別名を置き換える。
+    private func applySurfaceAliases(from content: String) {
+        surfaceAliases = SerikoParser.parseSurfaceAliases(content)
+        surfaceNameAliases = SerikoParser.parseNamedSurfaceAliases(content)
+        surfaceAliasShellName = activeShellName
+        if !surfaceAliases.isEmpty {
+            Log.debug("[GhostManager] Loaded \(surfaceAliases.count) numeric surface aliases")
+        }
+        if !surfaceNameAliases.isEmpty {
+            Log.debug("[GhostManager] Loaded \(surfaceNameAliases.count) named surface aliases")
+        }
+    }
+
+    /// 前のシェルの別名を捨て、現在のシェルの surfaces*.txt / alias.txt から別名だけ読み直す。
+    /// `updateSurface` は冒頭で別名を引くため、シェル切替・surfaces 再読込ではサーフェスを切り替える前に呼ぶ。
+    func reloadSurfaceAliases() {
+        surfaceAliases = [:]
+        surfaceNameAliases = [:]
+        surfaceAliasShellName = activeShellName
+        guard let shellPath = loadShellPath(),
+              let definitionBundle = SurfaceDefinitionLoader.load(from: shellPath) else { return }
+        applySurfaceAliases(from: definitionBundle.content)
+    }
+
     /// Load animations from surfaces.txt for current surface
     func loadAnimationsForCurrentSurface(surfaceID requestedSurfaceID: Int? = nil, scope requestedScope: Int? = nil) {
         guard let shellPath = loadShellPath() else { return }
@@ -351,18 +375,7 @@ extension GhostManager {
             surfaceTable = nil
         }
 
-        if surfaceAliases.isEmpty {
-            surfaceAliases = SerikoParser.parseSurfaceAliases(combined)
-            if !surfaceAliases.isEmpty {
-                Log.debug("[GhostManager] Loaded \(surfaceAliases.count) numeric surface aliases")
-            }
-        }
-        if surfaceNameAliases.isEmpty {
-            surfaceNameAliases = SerikoParser.parseNamedSurfaceAliases(combined)
-            if !surfaceNameAliases.isEmpty {
-                Log.debug("[GhostManager] Loaded \(surfaceNameAliases.count) named surface aliases")
-            }
-        }
+        applySurfaceAliases(from: combined)
         // 全サーフェス定義（element 合成・surface.append マージ込み）をキャッシュ
         parsedSurfaceDefs = SerikoParser.parseSurfaces(combined)
 
@@ -389,6 +402,7 @@ extension GhostManager {
     func reloadSurfacesDefinition() {
         animationEngine.stopAllAnimations()
         shutdownSerikoLoop()
+        reloadSurfaceAliases()
         loadAnimationsForCurrentSurface()
         EventBridge.shared.notifyCustom("OnSurfacesReloaded", refs: ["shellName": activeShellName])
         Log.debug("[GhostManager] Reloaded surfaces*.txt definitions")

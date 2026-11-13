@@ -3,7 +3,8 @@
 /*
  * POSIX の共有メモリとセマフォを Swift から利用するための
  * シンプルな C ラッパー関数群です。各関数は対応する libc
- * 関数をそのまま呼び出します。
+ * 関数をそのまま呼び出します。ただし fmo_map と fmo_sem_open は、
+ * 失敗値 (MAP_FAILED / SEM_FAILED) を NULL に変換して返します。
  */
 #include <semaphore.h>
 #include <sys/mman.h>

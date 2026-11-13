@@ -316,4 +316,50 @@ struct ExternalServerTests {
         #expect(resp.contains("200"))
         #expect(resp.contains("Script: \\h\\s0DefaultScript\\e"))
     }
+
+    // MARK: - XPC（Direct SSTP）の応答の文字コード
+
+    /// XPC の入口（XpcDirectServer.executeSSTP）を通して応答の Data を得る。
+    /// onRequest は weak self で server に合流するため、呼び出し中は server を生かしておく。
+    private func executeXPC(_ request: Data) -> Data {
+        let server = makeServer()
+        var response = Data()
+        withExtendedLifetime(server) {
+            server.xpc.executeSSTP(request) { response = $0 }
+        }
+        return response
+    }
+
+    @Test
+    func xpcSaoriResponseKeepsDeclaredShiftJISBytes() throws {
+        // SAORI/1.0 の応答は要求の Charset のバイト列のまま XPC の呼び出し元へ届く
+        // （UTF-8 として復号・再符号化すると非 ASCII が U+FFFD になり化ける）。
+        let raw = "EXECUTE SAORI/1.0\r\nCharset: Shift_JIS\r\nSender: test\r\nModule: string\r\nArgument0: tozenkaku\r\nArgument1: ab\r\n\r\n"
+        let request = try #require(raw.data(using: .shiftJIS))
+        let response = executeXPC(request)
+
+        let text = try #require(String(data: response, encoding: .shiftJIS))
+        #expect(text.contains("Result: ａｂ"))
+        // 全角「ａｂ」の Shift_JIS は 82 81 82 82
+        #expect(response.range(of: Data([0x82, 0x81, 0x82, 0x82])) != nil)
+        #expect(!text.contains("\u{FFFD}"))
+    }
+
+    @Test
+    func xpcSaoriResponseStaysUTF8WhenCharsetIsUTF8() throws {
+        let raw = "EXECUTE SAORI/1.0\r\nCharset: UTF-8\r\nSender: test\r\nModule: string\r\nArgument0: tozenkaku\r\nArgument1: ab\r\n\r\n"
+        let response = executeXPC(Data(raw.utf8))
+
+        let text = try #require(String(data: response, encoding: .utf8))
+        #expect(text.contains("Result: ａｂ"))
+    }
+
+    @Test
+    func xpcSSTPResponseIsStillReturnedAsUTF8String() throws {
+        // SSTP（SAORI 以外）は従来どおり handleRaw の文字列応答を UTF-8 で返す
+        let response = executeXPC(Data("garbage".utf8))
+
+        let text = try #require(String(data: response, encoding: .utf8))
+        #expect(text.contains("400"))
+    }
 }

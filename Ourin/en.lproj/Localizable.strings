@@ -519,3 +519,9 @@
 "Web からのインストール確認" = "Confirm installation from the web";
 "次の NAR を Web からインストールしますか？\n\n配布元ホスト: %1$@\n名前: %2$@\n種類: %3$@\nURL: %4$@\n\n信頼できる配布元でなければキャンセルしてください。" = "Install this NAR from the web?\n\nSource host: %1$@\nName: %2$@\nType: %3$@\nURL: %4$@\n\nCancel unless you trust the source.";
 "インストール" = "Install";
+"ゴーストがプログラムの実行を要求しています" = "A ghost is requesting to run a program";
+"実行ファイル: %@\n引数: %@" = "Executable: %@\nArguments: %@";
+"開く対象: %@" = "Open: %@";
+"ゴースト: %@\n%@\n\n信頼できるゴーストの場合だけ許可してください。" = "Ghost: %@\n%@\n\nAllow only if you trust this ghost.";
+"今回だけ許可" = "Allow Once";
+"常に許可" = "Always Allow";
