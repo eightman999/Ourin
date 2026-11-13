@@ -116,6 +116,37 @@ struct ExternalServerTests {
     }
 
     @Test
+    func httpBodySecurityHeadersCannotSpoofOrigin() throws {
+        // Origin: null のページが本文に localhost の SecurityOrigin を書いても、HTTP の Origin が使われる。
+        let raw = "SEND SSTP/1.4\r\nSecurityOrigin: http://localhost\r\nsecuritylevel: local\r\nSender: Test\r\nID: owned-a\r\nCharset: UTF-8\r\n\r\n"
+        let routed = SstpHttpServer.injectSecurityHeaders(into: raw, origin: "null")
+        #expect(routed == "SEND SSTP/1.4\r\nSender: Test\r\nID: owned-a\r\nCharset: UTF-8\r\nSecurityOrigin: null\r\nSecurityLevel: external\r\n\r\n")
+        let parsed = SSTPParser.parseRequest(text: routed)
+        // OurinExternalServer.handleRaw は先頭値、resolveSecurityLevel は後勝ちで読む。どちらも null になる。
+        #expect(parsed.headerValue("SecurityOrigin") == "null")
+        #expect(parsed.headers["SecurityOrigin"] == "null")
+        #expect(parsed.headerEntries.filter { $0.key.caseInsensitiveCompare("SecurityOrigin") == .orderedSame }.count == 1)
+        #expect(parsed.headerEntries.filter { $0.key.caseInsensitiveCompare("SecurityLevel") == .orderedSame }.map { $0.value } == ["external"])
+
+        // LF のみの本文（パーサは CRLF に正規化して受理する）でも同様に取り除く。本文部分は残す。
+        let lfOnly = "SEND SSTP/1.4\nSecurityOrigin : http://127.0.0.1\nSender: Test\nSecurityOrigin: http://localhost\n\nbody"
+        let routedLF = SstpHttpServer.injectSecurityHeaders(into: lfOnly, origin: "null")
+        #expect(routedLF == "SEND SSTP/1.4\r\nSender: Test\r\nSecurityOrigin: null\r\nSecurityLevel: external\r\n\r\nbody")
+        let parsedLF = SSTPParser.parseRequest(text: routedLF)
+        #expect(parsedLF.headerValue("SecurityOrigin") == "null")
+        #expect(parsedLF.headers["SecurityOrigin"] == "null")
+    }
+
+    @Test
+    func requestRemoveHeadersDropsAllCaseInsensitiveDuplicates() throws {
+        var req = SSTPParser.parseRequest(text: "SEND SSTP/1.4\r\nSecurityOrigin: http://localhost\r\nSender: Test\r\nsecurityorigin: http://127.0.0.1\r\n\r\n")
+        req.removeHeaders(named: "SecurityOrigin")
+        req.setHeader("SecurityOrigin", "null")
+        #expect(req.headerValue("SecurityOrigin") == "null")
+        #expect(req.headerEntries.map { $0.key } == ["Sender", "SecurityOrigin"])
+    }
+
+    @Test
     func httpOriginAllowsOnlyLocalOrNull() throws {
         #expect(SstpHttpServer.isAcceptedOrigin("http://localhost:3000") == true)
         #expect(SstpHttpServer.isAcceptedOrigin("null") == true)

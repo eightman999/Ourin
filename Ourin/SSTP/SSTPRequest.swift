@@ -73,6 +73,11 @@ public struct SSTPRequest {
         }
     }
 
+    /// 指定キー（大文字小文字無視）のヘッダをすべて取り除く。
+    public mutating func removeHeaders(named key: String) {
+        headerEntries.removeAll { $0.key.trimmingCharacters(in: .whitespaces).caseInsensitiveCompare(key) == .orderedSame }
+    }
+
     public func headerValue(_ name: String) -> String? {
         if let exact = headerEntries.first(where: { $0.key == name }) {
             return exact.value
