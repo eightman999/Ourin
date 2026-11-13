@@ -200,6 +200,27 @@ struct SSTPDispatcherTests {
     }
 
     @Test
+    func httpBodySecurityOriginCannotSpoofLocalhostForOwnedID() async throws {
+        let fake = FakeSstpRoutingRegistry()
+        fake.matchHandler = { id, _ in id == "owned-a" }
+        var receivedSecurityLevels: [String] = []
+        bridge.liveGhostResolver = { _, _, _, headers in
+            receivedSecurityLevels.append(headers["SecurityLevel"] ?? "")
+            return .init(status: 204, headers: [:], value: nil)
+        }
+        let body = "SEND SSTP/1.4\r\nSecurityOrigin: http://localhost\r\nSender: UnitTest\r\nEvent: OnOwnedTest\r\nID: owned-a\r\nOption: nodescript\r\n\r\n"
+        let routed = SstpHttpServer.injectSecurityHeaders(into: body, origin: "null")
+        let req = SSTPParser.parseRequest(text: routed)
+        // OurinExternalServer.handleRaw と同じく先頭の SecurityOrigin を origin として渡す。
+        let origin = req.headerValue("SecurityOrigin")
+        #expect(origin == "null")
+
+        _ = SSTPDispatcher.dispatchExternal(request: req, origin: origin, bridge: bridge, routingRegistry: fake)
+
+        #expect(receivedSecurityLevels == ["external"])
+    }
+
+    @Test
     func sparseReferencesReachShioriWithoutCollapsingIndexes() async throws {
         var receivedReferences: [String] = []
         var receivedHeaders: [String: String] = [:]

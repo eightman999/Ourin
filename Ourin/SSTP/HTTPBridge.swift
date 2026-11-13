@@ -35,7 +35,11 @@ public enum HTTPBridge {
         // ボディ部を SSTP とみなして解析
         var req = SSTPParser.parseRequest(text: body)
         if let originHeader, !originHeader.isEmpty {
+            // 本文の SecurityOrigin / SecurityLevel は送信者が偽装できるため、すべて捨ててから入れ直す。
+            req.removeHeaders(named: "SecurityOrigin")
+            req.removeHeaders(named: "SecurityLevel")
             req.setHeader("SecurityOrigin", originHeader)
+            req.setHeader("SecurityLevel", isLocalOrigin(originHeader) ? "local" : "external")
         }
         let resp = SSTPDispatcher.dispatchExternal(request: req, origin: originHeader)
         // 互換のため常に HTTP 200 を返す
