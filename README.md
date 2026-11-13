@@ -4,7 +4,7 @@
 
 Macネイティブの伺かベースウェア
 
-[公式サイト](https://furinlab.com/ourin/) · [使い方ガイド](https://furinlab.com/ourin/guide/) · [公開ドキュメント](https://furinlab.com/ourin/docs/) · [対応状況・互換性](https://furinlab.com/ourin/compatibility/)
+[公式サイト](https://furinlab.com/ourin/) · [使い方ガイド](https://furinlab.com/ourin/guide/) · [公開ドキュメント](https://furinlab.com/ourin/docs/) · [対応状況・互換性](https://furinlab.com/ourin/compatibility/) · [BOOTH（無料版・応援版）](https://furinlab.booth.pm/items/9050140)
 
 開発版では、灯・ese-shiori・偽栞・忍・翡翠・結奈・美坂の7栞と、Perl を別途必要とする里珠 Proxy 接続を実装しています。これらの追加対応は公開配布版には未収録です（2026-10-25）。全機能・全ゴーストの互換性は保証していません。MiyoJS は実エンジンと最小辞書、里珠は公式 echo サンプルで確認済みで、MiyoPreview や里珠の配布ゴースト全体は未確認です。
 
