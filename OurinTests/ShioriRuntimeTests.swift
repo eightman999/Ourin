@@ -13,6 +13,7 @@ struct ShioriRuntimeTests {
         while IFS= read -r line; do
           case "$line" in
             *'"cmd":"load"'*)
+              print -r -- "$line" >> "${0:A:h}/load.log"
               print -r -- '{"ok":true,"status":200,"loaded_dics":[]}'
               ;;
             *'"id":"capability"'*)
@@ -504,6 +505,40 @@ struct ShioriRuntimeTests {
 
         #expect(restored?.value == "restored")
         #expect(runtime.isLoaded)
+    }
+
+    @Test
+    func satoriRestartPassesTheSameSaoriPathsToHelper() throws {
+        let helper = try makeRestartableHelper()
+        defer { try? FileManager.default.removeItem(at: helper.directory) }
+        // ゴーストの saori/ を探索パスとして存在させる
+        try FileManager.default.createDirectory(
+            at: helper.directory.appendingPathComponent("saori", isDirectory: true),
+            withIntermediateDirectories: true
+        )
+        let runtime = try #require(SatoriAdapter(executableURL: helper.executable))
+        defer { runtime.unload() }
+        let context = ShioriRuntimeLoadContext(
+            ghostURL: helper.directory,
+            ghostRoot: helper.directory,
+            moduleName: "satori_core"
+        )
+
+        #expect(runtime.load(context: context))
+        #expect(runtime.request(method: "GET", id: "Hang", headers: [:], refs: [], timeout: 0.05) == nil)
+        #expect(runtime.request(method: "GET", id: "AfterHang", headers: [:], refs: [], timeout: 2)?.value == "restored")
+
+        // helper が受け取った load 要求（最初のロードと再起動後のロード）の saori_paths を比べる
+        let log = try String(contentsOf: helper.directory.appendingPathComponent("load.log"), encoding: .utf8)
+        var loadedPaths: [[String]] = []
+        for line in log.split(separator: "\n") {
+            let object = try #require(JSONSerialization.jsonObject(with: Data(line.utf8)) as? [String: Any])
+            loadedPaths.append(try #require(object["saori_paths"] as? [String]))
+        }
+        #expect(loadedPaths.count == 2)
+        let first = try #require(loadedPaths.first)
+        #expect(first.contains { $0.hasSuffix("/saori") && $0.contains(helper.directory.lastPathComponent) })
+        #expect(loadedPaths.last == first)
     }
 
     @Test

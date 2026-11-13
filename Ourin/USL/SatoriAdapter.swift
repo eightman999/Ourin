@@ -49,6 +49,8 @@ final class SatoriAdapter: GhostShioriRuntime {
     private let recoveryLock = NSLock()
     private let executableURL: URL
     private var lastLoadContext: ShioriRuntimeLoadContext?
+    /// 最初のロードで helper に渡した SAORI 探索パス。helper 再起動時に同じ値を渡し直す。
+    private var lastSaoriPaths: [URL] = []
     private var communication = ShioriCommunicationOptions()
 
     convenience init?() {
@@ -133,6 +135,7 @@ final class SatoriAdapter: GhostShioriRuntime {
         )
         if loaded {
             lastLoadContext = context
+            lastSaoriPaths = existingPaths
         }
         return loaded
     }
@@ -154,6 +157,7 @@ final class SatoriAdapter: GhostShioriRuntime {
 
     func unload() {
         lastLoadContext = nil
+        lastSaoriPaths = []
         isLoaded = false
         if process.isRunning {
             _ = exchange(SatoriRequest(cmd: "unload"), timeout: 3)
@@ -253,7 +257,8 @@ final class SatoriAdapter: GhostShioriRuntime {
         let restored = load(
             ghostRoot: context.ghostRoot,
             dicEntries: context.dictionaryEntries.map { $0.path },
-            communication: context.communication
+            communication: context.communication,
+            saoriPaths: lastSaoriPaths
         )
         if !restored {
             forceTerminate()
