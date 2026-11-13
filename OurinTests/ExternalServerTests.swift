@@ -116,6 +116,25 @@ struct ExternalServerTests {
     }
 
     @Test
+    func httpContentLengthRejectsNegativeAndOversizedValues() throws {
+        let max = 64 * 1024
+        #expect(SstpHttpServer.validateContentLength(["75"], maxSize: max) == .valid(75))
+        #expect(SstpHttpServer.validateContentLength(["0"], maxSize: max) == .valid(0))
+        #expect(SstpHttpServer.validateContentLength(["\(max)"], maxSize: max) == .valid(max))
+        #expect(SstpHttpServer.validateContentLength([], maxSize: max) == .missing)
+        // 負数は Range 生成でトラップするため 400 として拒否する
+        #expect(SstpHttpServer.validateContentLength(["-1"], maxSize: max) == .invalid)
+        #expect(SstpHttpServer.validateContentLength(["+5"], maxSize: max) == .invalid)
+        #expect(SstpHttpServer.validateContentLength(["abc"], maxSize: max) == .invalid)
+        #expect(SstpHttpServer.validateContentLength([""], maxSize: max) == .invalid)
+        #expect(SstpHttpServer.validateContentLength(["3", "4"], maxSize: max) == .invalid)
+        #expect(SstpHttpServer.validateContentLength(["3", "3"], maxSize: max) == .valid(3))
+        // maxSize 超過・Int 範囲外は 413
+        #expect(SstpHttpServer.validateContentLength(["\(max + 1)"], maxSize: max) == .tooLarge)
+        #expect(SstpHttpServer.validateContentLength(["99999999999999999999999"], maxSize: max) == .tooLarge)
+    }
+
+    @Test
     func httpOriginAllowsOnlyLocalOrNull() throws {
         #expect(SstpHttpServer.isAcceptedOrigin("http://localhost:3000") == true)
         #expect(SstpHttpServer.isAcceptedOrigin("null") == true)

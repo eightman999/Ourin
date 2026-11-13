@@ -70,21 +70,29 @@ public final class SstpHttpServer {
                 return true
             }
 
-            var contentLength = 0
-            var hasContentLength = false
+            var contentLengthValues: [String] = []
             var originHeader: String?
             for line in headerLines.dropFirst() {
                 if line.lowercased().hasPrefix("content-length:") {
                     let v = line.split(separator: ":", maxSplits: 1)[1].trimmingCharacters(in: .whitespaces)
-                    contentLength = Int(v) ?? 0
-                    hasContentLength = true
+                    contentLengthValues.append(v)
                 } else if line.lowercased().hasPrefix("origin:") {
                     let v = line.split(separator: ":", maxSplits: 1)[1].trimmingCharacters(in: .whitespaces)
                     originHeader = v
                 }
             }
-            guard hasContentLength else {
+            let contentLength: Int
+            switch Self.validateContentLength(contentLengthValues, maxSize: self.config.maxSize) {
+            case .valid(let length):
+                contentLength = length
+            case .missing:
                 self.sendErrorResponse(conn, status: 411)
+                return true
+            case .invalid:
+                self.sendErrorResponse(conn, status: 400)
+                return true
+            case .tooLarge:
+                self.sendErrorResponse(conn, status: 413)
                 return true
             }
             if let originHeader, !Self.isAcceptedOrigin(originHeader) {
@@ -161,6 +169,28 @@ public final class SstpHttpServer {
         guard !trimmed.isEmpty else { return false }
         if trimmed == "null" { return true }
         return isLocalOrigin(trimmed)
+    }
+
+    enum ContentLengthValidation: Equatable {
+        case valid(Int)
+        case missing
+        case invalid
+        case tooLarge
+    }
+
+    /// Content-Length ヘッダ値を検証する。
+    /// 負数・非数値・値の食い違う重複は 400、`maxSize` 超過は 413 とし、
+    /// 本文切り出しの Range が不正にならないことを保証する。
+    static func validateContentLength(_ values: [String], maxSize: Int) -> ContentLengthValidation {
+        guard let first = values.first else { return .missing }
+        guard values.allSatisfy({ $0 == first }),
+              !first.isEmpty,
+              first.allSatisfy({ $0.isASCII && $0.isNumber }) else {
+            return .invalid
+        }
+        guard let length = Int(first) else { return .tooLarge }
+        guard length <= maxSize else { return .tooLarge }
+        return .valid(length)
     }
 
     struct HttpRequestLine {
