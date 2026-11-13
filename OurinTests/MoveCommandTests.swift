@@ -83,4 +83,67 @@ struct MoveCommandTests {
         #expect(movedFollower.x == 1335)
         #expect(movedFollower.y == 1198)
     }
+
+    private func waitForMainQueue() async {
+        await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+            DispatchQueue.main.async { c.resume() }
+        }
+    }
+
+    @Test
+    func resetStickyWindowKeepsCharacterWindowFrameObserver() async throws {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sticky-reset-observer-test"))
+        defer { _ = gm.shutdown() }
+        guard let master = gm.ensureCharacterWindow(for: 0),
+              gm.ensureCharacterWindow(for: 1) != nil else {
+            Issue.record("Expected scope 0 and 1 character windows")
+            return
+        }
+
+        gm.setStickyWindow(masterScope: 0, followerScopes: [1])
+        await waitForMainQueue()
+        #expect(gm.stickyWindowObservers[0] != nil)
+
+        gm.resetStickyWindow()
+        await waitForMainQueue()
+        #expect(gm.stickyWindowObservers.isEmpty)
+
+        // sticky 解除後も、窓の移動は characterWindowDidChangeFrame が位置として保存し続ける。
+        gm.resourceManager.setCharDefaultLeft(scope: 0, value: nil)
+        master.setFrameOrigin(NSPoint(x: master.frame.origin.x + 123, y: master.frame.origin.y))
+        NotificationCenter.default.post(name: NSWindow.didMoveNotification, object: master)
+        #expect(gm.resourceManager.getCharDefaultLeft(scope: 0) == Int(master.frame.origin.x))
+    }
+
+    @Test
+    func stickyFollowerTracksMasterUntilReset() async throws {
+        let gm = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-sticky-follow-test"))
+        defer { _ = gm.shutdown() }
+        guard let master = gm.ensureCharacterWindow(for: 0),
+              let follower = gm.ensureCharacterWindow(for: 1) else {
+            Issue.record("Expected scope 0 and 1 character windows")
+            return
+        }
+
+        // 同じ親窓を二重に指定しても、購読は 1 つだけ残る。
+        gm.setStickyWindow(masterScope: 0, followerScopes: [1])
+        gm.setStickyWindow(masterScope: 0, followerScopes: [1])
+        await waitForMainQueue()
+        #expect(gm.stickyWindowObservers.count == 1)
+
+        let offset = GhostManager.stickyOffset(masterOrigin: master.frame.origin, followerOrigin: follower.frame.origin)
+        master.setFrameOrigin(CGPoint(x: master.frame.origin.x + 80, y: master.frame.origin.y + 40))
+        NotificationCenter.default.post(name: NSWindow.didMoveNotification, object: master)
+        let expected = GhostManager.stickyFollowerOrigin(masterOrigin: master.frame.origin, offset: offset)
+        #expect(abs(follower.frame.origin.x - expected.x) < 1)
+        #expect(abs(follower.frame.origin.y - expected.y) < 1)
+
+        // 解除後は親窓を動かしても子窓は追従しない。
+        gm.resetStickyWindow()
+        await waitForMainQueue()
+        let followerOrigin = follower.frame.origin
+        master.setFrameOrigin(CGPoint(x: master.frame.origin.x + 50, y: master.frame.origin.y))
+        NotificationCenter.default.post(name: NSWindow.didMoveNotification, object: master)
+        #expect(follower.frame.origin == followerOrigin)
+    }
 }

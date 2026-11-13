@@ -153,21 +153,37 @@ public final class SstpHttpServer {
         EncodingNormalizer.decode(data, charset: EncodingAdapter.declaredCharset(in: data))
     }
 
+    /// HTTP の Origin から判定した SecurityOrigin / SecurityLevel を SSTP 本文へ入れる。
+    /// 本文に既にある SecurityOrigin / SecurityLevel は送信者が自由に書けるため、すべて取り除いてから入れる。
+    /// （残すと先頭値を読む経路と後勝ちで読む経路で判定が食い違い、localhost を偽装できる）
     static func injectSecurityHeaders(into sstp: String, origin: String?) -> String {
         guard let origin, !origin.isEmpty else { return sstp }
         let level = isLocalOrigin(origin) ? "local" : "external"
-        let headers = "SecurityOrigin: \(origin)\r\nSecurityLevel: \(level)"
-        // 空行（ヘッダ終端）の直前＝最終ヘッダ行の CRLF の前に「CRLF + 追加ヘッダ」を入れる。
-        // 以前は CRLF 無しで挿入しており、最終ヘッダと連結して `Charset: UTF-8SecurityOrigin: ...` になっていた。
-        if let range = sstp.range(of: "\r\n\r\n") {
-            var result = sstp
-            result.insert(contentsOf: "\r\n" + headers, at: range.lowerBound)
-            return result
+        let injected = ["SecurityOrigin: \(origin)", "SecurityLevel: \(level)"]
+        // SSTPParser.parseRequest と同じ規則（LF のみも CRLF に正規化して分割）で行を解釈する。
+        let normalized = sstp.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\n", with: "\r\n")
+        let lines = normalized.split(separator: "\r\n", omittingEmptySubsequences: false).map(String.init)
+        var headerLines: [String] = []
+        var bodyLines: [String]? = nil
+        for (index, line) in lines.enumerated() {
+            if index == 0 { headerLines.append(line); continue }
+            if line.isEmpty {
+                bodyLines = Array(lines[(index + 1)...])
+                break
+            }
+            if !isSecurityHeaderLine(line) { headerLines.append(line) }
         }
-        // 終端の空行が無い要求: 末尾の改行を落としてから追加し、空行で閉じる
-        var trimmed = sstp
-        while trimmed.hasSuffix("\r\n") || trimmed.hasSuffix("\n") || trimmed.hasSuffix("\r") { trimmed.removeLast() }
-        return trimmed + "\r\n" + headers + "\r\n\r\n"
+        // 最終ヘッダの後ろに 1 行ずつ追加し、空行でヘッダを閉じる。本文はそのまま残す。
+        var result = (headerLines + injected).joined(separator: "\r\n") + "\r\n\r\n"
+        if let bodyLines { result += bodyLines.joined(separator: "\r\n") }
+        return result
+    }
+
+    private static func isSecurityHeaderLine(_ line: String) -> Bool {
+        guard let idx = line.firstIndex(of: ":") else { return false }
+        let key = line[..<idx].trimmingCharacters(in: .whitespaces)
+        return key.caseInsensitiveCompare("SecurityOrigin") == .orderedSame
+            || key.caseInsensitiveCompare("SecurityLevel") == .orderedSame
     }
 
     private static func isLocalOrigin(_ origin: String) -> Bool {

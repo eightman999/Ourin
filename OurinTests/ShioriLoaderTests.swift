@@ -1838,7 +1838,8 @@ struct ShioriLoaderTests {
         #expect(available >= 0 && available <= total)
     }
 
-    /// YAYA の文字列埋め込み履歴参照を検証する。
+    /// YAYA の文字列埋め込み履歴参照を検証する。`%[n]` は括弧なしの埋め込みを先頭から 0 始まりで数える
+    /// （`%(…)` は数えない。本家では `%(…)` の後の `%[n]` は読み込み時に E0081）。
     @Test
     func yayaCoreEmbeddedHistoryReferencesPreviousValues() throws {
         guard let exe = Self.locateYayaCore() else {
@@ -1851,7 +1852,13 @@ struct ShioriLoaderTests {
 
         let dic = """
         EmbeddedHistory {
-            "prefix %(1) %[0] middle %(2) %[0] %[1]"
+            "prefix %one %[0] middle %two %[0] %[1]"
+        }
+        one {
+            "1"
+        }
+        two {
+            "2"
         }
         """
         try dic.write(to: ghost.appendingPathComponent("t.dic"), atomically: true, encoding: .utf8)
@@ -1866,7 +1873,7 @@ struct ShioriLoaderTests {
         ]
 
         #expect(Self.runYayaCore(exe: exe, requests: [loadReq, request]) ==
-                "prefix 1 1 middle 2 2 1")
+                "prefix 1 1 middle 2 1 2")
     }
 
     /// macOS では HWND を直接送信できないため、SETTAMAHWND の指定値を

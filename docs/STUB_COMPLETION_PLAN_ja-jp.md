@@ -82,7 +82,7 @@
 - `GETMEMINFO` / `SETTAMAHWND` / `EmBeD_HiStOrY` は 2026-08-12 に実装済み。
   - `GETMEMINFO`: macOS の Mach / sysctl 統計を5要素配列で返す。
   - `SETTAMAHWND`: HWNDを直接扱えないmacOS向けに `GETSETTING("tama.hwnd")` で読み戻せる論理識別子として保持する。
-  - `EmBeD_HiStOrY`: 文字列内の `%[n]` を同一文字列の直前埋め込み値へ解決する。
+  - `EmBeD_HiStOrY`: 直前の括弧なしの埋め込みからさかのぼった位置の値を返す（本家で `%[n]` の変換先になるシステム関数）。文字列内の `%[n]` は、2026-10-26 から本家と同じく括弧なしの埋め込みを先頭から 0 始まりで数える。
 - `EventReferenceSpec.swift` の DEBUG時 `assertionFailure`（開発時検証用として正常）
 - `GhostManager.swift:551,664,690` の起動時プレースホルダサーフェス（正常フロー）
 - PluginScaffolder の旧生成物（旧形式のダミー実行体は生成停止済み。既存の `.scaffold` は PluginRegistry が実行対象外として扱う）

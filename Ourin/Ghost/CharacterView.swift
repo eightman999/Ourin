@@ -311,7 +311,7 @@ final class CharacterHitTestingHostingView: NSHostingView<CharacterView> {
     private func showRightClickMenu(for event: NSEvent) {
         let locationInWindow = event.locationInWindow
         let screenPoint = window?.convertPoint(toScreen: locationInWindow) ?? NSEvent.mouseLocation
-        InputMonitor.shared.rightClickMenuHandler?(screenPoint)
+        InputMonitor.shared.showRightClickMenu(from: window, at: screenPoint)
     }
 
     private func image(_ image: NSImage, isVisibleAt point: CGPoint, destination: CGRect, alpha: Double) -> Bool {

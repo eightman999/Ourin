@@ -1009,6 +1009,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     var animationEngine: AnimationEngine = AnimationEngine()
     var surfaceAliases: [Int: Int] = [:]
     var surfaceNameAliases: [String: Int] = [:]   // \s[alias] 用: 文字列別名 → サーフェスID
+    /// 上の別名を読み込んだシェル名。`activeShellName` と食い違うときは、サーフェス切替の前に読み直す。
+    var surfaceAliasShellName: String?
     var parsedSurfaceDefs: [Int: SerikoSurfaceDefinition] = [:]  // element 合成・アニメ定義のキャッシュ
     var surfaceTable: SurfaceTable? = nil  // surfacetable.txt のメタデータ（サーフィステスト用グループ定義）
     /// スコープごとの最新サーフェス要求。非同期ロード完了後に古い要求が表示を復活させないために使う。
@@ -1024,6 +1026,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
     // Window management (used by Window extension)
     var stickyWindowRelationships: [Int: Set<Int>] = [:] // Master scope -> follower scopes
     var stickyWindowOffsets: [Int: [Int: CGPoint]] = [:] // Master scope -> follower scope -> initial relative origin
+    /// sticky 窓の親窓移動を見る didMove observer（Master scope -> token）。
+    /// `removeObserver(_:name:object:)` はセレクタで区別できず、窓位置の保存・バルーン追従用の
+    /// `characterWindowDidChangeFrame` の購読まで外してしまうため、sticky 用だけをトークンで解除する。
+    var stickyWindowObservers: [Int: NSObjectProtocol] = [:]
     var windowZOrderScopes: [Int]? = nil // Persisted z-order group for windows created later
     var pendingWindowStateReasons: [Int: String] = [:] // Scope -> reason for the next minimize/restore notification
     var serikoScaleFactorsByScope: [Int: [Int: CGPoint]] = [:] // scope -> animationID -> x/y multiplier
@@ -1341,6 +1347,15 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
     }
     
+    /// descript.txt の `sakura.name` / `kero.name` を `%selfname` / `%keroname` に反映する。
+    /// OnBoot / OnFirstBoot の応答は OnNotifySelfInfo による保存値の更新より先に展開されるため、
+    /// 保存値（初回は未設定、別ゴーストの後は前回の名前）ではなく、このゴースト自身の名前を先に設定する。
+    /// UserDefaults の共有キーには書き込まない（ゴースト別の値で他ゴーストの保存値を上書きしない）。
+    func applyCharacterNames(from config: GhostConfiguration) {
+        sakuraEngine.envExpander.selfname = config.sakuraName
+        sakuraEngine.envExpander.keroname = config.keroName ?? ""
+    }
+
     func loadDressupConfiguration() {
         dressupConfigurations.removeAll()
         dressupBindGroupsByScope.removeAll()
@@ -1549,9 +1564,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         if let kero = keroName {
             defaults.set(kero, forKey: "OurinKeroName")
         }
-        sakuraEngine.envExpander.selfname = sakuraName
-        if let kero = keroName {
-            sakuraEngine.envExpander.keroname = kero
+        if let config = ghostConfig {
+            // OnNotifySelfInfo は全セッションへ配られるため、他ゴーストの名前で自分の値を上書きしない。
+            applyCharacterNames(from: config)
+        } else {
+            sakuraEngine.envExpander.selfname = sakuraName
+            if let kero = keroName {
+                sakuraEngine.envExpander.keroname = kero
+            }
         }
         Log.debug("[GhostManager] Saved character names - Sakura: \(sakuraName), Kero: \(keroName ?? "none")")
     }
@@ -1669,6 +1689,8 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             if let config = GhostConfiguration.load(from: ghostRoot) {
                 self.ghostConfig = config
                 self.activeShellName = config.defaultShellDirectory.isEmpty ? "master" : config.defaultShellDirectory
+                // OnBoot / OnFirstBoot の応答の %selfname / %keroname は OnNotifySelfInfo より先に展開される。
+                self.applyCharacterNames(from: config)
                 DispatchQueue.main.async {
                     AppDelegate.resolve()?.recordActiveGhostForCrashRecovery(name: config.name, manager: self)
                 }
@@ -1920,6 +1942,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
         NotificationCenter.default.post(name: .fmoNeedsRefresh, object: nil)
         removeScreenChangeObserver()
+        removeStickyWindowObservers()
         NotificationCenter.default.removeObserver(self)
         if let config = ghostConfig,
            let dispatcher = AppDelegate.resolve()?.pluginDispatcher {
@@ -2380,13 +2403,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             return
         }
         let translated = translateForDisplay(script, context: translationContext)
-        runTranslatedNotifyScript(translated)
+        runTranslatedNotifyScript(translated, isExternal: translationContext.isSSTP)
     }
 
     /// 既に翻訳済みのNOTIFY由来スクリプトを、再翻訳せず適用する。
-    func runTranslatedNotifyScript(_ script: String) {
+    func runTranslatedNotifyScript(_ script: String, isExternal: Bool = false) {
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        currentPlaybackIsExternal = isExternal
         choiceSourceScript = trimmed
 
         let hasText = sakuraEngine.containsTextInPreprocessedScript(trimmed)
@@ -2427,6 +2451,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         let trimmed = translateForDisplay(script, context: .init(reasons: reasons))
             .trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        currentPlaybackIsExternal = false
         choiceSourceScript = trimmed
         recordBacklog(from: trimmed)
         pluginScriptOriginID = originPluginID
@@ -2735,10 +2760,50 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
     }
 
+    /// 外部（SSTP）由来スクリプトでも実行してよい `\![execute,*]`。
+    /// filewatch / schedule-* は各処理側で外部由来を拒否する。
+    static let externallyAllowedExecuteSubcommands: Set<String> = [
+        "resetwindowpos", "resetballoonpos", "headline",
+        "filewatch", "schedule-add", "schedule-delete", "schedule-get"
+    ]
+
+    /// 外部（SSTP）由来スクリプトに許可しないコマンドを拒否し、OnSecurityWarning で知らせる。
+    func rejectExternalScriptCommand(_ command: String) {
+        Log.info("[GhostManager] Refused external script command: \(command)")
+        EventBridge.shared.notifyCustom("OnSecurityWarning", refs: [
+            "source": "external_script_denied",
+            "detail": command
+        ])
+    }
+
+    /// 外部（SSTP）由来スクリプトに許可しない `\![open,*]`。
+    /// ローカルのファイル・アプリを開く操作と、HTTP 送受信を行う操作。
+    static let externallyDeniedOpenSubcommands: Set<String> = [
+        "file", "editor", "explorer", "http", "send", "pictureviewer", "archiveviewer"
+    ]
+
+    static func isExternallyAllowedOpenCommand(_ args: [String]) -> Bool {
+        guard args.count >= 2 else { return true }
+        return !externallyDeniedOpenSubcommands.contains(args[1].lowercased())
+    }
+
+    /// 外部（SSTP）由来スクリプトから開いてよい URL か。`file:` やアプリ起動用の独自スキームは開かせない。
+    static func isExternallyOpenableURL(_ target: String) -> Bool {
+        let trimmed = target.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let url = browserURL(for: trimmed), !url.isFileURL,
+              let scheme = url.scheme?.lowercased() else { return false }
+        return scheme == "http" || scheme == "https"
+    }
+
     /// `\![execute,*]` の外部連携・ファイル操作を再生キュー上で実行する。
-    private func executeSakuraScriptExecuteCommand(args: [String]) {
+    /// - Parameter isExternal: コマンドを含むスクリプトが SSTP など外部由来か。
+    func executeSakuraScriptExecuteCommand(args: [String], isExternal: Bool) {
         guard args.count >= 2 else { return }
         let subcmd = args[1].lowercased()
+        if isExternal && !Self.externallyAllowedExecuteSubcommands.contains(subcmd) {
+            rejectExternalScriptCommand("execute,\(subcmd)")
+            return
+        }
         if subcmd == "resetwindowpos" {
             executeResetWindowPos()
         } else if subcmd == "resetballoonpos" {
@@ -2782,9 +2847,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 executeICal(subcommand: subcmd, params: Array(args.dropFirst(2)))
             }
         } else if subcmd == "filewatch" {
-            executeFileWatch(params: Array(args.dropFirst(2)), isExternal: currentPlaybackIsExternal)
+            executeFileWatch(params: Array(args.dropFirst(2)), isExternal: isExternal)
         } else if subcmd == "schedule-add" || subcmd == "schedule-delete" || subcmd == "schedule-get" {
-            executeGhostSchedule(subcommand: subcmd, arguments: Array(args.dropFirst(2)), isExternal: currentPlaybackIsExternal)
+            executeGhostSchedule(subcommand: subcmd, arguments: Array(args.dropFirst(2)), isExternal: isExternal)
         }
     }
 
@@ -3379,6 +3444,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         playbackQueue.append(.deferredCommand { [weak self] in
                             self?.setBalloonMarker(marker)
                         })
+                    } else if first == "open", args.count >= 2,
+                              currentPlaybackIsExternal,
+                              !Self.isExternallyAllowedOpenCommand(args) {
+                        rejectExternalScriptCommand("open,\(args[1].lowercased())")
                     } else if first == "open", args.count >= 2 {
                         let openType = args[1].lowercased()
                         switch openType {
@@ -3530,7 +3599,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 self.openBacklogViewer()
                             })
                         case "browser":
-                            if args.count >= 3 {
+                            if args.count >= 3, currentPlaybackIsExternal, !Self.isExternallyOpenableURL(args[2]) {
+                                rejectExternalScriptCommand("open,browser")
+                            } else if args.count >= 3 {
                                 let target = args[2]
                                 playbackQueue.append(.deferredCommand {
                                     self.openURL(target)
@@ -3655,9 +3726,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             })
                         default:
                             // \![open,URL] は未知のサブコマンドとして捨てず、URLとして委譲する。
-                            playbackQueue.append(.deferredCommand {
-                                self.openURL(args[1])
-                            })
+                            if currentPlaybackIsExternal && !Self.isExternallyOpenableURL(args[1]) {
+                                rejectExternalScriptCommand("open,url")
+                            } else {
+                                playbackQueue.append(.deferredCommand {
+                                    self.openURL(args[1])
+                                })
+                            }
                         }
                     } else if first == "close", args.count >= 2 {
                         let closeType = args[1].lowercased()
@@ -4018,8 +4093,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             self?.executeUnlockCommand(args: args)
                         })
                     } else if first == "execute", args.count >= 2 {
+                        let isExternal = currentPlaybackIsExternal
                         playbackQueue.append(.deferredCommand { [weak self] in
-                            self?.executeSakuraScriptExecuteCommand(args: args)
+                            self?.executeSakuraScriptExecuteCommand(args: args, isExternal: isExternal)
                         })
                     } else if first == "create", args.count >= 2 {
                         let createType = args[1].lowercased()

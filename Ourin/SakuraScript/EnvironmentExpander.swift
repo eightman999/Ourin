@@ -30,6 +30,38 @@ public final class EnvironmentExpander {
         self.lexicon = SakuraScriptLexiconLoader.loadDefaultLexicon()
     }
 
+    /// エスケープを含む生のスクリプト全体で `%` 変数を展開する。
+    /// `\%` で出した `%` は環境変数の展開対象にしない（`\%month` は `%month` のまま残す）。
+    /// `\%` 自体は後段のパーサーが `%` に戻すため、ここでは変換せず残す。
+    /// `\\` は 1 組のエスケープとして読み飛ばし、その直後の `%` は通常どおり展開する。
+    public func expand(script: String, now: Date = Date()) -> String {
+        if script.isEmpty { return script }
+        var result = ""
+        var segment = ""
+        let chars = Array(script)
+        var i = 0
+        while i < chars.count {
+            if chars[i] == "\\", i + 1 < chars.count {
+                if chars[i + 1] == "\\" {
+                    segment.append("\\\\")
+                    i += 2
+                    continue
+                }
+                if chars[i + 1] == "%" {
+                    result += expand(text: segment, now: now)
+                    segment.removeAll()
+                    result += "\\%"
+                    i += 2
+                    continue
+                }
+            }
+            segment.append(chars[i])
+            i += 1
+        }
+        result += expand(text: segment, now: now)
+        return result
+    }
+
     /// Expand percent variables in given text.
     public func expand(text: String, now: Date = Date()) -> String {
         if text.isEmpty { return text }

@@ -148,19 +148,19 @@ Function declaration notes:
 | `GETSECCOUNT()` | Get seconds since epoch | `GETSECCOUNT()` | ✅ Working |
 | `GETENV(name)` | Get environment variable | `GETENV("PATH")` | ✅ Working |
 | `GETMEMINFO()` | Get host memory info `[load,totalPhys,availPhys,totalVirtual,availVirtual]` | `GETMEMINFO()` | ✅ Working |
-| `EXECUTE(cmd)` | Execute system command (non-blocking) | `EXECUTE("echo test")` → `1` | ✅ Working |
-| `EXECUTE_WAIT(cmd)` | Execute and wait for completion | `EXECUTE_WAIT("ls")` → exit code | ✅ Working |
+| `EXECUTE(cmd[, args])` | Delegate to the host (no shell; user confirmation / per-ghost allowlist) | `EXECUTE("https://example.com")` → `1` if run, `0` if denied/pending | ✅ Working |
+| `EXECUTE_WAIT(cmd[, args])` | Delegate to the host and wait (no shell) | `EXECUTE_WAIT("/usr/bin/true")` → exit code, `-1` if denied/pending | ✅ Working |
 | `SLEEP(ms)` | Sleep for milliseconds | `SLEEP(1000)` | ✅ Working |
 | `READFMO(name)` | Read Forged Memory Object through host IPC | `READFMO("name")` | ✅ Working |
 | `SETTAMAHWND(hwnd)` | Store the logical TAMA window identifier (`tama.hwnd`) | `SETTAMAHWND(0)` | ✅ macOS-compatible |
 
 **Example Usage**:
 ```yaya
-// Execute command and wait
-_result = EXECUTE_WAIT("ls -l")
+// Execute and wait (the host asks the user the first time; no shell is used)
+_result = EXECUTE_WAIT("/bin/ls", "-l")
 
 // Execute in background
-EXECUTE("open -a Safari")
+EXECUTE("open", "-a Safari")
 
 // Delay execution
 SLEEP(1000)  // Wait 1 second

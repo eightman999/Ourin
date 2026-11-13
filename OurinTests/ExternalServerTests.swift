@@ -163,6 +163,37 @@ struct ExternalServerTests {
     }
 
     @Test
+    func httpBodySecurityHeadersCannotSpoofOrigin() throws {
+        // Origin: null のページが本文に localhost の SecurityOrigin を書いても、HTTP の Origin が使われる。
+        let raw = "SEND SSTP/1.4\r\nSecurityOrigin: http://localhost\r\nsecuritylevel: local\r\nSender: Test\r\nID: owned-a\r\nCharset: UTF-8\r\n\r\n"
+        let routed = SstpHttpServer.injectSecurityHeaders(into: raw, origin: "null")
+        #expect(routed == "SEND SSTP/1.4\r\nSender: Test\r\nID: owned-a\r\nCharset: UTF-8\r\nSecurityOrigin: null\r\nSecurityLevel: external\r\n\r\n")
+        let parsed = SSTPParser.parseRequest(text: routed)
+        // OurinExternalServer.handleRaw は先頭値、resolveSecurityLevel は後勝ちで読む。どちらも null になる。
+        #expect(parsed.headerValue("SecurityOrigin") == "null")
+        #expect(parsed.headers["SecurityOrigin"] == "null")
+        #expect(parsed.headerEntries.filter { $0.key.caseInsensitiveCompare("SecurityOrigin") == .orderedSame }.count == 1)
+        #expect(parsed.headerEntries.filter { $0.key.caseInsensitiveCompare("SecurityLevel") == .orderedSame }.map { $0.value } == ["external"])
+
+        // LF のみの本文（パーサは CRLF に正規化して受理する）でも同様に取り除く。本文部分は残す。
+        let lfOnly = "SEND SSTP/1.4\nSecurityOrigin : http://127.0.0.1\nSender: Test\nSecurityOrigin: http://localhost\n\nbody"
+        let routedLF = SstpHttpServer.injectSecurityHeaders(into: lfOnly, origin: "null")
+        #expect(routedLF == "SEND SSTP/1.4\r\nSender: Test\r\nSecurityOrigin: null\r\nSecurityLevel: external\r\n\r\nbody")
+        let parsedLF = SSTPParser.parseRequest(text: routedLF)
+        #expect(parsedLF.headerValue("SecurityOrigin") == "null")
+        #expect(parsedLF.headers["SecurityOrigin"] == "null")
+    }
+
+    @Test
+    func requestRemoveHeadersDropsAllCaseInsensitiveDuplicates() throws {
+        var req = SSTPParser.parseRequest(text: "SEND SSTP/1.4\r\nSecurityOrigin: http://localhost\r\nSender: Test\r\nsecurityorigin: http://127.0.0.1\r\n\r\n")
+        req.removeHeaders(named: "SecurityOrigin")
+        req.setHeader("SecurityOrigin", "null")
+        #expect(req.headerValue("SecurityOrigin") == "null")
+        #expect(req.headerEntries.map { $0.key } == ["Sender", "SecurityOrigin"])
+    }
+
+    @Test
     func httpOriginAllowsOnlyLocalOrNull() throws {
         #expect(SstpHttpServer.isAcceptedOrigin("http://localhost:3000") == true)
         #expect(SstpHttpServer.isAcceptedOrigin("null") == true)
@@ -347,5 +378,51 @@ struct ExternalServerTests {
         let resp = makeServer().handleRaw(raw)
         #expect(resp.contains("200"))
         #expect(resp.contains("Script: \\h\\s0DefaultScript\\e"))
+    }
+
+    // MARK: - XPC（Direct SSTP）の応答の文字コード
+
+    /// XPC の入口（XpcDirectServer.executeSSTP）を通して応答の Data を得る。
+    /// onRequest は weak self で server に合流するため、呼び出し中は server を生かしておく。
+    private func executeXPC(_ request: Data) -> Data {
+        let server = makeServer()
+        var response = Data()
+        withExtendedLifetime(server) {
+            server.xpc.executeSSTP(request) { response = $0 }
+        }
+        return response
+    }
+
+    @Test
+    func xpcSaoriResponseKeepsDeclaredShiftJISBytes() throws {
+        // SAORI/1.0 の応答は要求の Charset のバイト列のまま XPC の呼び出し元へ届く
+        // （UTF-8 として復号・再符号化すると非 ASCII が U+FFFD になり化ける）。
+        let raw = "EXECUTE SAORI/1.0\r\nCharset: Shift_JIS\r\nSender: test\r\nModule: string\r\nArgument0: tozenkaku\r\nArgument1: ab\r\n\r\n"
+        let request = try #require(raw.data(using: .shiftJIS))
+        let response = executeXPC(request)
+
+        let text = try #require(String(data: response, encoding: .shiftJIS))
+        #expect(text.contains("Result: ａｂ"))
+        // 全角「ａｂ」の Shift_JIS は 82 81 82 82
+        #expect(response.range(of: Data([0x82, 0x81, 0x82, 0x82])) != nil)
+        #expect(!text.contains("\u{FFFD}"))
+    }
+
+    @Test
+    func xpcSaoriResponseStaysUTF8WhenCharsetIsUTF8() throws {
+        let raw = "EXECUTE SAORI/1.0\r\nCharset: UTF-8\r\nSender: test\r\nModule: string\r\nArgument0: tozenkaku\r\nArgument1: ab\r\n\r\n"
+        let response = executeXPC(Data(raw.utf8))
+
+        let text = try #require(String(data: response, encoding: .utf8))
+        #expect(text.contains("Result: ａｂ"))
+    }
+
+    @Test
+    func xpcSSTPResponseIsStillReturnedAsUTF8String() throws {
+        // SSTP（SAORI 以外）は従来どおり handleRaw の文字列応答を UTF-8 で返す
+        let response = executeXPC(Data("garbage".utf8))
+
+        let text = try #require(String(data: response, encoding: .utf8))
+        #expect(text.contains("400"))
     }
 }

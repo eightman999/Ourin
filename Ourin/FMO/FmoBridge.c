@@ -22,9 +22,17 @@ int fmo_open_shared(const char *name, size_t size) {
     return fd;
 }
 
-/* 共有メモリをマップする */
+/*
+ * 共有メモリをマップする。
+ * mmap の失敗値 MAP_FAILED は (void *)-1 で NULL ではないため、
+ * Swift 側の nil 判定が働くよう失敗時は NULL を返す (errno は保持される)。
+ */
 void *fmo_map(int fd, size_t size) {
-    return mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (p == MAP_FAILED) {
+        return NULL;
+    }
+    return p;
 }
 
 /* ftruncate の薄いラッパー */
@@ -47,9 +55,17 @@ int fmo_munmap(void *addr, size_t size) {
     return munmap(addr, size);
 }
 
-/* 名前付きセマフォを開く */
+/*
+ * 名前付きセマフォを開く。
+ * sem_open の失敗値 SEM_FAILED は Darwin では (sem_t *)-1 で NULL ではないため、
+ * Swift 側の nil 判定が働くよう失敗時は NULL を返す (errno は保持される)。
+ */
 sem_t *fmo_sem_open(const char *name, int oflag, mode_t mode, unsigned int value) {
-    return sem_open(name, oflag, mode, value);
+    sem_t *sem = sem_open(name, oflag, mode, value);
+    if (sem == SEM_FAILED) {
+        return NULL;
+    }
+    return sem;
 }
 
 /* セマフォ待機 */

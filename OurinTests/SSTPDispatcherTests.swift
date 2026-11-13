@@ -200,6 +200,27 @@ struct SSTPDispatcherTests {
     }
 
     @Test
+    func httpBodySecurityOriginCannotSpoofLocalhostForOwnedID() async throws {
+        let fake = FakeSstpRoutingRegistry()
+        fake.matchHandler = { id, _ in id == "owned-a" }
+        var receivedSecurityLevels: [String] = []
+        bridge.liveGhostResolver = { _, _, _, headers in
+            receivedSecurityLevels.append(headers["SecurityLevel"] ?? "")
+            return .init(status: 204, headers: [:], value: nil)
+        }
+        let body = "SEND SSTP/1.4\r\nSecurityOrigin: http://localhost\r\nSender: UnitTest\r\nEvent: OnOwnedTest\r\nID: owned-a\r\nOption: nodescript\r\n\r\n"
+        let routed = SstpHttpServer.injectSecurityHeaders(into: body, origin: "null")
+        let req = SSTPParser.parseRequest(text: routed)
+        // OurinExternalServer.handleRaw と同じく先頭の SecurityOrigin を origin として渡す。
+        let origin = req.headerValue("SecurityOrigin")
+        #expect(origin == "null")
+
+        _ = SSTPDispatcher.dispatchExternal(request: req, origin: origin, bridge: bridge, routingRegistry: fake)
+
+        #expect(receivedSecurityLevels == ["external"])
+    }
+
+    @Test
     func sparseReferencesReachShioriWithoutCollapsingIndexes() async throws {
         var receivedReferences: [String] = []
         var receivedHeaders: [String: String] = [:]
@@ -361,6 +382,71 @@ struct SSTPDispatcherTests {
         #expect(!response.contains("source-secondary"))
         #expect(primaryRuntime.translateRequestCount == 1)
         #expect(secondaryRuntime.translateRequestCount == 1)
+    }
+
+    @Test @MainActor
+    func receiverGhostNameResolvesRunningGhostsWithoutManualRegistration() async throws {
+        // GhostRegistry へ手で登録せず、AppDelegate の起動中ゴーストだけで 512/404/配送が決まる（本番と同じ構成）
+        GhostRegistry.shared.clear()
+        let primary = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-route-primary"))
+        primary.ghostConfig = GhostConfiguration(name: "Route Primary", shiori: "fixture.bundle")
+        let secondary = GhostManager(ghostURL: URL(fileURLWithPath: "/tmp/ourin-route-secondary"))
+        secondary.ghostConfig = GhostConfiguration(name: "Route Secondary", shiori: "fixture.bundle")
+
+        func makeRequest(receiver: String) -> SSTPRequest {
+            SSTPRequest(
+                method: "SEND",
+                version: "SSTP/1.4",
+                headers: [
+                    "Sender": "UnitTest",
+                    "ReceiverGhostName": receiver,
+                    "Script": "\\h\\s0Routed",
+                    "Option": "nodescript"
+                ]
+            )
+        }
+        // SSTP はバックグラウンドのキューから呼ばれる。メインを空けて、その経路で判定する。
+        func dispatchOffMain(receiver: String) async -> String {
+            let bridge = self.bridge
+            let request = makeRequest(receiver: receiver)
+            return await withCheckedContinuation { continuation in
+                DispatchQueue.global(qos: .utility).async {
+                    continuation.resume(returning: SSTPDispatcher.dispatch(request: request, bridge: bridge))
+                }
+            }
+        }
+
+        let application = NSApplication.shared
+        let previousDelegate = application.delegate
+        let appDelegate = (previousDelegate as? AppDelegate) ?? AppDelegate()
+        let previousPrimary = appDelegate.ghostManager
+        let previousAdditional = appDelegate.additionalGhosts
+        application.delegate = appDelegate
+        defer {
+            appDelegate.ghostManager = previousPrimary
+            appDelegate.additionalGhosts = previousAdditional
+            application.delegate = previousDelegate
+        }
+
+        // 起動中ゴーストが無ければ、ReceiverGhostName 付きは 512
+        appDelegate.ghostManager = nil
+        appDelegate.additionalGhosts = []
+        #expect(!LiveSstpRoutingRegistry.live.hasGhosts())
+        #expect(await dispatchOffMain(receiver: "Route Secondary").contains("SSTP/1.4 512 Invisible"))
+
+        appDelegate.ghostManager = primary
+        appDelegate.additionalGhosts = [secondary]
+        let registry = LiveSstpRoutingRegistry.live
+        #expect(registry.hasGhosts())
+        #expect(registry.allGhostNames() == ["Route Primary", "Route Secondary"])
+        // descript.txt の name もフォルダ名も、大小文字を無視して照合する
+        #expect(registry.contains(ghostName: "route secondary"))
+        #expect(registry.contains(ghostName: "ourin-route-secondary"))
+        #expect(!registry.contains(ghostName: "Route Missing"))
+
+        #expect(await dispatchOffMain(receiver: "Route Secondary").contains("SSTP/1.4 200 OK"))
+        #expect(await dispatchOffMain(receiver: "Route%20Primary").contains("SSTP/1.4 200 OK"))
+        #expect(await dispatchOffMain(receiver: "Route Missing").contains("SSTP/1.4 404 Not Found"))
     }
 
     @Test
