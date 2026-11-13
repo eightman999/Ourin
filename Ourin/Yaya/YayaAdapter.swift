@@ -20,12 +20,15 @@ struct YayaRequest: Codable {
     let save_file: String?
     /// `raw_request` 用。辞書の `request` へそのまま渡す要求文。
     let raw: String?
+    /// EXECUTE / EXECUTE_WAIT をホスト（`YayaExecutionGate`）へ委ねる。本体の load では常に true。
+    let host_execute: Bool?
 
     // Convenience initializer that keeps existing call sites simple.
     init(cmd: String, ghost_root: String? = nil, dic: [String]? = nil, dic_entries: [[String: String]]? = nil,
          encoding: String? = nil, env: [String:String]? = nil, method: String? = nil,
          id: String? = nil, headers: [String:String]? = nil, ref: [String]? = nil,
-         messagePath: String? = nil, fncdepth: Int? = nil, saveFile: String? = nil, raw: String? = nil) {
+         messagePath: String? = nil, fncdepth: Int? = nil, saveFile: String? = nil, raw: String? = nil,
+         hostExecute: Bool? = nil) {
         self.cmd = cmd; self.ghost_root = ghost_root; self.dic = dic; self.dic_entries = dic_entries
         self.encoding = encoding; self.env = env; self.method = method; self.id = id
         self.headers = headers; self.ref = ref
@@ -33,6 +36,7 @@ struct YayaRequest: Codable {
         self.fncdepth = fncdepth
         self.save_file = saveFile
         self.raw = raw
+        self.host_execute = hostExecute
     }
 }
 
@@ -53,6 +57,9 @@ final class YayaAdapter: GhostShioriRuntime {
     /// Resource manager for handling SHIORI resource GET requests
     public var resourceManager: ResourceManager?
     private let saoriManager = SaoriManager()
+    /// EXECUTE / EXECUTE_WAIT の確認・許可リスト・実行を担う。
+    var executionGate = YayaExecutionGate.shared
+    private var currentGhostRoot: URL?
 
     /// FMO スナップショット供給クロージャ（READFMO 用）。
     /// AppDelegate が起動時に設定する。`id.key\x01value\r\n` 形式の文字列を返すこと。
@@ -182,6 +189,9 @@ final class YayaAdapter: GhostShioriRuntime {
             let params = req["params"] as? [String: Any] ?? [:]
             let response = handlePluginOperation(operation, params: params)
             try sendJSONObject(response)
+        case "execute":
+            let params = payload["params"] as? [String: Any] ?? [:]
+            try sendJSONObject(executionGate.handle(params: params, ghostRoot: currentGhostRoot))
         case "fmo":
             // READFMO からの同期問い合わせ。現在の FMO スナップショットを返す。
             let req = payload["params"] as? [String: Any] ?? [:]
@@ -260,7 +270,9 @@ final class YayaAdapter: GhostShioriRuntime {
         let req = YayaRequest(cmd: "load", ghost_root: ghostRoot.path, dic: dicEntries.map { $0.path },
                               dic_entries: structured, encoding: encoding,
                               env: ["LANG":"ja_JP.UTF-8"], method: nil, id: nil,
-                              headers: ["Charset":"UTF-8"], ref: nil, fncdepth: functionDepthLimit, saveFile: saveFile)
+                              headers: ["Charset":"UTF-8"], ref: nil, fncdepth: functionDepthLimit, saveFile: saveFile,
+                              hostExecute: true)
+        currentGhostRoot = ghostRoot
 
         // 辞書ロードはタイムアウト付きで実行する。
         // ヘルパー側のパース不具合（無限ループ等）でロードが返らなくても、
