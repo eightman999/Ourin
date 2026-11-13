@@ -516,6 +516,9 @@
 "版数が想定と違います: %@" = "Unexpected version: %@";
 "署名を確認できません: %@" = "Could not verify the signature: %@";
 "このビルドは配布版として署名されていないため、自動アップデートできません" = "This build is not signed for distribution and cannot update itself";
+"Web からのインストール確認" = "Confirm installation from the web";
+"次の NAR を Web からインストールしますか？\n\n配布元ホスト: %1$@\n名前: %2$@\n種類: %3$@\nURL: %4$@\n\n信頼できる配布元でなければキャンセルしてください。" = "Install this NAR from the web?\n\nSource host: %1$@\nName: %2$@\nType: %3$@\nURL: %4$@\n\nCancel unless you trust the source.";
+"インストール" = "Install";
 "ゴーストがプログラムの実行を要求しています" = "A ghost is requesting to run a program";
 "実行ファイル: %@\n引数: %@" = "Executable: %@\nArguments: %@";
 "開く対象: %@" = "Open: %@";

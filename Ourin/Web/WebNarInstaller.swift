@@ -169,31 +169,16 @@ public enum WebNarInstaller {
                 response: response,
                 sourceURL: sourceURL
             )
-            log.info("downloaded: \(archiveURL?.path ?? localURL.path)")
-            if let appDelegate = AppDelegate.resolve(),
-               let ghostManager = appDelegate.ghostManager {
-                switch ghostManager.installNarFile(archiveURL ?? localURL) {
-                case .installed(let result):
-                    // Web 経路は AppDelegate.installNars を経由しないため、
-                    // SHIORI 側で完了イベントを発火しても PLUGIN には届かない。
-                    // D&D／関連付けと同じ実設置対象一覧を通知する。
-                    appDelegate.pluginDispatcher?.onInstallComplete(objects: result.objects)
-                    log.info("install finished")
-                case .refused:
-                    log.info("install refused")
-                case .failed(let error):
-                    log.error("install failed: \(error.localizedDescription)")
-                }
-            } else {
-                EventBridge.shared.notifyCustom("OnInstallBegin", params: [:])
-                let result = try installLocalNar(archiveURL ?? localURL)
-                if let object = result.objects.first {
-                    EventBridge.shared.notifyCustom("OnInstallComplete", refs: [
-                        "identifier": object.identifier,
-                        "name": object.name
-                    ])
-                }
-                AppDelegate.resolve()?.pluginDispatcher?.onInstallComplete(objects: result.objects)
+            let archive = archiveURL ?? localURL
+            log.info("downloaded: \(archive.path)")
+            let approved = try installAfterConfirmation(
+                archiveURL: archive,
+                sourceURL: sourceURL,
+                confirm: presentConfirmation,
+                install: installApprovedArchive
+            )
+            if !approved {
+                log.info("install cancelled by user")
             }
         } catch {
             log.error("install failed: \(String(describing: error))")
@@ -203,6 +188,88 @@ public enum WebNarInstaller {
         }
 
         NSLog("[WebNarInstaller] downloaded: \(sourceURLString)")
+    }
+
+    /// Web 経由インストールの確認ダイアログに出す内容。
+    struct InstallConfirmation: Equatable {
+        let host: String
+        let name: String
+        let type: String
+        let url: String
+    }
+
+    /// ダウンロード済み NAR の install.txt を読み、確認内容を作る。
+    static func confirmation(forArchive archiveURL: URL, sourceURL: URL) throws -> InstallConfirmation {
+        let manifest = try NarInstaller().inspectManifest(fromNar: archiveURL)
+        let name = manifest.name?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return InstallConfirmation(
+            host: sourceURL.host ?? "",
+            name: name.isEmpty ? manifest.directory : name,
+            type: manifest.type.trimmingCharacters(in: .whitespacesAndNewlines),
+            url: sourceURL.absoluteString
+        )
+    }
+
+    /// ユーザーが承認したときだけ `install` を呼ぶ。承認されなければ何も設置せず false を返す。
+    @discardableResult
+    static func installAfterConfirmation(
+        archiveURL: URL,
+        sourceURL: URL,
+        confirm: (InstallConfirmation) -> Bool,
+        install: (URL) throws -> Void
+    ) throws -> Bool {
+        let request = try confirmation(forArchive: archiveURL, sourceURL: sourceURL)
+        guard confirm(request) else { return false }
+        try install(archiveURL)
+        return true
+    }
+
+    private static func presentConfirmation(_ request: InstallConfirmation) -> Bool {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = NSLocalizedString("Web からのインストール確認", comment: "Web NAR install confirmation title")
+        alert.informativeText = String(
+            format: NSLocalizedString("次の NAR を Web からインストールしますか？\n\n配布元ホスト: %1$@\n名前: %2$@\n種類: %3$@\nURL: %4$@\n\n信頼できる配布元でなければキャンセルしてください。", comment: "Web NAR install confirmation message"),
+            request.host,
+            request.name,
+            request.type,
+            request.url
+        )
+        let installButton = alert.addButton(withTitle: NSLocalizedString("インストール", comment: "Web NAR install confirm button"))
+        let cancelButton = alert.addButton(withTitle: NSLocalizedString("キャンセル", comment: "Cancel"))
+        // Return キーで誤って承認しないよう、既定ボタンはキャンセルにする。
+        installButton.keyEquivalent = ""
+        cancelButton.keyEquivalent = "\r"
+        NSApplication.shared.activate(ignoringOtherApps: true)
+        return alert.runModal() == .alertFirstButtonReturn
+    }
+
+    private static func installApprovedArchive(_ archive: URL) throws {
+        if let appDelegate = AppDelegate.resolve(),
+           let ghostManager = appDelegate.ghostManager {
+            switch ghostManager.installNarFile(archive) {
+            case .installed(let result):
+                // Web 経路は AppDelegate.installNars を経由しないため、
+                // SHIORI 側で完了イベントを発火しても PLUGIN には届かない。
+                // D&D／関連付けと同じ実設置対象一覧を通知する。
+                appDelegate.pluginDispatcher?.onInstallComplete(objects: result.objects)
+                log.info("install finished")
+            case .refused:
+                log.info("install refused")
+            case .failed(let error):
+                log.error("install failed: \(error.localizedDescription)")
+            }
+        } else {
+            EventBridge.shared.notifyCustom("OnInstallBegin", params: [:])
+            let result = try installLocalNar(archive)
+            if let object = result.objects.first {
+                EventBridge.shared.notifyCustom("OnInstallComplete", refs: [
+                    "identifier": object.identifier,
+                    "name": object.name
+                ])
+            }
+            AppDelegate.resolve()?.pluginDispatcher?.onInstallComplete(objects: result.objects)
+        }
     }
 
     /// http を許可するかを環境変数/ユーザデフォルトから判定
