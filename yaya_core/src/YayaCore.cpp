@@ -181,7 +181,7 @@ std::string YayaCore::processCommand(const std::string &line) {
                 response["error"] = "message_path required";
             }
         } else if (cmd == "load") {
-            hostExecution_ = req.value("host_execute", false);
+            // host_execute は互換のため受け付けるが、EXECUTE は常にホストへ委ねる。
             std::string ghostRoot = req.value("ghost_root", "");
             std::string encoding = req.value("encoding", "auto");
 

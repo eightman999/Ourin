@@ -22,8 +22,7 @@ public:
     
     // Execute system command
     virtual nlohmann::json executeCommand(const std::string& command, bool wait) = 0;
-    // Plugin packages must delegate execution to the host's explicit mapping.
-    virtual bool requiresHostExecution() const { return false; }
+    // EXECUTE / EXECUTE_WAIT は常にこの経路でホストへ委ねる。
     virtual nlohmann::json executeCommandWithArguments(const std::string& command, bool wait, const std::string& arguments) {
         if (!arguments.empty()) return {{"ok", false}, {"status", 501}};
         return executeCommand(command, wait);

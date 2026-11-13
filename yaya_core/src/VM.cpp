@@ -4170,37 +4170,24 @@ void VM::registerBuiltins() {
     
     // ===== Additional System/Utility Functions =====
     
-    // EXECUTE(command) - Execute system command (non-blocking)
+    // EXECUTE(command[, arguments]) / EXECUTE_WAIT(command[, arguments])
+    // 実行は必ずホストへ委ね、ホスト側の確認・許可リストを通す。yaya_core 自身はシェルを起動しない。
     builtins_["EXECUTE"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
-        if (callback_ && callback_->requiresHostExecution()) {
-            const auto response = callback_->executeCommandWithArguments(args[0].asString(), false,
-                args.size() > 1 ? args[1].asString() : "");
-            if (!response.value("ok", false)) { lastError_ = response.value("status", 501); return Value(0); }
-            return Value(1);
-        }
-        std::string command = args[0].asString();
-        
-        // Execute in background (non-blocking)
-        command += " &";
-        int result = system(command.c_str());
-        return Value(result == 0 ? 1 : 0);
+        if (!callback_) { lastError_ = 501; return Value(0); }
+        const auto response = callback_->executeCommandWithArguments(args[0].asString(), false,
+            args.size() > 1 ? args[1].asString() : "");
+        if (!response.value("ok", false)) { lastError_ = response.value("status", 501); return Value(0); }
+        return Value(1);
     };
-    
-    // EXECUTE_WAIT(command) - Execute and wait (blocking)
+
     builtins_["EXECUTE_WAIT"] = [this](const std::vector<Value>& args) -> Value {
         if (args.empty()) return Value(0);
-        if (callback_ && callback_->requiresHostExecution()) {
-            const auto response = callback_->executeCommandWithArguments(args[0].asString(), true,
-                args.size() > 1 ? args[1].asString() : "");
-            if (!response.value("ok", false)) { lastError_ = response.value("status", 501); return Value(-1); }
-            return Value(response.value("exit_code", 0));
-        }
-        std::string command = args[0].asString();
-        
-        // Execute and wait for completion
-        int result = system(command.c_str());
-        return Value(WEXITSTATUS(result));
+        if (!callback_) { lastError_ = 501; return Value(-1); }
+        const auto response = callback_->executeCommandWithArguments(args[0].asString(), true,
+            args.size() > 1 ? args[1].asString() : "");
+        if (!response.value("ok", false)) { lastError_ = response.value("status", 501); return Value(-1); }
+        return Value(response.value("exit_code", 0));
     };
     
     // SLEEP(milliseconds) - Sleep
