@@ -54,6 +54,47 @@ struct SakuraScriptEngineTests {
     }
 
     @Test
+    func escapedPercentBeforeVariableNameIsNotExpanded() async throws {
+        let engine = SakuraScriptEngine()
+        // \% の直後が環境変数名でも、% は文字として残り展開されない
+        #expect(engine.parse(script: "\\%month") == [.text("%month")])
+        #expect(engine.parse(script: "a\\%month b\\%day") == [.text("a%month b%day")])
+        #expect(engine.parse(script: "\\%month", expandEnvironment: false) == [.text("%month")])
+        // 通常の %month は展開される
+        guard case .text(let text) = engine.parse(script: "%month").first else {
+            Issue.record("Expected text token")
+            return
+        }
+        #expect(text != "%month")
+        #expect(Int(text) != nil)
+    }
+
+    @Test
+    func escapedPercentSurvivesDisplayTranslation() async throws {
+        let engine = SakuraScriptEngine()
+        // translateForDisplay は先に expandEnvironment(in:) を掛け、その結果を展開なしで解析する
+        let translated = engine.expandEnvironment(in: "\\%month")
+        #expect(translated == "\\%month")
+        #expect(engine.parse(script: translated, expandEnvironment: false) == [.text("%month")])
+    }
+
+    @Test
+    func escapedBackslashBeforePercentVariableIsStillExpanded() async throws {
+        let engine = SakuraScriptEngine()
+        // \\ の直後の %month は \% ではないので展開される
+        guard case .text(let text) = engine.parse(script: "\\\\%month").first else {
+            Issue.record("Expected text token")
+            return
+        }
+        #expect(text.hasPrefix("\\"))
+        #expect(Int(text.dropFirst()) != nil)
+
+        let translated = engine.expandEnvironment(in: "\\\\%month")
+        #expect(translated.hasPrefix("\\\\"))
+        #expect(!translated.contains("%month"))
+    }
+
+    @Test
     func escapedBracketInArguments() async throws {
         let engine = SakuraScriptEngine()
         // \] inside brackets should produce a literal ]

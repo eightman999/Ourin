@@ -63,7 +63,7 @@ public final class SakuraScriptEngine {
     /// UKADOCの表示前変換順序（環境変数→OnTranslate→MAKOTO）の先頭段を明示する。
     /// 変換後スクリプトは `runPreprocessed` へ渡し、OnTranslate/MAKOTOの返値を再展開しない。
     public func expandEnvironment(in script: String) -> String {
-        envExpander.expand(text: script)
+        envExpander.expand(script: script)
     }
 
     public func containsTextInPreprocessedScript(_ script: String) -> Bool {
@@ -149,13 +149,20 @@ public final class SakuraScriptEngine {
     func parse(script: String, expandEnvironment: Bool = true) -> [Token] {
         var tokens: [Token] = []
         var buffer = ""
+        // `\%` で出した `%` までの展開済みテキスト。以降の文字と合わせて変数名に読まれないよう分けて持つ。
+        var resolved = ""
         let chars = Array(script)
         var i = 0
 
+        func expandedBuffer() -> String {
+            expandEnvironment ? envExpander.expand(text: buffer) : buffer
+        }
+
         func flush() {
-            guard !buffer.isEmpty else { return }
-            tokens.append(.text(expandEnvironment ? envExpander.expand(text: buffer) : buffer))
+            guard !buffer.isEmpty || !resolved.isEmpty else { return }
+            tokens.append(.text(resolved + expandedBuffer()))
             buffer.removeAll()
+            resolved.removeAll()
         }
 
         func readBracket(start: Int) -> (String, Int)? {
@@ -246,8 +253,10 @@ public final class SakuraScriptEngine {
                     i += 2
                     continue
                 }
-                if next == "%" { // escaped percent → literal %
-                    buffer.append("%")
+                if next == "%" { // escaped percent → literal %（直後の文字と合わせた環境変数の展開はしない）
+                    resolved += expandedBuffer()
+                    resolved.append("%")
+                    buffer.removeAll()
                     i += 2
                     continue
                 }
