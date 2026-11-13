@@ -191,6 +191,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         return DispatchQueue.main.sync { self.resolveGhostManager(headers: headers) }
     }
 
+    /// SSTP のルーティング事前判定（ReceiverGhostName の 512/404、EXECUTE GetNames 系）に使う、
+    /// 起動中ゴースト（プライマリ＋追加、プライマリが先頭）の名前。
+    /// `name` は descript.txt の name（`ghostConfig` 未ロード中はフォルダ名）、`folderName` はインストールフォルダ名。
+    /// 宛先は `resolveGhostManager` と同じく name / フォルダ名のどちらでも指定できる。
+    /// `ghostManager` / `additionalGhosts` を読むため、メインスレッドで呼ぶこと
+    /// （バックグラウンドの SSTP キューからは `LiveSstpRoutingRegistry` がメインへ同期で戻す）。
+    func runningGhostRoutingNames() -> [(name: String, folderName: String)] {
+        allGhostManagers.map { manager in
+            let folderName = manager.ghostURL.lastPathComponent
+            let configuredName = manager.ghostConfig?.name
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            return (name: configuredName.isEmpty ? folderName : configuredName, folderName: folderName)
+        }
+    }
+
     /// DevTools のゴースト選択値が、設定名またはインストールフォルダ名に一致するかを判定する。
     /// SSTP の ReceiverGhostName と同じ大小文字・percent encoding 規則を使う。
     static func ghostSelectionMatches(
