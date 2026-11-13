@@ -679,4 +679,67 @@ extension SSTPDispatcherTests {
 
         #expect(resp.contains("SSTP/1.4 420"))
     }
+
+
+    // MARK: - external からの副作用ある EXECUTE の拒否
+
+    @Test(arguments: [
+        ("urlexec", ["x-ukagaka-link:type=install&url=https%3A%2F%2Fexample.com%2Fevil.nar"]),
+        ("ssfexec", ["/System/Applications/Utilities/Terminal.app"]),
+        ("setproperty", ["currentghost.name", "evil"]),
+        ("callghost", ["Emily"]),
+        ("settrayicon", ["icon.ico"]),
+        ("dumpsurface", ["/tmp"]),
+        ("tasklistexec", ["open", "/tmp"]),
+        ("quiet", [String]())
+    ])
+    func executeSideEffectCommandFromExternalReturns420(command: String, args: [String]) async throws {
+        let spy = SpySstpDispatcherHost()
+        var headers = ["Command": command, "SecurityLevel": "external"]
+        for (index, arg) in args.enumerated() {
+            headers["Reference\(index)"] = arg
+        }
+        let req = SSTPRequest(method: "EXECUTE", version: "SSTP/1.4", headers: headers)
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 420"))
+        #expect(spy.effects.isEmpty)
+    }
+
+    @Test
+    func executeURLExecWithNullSecurityOriginReturns420() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.1",
+            headers: [
+                "Command": "urlexec[https://example.com]",
+                "SecurityOrigin": "null"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.1 420"))
+        #expect(!spy.effects.contains { $0.kind == .openURL("https://example.com") })
+    }
+
+    @Test
+    func executeReadOnlyCommandFromExternalIsAllowed() async throws {
+        let spy = SpySstpDispatcherHost()
+        let req = SSTPRequest(
+            method: "EXECUTE",
+            version: "SSTP/1.4",
+            headers: [
+                "Command": "GetShortVersion",
+                "SecurityLevel": "external"
+            ]
+        )
+
+        let resp = SSTPDispatcher.dispatch(request: req, host: spy, bridge: bridge)
+
+        #expect(resp.contains("SSTP/1.4 200 OK"))
+        #expect(spy.effects.isEmpty)
+    }
 }

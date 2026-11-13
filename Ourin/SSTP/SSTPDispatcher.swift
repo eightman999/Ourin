@@ -493,6 +493,20 @@ public enum SSTPDispatcher {
             ? Array(refs.dropFirst())
             : parsedCommand.bracketArgs
 
+        // external 要求（localhost 以外の Origin、Origin: null を含む）には読み取り専用コマンドだけを許す。
+        // urlexec / ssfexec / setproperty などは Web ページからの CSRF 的な要求で副作用を起こせるため 420 で拒否する。
+        if resolveSecurityLevel(from: request.headers) == "external",
+           !externalAllowedExecuteCommands.contains(commandKey) {
+            return buildResponse(
+                version: version,
+                status: 420,
+                charset: charset,
+                script: nil,
+                data: nil,
+                responseHeaders: collectPassThruHeaders(from: request.headers)
+            )
+        }
+
         if let commandResponse = handleExtendedExecuteCommand(
             commandKey: commandKey,
             commandArgs: commandArgs,
@@ -555,6 +569,16 @@ public enum SSTPDispatcher {
         }
         return routeToShiori(request: request, method: .execute, securityContext: securityContext, isOwned: isOwned, host: host, bridge: bridge, routingRegistry: routingRegistry)
     }
+
+    /// SecurityLevel が external の EXECUTE で許可する、副作用の無い読み取り専用コマンド。
+    /// getproperty はローカルパスなどを返し得るため含めない。
+    static let externalAllowedExecuteCommands: Set<String> = [
+        "getname", "getghostname", "getnames", "getnamelist",
+        "getshellname", "getballoonname",
+        "getghostnamelist", "getshellnamelist", "getballoonnamelist",
+        "getheadlinenamelist", "getpluginnamelist",
+        "getversion", "getshortversion"
+    ]
 
     private static func handleExtendedExecuteCommand(
         commandKey: String,

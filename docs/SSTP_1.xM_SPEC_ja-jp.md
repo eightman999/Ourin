@@ -78,6 +78,7 @@
 ## 8. SSTP over HTTP（互換）
 - **エンドポイント**：`POST http://localhost:9801/api/sstp/v1`、`Content‑Type: text/plain`、**Content‑Length 必須**。  
 - **応答**：HTTP は常に **200 OK**（中身は SSTP レスポンス）。**Origin が localhost 以外**の場合は**強制的に external**扱いとなる。
+- **external の EXECUTE**：`GetName`/`GetVersion` 等の読み取り専用コマンド（`SSTPDispatcher.externalAllowedExecuteCommands`）だけを受理し、`urlexec`/`ssfexec`/`setproperty`/`callghost` など副作用のあるコマンドや SHIORI へ回すコマンドは **420** で拒否する。
 
 ## 9. 例（SEND/NOTIFY/EXECUTE）
 

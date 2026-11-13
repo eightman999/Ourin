@@ -96,6 +96,7 @@
 ## 8. SSTP over HTTP (compatibility)
 - **Endpoint**: `POST http://localhost:9801/api/sstp/v1`, `Content-Type: text/plain`, **Content-Length required**.
 - **Response**: HTTP always returns **200 OK** (body is the SSTP response). **Origin other than localhost is treated as external** unconditionally.
+- **External EXECUTE**: only read-only commands such as `GetName`/`GetVersion` (`SSTPDispatcher.externalAllowedExecuteCommands`) are accepted; side-effecting commands such as `urlexec`/`ssfexec`/`setproperty`/`callghost`, and commands that would be routed to SHIORI, are refused with **420**.
 
 ## 9. Examples (SEND/NOTIFY/EXECUTE)
 
