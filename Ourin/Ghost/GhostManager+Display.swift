@@ -965,6 +965,14 @@ extension GhostManager {
         }
     }
 
+    /// `path` が `root` 自身かその配下か。`/ghost/foo` が `/ghost/foobar` を含むと誤判定しないよう区切りまで比べる。
+    static func isPath(_ path: String, inside root: String) -> Bool {
+        guard !root.isEmpty else { return false }
+        if path == root { return true }
+        let prefix = root.hasSuffix("/") ? root : root + "/"
+        return path.hasPrefix(prefix)
+    }
+
     /// Open a file path with option parsing used by \![open,file,*].
     /// By default, paths outside ghost root and the public Ourin base folder are denied for safety.
     func openFilePath(path: String, line: Int?, appName: String?, allowExternal: Bool) {
@@ -974,8 +982,8 @@ extension GhostManager {
         let standardized = resolvedURL.standardizedFileURL.path
         let ghostRoot = ghostURL.standardizedFileURL.path
         let publicRoot = (try? OurinPaths.baseDirectory().standardizedFileURL.path) ?? ""
-        let isAllowedPublicResource = !publicRoot.isEmpty && standardized.hasPrefix(publicRoot)
-        if !allowExternal && !standardized.hasPrefix(ghostRoot) && !isAllowedPublicResource {
+        let isAllowedPublicResource = !publicRoot.isEmpty && Self.isPath(standardized, inside: publicRoot)
+        if !allowExternal && !Self.isPath(standardized, inside: ghostRoot) && !isAllowedPublicResource {
             Log.info("[GhostManager] Refused to open external file path: \(standardized)")
             EventBridge.shared.notifyCustom("OnSecurityWarning", refs: [
                 "source": "open_file_denied",

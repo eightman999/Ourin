@@ -2380,13 +2380,14 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
             return
         }
         let translated = translateForDisplay(script, context: translationContext)
-        runTranslatedNotifyScript(translated)
+        runTranslatedNotifyScript(translated, isExternal: translationContext.isSSTP)
     }
 
     /// 既に翻訳済みのNOTIFY由来スクリプトを、再翻訳せず適用する。
-    func runTranslatedNotifyScript(_ script: String) {
+    func runTranslatedNotifyScript(_ script: String, isExternal: Bool = false) {
         let trimmed = script.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        currentPlaybackIsExternal = isExternal
         choiceSourceScript = trimmed
 
         let hasText = sakuraEngine.containsTextInPreprocessedScript(trimmed)
@@ -2427,6 +2428,7 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         let trimmed = translateForDisplay(script, context: .init(reasons: reasons))
             .trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        currentPlaybackIsExternal = false
         choiceSourceScript = trimmed
         recordBacklog(from: trimmed)
         pluginScriptOriginID = originPluginID
@@ -2735,10 +2737,50 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
         }
     }
 
+    /// 外部（SSTP）由来スクリプトでも実行してよい `\![execute,*]`。
+    /// filewatch / schedule-* は各処理側で外部由来を拒否する。
+    static let externallyAllowedExecuteSubcommands: Set<String> = [
+        "resetwindowpos", "resetballoonpos", "headline",
+        "filewatch", "schedule-add", "schedule-delete", "schedule-get"
+    ]
+
+    /// 外部（SSTP）由来スクリプトに許可しないコマンドを拒否し、OnSecurityWarning で知らせる。
+    func rejectExternalScriptCommand(_ command: String) {
+        Log.info("[GhostManager] Refused external script command: \(command)")
+        EventBridge.shared.notifyCustom("OnSecurityWarning", refs: [
+            "source": "external_script_denied",
+            "detail": command
+        ])
+    }
+
+    /// 外部（SSTP）由来スクリプトに許可しない `\![open,*]`。
+    /// ローカルのファイル・アプリを開く操作と、HTTP 送受信を行う操作。
+    static let externallyDeniedOpenSubcommands: Set<String> = [
+        "file", "editor", "explorer", "http", "send", "pictureviewer", "archiveviewer"
+    ]
+
+    static func isExternallyAllowedOpenCommand(_ args: [String]) -> Bool {
+        guard args.count >= 2 else { return true }
+        return !externallyDeniedOpenSubcommands.contains(args[1].lowercased())
+    }
+
+    /// 外部（SSTP）由来スクリプトから開いてよい URL か。`file:` やアプリ起動用の独自スキームは開かせない。
+    static func isExternallyOpenableURL(_ target: String) -> Bool {
+        let trimmed = target.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let url = browserURL(for: trimmed), !url.isFileURL,
+              let scheme = url.scheme?.lowercased() else { return false }
+        return scheme == "http" || scheme == "https"
+    }
+
     /// `\![execute,*]` の外部連携・ファイル操作を再生キュー上で実行する。
-    private func executeSakuraScriptExecuteCommand(args: [String]) {
+    /// - Parameter isExternal: コマンドを含むスクリプトが SSTP など外部由来か。
+    func executeSakuraScriptExecuteCommand(args: [String], isExternal: Bool) {
         guard args.count >= 2 else { return }
         let subcmd = args[1].lowercased()
+        if isExternal && !Self.externallyAllowedExecuteSubcommands.contains(subcmd) {
+            rejectExternalScriptCommand("execute,\(subcmd)")
+            return
+        }
         if subcmd == "resetwindowpos" {
             executeResetWindowPos()
         } else if subcmd == "resetballoonpos" {
@@ -2782,9 +2824,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                 executeICal(subcommand: subcmd, params: Array(args.dropFirst(2)))
             }
         } else if subcmd == "filewatch" {
-            executeFileWatch(params: Array(args.dropFirst(2)), isExternal: currentPlaybackIsExternal)
+            executeFileWatch(params: Array(args.dropFirst(2)), isExternal: isExternal)
         } else if subcmd == "schedule-add" || subcmd == "schedule-delete" || subcmd == "schedule-get" {
-            executeGhostSchedule(subcommand: subcmd, arguments: Array(args.dropFirst(2)), isExternal: currentPlaybackIsExternal)
+            executeGhostSchedule(subcommand: subcmd, arguments: Array(args.dropFirst(2)), isExternal: isExternal)
         }
     }
 
@@ -3379,6 +3421,10 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                         playbackQueue.append(.deferredCommand { [weak self] in
                             self?.setBalloonMarker(marker)
                         })
+                    } else if first == "open", args.count >= 2,
+                              currentPlaybackIsExternal,
+                              !Self.isExternallyAllowedOpenCommand(args) {
+                        rejectExternalScriptCommand("open,\(args[1].lowercased())")
                     } else if first == "open", args.count >= 2 {
                         let openType = args[1].lowercased()
                         switch openType {
@@ -3530,7 +3576,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                                 self.openBacklogViewer()
                             })
                         case "browser":
-                            if args.count >= 3 {
+                            if args.count >= 3, currentPlaybackIsExternal, !Self.isExternallyOpenableURL(args[2]) {
+                                rejectExternalScriptCommand("open,browser")
+                            } else if args.count >= 3 {
                                 let target = args[2]
                                 playbackQueue.append(.deferredCommand {
                                     self.openURL(target)
@@ -3655,9 +3703,13 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             })
                         default:
                             // \![open,URL] は未知のサブコマンドとして捨てず、URLとして委譲する。
-                            playbackQueue.append(.deferredCommand {
-                                self.openURL(args[1])
-                            })
+                            if currentPlaybackIsExternal && !Self.isExternallyOpenableURL(args[1]) {
+                                rejectExternalScriptCommand("open,url")
+                            } else {
+                                playbackQueue.append(.deferredCommand {
+                                    self.openURL(args[1])
+                                })
+                            }
                         }
                     } else if first == "close", args.count >= 2 {
                         let closeType = args[1].lowercased()
@@ -4018,8 +4070,9 @@ class GhostManager: NSObject, SakuraScriptEngineDelegate {
                             self?.executeUnlockCommand(args: args)
                         })
                     } else if first == "execute", args.count >= 2 {
+                        let isExternal = currentPlaybackIsExternal
                         playbackQueue.append(.deferredCommand { [weak self] in
-                            self?.executeSakuraScriptExecuteCommand(args: args)
+                            self?.executeSakuraScriptExecuteCommand(args: args, isExternal: isExternal)
                         })
                     } else if first == "create", args.count >= 2 {
                         let createType = args[1].lowercased()
