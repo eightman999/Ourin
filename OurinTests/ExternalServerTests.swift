@@ -116,6 +116,53 @@ struct ExternalServerTests {
     }
 
     @Test
+    func httpContentLengthRejectsNegativeAndOversizedValues() throws {
+        let max = 64 * 1024
+        #expect(SstpHttpServer.validateContentLength(["75"], maxSize: max) == .valid(75))
+        #expect(SstpHttpServer.validateContentLength(["0"], maxSize: max) == .valid(0))
+        #expect(SstpHttpServer.validateContentLength(["\(max)"], maxSize: max) == .valid(max))
+        #expect(SstpHttpServer.validateContentLength([], maxSize: max) == .missing)
+        // 負数は Range 生成でトラップするため 400 として拒否する
+        #expect(SstpHttpServer.validateContentLength(["-1"], maxSize: max) == .invalid)
+        #expect(SstpHttpServer.validateContentLength(["+5"], maxSize: max) == .invalid)
+        #expect(SstpHttpServer.validateContentLength(["abc"], maxSize: max) == .invalid)
+        #expect(SstpHttpServer.validateContentLength([""], maxSize: max) == .invalid)
+        #expect(SstpHttpServer.validateContentLength(["3", "4"], maxSize: max) == .invalid)
+        #expect(SstpHttpServer.validateContentLength(["3", "3"], maxSize: max) == .valid(3))
+        // maxSize 超過・Int 範囲外は 413
+        #expect(SstpHttpServer.validateContentLength(["\(max + 1)"], maxSize: max) == .tooLarge)
+        #expect(SstpHttpServer.validateContentLength(["99999999999999999999999"], maxSize: max) == .tooLarge)
+    }
+
+    @Test
+    func httpRequestEvaluationRejectsMalformedContentLengthWithoutCrashing() throws {
+        let max = 64 * 1024
+        func evaluate(_ headers: String, body: String = "") -> SstpHttpServer.HttpRequestEvaluation {
+            let raw = "POST /api/sstp/v1 HTTP/1.1\r\nHost: 127.0.0.1:9801\r\n" + headers + "\r\n" + body
+            return SstpHttpServer.evaluateRequest(Data(raw.utf8), maxSize: max)
+        }
+        #expect(evaluate("Content-Length: -1\r\n") == .error(400))
+        #expect(evaluate("Content-Length:\r\n") == .error(400))
+        #expect(evaluate("Content-Length:   \r\n") == .error(400))
+        #expect(evaluate("Content-Length: abc\r\n") == .error(400))
+        #expect(evaluate("Content-Length: 3\r\nContent-Length: 4\r\n", body: "abcd") == .error(400))
+        #expect(evaluate("Content-Length: \(max + 1)\r\n") == .error(413))
+        #expect(evaluate("Content-Length: 3\r\nOrigin:\r\n", body: "abc") == .error(403))
+        #expect(evaluate("Origin: null\r\n") == .error(411))
+        #expect(evaluate("Content-Length: 5\r\n", body: "abc") == .incomplete)
+        #expect(evaluate("Content-Length: 3\r\nOrigin: null\r\n", body: "abc")
+                == .ready(body: Data("abc".utf8), origin: "null"))
+        #expect(SstpHttpServer.evaluateRequest(Data("POST /api/sstp/v1 HTTP/1.1\r\n".utf8), maxSize: max) == .incomplete)
+        let empty = try #require(SstpHttpServer.splitHeaderField("Content-Length:"))
+        #expect(empty.name == "Content-Length")
+        #expect(empty.value == "")
+        let origin = try #require(SstpHttpServer.splitHeaderField("Origin: http://localhost:3000"))
+        #expect(origin.name == "Origin")
+        #expect(origin.value == "http://localhost:3000")
+        #expect(SstpHttpServer.splitHeaderField("NoColon") == nil)
+    }
+
+    @Test
     func httpBodySecurityHeadersCannotSpoofOrigin() throws {
         // Origin: null のページが本文に localhost の SecurityOrigin を書いても、HTTP の Origin が使われる。
         let raw = "SEND SSTP/1.4\r\nSecurityOrigin: http://localhost\r\nsecuritylevel: local\r\nSender: Test\r\nID: owned-a\r\nCharset: UTF-8\r\n\r\n"
