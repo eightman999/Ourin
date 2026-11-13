@@ -41,7 +41,9 @@ struct Node {
 struct LiteralNode : Node {
     std::string value;
     bool isString;
-    
+    // シングルクォートの文字列。YAYA では `%(…)` も `%name` も展開しない。
+    bool plainString = false;
+
     explicit LiteralNode(const std::string& v, bool str = false) : value(v), isString(str) {
         type = NodeType::Literal;
     }
