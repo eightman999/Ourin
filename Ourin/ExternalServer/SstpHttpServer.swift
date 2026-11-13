@@ -51,58 +51,18 @@ public final class SstpHttpServer {
         let deadline = DispatchTime.now() + config.timeout
         // ヘッダ＋本文が揃っていれば処理して true を返す。途中なら false（追加読込が必要）。
         func tryProcess() -> Bool {
-            if buffer.count > self.config.maxSize { self.sendErrorResponse(conn, status: 413); return true }
-            guard let headerEnd = buffer.range(of: Data([13,10,13,10])) else { return false }
-            let header = buffer.subdata(in: 0..<headerEnd.upperBound)
-            let headersText = String(data: header, encoding: .utf8) ?? ""
-            let headerLines = Self.splitHeaderLines(headersText)
-            guard let requestLine = headerLines.first,
-                  let request = Self.parseRequestLine(requestLine) else {
-                self.sendErrorResponse(conn, status: 400)
+            let body: Data
+            let originHeader: String?
+            switch Self.evaluateRequest(buffer, maxSize: self.config.maxSize) {
+            case .incomplete:
+                return false
+            case .error(let status):
+                self.sendErrorResponse(conn, status: status)
                 return true
+            case .ready(let readyBody, let origin):
+                body = readyBody
+                originHeader = origin
             }
-            guard request.method == "POST" else {
-                self.sendErrorResponse(conn, status: 405)
-                return true
-            }
-            guard request.path == "/api/sstp/v1" else {
-                self.sendErrorResponse(conn, status: 404)
-                return true
-            }
-
-            var contentLengthValues: [String] = []
-            var originHeader: String?
-            for line in headerLines.dropFirst() {
-                if line.lowercased().hasPrefix("content-length:") {
-                    let v = line.split(separator: ":", maxSplits: 1)[1].trimmingCharacters(in: .whitespaces)
-                    contentLengthValues.append(v)
-                } else if line.lowercased().hasPrefix("origin:") {
-                    let v = line.split(separator: ":", maxSplits: 1)[1].trimmingCharacters(in: .whitespaces)
-                    originHeader = v
-                }
-            }
-            let contentLength: Int
-            switch Self.validateContentLength(contentLengthValues, maxSize: self.config.maxSize) {
-            case .valid(let length):
-                contentLength = length
-            case .missing:
-                self.sendErrorResponse(conn, status: 411)
-                return true
-            case .invalid:
-                self.sendErrorResponse(conn, status: 400)
-                return true
-            case .tooLarge:
-                self.sendErrorResponse(conn, status: 413)
-                return true
-            }
-            if let originHeader, !Self.isAcceptedOrigin(originHeader) {
-                self.sendErrorResponse(conn, status: 403)
-                return true
-            }
-            let bodyStart = headerEnd.upperBound
-            // 本文がまだ全部届いていなければ追加読込を待つ。
-            guard buffer.count - bodyStart >= contentLength else { return false }
-            let body = buffer.subdata(in: bodyStart..<bodyStart+contentLength)
             guard let sstp = Self.decode(body) else { return false }
             let start = Date()
             let routedSstp = Self.injectSecurityHeaders(into: sstp, origin: originHeader)
@@ -132,6 +92,59 @@ public final class SstpHttpServer {
         }
         if tryProcess() { return }
         readMore()
+    }
+
+    enum HttpRequestEvaluation: Equatable {
+        /// ヘッダまたは本文が未着で追加読込が必要
+        case incomplete
+        /// HTTP エラーステータスで応答して切断する
+        case error(Int)
+        case ready(body: Data, origin: String?)
+    }
+
+    /// 受信バッファを HTTP SSTP 要求として検証し、本文を切り出す。
+    static func evaluateRequest(_ buffer: Data, maxSize: Int) -> HttpRequestEvaluation {
+        if buffer.count > maxSize { return .error(413) }
+        guard let headerEnd = buffer.range(of: Data([13,10,13,10])) else { return .incomplete }
+        let header = buffer.subdata(in: 0..<headerEnd.upperBound)
+        let headersText = String(data: header, encoding: .utf8) ?? ""
+        let headerLines = splitHeaderLines(headersText)
+        guard let requestLine = headerLines.first,
+              let request = parseRequestLine(requestLine) else {
+            return .error(400)
+        }
+        guard request.method == "POST" else { return .error(405) }
+        guard request.path == "/api/sstp/v1" else { return .error(404) }
+
+        var contentLengthValues: [String] = []
+        var originHeader: String?
+        for line in headerLines.dropFirst() {
+            guard let field = splitHeaderField(line) else { continue }
+            switch field.name.lowercased() {
+            case "content-length": contentLengthValues.append(field.value)
+            case "origin": originHeader = field.value
+            default: break
+            }
+        }
+        let contentLength: Int
+        switch validateContentLength(contentLengthValues, maxSize: maxSize) {
+        case .valid(let length): contentLength = length
+        case .missing: return .error(411)
+        case .invalid: return .error(400)
+        case .tooLarge: return .error(413)
+        }
+        if let originHeader, !isAcceptedOrigin(originHeader) { return .error(403) }
+        let bodyStart = headerEnd.upperBound
+        guard buffer.count - bodyStart >= contentLength else { return .incomplete }
+        return .ready(body: buffer.subdata(in: bodyStart..<bodyStart+contentLength), origin: originHeader)
+    }
+
+    /// `Name: value` を名前と値に分ける。値が空（`Content-Length:`）でも範囲外アクセスしない。
+    static func splitHeaderField(_ line: String) -> (name: String, value: String)? {
+        guard let colon = line.firstIndex(of: ":") else { return nil }
+        let name = line[..<colon].trimmingCharacters(in: .whitespaces)
+        let value = line[line.index(after: colon)...].trimmingCharacters(in: .whitespaces)
+        return (name, value)
     }
 
     private static func decode(_ data: Data) -> String? {

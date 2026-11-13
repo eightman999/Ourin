@@ -135,6 +135,34 @@ struct ExternalServerTests {
     }
 
     @Test
+    func httpRequestEvaluationRejectsMalformedContentLengthWithoutCrashing() throws {
+        let max = 64 * 1024
+        func evaluate(_ headers: String, body: String = "") -> SstpHttpServer.HttpRequestEvaluation {
+            let raw = "POST /api/sstp/v1 HTTP/1.1\r\nHost: 127.0.0.1:9801\r\n" + headers + "\r\n" + body
+            return SstpHttpServer.evaluateRequest(Data(raw.utf8), maxSize: max)
+        }
+        #expect(evaluate("Content-Length: -1\r\n") == .error(400))
+        #expect(evaluate("Content-Length:\r\n") == .error(400))
+        #expect(evaluate("Content-Length:   \r\n") == .error(400))
+        #expect(evaluate("Content-Length: abc\r\n") == .error(400))
+        #expect(evaluate("Content-Length: 3\r\nContent-Length: 4\r\n", body: "abcd") == .error(400))
+        #expect(evaluate("Content-Length: \(max + 1)\r\n") == .error(413))
+        #expect(evaluate("Content-Length: 3\r\nOrigin:\r\n", body: "abc") == .error(403))
+        #expect(evaluate("Origin: null\r\n") == .error(411))
+        #expect(evaluate("Content-Length: 5\r\n", body: "abc") == .incomplete)
+        #expect(evaluate("Content-Length: 3\r\nOrigin: null\r\n", body: "abc")
+                == .ready(body: Data("abc".utf8), origin: "null"))
+        #expect(SstpHttpServer.evaluateRequest(Data("POST /api/sstp/v1 HTTP/1.1\r\n".utf8), maxSize: max) == .incomplete)
+        let empty = try #require(SstpHttpServer.splitHeaderField("Content-Length:"))
+        #expect(empty.name == "Content-Length")
+        #expect(empty.value == "")
+        let origin = try #require(SstpHttpServer.splitHeaderField("Origin: http://localhost:3000"))
+        #expect(origin.name == "Origin")
+        #expect(origin.value == "http://localhost:3000")
+        #expect(SstpHttpServer.splitHeaderField("NoColon") == nil)
+    }
+
+    @Test
     func httpOriginAllowsOnlyLocalOrNull() throws {
         #expect(SstpHttpServer.isAcceptedOrigin("http://localhost:3000") == true)
         #expect(SstpHttpServer.isAcceptedOrigin("null") == true)
