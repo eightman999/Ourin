@@ -8,8 +8,17 @@ final class PluginEventDispatcher {
     private let registry: PluginRegistry
     /// OnSecondChange 用タイマー（PLUGIN descript の secondchangeinterval は plugin ごとに尊重する）
     private var timers: [Plugin: DispatchSourceTimer] = [:]
-    /// プラグインごとの直列キュー
-    private var queues: [Plugin: DispatchQueue] = [:]
+    /// プラグインごとの送信経路（直列キューと、その世代の Plugin 値）。
+    /// 再読み込みで差し替わり、タイマーやキューのスレッドからも読まれるため `stateLock` で保護する。
+    private struct Channel {
+        let plugin: Plugin
+        let queue: DispatchQueue
+        let generation: UInt64
+    }
+    private let stateLock = NSLock()
+    private var channels: [Plugin: Channel] = [:]
+    /// 再読み込みのたびに進める世代。旧世代のキューに残った送信を破棄する判定に使う。
+    private var generation: UInt64 = 0
     /// ロガー
     private let logger = CompatLogger(subsystem: "Ourin", category: "PluginEvent")
     /// version 応答で交渉したプラグインごとの文字コード（複数キュー間で共有するため要ロック）
@@ -81,12 +90,57 @@ final class PluginEventDispatcher {
         } else {
             self.xpcClient = nil
         }
+        rebuildChannels()
+    }
+
+    /// 現在の `registry.plugins` について、直列キュー・タイマーを作り、version を送る。
+    private func rebuildChannels() {
         // 各プラグイン用の直列キューを生成
+        stateLock.lock()
         for plugin in registry.plugins {
-            queues[plugin] = DispatchQueue(label: "plugin.queue." + plugin.url.lastPathComponent)
+            channels[plugin] = Channel(
+                plugin: plugin,
+                queue: DispatchQueue(label: "plugin.queue." + plugin.url.lastPathComponent),
+                generation: generation
+            )
         }
+        stateLock.unlock()
         setupTimer()
         sendVersion()
+    }
+
+    /// 旧世代のタイマー・キューを破棄する。レジストリの `unloadAll()` より前に呼び、
+    /// unload 済みの旧 Plugin へタイマーやキュー内の送信が届かないようにする。
+    private func invalidateChannels() {
+        stop()
+        stateLock.lock()
+        generation &+= 1
+        channels.removeAll()
+        stateLock.unlock()
+        // 文字コードは version 応答で再交渉する（外れたプラグインの値も残さない）。
+        charsetLock.lock()
+        pluginCharsets.removeAll()
+        charsetLock.unlock()
+    }
+
+    /// プラグインを再読み込みし、ディスパッチャを新しいプラグイン一覧へ切り替える。
+    /// 設定画面・DevTools の再読み込みは `AppDelegate.reloadPlugins()` 経由でここに来る。
+    /// 新しく見つかったプラグインにもキュー・`OnSecondChange` タイマー・version 送信が付く。
+    func reloadPlugins() {
+        invalidateChannels()
+        registry.unloadAll()
+        registry.discoverAndLoad()
+        rebuildChannels()
+    }
+
+    private func currentChannel(for plugin: Plugin) -> Channel? {
+        stateLock.lock(); defer { stateLock.unlock() }
+        return channels[plugin]
+    }
+
+    private func isCurrent(_ channel: Channel) -> Bool {
+        stateLock.lock(); defer { stateLock.unlock() }
+        return channel.generation == generation
     }
 
     // MARK: - Timer
@@ -127,13 +181,13 @@ final class PluginEventDispatcher {
         refs: [String],
         notify: Bool = false,
         securityLevel: PluginSecurityLevel = .local,
-        to plugin: Plugin,
+        to requestedPlugin: Plugin,
         callerGhost: GhostManager? = nil,
         sender: String? = nil,
         reportsFailure: Bool = false
     ) {
-        let pluginName = displayName(for: plugin)
-        guard let q = queues[plugin] else {
+        let pluginName = displayName(for: requestedPlugin)
+        guard let channel = currentChannel(for: requestedPlugin) else {
             if reportsFailure {
                 reportFailure(
                     callerGhost: callerGhost,
@@ -147,8 +201,24 @@ final class PluginEventDispatcher {
             return
         }
         let sender = sender ?? PluginFrame.hostSender
-        q.async { [weak self, logger, id, plugin, notify, pluginName, refs, reportsFailure, weak callerGhost] in
+        // 呼び出し側が持つ Plugin 値（タイマーが握る旧値など）ではなく、現世代の値で送る。
+        let plugin = channel.plugin
+        channel.queue.async { [weak self, logger, id, plugin, channel, notify, pluginName, refs, reportsFailure, weak callerGhost] in
             guard let self else { return }
+            // 待っている間に再読み込みされた場合、unload 済みの旧 Plugin へは送らない。
+            guard self.isCurrent(channel) else {
+                if reportsFailure {
+                    self.reportFailure(
+                        callerGhost: callerGhost,
+                        notifyOnly: notify,
+                        reason: "error",
+                        plugin: pluginName,
+                        event: id,
+                        references: refs
+                    )
+                }
+                return
+            }
             // version 応答で決まる文字コードを反映するため、送信直前（同じ直列キュー上）で組み立てる。
             let charset = self.charset(for: plugin)
             let req = PluginFrame(
@@ -271,12 +341,14 @@ final class PluginEventDispatcher {
         for plugin in registry.plugins {
             let initialCharset = Self.declaredCharset(registry.metas[plugin])
             let req = PluginFrame(id: "version", charset: initialCharset).build()
-            queues[plugin]?.async { [weak self, logger, req, plugin] in
-                let resp = self?.transportSend(req, to: plugin, charset: initialCharset) ?? ""
+            guard let channel = currentChannel(for: plugin) else { continue }
+            channel.queue.async { [weak self, logger, req, plugin, channel] in
+                guard let self, self.isCurrent(channel) else { return }
+                let resp = self.transportSend(req, to: plugin, charset: initialCharset)
                 let name = plugin.url.lastPathComponent
                 // 応答の Charset ヘッダを以降の通信へ適用する（無ければ Shift_JIS。PLUGIN_EVENT/2.0M §4.1）
                 if let negotiated = Self.negotiatedCharset(fromVersionResponse: resp) {
-                    self?.setCharset(negotiated, for: plugin)
+                    self.setCharset(negotiated, for: plugin)
                     logger.debug("version <- \(name): charset=\(negotiated)")
                 } else {
                     logger.debug("version request -> \(name)")

@@ -129,6 +129,59 @@ struct PluginBridgeIntegrationTests {
         #expect(failures.first?.plugin == "fixture-target")
     }
 
+    @Test @MainActor
+    func dispatcherSwitchesToReloadedPluginSet() async throws {
+        let base = PluginFixtureBuilder.temporaryBaseURL(prefix: "OurinPluginBridgeReload")
+        OurinPaths.testBaseOverride = base
+        defer {
+            OurinPaths.testBaseOverride = nil
+            try? FileManager.default.removeItem(at: base)
+        }
+
+        let pluginRoot = try OurinPaths.subdirectory("plugin")
+        let registry = PluginRegistry()
+        registry.discoverAndLoad()
+        defer { registry.unloadAll() }
+        let dispatcher = PluginEventDispatcher(registry: registry)
+        defer { dispatcher.stop() }
+
+        var failures: [(reason: String, plugin: String)] = []
+        dispatcher.onFailure = { _, _, reason, plugin, _, _ in
+            failures.append((reason, plugin))
+        }
+        func raiseUnknownEvent() {
+            dispatcher.dispatch(
+                pluginSpec: "fixture-target",
+                event: "OnUnknownFixtureEvent",
+                references: ["alpha"],
+                notifyOnly: false
+            )
+        }
+
+        // 起動時に存在しなかったプラグインには届かない。
+        raiseUnknownEvent()
+        #expect(failures.map { $0.reason } == ["notfound"])
+        failures.removeAll()
+
+        // 再読み込みで見つかったプラグインにも、キューが付いて配送される（未知イベントは 501）。
+        let fixture = try PluginFixtureBuilder.build(.target, inPluginRoot: pluginRoot)
+        dispatcher.reloadPlugins()
+        #expect(registry.plugins.count == 1)
+        raiseUnknownEvent()
+        for _ in 0..<50 where failures.isEmpty {
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        #expect(failures.map { $0.reason } == ["501"])
+        failures.removeAll()
+
+        // 再読み込みで外れたプラグインには届かない。
+        try FileManager.default.removeItem(at: fixture.packageURL)
+        dispatcher.reloadPlugins()
+        #expect(registry.plugins.isEmpty)
+        raiseUnknownEvent()
+        #expect(failures.map { $0.reason } == ["notfound"])
+    }
+
     @Test
     func utf8EchoFixtureRoundTripsThroughNativePlugin() throws {
         let fixture = try PluginFixtureBuilder.build(.utf8Echo)

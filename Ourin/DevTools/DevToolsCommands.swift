@@ -61,8 +61,7 @@ struct ModernDevToolsCommands: Commands {
     private func reloadDevTools() {
         ResourceBridge.shared.invalidateAll()
         if let appDelegate = AppDelegate.resolve() {
-            appDelegate.pluginRegistry?.unloadAll()
-            appDelegate.pluginRegistry?.discoverAndLoad()
+            appDelegate.reloadPlugins()
         }
         
         NotificationCenter.default.post(name: .devToolsReload, object: nil)
@@ -79,8 +78,7 @@ struct ModernDevToolsCommands: Commands {
     
     private func reloadPlugins() {
         if let appDelegate = AppDelegate.resolve() {
-            appDelegate.pluginRegistry?.unloadAll()
-            appDelegate.pluginRegistry?.discoverAndLoad()
+            appDelegate.reloadPlugins()
         }
     }
     
