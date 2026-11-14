@@ -728,4 +728,100 @@ struct SerikoExecutorTests {
         #expect(executor.activeAnimations[30] == nil)
         #expect(executor.activeAnimations[31] != nil)
     }
+
+    @Test
+    func needsIntervalEvaluationCoversOnlyTickDrivenIntervals() async throws {
+        // アニメーションが 0 件でも、tick で抽選される interval の定義があればホストはタイマーを止められない。
+        let tickDriven: [SerikoInterval] = [
+            .always, .sometimes, .rarely, .random(nil), .random(5), .periodic(3),
+            .combined([.sometimes, .runonce])
+        ]
+        for interval in tickDriven {
+            let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 1.0 })
+            executor.register(animations: [50: makeDefinition(id: 50, interval: interval, methods: [.overlay])])
+            #expect(executor.needsIntervalEvaluation, "\(interval)")
+        }
+
+        // trigger で起動する定義・無効な定義だけなら、今までどおりタイマーを止めてよい。
+        let notTickDriven: [SerikoInterval] = [
+            .never, .runonce, .yenE, .talk, .talkCharacters(2), .startTalk, .endTalk, .bind,
+            .unknown("x"), .combined([.bind, .runonce]), .combined([.never, .bind])
+        ]
+        for interval in notTickDriven {
+            let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 1.0 })
+            executor.register(animations: [51: makeDefinition(id: 51, interval: interval, methods: [.overlay])])
+            #expect(!executor.needsIntervalEvaluation, "\(interval)")
+        }
+
+        // 登録した定義が無い、またはパターンが空の定義は評価できない。
+        let empty = SerikoExecutor(nowProvider: Date.init, randomProvider: { 1.0 })
+        #expect(!empty.needsIntervalEvaluation)
+        empty.register(animations: [52: SerikoParser.AnimationDefinition(id: 52, interval: .always, options: [], patterns: [])])
+        #expect(!empty.needsIntervalEvaluation)
+    }
+
+    @Test
+    func sometimesStartsOnALaterTickAfterAnEmptyTick() async throws {
+        var roll = 1.0
+        let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { roll })
+        executor.register(animations: [53: makeDefinition(id: 53, interval: .sometimes, methods: [.overlay])])
+
+        // 抽選に外れて何も起動しなくても、評価の対象は残る（ホストはタイマーを止めない）。
+        executor.startLoop()
+        #expect(executor.activeAnimations.isEmpty)
+        #expect(executor.needsIntervalEvaluation)
+
+        // 次の tick で抽選に当たれば、トークなどの trigger が無くても起動する。
+        roll = 0.0
+        executor.startLoop()
+        #expect(executor.activeAnimations[53] != nil)
+    }
+
+    @Test
+    func periodicStartsAfterItsIntervalWhileEvaluationIsPending() async throws {
+        var now = Date(timeIntervalSince1970: 0)
+        let executor = SerikoExecutor(nowProvider: { now }, randomProvider: { 0.0 })
+        executor.register(animations: [54: makeDefinition(id: 54, interval: .periodic(3), methods: [.overlay])])
+
+        // 初回の評価は基準時刻を記録するだけ。
+        executor.startLoop()
+        #expect(executor.activeAnimations.isEmpty)
+        #expect(executor.needsIntervalEvaluation)
+
+        now = now.addingTimeInterval(2.9)
+        executor.startLoop()
+        #expect(executor.activeAnimations.isEmpty)
+        #expect(executor.needsIntervalEvaluation)
+
+        now = now.addingTimeInterval(0.2)
+        executor.startLoop()
+        #expect(executor.activeAnimations[54] != nil)
+    }
+
+    @Test
+    func needsIntervalEvaluationEndsForFiredRunonceAndSuppressedAlways() async throws {
+        let executor = SerikoExecutor(nowProvider: Date.init, randomProvider: { 0.0 })
+        let gated = makeDefinition(id: 55, interval: .combined([.sometimes, .runonce]), methods: [.overlay])
+        let always = makeDefinition(id: 56, interval: .always, methods: [.overlay])
+
+        // 未実行の runonce 付き複合は、起動するまで評価が必要。起動して終わると不要になる。
+        executor.register(animations: [55: gated])
+        #expect(executor.needsIntervalEvaluation)
+        executor.startLoop()
+        #expect(executor.activeAnimations[55] != nil)
+        executor.stopAllAnimations()
+        #expect(!executor.needsIntervalEvaluation)
+
+        // 定義を置き換える（サーフェス切替・再読込）と、runonce は再び評価対象になる。
+        executor.replace(animations: [55: gated, 56: always])
+        #expect(executor.needsIntervalEvaluation)
+
+        // 手動停止で抑制された always は自動起動しないため、評価対象にしない。
+        executor.replace(animations: [56: always])
+        executor.startLoop()
+        executor.stopAllAnimations(suppressAlwaysAnimations: true)
+        #expect(!executor.needsIntervalEvaluation)
+        executor.replace(animations: [56: always])
+        #expect(executor.needsIntervalEvaluation)
+    }
 }
