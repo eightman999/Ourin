@@ -1404,6 +1404,67 @@ struct GhostUtilityCommandTests {
         #expect(event?.method == "GET")
         #expect(event?.refs == ["", "file not found"])
     }
+
+    @Test @MainActor
+    func reloadShioriUnloadsLoadedRuntimeBeforeLoadingAgain() {
+        let manager = GhostManager(ghostURL: FileManager.default.temporaryDirectory
+            .appendingPathComponent("ourin-reload-shiori-missing-\(UUID().uuidString)", isDirectory: true))
+        manager.ghostConfig = GhostConfiguration(name: "ReloadShioriTest", shiori: "reload-shiori-missing.bundle")
+        let loaded = CapturingUtilityRuntime()
+        manager.shioriRuntime = loaded
+        defer { _ = manager.shutdown() }
+
+        manager.executeReload(target: "shiori", params: [])
+
+        // ロード済みでも必ずアンロードする（以前は何もせず、辞書が読み直されなかった）
+        #expect(!loaded.isLoaded)
+        // モジュールが無く再ロードは失敗するので、SHIORI なしの状態へ戻る
+        #expect(manager.shioriRuntime == nil)
+    }
+
+    @Test @MainActor
+    func reloadShioriReplacesLoadedNativeRuntimeWithNewOne() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ourin-reload-shiori-native-\(UUID().uuidString)", isDirectory: true)
+        let modules = root.appendingPathComponent("ghost/master/native", isDirectory: true)
+        try FileManager.default.createDirectory(at: modules, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let source = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .appendingPathComponent("Fixtures/shiori/native_fixture.c")
+        let compiler = Process()
+        compiler.executableURL = URL(fileURLWithPath: "/usr/bin/clang")
+        compiler.arguments = ["-dynamiclib", source.path, "-o", modules.appendingPathComponent("libyaya.dylib").path]
+        try compiler.run()
+        compiler.waitUntilExit()
+        try #require(compiler.terminationStatus == 0)
+
+        let manager = GhostManager(ghostURL: root)
+        manager.ghostConfig = GhostConfiguration.parse(from: [
+            "name": "fixture", "shiori": "yaya.dll", "shiori.macos": "native\\libyaya.dylib",
+            "shiori.version": "SHIORI/3.0"
+        ])
+        defer {
+            manager.executeUnload(target: "shiori")
+            _ = manager.shutdown()
+        }
+
+        manager.executeLoad(target: "shiori")
+        let first = try #require(manager.shioriRuntime)
+        let loadedMarker = modules.appendingPathComponent("native_loaded_pid.marker")
+        let unloadedMarker = modules.appendingPathComponent("native_unloaded.marker")
+        try? FileManager.default.removeItem(at: loadedMarker)
+        #expect(!FileManager.default.fileExists(atPath: unloadedMarker.path))
+
+        manager.executeReload(target: "shiori", params: [])
+
+        let second = try #require(manager.shioriRuntime)
+        #expect(second !== first)
+        #expect(!first.isLoaded)
+        #expect(second.isLoaded)
+        // 古いモジュールが unload され、新しいモジュールが load し直されている
+        #expect(FileManager.default.fileExists(atPath: unloadedMarker.path))
+        #expect(FileManager.default.fileExists(atPath: loadedMarker.path))
+    }
 }
 
 private enum ArchiveTestSupport {
